@@ -36,14 +36,20 @@ export function BookForm({
       className="grid gap-4 rounded-xl border border-stone-200 bg-white p-4 shadow-sm"
       onSubmit={onSubmit}
     >
-      {children && <div className="mb-2 text-sm font-medium text-stone-600">{children}</div>}
+      {children && (
+        <div className="mb-2 text-sm font-medium text-stone-600">
+          {children}
+        </div>
+      )}
 
       <Input
         id="title"
         label="Title"
         type="text"
         value={title}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onTitleChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onTitleChange(e.target.value)
+        }
         placeholder="Enter book title"
         autoFocus
       />
@@ -53,7 +59,9 @@ export function BookForm({
         label="Author"
         type="text"
         value={author}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onAuthorChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onAuthorChange(e.target.value)
+        }
         placeholder="Enter author name"
       />
 
@@ -62,7 +70,9 @@ export function BookForm({
         label="Genre (optional)"
         type="text"
         value={genre}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onGenreChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onGenreChange(e.target.value)
+        }
         placeholder="e.g., Fiction, Non-fiction, Mystery"
       />
 
@@ -90,11 +100,7 @@ export function BookForm({
         >
           {isEditing ? "Update Book" : "Add Book"}
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
       </div>

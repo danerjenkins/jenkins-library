@@ -114,10 +114,7 @@ export function AdminBooksPage() {
             </p>
           </div>
           {!showForm && (
-            <Button
-              variant="primary"
-              onClick={() => setShowForm(true)}
-            >
+            <Button variant="primary" onClick={() => setShowForm(true)}>
               Add Book
             </Button>
           )}
@@ -151,7 +148,9 @@ export function AdminBooksPage() {
         ) : books.length === 0 ? (
           <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
             <p className="font-medium">No books yet</p>
-            <p className="mt-1 text-xs text-stone-500">Click "Add Book" to get started!</p>
+            <p className="mt-1 text-xs text-stone-500">
+              Click "Add Book" to get started!
+            </p>
           </div>
         ) : (
           <div className="space-y-3">

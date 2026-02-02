@@ -3,14 +3,17 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: Array<{ value: string; label: string }>;
 }
 
-export function Select({ label, id, options, className, ...props }: SelectProps) {
+export function Select({
+  label,
+  id,
+  options,
+  className,
+  ...props
+}: SelectProps) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label
-          htmlFor={id}
-          className="text-sm font-medium text-stone-700"
-        >
+        <label htmlFor={id} className="text-sm font-medium text-stone-700">
           {label}
         </label>
       )}

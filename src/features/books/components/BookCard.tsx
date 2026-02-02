@@ -8,7 +8,12 @@ interface BookCardProps {
   onToggleFinished?: (bookId: string, currentFinishedStatus: boolean) => void;
 }
 
-export function BookCard({ book, variant = "view", actions, onToggleFinished }: BookCardProps) {
+export function BookCard({
+  book,
+  variant = "view",
+  actions,
+  onToggleFinished,
+}: BookCardProps) {
   const isView = variant === "view";
 
   if (isView) {
@@ -17,11 +22,7 @@ export function BookCard({ book, variant = "view", actions, onToggleFinished }: 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3
-                className={`text-lg font-semibold ${
-                  book.finished ? "text-stone-500 line-through" : "text-stone-900"
-                }`}
-              >
+              <h3 className="text-lg font-semibold text-stone-900">
                 {book.title}
               </h3>
               {book.finished && <Badge variant="success">Finished</Badge>}
@@ -60,7 +61,11 @@ export function BookCard({ book, variant = "view", actions, onToggleFinished }: 
           <p className="mt-1 text-xs text-stone-500">Genre: {book.genre}</p>
         )}
       </div>
-      {actions && <div className="flex gap-2 self-start sm:self-auto shrink-0">{actions}</div>}
+      {actions && (
+        <div className="flex gap-2 self-start sm:self-auto shrink-0">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

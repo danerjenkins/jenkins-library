@@ -6,10 +6,7 @@ export function Input({ label, id, className, ...props }: InputProps) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label
-          htmlFor={id}
-          className="text-sm font-medium text-stone-700"
-        >
+        <label htmlFor={id} className="text-sm font-medium text-stone-700">
           {label}
         </label>
       )}

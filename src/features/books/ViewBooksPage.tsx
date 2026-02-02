@@ -87,8 +87,15 @@ export function ViewBooksPage() {
     }
   });
 
-  const handleToggleFinished = async (bookId: string, currentFinished: boolean) => {
-    if (!confirm(`${currentFinished ? "Mark as unfinished" : "Mark as finished"}?`)) {
+  const handleToggleFinished = async (
+    bookId: string,
+    currentFinished: boolean,
+  ) => {
+    if (
+      !confirm(
+        `${currentFinished ? "Mark as unfinished" : "Mark as finished"}?`,
+      )
+    ) {
       return;
     }
 
