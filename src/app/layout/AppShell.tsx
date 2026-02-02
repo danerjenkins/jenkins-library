@@ -200,7 +200,7 @@ export function AppShell({ children }: AppShellProps) {
     error: "Error",
   };
   const statusClass: Record<SyncStatus, string> = {
-    idle: "text-slate-500",
+    idle: "text-stone-500",
     syncing: "text-amber-700",
     success: "text-emerald-700",
     error: "text-rose-600",
@@ -210,14 +210,14 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
-      <header className="border-b border-slate-200 bg-white/90 shadow-sm">
+      <header className="border-b border-stone-200 bg-white/90 shadow-sm">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold text-slate-800">
+              <h1 className="text-xl font-semibold text-stone-900">
                 Library Catalog
               </h1>
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+              <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600">
                 <span
                   className={`h-2 w-2 rounded-full ${
                     isOnline ? "bg-emerald-500" : "bg-rose-500"
@@ -229,7 +229,7 @@ export function AppShell({ children }: AppShellProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={handlePushToDrive}
                 disabled={isSyncing || !isOnline}
                 title="Push local books to Google Drive"
@@ -246,13 +246,13 @@ export function AppShell({ children }: AppShellProps) {
               </button>
             </div>
           </div>
-          <nav className="flex gap-4 border-t border-slate-200 py-2">
+          <nav className="flex gap-4 border-t border-stone-200 py-2">
             <Link
               to="/view"
               className={`px-3 py-2 text-sm font-semibold transition ${
                 location.pathname === "/view"
-                  ? "border-b-2 border-slate-900 text-slate-900"
-                  : "text-slate-600 hover:text-slate-800"
+                  ? "border-b-2 border-stone-900 text-stone-900"
+                  : "text-stone-600 hover:text-stone-800"
               }`}
             >
               Library
@@ -261,8 +261,8 @@ export function AppShell({ children }: AppShellProps) {
               to="/admin"
               className={`px-3 py-2 text-sm font-semibold transition ${
                 location.pathname === "/admin"
-                  ? "border-b-2 border-slate-900 text-slate-900"
-                  : "text-slate-600 hover:text-slate-800"
+                  ? "border-b-2 border-stone-900 text-stone-900"
+                  : "text-stone-600 hover:text-stone-800"
               }`}
             >
               Admin
@@ -272,10 +272,10 @@ export function AppShell({ children }: AppShellProps) {
       </header>
 
       {/* Sync status panel */}
-      <section className="sync-panel border-b border-slate-200 bg-white/70">
-        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
+      <section className="sync-panel border-b border-stone-200 bg-white/70">
+        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-3 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">File:</span>
+            <span className="font-semibold text-stone-500">File:</span>
             <span className="font-mono text-xs">
               {syncService.getSyncFilename()}
             </span>

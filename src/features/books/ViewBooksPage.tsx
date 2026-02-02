@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAllBooks } from "../../data/bookRepo";
+import { getAllBooks, updateBook } from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
+import { Input } from "../../ui/components/Input";
+import { Select } from "../../ui/components/Select";
+import { Button } from "../../ui/components/Button";
+import { BookCard } from "./components/BookCard";
+
+type SortOption = "title" | "author" | "updated";
 
 export function ViewBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -12,6 +18,7 @@ export function ViewBooksPage() {
   const [filterFinished, setFilterFinished] = useState<
     "ALL" | "FINISHED" | "UNFINISHED"
   >("ALL");
+  const [sortBy, setSortBy] = useState<SortOption>("title");
 
   // Load books on mount
   useEffect(() => {
@@ -40,7 +47,7 @@ export function ViewBooksPage() {
   ).sort();
 
   // Filter books based on search and filter state
-  const filteredBooks = books.filter((book) => {
+  let filteredBooks = books.filter((book) => {
     // Search filter: case-insensitive match on title or author
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -66,129 +73,158 @@ export function ViewBooksPage() {
     return true;
   });
 
+  // Sort books
+  filteredBooks = [...filteredBooks].sort((a, b) => {
+    switch (sortBy) {
+      case "title":
+        return a.title.localeCompare(b.title);
+      case "author":
+        return a.author.localeCompare(b.author);
+      case "updated":
+        return b.updatedAt - a.updatedAt;
+      default:
+        return 0;
+    }
+  });
+
+  const handleToggleFinished = async (bookId: string, currentFinished: boolean) => {
+    if (!confirm(`${currentFinished ? "Mark as unfinished" : "Mark as finished"}?`)) {
+      return;
+    }
+
+    try {
+      await updateBook(bookId, { finished: !currentFinished });
+      await loadBooks();
+    } catch (error) {
+      console.error("Failed to update book:", error);
+      alert("Failed to update book. Please try again.");
+    }
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setFilterGenre("ALL");
+    setFilterFinished("ALL");
+    setSortBy("title");
+  };
+
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft sm:p-6">
+      <section className="rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-soft sm:p-6">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800">My Library</h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <h2 className="text-3xl font-semibold text-stone-900">My Library</h2>
+          <p className="mt-2 text-sm text-stone-600">
             Browse and search your personal book collection. A cozy place to
             explore what you're reading.
           </p>
         </div>
 
-        <div className="mt-4 space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="flex flex-col gap-1 sm:col-span-1">
-              <label
-                htmlFor="search"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
-              >
-                Search
-              </label>
-              <input
-                id="search"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Title or author"
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="filter-genre"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
-              >
-                Genre
-              </label>
-              <select
-                id="filter-genre"
-                value={filterGenre}
-                onChange={(e) => setFilterGenre(e.target.value)}
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-              >
-                <option value="ALL">All Genres</option>
-                {availableGenres.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="filter-finished"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
-              >
-                Status
-              </label>
-              <select
-                id="filter-finished"
-                value={filterFinished}
-                onChange={(e) =>
-                  setFilterFinished(
-                    e.target.value as "ALL" | "FINISHED" | "UNFINISHED",
-                  )
-                }
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-              >
-                <option value="ALL">All Books</option>
-                <option value="FINISHED">Finished</option>
-                <option value="UNFINISHED">Unfinished</option>
-              </select>
-            </div>
+        <div className="mt-6 space-y-4 rounded-lg border border-stone-200 bg-stone-50/50 p-4 shadow-sm">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Input
+              id="search"
+              label="Search"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Title or author"
+            />
+
+            <Select
+              id="filter-genre"
+              label="Genre"
+              value={filterGenre}
+              onChange={(e) => setFilterGenre(e.target.value)}
+              options={[
+                { value: "ALL", label: "All Genres" },
+                ...availableGenres.map((g) => ({ value: g, label: g })),
+              ]}
+            />
+
+            <Select
+              id="filter-finished"
+              label="Status"
+              value={filterFinished}
+              onChange={(e) =>
+                setFilterFinished(
+                  e.target.value as "ALL" | "FINISHED" | "UNFINISHED",
+                )
+              }
+              options={[
+                { value: "ALL", label: "All Books" },
+                { value: "FINISHED", label: "Finished" },
+                { value: "UNFINISHED", label: "Unfinished" },
+              ]}
+            />
+
+            <Select
+              id="sort-by"
+              label="Sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              options={[
+                { value: "title", label: "Title (A–Z)" },
+                { value: "author", label: "Author (A–Z)" },
+                { value: "updated", label: "Recently Updated" },
+              ]}
+            />
           </div>
-          <div className="text-sm text-slate-600">
-            {filteredBooks.length}{" "}
-            {filteredBooks.length === 1 ? "book" : "books"}
+
+          <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <div className="text-sm text-stone-600">
+              {filteredBooks.length}{" "}
+              {filteredBooks.length === 1 ? "book" : "books"}
+            </div>
+            {(searchQuery ||
+              filterGenre !== "ALL" ||
+              filterFinished !== "ALL" ||
+              sortBy !== "title") && (
+              <Button
+                variant="secondary"
+                onClick={handleClearFilters}
+                className="text-xs"
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         </div>
       </section>
 
       <section className="space-y-4">
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-6 text-center text-sm text-slate-500 shadow-sm">
-            Loading books...
+          <div className="rounded-xl border border-stone-200 bg-white/80 px-4 py-8 text-center text-sm text-stone-500 shadow-sm">
+            Loading library...
           </div>
         ) : books.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
-            No books yet. Start building your library!
+          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
+            <p className="font-medium">No books yet</p>
+            <p className="mt-1 text-xs text-stone-500">
+              Start building your library by adding books from the Admin page.
+            </p>
           </div>
         ) : filteredBooks.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
-            No matches. Try clearing filters.
+          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
+            <p className="font-medium">No matches found</p>
+            <p className="mt-2">
+              <Button
+                variant="secondary"
+                onClick={handleClearFilters}
+                className="text-xs"
+              >
+                Clear Filters
+              </Button>
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredBooks.map((book) => (
-              <div
+              <BookCard
                 key={book.id}
-                className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:shadow-md"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-lg font-semibold text-slate-800">
-                        {book.title}
-                      </h3>
-                      {book.finished && (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 shrink-0">
-                          Finished
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 text-sm text-slate-600">{book.author}</p>
-                    {book.genre && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                          {book.genre}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+                book={book}
+                variant="view"
+                onToggleFinished={handleToggleFinished}
+              />
             ))}
           </div>
         )}
