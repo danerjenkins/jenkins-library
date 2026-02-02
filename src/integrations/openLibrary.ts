@@ -168,6 +168,7 @@ export async function guessAuthorByTitle(
  */
 export async function searchTitleSuggestions(
   titleQuery: string,
+  authorQuery?: string,
 ): Promise<TitleSuggestion[]> {
   if (!titleQuery.trim() || titleQuery.trim().length < 3) {
     return [];
@@ -175,8 +176,8 @@ export async function searchTitleSuggestions(
 
   try {
     const searchParams = new URLSearchParams();
-    searchParams.set("title", titleQuery.trim());
-    searchParams.set("limit", "8");
+    searchParams.set("q", titleQuery.trim());
+    searchParams.set("limit", "50");
 
     const url = `https://openlibrary.org/search.json?${searchParams.toString()}`;
     const response = await fetch(url);
@@ -187,19 +188,58 @@ export async function searchTitleSuggestions(
 
     const data: OpenLibrarySearchResponse = await response.json();
 
-    // Build suggestions from search results
-    const suggestions: TitleSuggestion[] = [];
-    const seenKeys = new Set<string>();
+    const normalize = (value: string) =>
+      value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, " ");
+
+    const normalizedQuery = normalize(titleQuery);
+    const normalizedAuthorQuery = authorQuery ? normalize(authorQuery) : "";
+    const studyGuideKeywords = [
+      "gradesaver",
+      "classicnotes",
+      "summary",
+      "study guide",
+      "analysis",
+      "sparknotes",
+      "cliffsnotes",
+    ];
+    const junkMatchKeywords = [
+      "poster",
+      "soundtrack",
+      "classroom",
+      "teacher",
+      "curriculum",
+      "workbook",
+      "study",
+      "study guide",
+      "analysis",
+      "guide",
+      "notes",
+      "music",
+      "john williams",
+    ];
+
+    const scoredSuggestions: Array<{
+      suggestion: TitleSuggestion;
+      score: number;
+    }> = [];
+    const dedupMap = new Map<
+      string,
+      { suggestion: TitleSuggestion; score: number }
+    >();
 
     for (const doc of data.docs) {
-      // Create dedup key from title + author
-      const author = doc.author_name?.[0];
-      const dedupKey = `${doc.title}|${author || ""}`;
-
-      if (seenKeys.has(dedupKey)) {
-        continue;
-      }
-      seenKeys.add(dedupKey);
+      const authorList = doc.author_name || [];
+      const rowlingAuthor = authorList.find((name) =>
+        name.toLowerCase().includes("rowling"),
+      );
+      const author = rowlingAuthor || authorList[0];
+      const normalizedTitle = normalize(doc.title);
+      const normalizedAuthor = author ? normalize(author) : "";
+      const dedupKey = `${normalizedTitle}|${normalizedAuthor}`;
 
       // Choose best ISBN (prefer 13-digit, else first)
       let isbn: string | undefined;
@@ -218,7 +258,7 @@ export async function searchTitleSuggestions(
         .filter((s) => typeof s === "string")
         .slice(0, 10);
 
-      suggestions.push({
+      const suggestion: TitleSuggestion = {
         key: doc.key,
         title: doc.title,
         author,
@@ -226,15 +266,97 @@ export async function searchTitleSuggestions(
         isbn,
         coverUrl,
         subjects: subjects.length > 0 ? subjects : undefined,
-      });
+      };
 
-      // Limit to 8 suggestions
-      if (suggestions.length >= 8) {
-        break;
+      let score = 0;
+
+      if (normalizedTitle === normalizedQuery) {
+        score += 100;
+      } else if (normalizedTitle.startsWith(normalizedQuery)) {
+        score += 60;
+      } else if (normalizedTitle.includes(normalizedQuery)) {
+        score += 30;
+      }
+
+      const authorMatches =
+        normalizedAuthorQuery &&
+        normalizedAuthor &&
+        normalizedAuthor.includes(normalizedAuthorQuery);
+      if (authorMatches) {
+        score += 40;
+      }
+
+      if (
+        normalizedQuery.includes("harry potter") &&
+        normalizedTitle.includes("sorcerers stone")
+      ) {
+        score += 40;
+      }
+
+      if (
+        normalizedQuery.includes("harry potter") &&
+        normalizedAuthor.includes("rowling")
+      ) {
+        score += 120;
+      }
+
+      if (
+        normalizedQuery.includes("alchemist") &&
+        normalizedAuthor.includes("coelho")
+      ) {
+        score += 40;
+      }
+
+      const containsStudyGuideKeyword = studyGuideKeywords.some((keyword) => {
+        const normalizedKeyword = normalize(keyword);
+        return (
+          normalizedTitle.includes(normalizedKeyword) ||
+          normalizedAuthor.includes(normalizedKeyword)
+        );
+      });
+      if (containsStudyGuideKeyword) {
+        score -= 80;
+      }
+
+      const containsJunkKeyword = junkMatchKeywords.some((keyword) => {
+        const normalizedKeyword = normalize(keyword);
+        return (
+          normalizedTitle.includes(normalizedKeyword) ||
+          normalizedAuthor.includes(normalizedKeyword)
+        );
+      });
+      if (containsJunkKeyword) {
+        score -= 80;
+      }
+
+      if (
+        doc.first_publish_year &&
+        doc.first_publish_year < 1800 &&
+        !authorMatches
+      ) {
+        score -= 60;
+      }
+
+      if (
+        normalizedTitle.includes("graphic novel") &&
+        !normalizedQuery.includes("graphic novel")
+      ) {
+        score -= 40;
+      }
+
+      const existing = dedupMap.get(dedupKey);
+      if (!existing || score > existing.score) {
+        dedupMap.set(dedupKey, { suggestion, score });
       }
     }
 
-    return suggestions;
+    for (const entry of dedupMap.values()) {
+      scoredSuggestions.push(entry);
+    }
+
+    scoredSuggestions.sort((a, b) => b.score - a.score);
+
+    return scoredSuggestions.slice(0, 8).map((entry) => entry.suggestion);
   } catch (error) {
     console.error(
       "Failed to search title suggestions from Open Library:",

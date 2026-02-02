@@ -232,7 +232,7 @@ export function BookForm({
     setIsSuggesting(true);
 
     try {
-      const suggestions = await searchTitleSuggestions(searchTitle);
+      const suggestions = await searchTitleSuggestions(searchTitle, author);
 
       // Ignore stale responses
       if (currentRequestId === titleSuggestRequestIdRef.current) {
@@ -249,7 +249,7 @@ export function BookForm({
         setIsSuggesting(false);
       }
     }
-  }, []);
+  }, [author]);
 
   // Debounced title search
   const debouncedTitleSearch = useCallback(
