@@ -1,0 +1,330 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.online {
+  background-color: #2ecc71;
+}
+
+.status-dot.offline {
+  background-color: #e74c3c;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+/* Sync controls */
+.sync-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sync-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.push-button {
+  background-color: #3498db;
+}
+
+.push-button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.pull-button {
+  background-color: #27ae60;
+}
+
+.pull-button:hover:not(:disabled) {
+  background-color: #229954;
+}
+
+.sync-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Sync status banner */
+.sync-status {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sync-status-syncing {
+  background-color: #3498db;
+  color: white;
+}
+
+.sync-status-success {
+  background-color: #27ae60;
+  color: white;
+}
+
+.sync-status-error {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.sync-time {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Sync info panel */
+.sync-info-panel {
+  background-color: #ecf0f1;
+  border-bottom: 1px solid #bdc3c7;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.sync-info-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sync-info-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  min-width: 70px;
+}
+
+.sync-info-value {
+  color: #2c3e50;
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+}
+
+.sync-message-syncing {
+  color: #3498db;
+  font-weight: 500;
+}
+
+.sync-message-success {
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.sync-message-error {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+/* Conflict modal */
+.sync-conflict-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conflict-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.conflict-dialog {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+}
+
+.conflict-dialog h3 {
+  margin-top: 0;
+  color: #e67e22;
+  font-size: 1.25rem;
+}
+
+.conflict-details {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.conflict-details div {
+  margin: 0.5rem 0;
+}
+
+.conflict-warning {
+  color: #c0392b;
+  font-weight: 500;
+  padding: 1rem;
+  background-color: #fef5e7;
+  border-left: 4px solid #e67e22;
+  border-radius: 4px;
+}
+
+.conflict-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.conflict-cancel,
+.conflict-confirm {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.conflict-cancel {
+  background-color: #ecf0f1;
+  color: #2c3e50;
+}
+
+.conflict-cancel:hover {
+  background-color: #d5dbdb;
+}
+
+.conflict-confirm {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.conflict-confirm:hover {
+  background-color: #c0392b;
+}
+
+.app-main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Mobile-first: prevent horizontal scrolling */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .app-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .sync-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .sync-button {
+    width: 100%;
+  }
+
+  .app-title {
+    font-size: 1.125rem;
+  }
+
+  .app-main {
+    padding: 0.75rem;
+  }
+
+  .conflict-dialog {
+    padding: 1.5rem;
+  }
+
+  .conflict-actions {
+    flex-direction: column;
+  }
+
+  .conflict-cancel,
+  .conflict-confirm {
+    width: 100%;
+  }
+}
