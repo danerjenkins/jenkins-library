@@ -10,6 +10,8 @@ export interface Book {
   author: string;
   /** Book genre (optional) */
   genre?: string | null;
+  /** Book ISBN (optional) */
+  isbn?: string | null;
   /** Whether the book has been finished */
   finished?: boolean;
   /** Cover image URL (optional) */

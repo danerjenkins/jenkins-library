@@ -43,6 +43,7 @@ export async function importBooks(payload: SyncPayload): Promise<void> {
     const booksWithDefaults = payload.books.map((book) => ({
       ...book,
       genre: book.genre ?? null,
+      isbn: book.isbn ?? null,
       finished: book.finished ?? false,
       coverUrl: book.coverUrl ?? null,
     }));
@@ -88,6 +89,9 @@ export function validatePayload(data: unknown): data is SyncPayload {
         (book.genre === undefined ||
           book.genre === null ||
           typeof book.genre === "string") &&
+        (book.isbn === undefined ||
+          book.isbn === null ||
+          typeof book.isbn === "string") &&
         (book.finished === undefined || typeof book.finished === "boolean"),
     )
   );

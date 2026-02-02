@@ -19,6 +19,7 @@ export function AdminBooksPage() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [genre, setGenre] = useState("");
+  const [isbn, setIsbn] = useState("");
   const [finished, setFinished] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
 
@@ -50,6 +51,7 @@ export function AdminBooksPage() {
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
+          isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
         });
@@ -59,6 +61,7 @@ export function AdminBooksPage() {
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
+          isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
         });
@@ -66,6 +69,7 @@ export function AdminBooksPage() {
       setTitle("");
       setAuthor("");
       setGenre("");
+      setIsbn("");
       setFinished(false);
       setCoverUrl("");
       setEditingId(null);
@@ -80,6 +84,7 @@ export function AdminBooksPage() {
     setTitle(book.title);
     setAuthor(book.author);
     setGenre(book.genre || "");
+    setIsbn(book.isbn || "");
     setFinished(book.finished || false);
     setCoverUrl(book.coverUrl || "");
     setEditingId(book.id);
@@ -90,6 +95,7 @@ export function AdminBooksPage() {
     setTitle("");
     setAuthor("");
     setGenre("");
+    setIsbn("");
     setFinished(false);
     setCoverUrl("");
     setEditingId(null);
@@ -137,11 +143,13 @@ export function AdminBooksPage() {
               title={title}
               author={author}
               genre={genre}
+              isbn={isbn}
               finished={finished}
               coverUrl={coverUrl}
               onTitleChange={setTitle}
               onAuthorChange={setAuthor}
               onGenreChange={setGenre}
+              onIsbnChange={setIsbn}
               onFinishedChange={setFinished}
               onCoverUrlChange={setCoverUrl}
               onSubmit={handleAddBook}

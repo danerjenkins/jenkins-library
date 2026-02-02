@@ -17,6 +17,7 @@ export async function getAllBooks(): Promise<Book[]> {
   return books.map((book) => ({
     ...book,
     genre: book.genre ?? null,
+    isbn: book.isbn ?? null,
     finished: book.finished ?? false,
     coverUrl: book.coverUrl ?? null,
   }));
@@ -36,6 +37,7 @@ export async function addBook(input: {
   title: string;
   author: string;
   genre?: string | null;
+  isbn?: string | null;
   finished?: boolean;
   coverUrl?: string | null;
 }): Promise<Book> {
@@ -45,6 +47,7 @@ export async function addBook(input: {
     title: input.title,
     author: input.author,
     genre: input.genre ?? null,
+    isbn: input.isbn ?? null,
     finished: input.finished ?? false,
     coverUrl: input.coverUrl ?? null,
     createdAt: now,
