@@ -37,10 +37,15 @@ export async function importBooks(payload: SyncPayload): Promise<void> {
     throw new Error("Invalid payload: books must be an array");
   }
 
-  // Clear existing books and insert new ones
+  // Clear existing books and insert new ones, applying defaults for missing fields
   await db.transaction("rw", db.books, async () => {
     await db.books.clear();
-    await db.books.bulkAdd(payload.books);
+    const booksWithDefaults = payload.books.map((book) => ({
+      ...book,
+      genre: book.genre ?? null,
+      finished: book.finished ?? false,
+    }));
+    await db.books.bulkAdd(booksWithDefaults);
   });
 }
 
@@ -77,7 +82,12 @@ export function validatePayload(data: unknown): data is SyncPayload {
         typeof book.title === "string" &&
         typeof book.author === "string" &&
         typeof book.createdAt === "number" &&
-        typeof book.updatedAt === "number",
+        typeof book.updatedAt === "number" &&
+        // genre and finished are optional for backward compatibility
+        (book.genre === undefined ||
+          book.genre === null ||
+          typeof book.genre === "string") &&
+        (book.finished === undefined || typeof book.finished === "boolean"),
     )
   );
 }

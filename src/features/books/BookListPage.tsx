@@ -8,6 +8,8 @@ export function BookListPage() {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
+  const [genre, setGenre] = useState("");
+  const [finished, setFinished] = useState(false);
 
   // Load books on mount
   useEffect(() => {
@@ -31,9 +33,16 @@ export function BookListPage() {
     if (!title.trim() || !author.trim()) return;
 
     try {
-      await addBook({ title: title.trim(), author: author.trim() });
+      await addBook({
+        title: title.trim(),
+        author: author.trim(),
+        genre: genre.trim() || null,
+        finished,
+      });
       setTitle("");
       setAuthor("");
+      setGenre("");
+      setFinished(false);
       setShowForm(false);
       await loadBooks();
     } catch (error) {
@@ -116,6 +125,37 @@ export function BookListPage() {
                 className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
               />
             </div>
+            <div className="grid gap-2">
+              <label
+                htmlFor="genre"
+                className="text-sm font-medium text-slate-700"
+              >
+                Genre (optional)
+              </label>
+              <input
+                id="genre"
+                type="text"
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                placeholder="e.g., Fiction, Non-fiction, Mystery"
+                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="finished"
+                type="checkbox"
+                checked={finished}
+                onChange={(e) => setFinished(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-2 focus:ring-slate-200"
+              />
+              <label
+                htmlFor="finished"
+                className="text-sm font-medium text-slate-700"
+              >
+                I've finished reading this book
+              </label>
+            </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="submit"
@@ -131,6 +171,8 @@ export function BookListPage() {
                   setShowForm(false);
                   setTitle("");
                   setAuthor("");
+                  setGenre("");
+                  setFinished(false);
                 }}
               >
                 Cancel
@@ -156,11 +198,23 @@ export function BookListPage() {
                 key={book.id}
                 className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    {book.title}
-                  </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      {book.title}
+                    </h3>
+                    {book.finished && (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                        Finished
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-slate-600">{book.author}</p>
+                  {book.genre && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Genre: {book.genre}
+                    </p>
+                  )}
                 </div>
                 <button
                   className="self-start rounded-md border border-rose-200 px-3 py-1.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"

@@ -8,6 +8,10 @@ export interface Book {
   title: string;
   /** Book author */
   author: string;
+  /** Book genre (optional) */
+  genre?: string | null;
+  /** Whether the book has been finished */
+  finished?: boolean;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */

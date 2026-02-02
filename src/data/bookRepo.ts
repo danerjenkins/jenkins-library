@@ -12,7 +12,13 @@ function generateId(): string {
  * Get all books from the database, sorted by title
  */
 export async function getAllBooks(): Promise<Book[]> {
-  return await db.books.orderBy("title").toArray();
+  const books = await db.books.orderBy("title").toArray();
+  // Apply defaults for books missing new fields
+  return books.map((book) => ({
+    ...book,
+    genre: book.genre ?? null,
+    finished: book.finished ?? false,
+  }));
 }
 
 /**
@@ -28,12 +34,16 @@ export async function getBookById(id: string): Promise<Book | undefined> {
 export async function addBook(input: {
   title: string;
   author: string;
+  genre?: string | null;
+  finished?: boolean;
 }): Promise<Book> {
   const now = Date.now();
   const book: Book = {
     id: generateId(),
     title: input.title,
     author: input.author,
+    genre: input.genre ?? null,
+    finished: input.finished ?? false,
     createdAt: now,
     updatedAt: now,
   };
