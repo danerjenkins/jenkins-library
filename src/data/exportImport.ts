@@ -44,6 +44,7 @@ export async function importBooks(payload: SyncPayload): Promise<void> {
       ...book,
       genre: book.genre ?? null,
       finished: book.finished ?? false,
+      coverUrl: book.coverUrl ?? null,
     }));
     await db.books.bulkAdd(booksWithDefaults);
   });

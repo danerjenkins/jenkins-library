@@ -276,6 +276,100 @@ class SyncService {
   }
 
   /**
+   * Full sync orchestration: pull → resolve → push
+   * Handles first-time sync, normal pull/push, and conflict detection
+   */
+  async syncNow(): Promise<{
+    status: "success" | "needs_confirmation" | "error";
+    message: string;
+    localTimestamp?: number;
+    driveTimestamp?: number;
+  }> {
+    try {
+      await this.ensureAuthenticated();
+
+      // Step 1: Try to pull from Drive
+      let pullResult;
+      try {
+        pullResult = await this.pullFromDrive(false);
+      } catch (error) {
+        // File not found or other error - treat as first sync, proceed to push
+        const errorMsg =
+          error instanceof Error ? error.message : "Pull failed";
+        if (
+          errorMsg.includes("No sync file found") ||
+          errorMsg.includes("Push first")
+        ) {
+          // First-time sync: no file exists yet, proceed to push
+          pullResult = null;
+        } else {
+          // Other error occurred
+          throw error;
+        }
+      }
+
+      // Step 2: Handle conflict if needed
+      if (pullResult && pullResult.needsConfirmation) {
+        // Local is newer than remote - need user confirmation
+        const localTimestamp = pullResult.localTimestamp || 0;
+        const driveTimestamp = pullResult.remoteData?.exportedAt || 0;
+
+        return {
+          status: "needs_confirmation",
+          message: "Local data is newer than Drive. Confirm to overwrite.",
+          localTimestamp,
+          driveTimestamp,
+        };
+      }
+
+      // Step 3: Push local to Drive
+      // If pull succeeded (no conflict), push to ensure Drive is in sync
+      // If pull failed (first sync), push to create the file
+      await this.pushToDrive();
+
+      // Success
+      return {
+        status: "success",
+        message: this.getLastMessage() || "Sync completed successfully",
+      };
+    } catch (error) {
+      const errorMsg = this.normalizeError(error);
+      this.saveError(errorMsg);
+      return {
+        status: "error",
+        message: errorMsg,
+      };
+    }
+  }
+
+  /**
+   * Confirm sync overwrite and push
+   * Used after user confirms they want to overwrite newer local data with remote
+   */
+  async confirmSyncOverwrite(remoteData: SyncPayload): Promise<void> {
+    try {
+      // Import remote data
+      await importBooks(remoteData);
+
+      // Save pull success
+      const now = Date.now();
+      this.saveLastPullTime(now);
+
+      // Then push to ensure consistency
+      await this.pushToDrive();
+
+      // Combined success message
+      this.saveMessage(
+        `Sync completed at ${this.formatTimestamp(Date.now())}`,
+      );
+    } catch (error) {
+      const errorMsg = this.normalizeError(error);
+      this.saveError(errorMsg);
+      throw new Error(errorMsg);
+    }
+  }
+
+  /**
    * Format timestamp for display
    */
   formatTimestamp(timestamp: number): string {

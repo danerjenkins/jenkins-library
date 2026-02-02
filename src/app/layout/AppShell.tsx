@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
 import { syncService, type SyncStatus } from "../../sync/syncService";
 import { driveClient } from "../../sync/driveClient";
@@ -89,7 +90,7 @@ export function AppShell({ children }: AppShellProps) {
     return date.toLocaleDateString();
   };
 
-  const handlePushToDrive = async () => {
+  const handleSyncNow = async () => {
     if (!isOnline) {
       alert("You must be online to sync with Google Drive.");
       return;
@@ -100,63 +101,40 @@ export function AppShell({ children }: AppShellProps) {
     }
 
     setSyncStatus("syncing");
-    setSyncMessage("Pushing to Drive...");
+    setSyncMessage("Syncing...");
 
     try {
-      await syncService.pushToDrive();
-      const pushTime = syncService.getLastPushTime();
-      setLastPushTime(pushTime);
-      setSyncStatus("success");
-      setSyncMessage(syncService.getLastMessage() || "Pushed successfully");
-    } catch (error) {
-      setSyncStatus("error");
-      const errorMsg = error instanceof Error ? error.message : "Push failed";
-      setSyncMessage(errorMsg);
-      console.error("Push error:", error);
-    }
-  };
+      const result = await syncService.syncNow();
 
-  const handlePullFromDrive = async () => {
-    if (!isOnline) {
-      alert("You must be online to sync with Google Drive.");
-      return;
-    }
-
-    if (!syncService.getClientId() && !configureClientId()) {
-      return;
-    }
-
-    setSyncStatus("syncing");
-    setSyncMessage("Pulling from Drive...");
-
-    try {
-      const result = await syncService.pullFromDrive();
-
-      if (
-        result.needsConfirmation &&
-        result.remoteData &&
-        result.localTimestamp
-      ) {
-        // Show conflict warning
-        setPendingPullData({
-          remoteData: result.remoteData,
-          localTimestamp: result.localTimestamp,
-        });
+      if (result.status === "needs_confirmation") {
+        // Conflict detected - show modal
+        // We need to re-fetch the remote data to show in modal
+        // For now, create a pending state that indicates conflict
+        const pullResult = await syncService.pullFromDrive(false);
+        if (pullResult.remoteData && pullResult.localTimestamp) {
+          setPendingPullData({
+            remoteData: pullResult.remoteData,
+            localTimestamp: pullResult.localTimestamp,
+          });
+        }
         setSyncStatus("idle");
         setSyncMessage("");
-      } else {
+      } else if (result.status === "success") {
+        const pushTime = syncService.getLastPushTime();
         const pullTime = syncService.getLastPullTime();
+        setLastPushTime(pushTime);
         setLastPullTime(pullTime);
         setSyncStatus("success");
-        setSyncMessage(syncService.getLastMessage() || "Pulled successfully");
-        // Reload the page to reflect changes
-        window.location.reload();
+        setSyncMessage(result.message);
+      } else {
+        setSyncStatus("error");
+        setSyncMessage(result.message);
       }
     } catch (error) {
       setSyncStatus("error");
-      const errorMsg = error instanceof Error ? error.message : "Pull failed";
+      const errorMsg = error instanceof Error ? error.message : "Sync failed";
       setSyncMessage(errorMsg);
-      console.error("Pull error:", error);
+      console.error("Sync error:", error);
     }
   };
 
@@ -164,22 +142,24 @@ export function AppShell({ children }: AppShellProps) {
     if (!pendingPullData) return;
 
     setSyncStatus("syncing");
-    setSyncMessage("Overwriting local data...");
+    setSyncMessage("Resolving conflict and syncing...");
 
     try {
-      await syncService.confirmPull(pendingPullData.remoteData);
+      await syncService.confirmSyncOverwrite(pendingPullData.remoteData);
       const pullTime = syncService.getLastPullTime();
+      const pushTime = syncService.getLastPushTime();
       setLastPullTime(pullTime);
+      setLastPushTime(pushTime);
       setSyncStatus("success");
-      setSyncMessage(syncService.getLastMessage() || "Pulled successfully");
+      setSyncMessage(syncService.getLastMessage() || "Sync completed");
       setPendingPullData(null);
       // Reload the page to reflect changes
       window.location.reload();
     } catch (error) {
       setSyncStatus("error");
-      const errorMsg = error instanceof Error ? error.message : "Pull failed";
+      const errorMsg = error instanceof Error ? error.message : "Sync failed";
       setSyncMessage(errorMsg);
-      console.error("Confirm pull error:", error);
+      console.error("Confirm sync error:", error);
       setPendingPullData(null);
     }
   };
@@ -218,31 +198,23 @@ export function AppShell({ children }: AppShellProps) {
                 Library Catalog
               </h1>
               <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600">
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    isOnline ? "bg-emerald-500" : "bg-rose-500"
-                  }`}
-                  aria-label={isOnline ? "Online" : "Offline"}
-                />
+                {isOnline ? (
+                  <Wifi className="h-3.5 w-3.5 text-emerald-600" aria-label="Online" />
+                ) : (
+                  <WifiOff className="h-3.5 w-3.5 text-rose-600" aria-label="Offline" />
+                )}
                 <span>{isOnline ? "Online" : "Offline"}</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={handlePushToDrive}
+                className="flex items-center gap-2 rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleSyncNow}
                 disabled={isSyncing || !isOnline}
-                title="Push local books to Google Drive"
+                title="Sync with Google Drive (pull → resolve → push)"
               >
-                {isSyncing ? "⏳" : "⬆"} Push
-              </button>
-              <button
-                className="rounded-md bg-amber-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={handlePullFromDrive}
-                disabled={isSyncing || !isOnline}
-                title="Pull books from Google Drive"
-              >
-                {isSyncing ? "⏳" : "⬇"} Pull
+                <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                Sync now
               </button>
             </div>
           </div>

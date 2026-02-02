@@ -12,6 +12,8 @@ export interface Book {
   genre?: string | null;
   /** Whether the book has been finished */
   finished?: boolean;
+  /** Cover image URL (optional) */
+  coverUrl?: string | null;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */

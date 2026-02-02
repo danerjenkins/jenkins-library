@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { getAllBooks, updateBook } from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
@@ -91,20 +92,23 @@ export function ViewBooksPage() {
     bookId: string,
     currentFinished: boolean,
   ) => {
-    if (
-      !confirm(
-        `${currentFinished ? "Mark as unfinished" : "Mark as finished"}?`,
-      )
-    ) {
-      return;
-    }
-
     try {
+      // Optimistically update UI
+      setBooks((prevBooks) =>
+        prevBooks.map((book) =>
+          book.id === bookId
+            ? { ...book, finished: !currentFinished }
+            : book,
+        ),
+      );
+
+      // Update database
       await updateBook(bookId, { finished: !currentFinished });
       await loadBooks();
     } catch (error) {
       console.error("Failed to update book:", error);
-      alert("Failed to update book. Please try again.");
+      // Revert on error
+      await loadBooks();
     }
   };
 
@@ -128,14 +132,17 @@ export function ViewBooksPage() {
 
         <div className="mt-6 space-y-4 rounded-lg border border-stone-200 bg-stone-50/50 p-4 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Input
-              id="search"
-              label="Search"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Title or author"
-            />
+            <div className="relative">
+              <Input
+                id="search"
+                label="Search"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Title or author"
+              />
+              <Search className="absolute right-3 top-9 h-4 w-4 text-stone-400" />
+            </div>
 
             <Select
               id="filter-genre"

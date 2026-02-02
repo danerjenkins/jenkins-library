@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import {
   getAllBooks,
   addBook,
@@ -19,6 +20,7 @@ export function AdminBooksPage() {
   const [author, setAuthor] = useState("");
   const [genre, setGenre] = useState("");
   const [finished, setFinished] = useState(false);
+  const [coverUrl, setCoverUrl] = useState("");
 
   // Load books on mount
   useEffect(() => {
@@ -49,6 +51,7 @@ export function AdminBooksPage() {
           author: author.trim(),
           genre: genre.trim() || null,
           finished,
+          coverUrl: coverUrl.trim() || null,
         });
       } else {
         // Add new book
@@ -57,12 +60,14 @@ export function AdminBooksPage() {
           author: author.trim(),
           genre: genre.trim() || null,
           finished,
+          coverUrl: coverUrl.trim() || null,
         });
       }
       setTitle("");
       setAuthor("");
       setGenre("");
       setFinished(false);
+      setCoverUrl("");
       setEditingId(null);
       setShowForm(false);
       await loadBooks();
@@ -76,6 +81,7 @@ export function AdminBooksPage() {
     setAuthor(book.author);
     setGenre(book.genre || "");
     setFinished(book.finished || false);
+    setCoverUrl(book.coverUrl || "");
     setEditingId(book.id);
     setShowForm(true);
   }
@@ -85,6 +91,7 @@ export function AdminBooksPage() {
     setAuthor("");
     setGenre("");
     setFinished(false);
+    setCoverUrl("");
     setEditingId(null);
     setShowForm(false);
   }
@@ -115,7 +122,10 @@ export function AdminBooksPage() {
           </div>
           {!showForm && (
             <Button variant="primary" onClick={() => setShowForm(true)}>
-              Add Book
+              <span className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Book
+              </span>
             </Button>
           )}
         </div>
@@ -128,10 +138,12 @@ export function AdminBooksPage() {
               author={author}
               genre={genre}
               finished={finished}
+              coverUrl={coverUrl}
               onTitleChange={setTitle}
               onAuthorChange={setAuthor}
               onGenreChange={setGenre}
               onFinishedChange={setFinished}
+              onCoverUrlChange={setCoverUrl}
               onSubmit={handleAddBook}
               onCancel={handleCancelEdit}
             >
@@ -166,14 +178,20 @@ export function AdminBooksPage() {
                       onClick={() => handleEditBook(book)}
                       className="text-xs"
                     >
-                      Edit
+                      <span className="flex items-center gap-1.5">
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </span>
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteBook(book.id, book.title)}
                       className="text-xs"
                     >
-                      Delete
+                      <span className="flex items-center gap-1.5">
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </span>
                     </Button>
                   </div>
                 }

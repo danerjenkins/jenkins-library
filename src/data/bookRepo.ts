@@ -18,6 +18,7 @@ export async function getAllBooks(): Promise<Book[]> {
     ...book,
     genre: book.genre ?? null,
     finished: book.finished ?? false,
+    coverUrl: book.coverUrl ?? null,
   }));
 }
 
@@ -36,6 +37,7 @@ export async function addBook(input: {
   author: string;
   genre?: string | null;
   finished?: boolean;
+  coverUrl?: string | null;
 }): Promise<Book> {
   const now = Date.now();
   const book: Book = {
@@ -44,6 +46,7 @@ export async function addBook(input: {
     author: input.author,
     genre: input.genre ?? null,
     finished: input.finished ?? false,
+    coverUrl: input.coverUrl ?? null,
     createdAt: now,
     updatedAt: now,
   };
