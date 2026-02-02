@@ -222,34 +222,37 @@ export function BookForm({
   };
 
   // Title suggestions logic
-  const performTitleSearch = useCallback(async (searchTitle: string) => {
-    if (searchTitle.trim().length < 3) {
-      setTitleSuggestions([]);
-      return;
-    }
-
-    const currentRequestId = ++titleSuggestRequestIdRef.current;
-    setIsSuggesting(true);
-
-    try {
-      const suggestions = await searchTitleSuggestions(searchTitle, author);
-
-      // Ignore stale responses
-      if (currentRequestId === titleSuggestRequestIdRef.current) {
-        setTitleSuggestions(suggestions);
-        setShowSuggestions(suggestions.length > 0);
-      }
-    } catch (error) {
-      console.error("Failed to search title suggestions:", error);
-      if (currentRequestId === titleSuggestRequestIdRef.current) {
+  const performTitleSearch = useCallback(
+    async (searchTitle: string) => {
+      if (searchTitle.trim().length < 3) {
         setTitleSuggestions([]);
+        return;
       }
-    } finally {
-      if (currentRequestId === titleSuggestRequestIdRef.current) {
-        setIsSuggesting(false);
+
+      const currentRequestId = ++titleSuggestRequestIdRef.current;
+      setIsSuggesting(true);
+
+      try {
+        const suggestions = await searchTitleSuggestions(searchTitle, author);
+
+        // Ignore stale responses
+        if (currentRequestId === titleSuggestRequestIdRef.current) {
+          setTitleSuggestions(suggestions);
+          setShowSuggestions(suggestions.length > 0);
+        }
+      } catch (error) {
+        console.error("Failed to search title suggestions:", error);
+        if (currentRequestId === titleSuggestRequestIdRef.current) {
+          setTitleSuggestions([]);
+        }
+      } finally {
+        if (currentRequestId === titleSuggestRequestIdRef.current) {
+          setIsSuggesting(false);
+        }
       }
-    }
-  }, [author]);
+    },
+    [author],
+  );
 
   // Debounced title search
   const debouncedTitleSearch = useCallback(
