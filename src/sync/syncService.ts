@@ -276,8 +276,15 @@ class SyncService {
   }
 
   /**
-   * Full sync orchestration: pull → resolve → push
+   * Full sync orchestration: compare timestamps → push/pull appropriately
    * Handles first-time sync, normal pull/push, and conflict detection
+   *
+   * Logic:
+   * - If Drive file doesn't exist: push local (first sync)
+   * - If localUpdatedAt > driveUpdatedAt: push local (no confirmation)
+   * - If driveUpdatedAt > localUpdatedAt: pull Drive to local (no confirmation)
+   * - If timestamps equal: no-op, show "Already in sync"
+   * - Only show confirmation modal for true ambiguous conflicts (rare edge case)
    */
   async syncNow(): Promise<{
     status: "success" | "needs_confirmation" | "error";
@@ -288,48 +295,90 @@ class SyncService {
     try {
       await this.ensureAuthenticated();
 
-      // Step 1: Try to pull from Drive
-      let pullResult;
+      // Get local timestamp
+      const localTimestamp = await getLatestLocalTimestamp();
+
+      // Step 1: Try to get Drive file info (metadata only, or download for timestamp)
+      let driveTimestamp: number | null = null;
+      let remoteData: SyncPayload | null = null;
+
       try {
-        pullResult = await this.pullFromDrive(false);
+        const jsonContent = await driveClient.downloadFile();
+        try {
+          remoteData = JSON.parse(jsonContent);
+          if (!remoteData) {
+            throw new Error("Sync file is empty or invalid");
+          }
+          driveTimestamp = remoteData.exportedAt || 0;
+        } catch (error) {
+          throw new Error(
+            "Failed to parse sync file. The file may be corrupted.",
+          );
+        }
+
+        if (!validatePayload(remoteData)) {
+          throw new Error(
+            "Invalid sync file format. The file may be corrupted or incompatible.",
+          );
+        }
       } catch (error) {
-        // File not found or other error - treat as first sync, proceed to push
+        // File not found or other error - treat as first sync
         const errorMsg = error instanceof Error ? error.message : "Pull failed";
         if (
           errorMsg.includes("No sync file found") ||
           errorMsg.includes("Push first")
         ) {
           // First-time sync: no file exists yet, proceed to push
-          pullResult = null;
+          driveTimestamp = null;
+          remoteData = null;
         } else {
           // Other error occurred
           throw error;
         }
       }
 
-      // Step 2: Handle conflict if needed
-      if (pullResult && pullResult.needsConfirmation) {
-        // Local is newer than remote - need user confirmation
-        const localTimestamp = pullResult.localTimestamp || 0;
-        const driveTimestamp = pullResult.remoteData?.exportedAt || 0;
+      // Step 2: Decide action based on timestamp comparison
+      if (driveTimestamp === null) {
+        // Drive file doesn't exist - push local (first sync)
+        await this.pushToDrive();
 
         return {
-          status: "needs_confirmation",
-          message: "Local data is newer than Drive. Confirm to overwrite.",
-          localTimestamp,
-          driveTimestamp,
+          status: "success",
+          message: "First sync completed: pushed local data to Drive",
         };
       }
 
-      // Step 3: Push local to Drive
-      // If pull succeeded (no conflict), push to ensure Drive is in sync
-      // If pull failed (first sync), push to create the file
-      await this.pushToDrive();
+      if (localTimestamp > driveTimestamp) {
+        // Local is newer - push local automatically (no confirmation needed)
+        await this.pushToDrive();
 
-      // Success
+        return {
+          status: "success",
+          message: "Sync completed: local data pushed to Drive",
+        };
+      }
+
+      if (driveTimestamp > localTimestamp) {
+        // Drive is newer - pull automatically (no confirmation needed)
+        if (remoteData) {
+          await importBooks(remoteData);
+          const now = Date.now();
+          this.saveLastPullTime(now);
+          this.saveMessage(`Pulled successfully at ${this.formatTimestamp(now)}`);
+
+          return {
+            status: "success",
+            message: "Sync completed: pulled Drive data to local",
+          };
+        }
+        // This shouldn't happen, but fall through to error
+        throw new Error("Failed to import Drive data");
+      }
+
+      // Timestamps are equal - already in sync
       return {
         status: "success",
-        message: this.getLastMessage() || "Sync completed successfully",
+        message: "Already in sync",
       };
     } catch (error) {
       const errorMsg = this.normalizeError(error);

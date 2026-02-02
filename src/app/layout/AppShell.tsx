@@ -5,7 +5,6 @@ import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
 import { syncService, type SyncStatus } from "../../sync/syncService";
 import { driveClient } from "../../sync/driveClient";
-import type { SyncPayload } from "../../data/exportImport";
 import "./AppShell.css";
 
 interface AppShellProps {
@@ -19,10 +18,6 @@ export function AppShell({ children }: AppShellProps) {
   const [syncMessage, setSyncMessage] = useState<string>("");
   const [lastPushTime, setLastPushTime] = useState<number | null>(null);
   const [lastPullTime, setLastPullTime] = useState<number | null>(null);
-  const [pendingPullData, setPendingPullData] = useState<{
-    remoteData: SyncPayload;
-    localTimestamp: number;
-  } | null>(null);
 
   // Load persisted sync state on mount
   useEffect(() => {
@@ -106,20 +101,7 @@ export function AppShell({ children }: AppShellProps) {
     try {
       const result = await syncService.syncNow();
 
-      if (result.status === "needs_confirmation") {
-        // Conflict detected - show modal
-        // We need to re-fetch the remote data to show in modal
-        // For now, create a pending state that indicates conflict
-        const pullResult = await syncService.pullFromDrive(false);
-        if (pullResult.remoteData && pullResult.localTimestamp) {
-          setPendingPullData({
-            remoteData: pullResult.remoteData,
-            localTimestamp: pullResult.localTimestamp,
-          });
-        }
-        setSyncStatus("idle");
-        setSyncMessage("");
-      } else if (result.status === "success") {
+      if (result.status === "success") {
         const pushTime = syncService.getLastPushTime();
         const pullTime = syncService.getLastPullTime();
         setLastPushTime(pushTime);
@@ -136,38 +118,6 @@ export function AppShell({ children }: AppShellProps) {
       setSyncMessage(errorMsg);
       console.error("Sync error:", error);
     }
-  };
-
-  const handleConfirmPull = async () => {
-    if (!pendingPullData) return;
-
-    setSyncStatus("syncing");
-    setSyncMessage("Resolving conflict and syncing...");
-
-    try {
-      await syncService.confirmSyncOverwrite(pendingPullData.remoteData);
-      const pullTime = syncService.getLastPullTime();
-      const pushTime = syncService.getLastPushTime();
-      setLastPullTime(pullTime);
-      setLastPushTime(pushTime);
-      setSyncStatus("success");
-      setSyncMessage(syncService.getLastMessage() || "Sync completed");
-      setPendingPullData(null);
-      // Reload the page to reflect changes
-      window.location.reload();
-    } catch (error) {
-      setSyncStatus("error");
-      const errorMsg = error instanceof Error ? error.message : "Sync failed";
-      setSyncMessage(errorMsg);
-      console.error("Confirm sync error:", error);
-      setPendingPullData(null);
-    }
-  };
-
-  const handleCancelPull = () => {
-    setPendingPullData(null);
-    setSyncStatus("idle");
-    setSyncMessage("Pull cancelled");
   };
 
   const isSyncing = syncStatus === "syncing";
@@ -284,60 +234,6 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </div>
       </section>
-
-      {pendingPullData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-slate-900/40"
-            onClick={handleCancelPull}
-          />
-          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-soft">
-            <h3 className="text-lg font-semibold text-amber-700">
-              ⚠️ Sync Conflict Detected
-            </h3>
-            <p className="mt-2 text-sm text-slate-700">
-              <strong>
-                Your local data is newer than the data in Google Drive.
-              </strong>
-            </p>
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              <div>
-                Local last updated:{" "}
-                <strong>
-                  {new Date(pendingPullData.localTimestamp).toLocaleString()}
-                </strong>
-              </div>
-              <div className="mt-2">
-                Drive last updated:{" "}
-                <strong>
-                  {new Date(
-                    pendingPullData.remoteData.exportedAt,
-                  ).toLocaleString()}
-                </strong>
-              </div>
-            </div>
-            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              Pulling from Drive will{" "}
-              <strong>overwrite all your local books</strong> with the older
-              data from Drive. This cannot be undone.
-            </p>
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <button
-                className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                onClick={handleCancelPull}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-500"
-                onClick={handleConfirmPull}
-              >
-                Overwrite Local Data
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
         {children}
