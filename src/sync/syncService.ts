@@ -364,7 +364,9 @@ class SyncService {
           await importBooks(remoteData);
           const now = Date.now();
           this.saveLastPullTime(now);
-          this.saveMessage(`Pulled successfully at ${this.formatTimestamp(now)}`);
+          this.saveMessage(
+            `Pulled successfully at ${this.formatTimestamp(now)}`,
+          );
 
           return {
             status: "success",
