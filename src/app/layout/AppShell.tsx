@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
 import { syncService, type SyncStatus } from "../../sync/syncService";
 import { driveClient } from "../../sync/driveClient";
@@ -12,6 +13,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const isOnline = useOnlineStatus();
+  const location = useLocation();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [syncMessage, setSyncMessage] = useState<string>("");
   const [lastPushTime, setLastPushTime] = useState<number | null>(null);
@@ -209,39 +211,63 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-parchment text-ink">
       <header className="border-b border-slate-200 bg-white/90 shadow-sm">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold text-slate-800">
-              Library Catalog
-            </h1>
-            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  isOnline ? "bg-emerald-500" : "bg-rose-500"
-                }`}
-                aria-label={isOnline ? "Online" : "Offline"}
-              />
-              <span>{isOnline ? "Online" : "Offline"}</span>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-xl font-semibold text-slate-800">
+                Library Catalog
+              </h1>
+              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isOnline ? "bg-emerald-500" : "bg-rose-500"
+                  }`}
+                  aria-label={isOnline ? "Online" : "Offline"}
+                />
+                <span>{isOnline ? "Online" : "Offline"}</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handlePushToDrive}
+                disabled={isSyncing || !isOnline}
+                title="Push local books to Google Drive"
+              >
+                {isSyncing ? "⏳" : "⬆"} Push
+              </button>
+              <button
+                className="rounded-md bg-amber-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handlePullFromDrive}
+                disabled={isSyncing || !isOnline}
+                title="Pull books from Google Drive"
+              >
+                {isSyncing ? "⏳" : "⬇"} Pull
+              </button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handlePushToDrive}
-              disabled={isSyncing || !isOnline}
-              title="Push local books to Google Drive"
+          <nav className="flex gap-4 border-t border-slate-200 py-2">
+            <Link
+              to="/view"
+              className={`px-3 py-2 text-sm font-semibold transition ${
+                location.pathname === "/view"
+                  ? "border-b-2 border-slate-900 text-slate-900"
+                  : "text-slate-600 hover:text-slate-800"
+              }`}
             >
-              {isSyncing ? "⏳" : "⬆"} Push
-            </button>
-            <button
-              className="rounded-md bg-amber-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handlePullFromDrive}
-              disabled={isSyncing || !isOnline}
-              title="Pull books from Google Drive"
+              Library
+            </Link>
+            <Link
+              to="/admin"
+              className={`px-3 py-2 text-sm font-semibold transition ${
+                location.pathname === "/admin"
+                  ? "border-b-2 border-slate-900 text-slate-900"
+                  : "text-slate-600 hover:text-slate-800"
+              }`}
             >
-              {isSyncing ? "⏳" : "⬇"} Pull
-            </button>
-          </div>
+              Admin
+            </Link>
+          </nav>
         </div>
       </header>
 

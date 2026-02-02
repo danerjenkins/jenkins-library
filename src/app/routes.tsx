@@ -1,14 +1,19 @@
 import { Navigate } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
-import { BookListPage } from "../features/books/BookListPage";
+import { ViewBooksPage } from "../features/books/ViewBooksPage";
+import { AdminBooksPage } from "../features/books/AdminBooksPage";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/books" replace />,
+    element: <Navigate to="/view" replace />,
   },
   {
-    path: "/books",
-    element: <BookListPage />,
+    path: "/view",
+    element: <ViewBooksPage />,
+  },
+  {
+    path: "/admin",
+    element: <AdminBooksPage />,
   },
 ];
