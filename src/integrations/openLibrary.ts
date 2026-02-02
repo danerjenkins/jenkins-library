@@ -24,6 +24,7 @@ interface OpenLibrarySearchDoc {
   key: string;
   title: string;
   author_name?: string[];
+  language?: string[];
   cover_i?: number;
   isbn?: string[];
   cover_edition_key?: string;
@@ -59,7 +60,7 @@ export async function searchCoverCandidates(params: {
     if (author.trim()) {
       searchParams.set("author", author.trim());
     }
-    searchParams.set("limit", "10");
+    searchParams.set("limit", "50");
 
     const url = `https://openlibrary.org/search.json?${searchParams.toString()}`;
     const response = await fetch(url);
@@ -70,11 +71,60 @@ export async function searchCoverCandidates(params: {
 
     const data: OpenLibrarySearchResponse = await response.json();
 
-    // Build candidates from search results
+    const normalize = (value: string) =>
+      value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, " ");
+
+    const normalizedTitleQuery = normalize(title);
+    const normalizedAuthorQuery = normalize(author);
+    const englishWordHints = ["the", "and", "of", "to", "a"];
+    const queryContainsEnglishHint = englishWordHints.some((word) =>
+      normalizedTitleQuery.includes(word),
+    );
+
+    const scoredDocs = data.docs.map((doc) => {
+      const normalizedDocTitle = normalize(doc.title);
+      const docAuthor = doc.author_name?.[0] || "";
+      const normalizedDocAuthor = normalize(docAuthor);
+      let score = 0;
+
+      if (doc.language?.includes("eng")) {
+        score += 50;
+      } else if (doc.language && doc.language.length > 0) {
+        score -= 20;
+        if (queryContainsEnglishHint) {
+          score -= 10;
+        }
+      }
+
+      if (
+        normalizedDocTitle === normalizedTitleQuery ||
+        normalizedDocTitle.startsWith(normalizedTitleQuery)
+      ) {
+        score += 10;
+      }
+
+      if (
+        normalizedAuthorQuery &&
+        normalizedDocAuthor &&
+        normalizedDocAuthor.includes(normalizedAuthorQuery)
+      ) {
+        score += 10;
+      }
+
+      return { doc, score };
+    });
+
+    scoredDocs.sort((a, b) => b.score - a.score);
+
+    // Build candidates from ranked results
     const candidates: OpenLibraryCandidate[] = [];
     const seenUrls = new Set<string>();
 
-    for (const doc of data.docs) {
+    for (const { doc } of scoredDocs) {
       let coverUrl: string | null = null;
 
       // Prefer cover_i (most reliable)
