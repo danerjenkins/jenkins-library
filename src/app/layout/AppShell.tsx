@@ -140,14 +140,14 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
-      <header className="border-b border-stone-200 bg-white/90 shadow-sm">
+      <header className="border-b border-stone-200/40 bg-linear-to-b from-white/95 to-white/90 shadow-sm backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-xl font-semibold text-stone-900">
                 Library Catalog
               </h1>
-              <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600">
+              <div className="flex items-center gap-2 rounded-full border border-stone-200/60 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 backdrop-blur-sm">
                 {isOnline ? (
                   <Wifi
                     className="h-3.5 w-3.5 text-emerald-600"
@@ -164,10 +164,10 @@ export function AppShell({ children }: AppShellProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="flex items-center gap-2 rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={handleSyncNow}
                 disabled={isSyncing || !isOnline}
-                title="Sync with Google Drive (pull → resolve → push)"
+                title="Sync with Google Drive"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
@@ -176,23 +176,23 @@ export function AppShell({ children }: AppShellProps) {
               </button>
             </div>
           </div>
-          <nav className="flex gap-4 border-t border-stone-200 py-2">
+          <nav className="flex gap-4 border-t border-stone-200/40 py-3">
             <Link
               to="/view"
-              className={`px-3 py-2 text-sm font-semibold transition ${
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/view"
-                  ? "border-b-2 border-stone-900 text-stone-900"
-                  : "text-stone-600 hover:text-stone-800"
+                  ? "bg-stone-100/60 text-stone-900"
+                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
               }`}
             >
               Library
             </Link>
             <Link
               to="/admin"
-              className={`px-3 py-2 text-sm font-semibold transition ${
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/admin"
-                  ? "border-b-2 border-stone-900 text-stone-900"
-                  : "text-stone-600 hover:text-stone-800"
+                  ? "bg-stone-100/60 text-stone-900"
+                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
               }`}
             >
               Admin
@@ -202,8 +202,8 @@ export function AppShell({ children }: AppShellProps) {
       </header>
 
       {/* Sync status panel */}
-      <section className="sync-panel border-b border-stone-200 bg-white/70">
-        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-3 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
+      <section className="sync-panel border-b border-stone-200/30 bg-linear-to-r from-white/50 to-amber-50/30 backdrop-blur-sm">
+        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-stone-500">File:</span>
             <span className="font-mono text-xs">

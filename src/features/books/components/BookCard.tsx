@@ -18,16 +18,16 @@ export function BookCard({
 
   if (isView) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white px-5 py-4 shadow-sm transition hover:shadow-md">
-        <div className="flex gap-4">
+      <div className="rounded-2xl border border-stone-200/50 bg-white/90 px-5 py-5 shadow-sm transition hover:shadow-md hover:border-stone-200/70">
+        <div className="flex gap-5">
           {book.coverUrl ? (
             <img
               src={book.coverUrl}
               alt={`Cover of ${book.title}`}
-              className="h-24 w-16 shrink-0 rounded object-cover shadow-sm"
+              className="h-28 w-20 shrink-0 rounded-lg object-cover shadow-md"
             />
           ) : (
-            <div className="flex h-24 w-16 shrink-0 items-center justify-center rounded bg-stone-100 text-stone-400">
+            <div className="flex h-28 w-20 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-amber-50 text-stone-400 shadow-md">
               <span className="text-2xl">📚</span>
             </div>
           )}
@@ -39,9 +39,9 @@ export function BookCard({
                 </h3>
                 {book.finished && <Badge variant="success">Finished</Badge>}
               </div>
-              <p className="mt-1 text-sm text-stone-600">{book.author}</p>
+              <p className="mt-2 text-sm text-stone-600">{book.author}</p>
               {book.genre && (
-                <div className="mt-2">
+                <div className="mt-3">
                   <Badge variant="amber">{book.genre}</Badge>
                 </div>
               )}
@@ -69,15 +69,15 @@ export function BookCard({
 
   // Admin view
   return (
-    <div className="flex gap-3 rounded-xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+    <div className="flex gap-4 rounded-2xl border border-stone-200/50 bg-white/90 px-5 py-4 shadow-sm">
       {book.coverUrl ? (
         <img
           src={book.coverUrl}
           alt={`Cover of ${book.title}`}
-          className="h-20 w-14 shrink-0 rounded object-cover shadow-sm"
+          className="h-24 w-16 shrink-0 rounded-lg object-cover shadow-md"
         />
       ) : (
-        <div className="flex h-20 w-14 shrink-0 items-center justify-center rounded bg-stone-100 text-stone-400">
+        <div className="flex h-24 w-16 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-amber-50 text-stone-400 shadow-md">
           <span className="text-xl">📚</span>
         </div>
       )}
