@@ -197,96 +197,111 @@ export function AppShell({ children }: AppShellProps) {
     success: "Success",
     error: "Error",
   };
+  const statusClass: Record<SyncStatus, string> = {
+    idle: "text-slate-500",
+    syncing: "text-amber-700",
+    success: "text-emerald-700",
+    error: "text-rose-600",
+  };
   const statusMessage = syncMessage || "Ready";
   const accountLabel = isSignedIn ? userEmail || "Signed in" : "Not signed in";
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="header-left">
-          <h1 className="app-title">Library Catalog</h1>
-          <div className="status-indicator">
-            <span
-              className={`status-dot ${isOnline ? "online" : "offline"}`}
-              aria-label={isOnline ? "Online" : "Offline"}
-            />
-            <span className="status-text">
-              {isOnline ? "Online" : "Offline"}
-            </span>
+    <div className="min-h-screen bg-parchment text-ink">
+      <header className="border-b border-slate-200 bg-white/90 shadow-sm">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-xl font-semibold text-slate-800">
+              Library Catalog
+            </h1>
+            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isOnline ? "bg-emerald-500" : "bg-rose-500"
+                }`}
+                aria-label={isOnline ? "Online" : "Offline"}
+              />
+              <span>{isOnline ? "Online" : "Offline"}</span>
+            </div>
           </div>
-        </div>
-        <div className="sync-controls">
-          <button
-            className="sync-button push-button"
-            onClick={handlePushToDrive}
-            disabled={isSyncing || !isOnline}
-            title="Push local books to Google Drive"
-          >
-            {isSyncing ? "⏳" : "⬆"} Push
-          </button>
-          <button
-            className="sync-button pull-button"
-            onClick={handlePullFromDrive}
-            disabled={isSyncing || !isOnline}
-            title="Pull books from Google Drive"
-          >
-            {isSyncing ? "⏳" : "⬇"} Pull
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={handlePushToDrive}
+              disabled={isSyncing || !isOnline}
+              title="Push local books to Google Drive"
+            >
+              {isSyncing ? "⏳" : "⬆"} Push
+            </button>
+            <button
+              className="rounded-md bg-amber-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={handlePullFromDrive}
+              disabled={isSyncing || !isOnline}
+              title="Pull books from Google Drive"
+            >
+              {isSyncing ? "⏳" : "⬇"} Pull
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Sync status panel */}
-      <div className="sync-info-panel">
-        <div className="sync-info-row">
-          <span className="sync-info-label">File:</span>
-          <span className="sync-info-value">
-            {syncService.getSyncFilename()}
-          </span>
+      <section className="sync-panel border-b border-slate-200 bg-white/70">
+        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">File:</span>
+            <span className="font-mono text-xs">
+              {syncService.getSyncFilename()}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Account:</span>
+            <span>{accountLabel}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Last Push:</span>
+            <span>{formatTime(lastPushTime)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Last Pull:</span>
+            <span>{formatTime(lastPullTime)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Status:</span>
+            <span className={statusClass[syncStatus]}>
+              {statusLabel[syncStatus]}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Message:</span>
+            <span className={statusClass[syncStatus]}>{statusMessage}</span>
+          </div>
         </div>
-        <div className="sync-info-row">
-          <span className="sync-info-label">Account:</span>
-          <span className="sync-info-value">{accountLabel}</span>
-        </div>
-        <div className="sync-info-row">
-          <span className="sync-info-label">Last Push:</span>
-          <span className="sync-info-value">{formatTime(lastPushTime)}</span>
-        </div>
-        <div className="sync-info-row">
-          <span className="sync-info-label">Last Pull:</span>
-          <span className="sync-info-value">{formatTime(lastPullTime)}</span>
-        </div>
-        <div className="sync-info-row">
-          <span className="sync-info-label">Status:</span>
-          <span className={`sync-info-value sync-message-${syncStatus}`}>
-            {statusLabel[syncStatus]}
-          </span>
-        </div>
-        <div className="sync-info-row">
-          <span className="sync-info-label">Message:</span>
-          <span className={`sync-info-value sync-message-${syncStatus}`}>
-            {statusMessage}
-          </span>
-        </div>
-      </div>
+      </section>
 
       {pendingPullData && (
-        <div className="sync-conflict-modal">
-          <div className="conflict-overlay" onClick={handleCancelPull} />
-          <div className="conflict-dialog">
-            <h3>⚠️ Sync Conflict Detected</h3>
-            <p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={handleCancelPull}
+          />
+          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-soft">
+            <h3 className="text-lg font-semibold text-amber-700">
+              ⚠️ Sync Conflict Detected
+            </h3>
+            <p className="mt-2 text-sm text-slate-700">
               <strong>
                 Your local data is newer than the data in Google Drive.
               </strong>
             </p>
-            <div className="conflict-details">
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
               <div>
                 Local last updated:{" "}
                 <strong>
                   {new Date(pendingPullData.localTimestamp).toLocaleString()}
                 </strong>
               </div>
-              <div>
+              <div className="mt-2">
                 Drive last updated:{" "}
                 <strong>
                   {new Date(
@@ -295,16 +310,22 @@ export function AppShell({ children }: AppShellProps) {
                 </strong>
               </div>
             </div>
-            <p className="conflict-warning">
+            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
               Pulling from Drive will{" "}
               <strong>overwrite all your local books</strong> with the older
               data from Drive. This cannot be undone.
             </p>
-            <div className="conflict-actions">
-              <button className="conflict-cancel" onClick={handleCancelPull}>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                onClick={handleCancelPull}
+              >
                 Cancel
               </button>
-              <button className="conflict-confirm" onClick={handleConfirmPull}>
+              <button
+                className="rounded-md bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-500"
+                onClick={handleConfirmPull}
+              >
                 Overwrite Local Data
               </button>
             </div>
@@ -312,7 +333,9 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       )}
 
-      <main className="app-main">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+        {children}
+      </main>
     </div>
   );
 }
