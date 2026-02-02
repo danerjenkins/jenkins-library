@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { getAllBooks, addBook, updateBook, deleteBook } from "../../data/bookRepo";
+import {
+  getAllBooks,
+  addBook,
+  updateBook,
+  deleteBook,
+} from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
 
 export function AdminBooksPage() {
@@ -97,9 +102,12 @@ export function AdminBooksPage() {
       <section className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-800">Manage Books</h2>
+            <h2 className="text-2xl font-semibold text-slate-800">
+              Manage Books
+            </h2>
             <p className="mt-2 text-sm text-slate-600">
-              Add, edit, and delete books from your library. Admin tools for managing your collection.
+              Add, edit, and delete books from your library. Admin tools for
+              managing your collection.
             </p>
           </div>
           {!showForm && (

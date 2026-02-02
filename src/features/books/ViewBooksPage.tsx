@@ -9,7 +9,9 @@ export function ViewBooksPage() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
-  const [filterFinished, setFilterFinished] = useState<"ALL" | "FINISHED" | "UNFINISHED">("ALL");
+  const [filterFinished, setFilterFinished] = useState<
+    "ALL" | "FINISHED" | "UNFINISHED"
+  >("ALL");
 
   // Load books on mount
   useEffect(() => {
@@ -30,7 +32,11 @@ export function ViewBooksPage() {
 
   // Derive available genres from books
   const availableGenres = Array.from(
-    new Set(books.map((b) => b.genre).filter((g): g is string => g !== null && g !== undefined))
+    new Set(
+      books
+        .map((b) => b.genre)
+        .filter((g): g is string => g !== null && g !== undefined),
+    ),
   ).sort();
 
   // Filter books based on search and filter state
@@ -66,7 +72,8 @@ export function ViewBooksPage() {
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">My Library</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Browse and search your personal book collection. A cozy place to explore what you're reading.
+            Browse and search your personal book collection. A cozy place to
+            explore what you're reading.
           </p>
         </div>
 
@@ -120,7 +127,9 @@ export function ViewBooksPage() {
                 id="filter-finished"
                 value={filterFinished}
                 onChange={(e) =>
-                  setFilterFinished(e.target.value as "ALL" | "FINISHED" | "UNFINISHED")
+                  setFilterFinished(
+                    e.target.value as "ALL" | "FINISHED" | "UNFINISHED",
+                  )
                 }
                 className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
               >
@@ -131,7 +140,8 @@ export function ViewBooksPage() {
             </div>
           </div>
           <div className="text-sm text-slate-600">
-            {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"}
+            {filteredBooks.length}{" "}
+            {filteredBooks.length === 1 ? "book" : "books"}
           </div>
         </div>
       </section>
