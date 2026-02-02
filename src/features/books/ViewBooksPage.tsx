@@ -96,9 +96,7 @@ export function ViewBooksPage() {
       // Optimistically update UI
       setBooks((prevBooks) =>
         prevBooks.map((book) =>
-          book.id === bookId
-            ? { ...book, finished: !currentFinished }
-            : book,
+          book.id === bookId ? { ...book, finished: !currentFinished } : book,
         ),
       );
 

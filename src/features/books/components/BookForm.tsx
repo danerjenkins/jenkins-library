@@ -254,7 +254,9 @@ export function BookForm({
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
-            <span className="text-xs text-stone-500">Current cover preview</span>
+            <span className="text-xs text-stone-500">
+              Current cover preview
+            </span>
           </div>
         )}
       </div>

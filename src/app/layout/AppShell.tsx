@@ -199,9 +199,15 @@ export function AppShell({ children }: AppShellProps) {
               </h1>
               <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600">
                 {isOnline ? (
-                  <Wifi className="h-3.5 w-3.5 text-emerald-600" aria-label="Online" />
+                  <Wifi
+                    className="h-3.5 w-3.5 text-emerald-600"
+                    aria-label="Online"
+                  />
                 ) : (
-                  <WifiOff className="h-3.5 w-3.5 text-rose-600" aria-label="Offline" />
+                  <WifiOff
+                    className="h-3.5 w-3.5 text-rose-600"
+                    aria-label="Offline"
+                  />
                 )}
                 <span>{isOnline ? "Online" : "Offline"}</span>
               </div>
@@ -213,7 +219,9 @@ export function AppShell({ children }: AppShellProps) {
                 disabled={isSyncing || !isOnline}
                 title="Sync with Google Drive (pull → resolve → push)"
               >
-                <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
+                />
                 Sync now
               </button>
             </div>

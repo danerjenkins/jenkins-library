@@ -294,8 +294,7 @@ class SyncService {
         pullResult = await this.pullFromDrive(false);
       } catch (error) {
         // File not found or other error - treat as first sync, proceed to push
-        const errorMsg =
-          error instanceof Error ? error.message : "Pull failed";
+        const errorMsg = error instanceof Error ? error.message : "Pull failed";
         if (
           errorMsg.includes("No sync file found") ||
           errorMsg.includes("Push first")
@@ -359,9 +358,7 @@ class SyncService {
       await this.pushToDrive();
 
       // Combined success message
-      this.saveMessage(
-        `Sync completed at ${this.formatTimestamp(Date.now())}`,
-      );
+      this.saveMessage(`Sync completed at ${this.formatTimestamp(Date.now())}`);
     } catch (error) {
       const errorMsg = this.normalizeError(error);
       this.saveError(errorMsg);
