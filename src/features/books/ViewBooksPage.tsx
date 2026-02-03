@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { getAllBooks, updateBook } from "../../data/bookRepo";
-import type { Book, ReadStatus } from "./bookTypes";
-import { getReadStatus } from "./bookTypes";
+import type { Book, ReadStatus, BookFormat } from "./bookTypes";
+import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
@@ -23,6 +23,7 @@ export function ViewBooksPage() {
   const [filterReadStatus, setFilterReadStatus] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
+  const [filterFormat, setFilterFormat] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("title");
 
   // Load books on mount
@@ -48,6 +49,15 @@ export function ViewBooksPage() {
       books
         .map((b) => b.genre)
         .filter((g): g is string => g !== null && g !== undefined),
+    ),
+  ).sort();
+
+  // Derive available formats from books
+  const availableFormats = Array.from(
+    new Set(
+      books
+        .map((b) => b.format)
+        .filter((f): f is BookFormat => f !== null && f !== undefined),
     ),
   ).sort();
 
@@ -87,6 +97,11 @@ export function ViewBooksPage() {
       if (readStatus !== filterMap[filterReadStatus]) {
         return false;
       }
+    }
+
+    // Format filter
+    if (filterFormat !== "ALL" && book.format !== filterFormat) {
+      return false;
     }
 
     return true;
@@ -134,6 +149,7 @@ export function ViewBooksPage() {
     setFilterGenre("ALL");
     setFilterFinished("ALL");
     setFilterReadStatus("ALL");
+    setFilterFormat("ALL");
     setSortBy("title");
   };
 
@@ -152,7 +168,7 @@ export function ViewBooksPage() {
           </div>
 
           <div className="mt-8 space-y-5 rounded-2xl border border-stone-200/60 bg-stone-50/40 p-5 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
               <div className="relative">
                 <Input
                   id="search"
@@ -216,6 +232,20 @@ export function ViewBooksPage() {
               />
 
               <Select
+                id="filter-format"
+                label="Format"
+                value={filterFormat}
+                onChange={(e) => setFilterFormat(e.target.value)}
+                options={[
+                  { value: "ALL", label: "All Formats" },
+                  ...availableFormats.map((fmt) => ({
+                    value: fmt,
+                    label: BOOK_FORMAT_LABELS[fmt],
+                  })),
+                ]}
+              />
+
+              <Select
                 id="sort-by"
                 label="Sort"
                 value={sortBy}
@@ -237,6 +267,7 @@ export function ViewBooksPage() {
                 filterGenre !== "ALL" ||
                 filterFinished !== "ALL" ||
                 filterReadStatus !== "ALL" ||
+                filterFormat !== "ALL" ||
                 sortBy !== "title") && (
                 <Button
                   variant="secondary"

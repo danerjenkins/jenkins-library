@@ -12,6 +12,8 @@ import {
   predictGenreFromSubjects,
 } from "../../../integrations/openLibrary";
 import { debounce } from "../../../utils/debounce";
+import type { BookFormat } from "../bookTypes";
+import { BOOK_FORMAT_LABELS } from "../bookTypes";
 
 interface BookFormProps {
   isEditing: boolean;
@@ -21,6 +23,7 @@ interface BookFormProps {
   isbn: string;
   finished: boolean;
   coverUrl: string;
+  format: string;
   readByDane: boolean;
   readByEmma: boolean;
   onTitleChange: (value: string) => void;
@@ -29,6 +32,7 @@ interface BookFormProps {
   onIsbnChange: (value: string) => void;
   onFinishedChange: (checked: boolean) => void;
   onCoverUrlChange: (value: string) => void;
+  onFormatChange: (value: string) => void;
   onReadByDaneChange: (checked: boolean) => void;
   onReadByEmmaChange: (checked: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -44,6 +48,7 @@ export function BookForm({
   isbn,
   finished,
   coverUrl,
+  format,
   readByDane,
   readByEmma,
   onTitleChange,
@@ -52,6 +57,7 @@ export function BookForm({
   onIsbnChange,
   onFinishedChange,
   onCoverUrlChange,
+  onFormatChange,
   onReadByDaneChange,
   onReadByEmmaChange,
   onSubmit,
@@ -458,6 +464,28 @@ export function BookForm({
             Auto-filled from book metadata — please verify
           </div>
         )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="format"
+          className="text-sm font-medium text-stone-700 block mb-1"
+        >
+          Format (optional)
+        </label>
+        <select
+          id="format"
+          value={format}
+          onChange={(e) => onFormatChange(e.target.value)}
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+        >
+          <option value="">— Unknown</option>
+          {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map((fmt) => (
+            <option key={fmt} value={fmt}>
+              {BOOK_FORMAT_LABELS[fmt]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

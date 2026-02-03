@@ -36,6 +36,23 @@ export class LibraryCatalogDB extends Dexie {
             }
           });
       });
+
+    // Version 3 schema with book format
+    this.version(3)
+      .stores({
+        books: "id, title, author, createdAt, updatedAt",
+      })
+      .upgrade(async (tx) => {
+        // Ensure format field exists (optional, so undefined is fine)
+        await tx
+          .table("books")
+          .toCollection()
+          .modify((book: any) => {
+            if (book.format === undefined) {
+              book.format = undefined;
+            }
+          });
+      });
   }
 }
 

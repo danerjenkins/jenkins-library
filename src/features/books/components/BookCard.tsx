@@ -1,6 +1,6 @@
 import type { Book } from "../bookTypes";
 import { Badge } from "../../../ui/components/Badge";
-import { getReadStatusLabel } from "../bookTypes";
+import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../bookTypes";
 
 interface BookCardProps {
   book: Book;
@@ -51,6 +51,13 @@ export function BookCard({
               {book.genre && (
                 <div className="mt-3">
                   <Badge variant="amber">{book.genre}</Badge>
+                </div>
+              )}
+              {book.format && (
+                <div className="mt-1">
+                  <span className="inline-block rounded-md bg-stone-100 px-2 py-0.5 text-xs text-stone-600">
+                    {BOOK_FORMAT_LABELS[book.format]}
+                  </span>
                 </div>
               )}
             </div>
@@ -133,6 +140,11 @@ export function BookCard({
           {book.genre && (
             <p className="font-sans mt-1 text-xs text-stone-500">
               Genre: {book.genre}
+            </p>
+          )}
+          {book.format && (
+            <p className="font-sans mt-1 text-xs text-stone-500">
+              Format: {BOOK_FORMAT_LABELS[book.format]}
             </p>
           )}
         </div>

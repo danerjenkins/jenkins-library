@@ -1,6 +1,18 @@
 /**
  * Book model for the library catalog
  */
+
+export type BookFormat = 'mmpb' | 'paperback' | 'hardcover' | 'ebook' | 'audiobook' | 'other';
+
+export const BOOK_FORMAT_LABELS: Record<BookFormat, string> = {
+  mmpb: 'Mass Market Paperback',
+  paperback: 'Paperback',
+  hardcover: 'Hardcover',
+  ebook: 'E-book',
+  audiobook: 'Audiobook',
+  other: 'Other',
+};
+
 export interface Book {
   /** Primary key */
   id: string;
@@ -20,6 +32,8 @@ export interface Book {
   readByDane: boolean;
   /** Whether Emma has read this book */
   readByEmma: boolean;
+  /** Book format (optional) */
+  format?: BookFormat;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */
