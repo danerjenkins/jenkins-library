@@ -34,7 +34,7 @@ interface BookFormProps {
   coverPhotoUrl: string | null;
   showCoverSaved: boolean;
   showCoverPhotoControls: boolean;
-  coverPhotoInputRef: React.RefObject<HTMLInputElement>;
+  coverPhotoInputRef: React.RefObject<HTMLInputElement | null>;
   onCoverPhotoFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCoverPhotoPick: () => void;
   onRemoveCoverPhoto: () => void;
