@@ -78,7 +78,7 @@ export function BookCard({
 
   if (isView) {
     return (
-      <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm transition hover:shadow-md hover:border-stone-200/70 overflow-hidden">
+      <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm transition hover:shadow-md hover:border-stone-200/70 overflow-hidden h-full">
         {clickable ? (
           <Link to={`/book/${book.id}`} className="block">
             <CoverImage />
@@ -86,7 +86,7 @@ export function BookCard({
         ) : (
           <CoverImage />
         )}
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-2 p-4 flex-1">
           <div>
             {clickable ? (
               <Link to={`/book/${book.id}`}>
@@ -130,8 +130,9 @@ export function BookCard({
             </div>
           )}
           {onReadStatusChange && (
-            <div className="flex gap-3 mt-2 pt-2 border-t border-stone-200">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="flex items-center gap-2 mt-auto pt-2 border-t border-stone-200">
+              <span className="text-xs font-medium text-stone-700">Read by:</span>
+              <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={book.readByDane}
@@ -146,7 +147,7 @@ export function BookCard({
                 />
                 <span className="text-xs font-medium text-stone-700">Dane</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={book.readByEmma}
@@ -170,9 +171,9 @@ export function BookCard({
 
   // Admin view
   return (
-    <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm overflow-hidden">
+    <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm overflow-hidden h-full">
       <CoverImage />
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-2 p-4 flex-1">
         <div>
           <h3
             className={`font-display font-bold text-stone-900 line-clamp-2 ${titleSize}`}
@@ -191,7 +192,7 @@ export function BookCard({
           </div>
         )}
         {actions && (
-          <div className="flex gap-2 mt-2 pt-2 border-t border-stone-200">
+          <div className="flex gap-2 mt-auto pt-2 border-t border-stone-200">
             {actions}
           </div>
         )}
