@@ -21,12 +21,16 @@ interface BookFormProps {
   isbn: string;
   finished: boolean;
   coverUrl: string;
+  readByDane: boolean;
+  readByEmma: boolean;
   onTitleChange: (value: string) => void;
   onAuthorChange: (value: string) => void;
   onGenreChange: (value: string) => void;
   onIsbnChange: (value: string) => void;
   onFinishedChange: (checked: boolean) => void;
   onCoverUrlChange: (value: string) => void;
+  onReadByDaneChange: (checked: boolean) => void;
+  onReadByEmmaChange: (checked: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -40,12 +44,16 @@ export function BookForm({
   isbn,
   finished,
   coverUrl,
+  readByDane,
+  readByEmma,
   onTitleChange,
   onAuthorChange,
   onGenreChange,
   onIsbnChange,
   onFinishedChange,
   onCoverUrlChange,
+  onReadByDaneChange,
+  onReadByEmmaChange,
   onSubmit,
   onCancel,
   children,
@@ -554,20 +562,38 @@ export function BookForm({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <input
-          id="finished"
-          type="checkbox"
-          checked={finished}
-          onChange={(e) => onFinishedChange(e.target.checked)}
-          className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
-        />
-        <label
-          htmlFor="finished"
-          className="text-sm font-medium text-stone-700"
-        >
-          I've finished reading this book
-        </label>
+      <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+        <h4 className="text-sm font-semibold text-stone-700">Read Status</h4>
+        <div className="flex items-center gap-2">
+          <input
+            id="readByDane"
+            type="checkbox"
+            checked={readByDane}
+            onChange={(e) => onReadByDaneChange(e.target.checked)}
+            className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+          />
+          <label
+            htmlFor="readByDane"
+            className="text-sm font-medium text-stone-700"
+          >
+            Read by Dane
+          </label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            id="readByEmma"
+            type="checkbox"
+            checked={readByEmma}
+            onChange={(e) => onReadByEmmaChange(e.target.checked)}
+            className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+          />
+          <label
+            htmlFor="readByEmma"
+            className="text-sm font-medium text-stone-700"
+          >
+            Read by Emma
+          </label>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">

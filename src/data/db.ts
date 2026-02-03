@@ -15,6 +15,27 @@ export class LibraryCatalogDB extends Dexie {
     this.version(1).stores({
       books: "id, title, author, createdAt, updatedAt",
     });
+
+    // Version 2 schema with read status
+    this.version(2)
+      .stores({
+        books: "id, title, author, createdAt, updatedAt",
+      })
+      .upgrade(async (tx) => {
+        // Migrate existing books to have readByDane and readByEmma
+        await tx
+          .table("books")
+          .toCollection()
+          .modify((book: any) => {
+            // If book doesn't have new fields, set them to false
+            if (book.readByDane === undefined) {
+              book.readByDane = false;
+            }
+            if (book.readByEmma === undefined) {
+              book.readByEmma = false;
+            }
+          });
+      });
   }
 }
 

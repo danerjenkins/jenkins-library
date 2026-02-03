@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { getAllBooks, updateBook } from "../../data/bookRepo";
-import type { Book } from "./bookTypes";
+import type { Book, ReadStatus } from "./bookTypes";
+import { getReadStatus } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
@@ -18,6 +19,9 @@ export function ViewBooksPage() {
   const [filterGenre, setFilterGenre] = useState("ALL");
   const [filterFinished, setFilterFinished] = useState<
     "ALL" | "FINISHED" | "UNFINISHED"
+  >("ALL");
+  const [filterReadStatus, setFilterReadStatus] = useState<
+    "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("title");
 
@@ -71,6 +75,20 @@ export function ViewBooksPage() {
       return false;
     }
 
+    // Read status filter
+    if (filterReadStatus !== "ALL") {
+      const readStatus = getReadStatus(book);
+      const filterMap: Record<string, ReadStatus> = {
+        NEITHER: "neither",
+        DANE: "dane",
+        EMMA: "emma",
+        BOTH: "both",
+      };
+      if (readStatus !== filterMap[filterReadStatus]) {
+        return false;
+      }
+    }
+
     return true;
   });
 
@@ -88,20 +106,21 @@ export function ViewBooksPage() {
     }
   });
 
-  const handleToggleFinished = async (
+  const handleReadStatusChange = async (
     bookId: string,
-    currentFinished: boolean,
+    readByDane: boolean,
+    readByEmma: boolean,
   ) => {
     try {
       // Optimistically update UI
       setBooks((prevBooks) =>
         prevBooks.map((book) =>
-          book.id === bookId ? { ...book, finished: !currentFinished } : book,
+          book.id === bookId ? { ...book, readByDane, readByEmma } : book,
         ),
       );
 
       // Update database
-      await updateBook(bookId, { finished: !currentFinished });
+      await updateBook(bookId, { readByDane, readByEmma });
       await loadBooks();
     } catch (error) {
       console.error("Failed to update book:", error);
@@ -114,6 +133,7 @@ export function ViewBooksPage() {
     setSearchQuery("");
     setFilterGenre("ALL");
     setFilterFinished("ALL");
+    setFilterReadStatus("ALL");
     setSortBy("title");
   };
 
@@ -132,7 +152,7 @@ export function ViewBooksPage() {
           </div>
 
           <div className="mt-8 space-y-5 rounded-2xl border border-stone-200/60 bg-stone-50/40 p-5 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <div className="relative">
                 <Input
                   id="search"
@@ -173,6 +193,29 @@ export function ViewBooksPage() {
               />
 
               <Select
+                id="filter-read-status"
+                label="Read By"
+                value={filterReadStatus}
+                onChange={(e) =>
+                  setFilterReadStatus(
+                    e.target.value as
+                      | "ALL"
+                      | "NEITHER"
+                      | "DANE"
+                      | "EMMA"
+                      | "BOTH",
+                  )
+                }
+                options={[
+                  { value: "ALL", label: "All" },
+                  { value: "NEITHER", label: "To read" },
+                  { value: "DANE", label: "Read by Dane" },
+                  { value: "EMMA", label: "Read by Emma" },
+                  { value: "BOTH", label: "Read by both" },
+                ]}
+              />
+
+              <Select
                 id="sort-by"
                 label="Sort"
                 value={sortBy}
@@ -193,6 +236,7 @@ export function ViewBooksPage() {
               {(searchQuery ||
                 filterGenre !== "ALL" ||
                 filterFinished !== "ALL" ||
+                filterReadStatus !== "ALL" ||
                 sortBy !== "title") && (
                 <Button
                   variant="secondary"
@@ -238,7 +282,7 @@ export function ViewBooksPage() {
                   key={book.id}
                   book={book}
                   variant="view"
-                  onToggleFinished={handleToggleFinished}
+                  onReadStatusChange={handleReadStatusChange}
                 />
               ))}
             </div>

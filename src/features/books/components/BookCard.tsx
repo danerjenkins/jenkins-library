@@ -1,18 +1,23 @@
 import type { Book } from "../bookTypes";
 import { Badge } from "../../../ui/components/Badge";
+import { getReadStatusLabel } from "../bookTypes";
 
 interface BookCardProps {
   book: Book;
   variant?: "view" | "admin";
   actions?: React.ReactNode;
-  onToggleFinished?: (bookId: string, currentFinishedStatus: boolean) => void;
+  onReadStatusChange?: (
+    bookId: string,
+    readByDane: boolean,
+    readByEmma: boolean,
+  ) => void;
 }
 
 export function BookCard({
   book,
   variant = "view",
   actions,
-  onToggleFinished,
+  onReadStatusChange,
 }: BookCardProps) {
   const isView = variant === "view";
 
@@ -38,6 +43,7 @@ export function BookCard({
                   {book.title}
                 </h3>
                 {book.finished && <Badge variant="success">Finished</Badge>}
+                <Badge variant="amber">{getReadStatusLabel(book)}</Badge>
               </div>
               <p className="font-sans mt-2 text-sm text-stone-600">
                 {book.author}
@@ -48,20 +54,51 @@ export function BookCard({
                 </div>
               )}
             </div>
-            {onToggleFinished && (
-              <button
-                onClick={() =>
-                  onToggleFinished(book.id, book.finished || false)
-                }
-                className={`self-start rounded-md border px-3 py-1.5 text-xs font-medium transition sm:self-auto shrink-0 ${
-                  book.finished
-                    ? "border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900"
-                    : "border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700"
-                }`}
-                title={book.finished ? "Mark as to read" : "Mark as done"}
-              >
-                {book.finished ? "Mark To Read" : "Mark Done"}
-              </button>
+            {onReadStatusChange && (
+              <div className="space-y-2 self-start sm:self-auto shrink-0">
+                <div className="flex items-center gap-2">
+                  <input
+                    id={`dane-${book.id}`}
+                    type="checkbox"
+                    checked={book.readByDane}
+                    onChange={(e) =>
+                      onReadStatusChange(
+                        book.id,
+                        e.target.checked,
+                        book.readByEmma,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                  />
+                  <label
+                    htmlFor={`dane-${book.id}`}
+                    className="text-xs font-medium text-stone-700 cursor-pointer"
+                  >
+                    Dane
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id={`emma-${book.id}`}
+                    type="checkbox"
+                    checked={book.readByEmma}
+                    onChange={(e) =>
+                      onReadStatusChange(
+                        book.id,
+                        book.readByDane,
+                        e.target.checked,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                  />
+                  <label
+                    htmlFor={`emma-${book.id}`}
+                    className="text-xs font-medium text-stone-700 cursor-pointer"
+                  >
+                    Emma
+                  </label>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -90,6 +127,7 @@ export function BookCard({
               {book.title}
             </h3>
             {book.finished && <Badge variant="success">Finished</Badge>}
+            <Badge variant="amber">{getReadStatusLabel(book)}</Badge>
           </div>
           <p className="font-sans text-sm text-stone-600">{book.author}</p>
           {book.genre && (

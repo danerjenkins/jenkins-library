@@ -24,6 +24,8 @@ export function AdminBooksPage() {
   const [isbn, setIsbn] = useState("");
   const [finished, setFinished] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
+  const [readByDane, setReadByDane] = useState(false);
+  const [readByEmma, setReadByEmma] = useState(false);
 
   // Sync info state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
@@ -78,6 +80,8 @@ export function AdminBooksPage() {
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
+          readByDane,
+          readByEmma,
         });
       } else {
         // Add new book
@@ -88,6 +92,8 @@ export function AdminBooksPage() {
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
+          readByDane,
+          readByEmma,
         });
       }
       setTitle("");
@@ -96,6 +102,8 @@ export function AdminBooksPage() {
       setIsbn("");
       setFinished(false);
       setCoverUrl("");
+      setReadByDane(false);
+      setReadByEmma(false);
       setEditingId(null);
       setShowForm(false);
       await loadBooks();
@@ -111,6 +119,8 @@ export function AdminBooksPage() {
     setIsbn(book.isbn || "");
     setFinished(book.finished || false);
     setCoverUrl(book.coverUrl || "");
+    setReadByDane(book.readByDane);
+    setReadByEmma(book.readByEmma);
     setEditingId(book.id);
     setShowForm(true);
   }
@@ -122,6 +132,8 @@ export function AdminBooksPage() {
     setIsbn("");
     setFinished(false);
     setCoverUrl("");
+    setReadByDane(false);
+    setReadByEmma(false);
     setEditingId(null);
     setShowForm(false);
   }
@@ -236,12 +248,16 @@ export function AdminBooksPage() {
               isbn={isbn}
               finished={finished}
               coverUrl={coverUrl}
+              readByDane={readByDane}
+              readByEmma={readByEmma}
               onTitleChange={setTitle}
               onAuthorChange={setAuthor}
               onGenreChange={setGenre}
               onIsbnChange={setIsbn}
               onFinishedChange={setFinished}
               onCoverUrlChange={setCoverUrl}
+              onReadByDaneChange={setReadByDane}
+              onReadByEmmaChange={setReadByEmma}
               onSubmit={handleAddBook}
               onCancel={handleCancelEdit}
             >
