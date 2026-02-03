@@ -15,8 +15,6 @@ import type { Book, BookFormat } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
-import { syncService, type SyncStatus } from "../../sync/syncService";
-import { driveClient } from "../../sync/driveClient";
 
 export function AdminBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -36,35 +34,11 @@ export function AdminBooksPage() {
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [showCoverSaved, setShowCoverSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Sync info state
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [syncMessage, setSyncMessage] = useState<string>("");
-  const [coverSyncMessage, setCoverSyncMessage] = useState<string>("");
-  const [lastPushTime, setLastPushTime] = useState<number | null>(null);
-  const [lastPullTime, setLastPullTime] = useState<number | null>(null);
+  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">("medium");
 
   // Load books on mount
   useEffect(() => {
     loadBooks();
-    // Load sync info
-    const lastPush = syncService.getLastPushTime();
-    const lastPull = syncService.getLastPullTime();
-    const lastMsg = syncService.getLastMessage();
-    const lastErr = syncService.getLastError();
-    const lastCoverMsg = syncService.getLastCoverSyncMessage();
-
-    setLastPushTime(lastPush);
-    setLastPullTime(lastPull);
-    setCoverSyncMessage(lastCoverMsg || "");
-
-    if (lastErr) {
-      setSyncStatus("error");
-      setSyncMessage(lastErr);
-    } else if (lastMsg) {
-      setSyncStatus("success");
-      setSyncMessage(lastMsg);
-    }
   }, []);
 
   async function loadBooks() {
@@ -232,98 +206,62 @@ export function AdminBooksPage() {
     }
   }
 
-  const formatTime = (timestamp: number | null): string => {
-    if (!timestamp) return "Never";
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
-
-  const statusLabel: Record<SyncStatus, string> = {
-    idle: "Idle",
-    syncing: "Syncing",
-    success: "Success",
-    error: "Error",
-  };
-
-  const statusClass: Record<SyncStatus, string> = {
-    idle: "text-stone-500",
-    syncing: "text-amber-700",
-    success: "text-emerald-700",
-    error: "text-rose-600",
-  };
-
-  const userEmail = driveClient.getActiveUserEmail();
-  const isSignedIn = driveClient.isAuthenticated();
-  const accountLabel = isSignedIn ? userEmail || "Signed in" : "Not signed in";
-  const statusMessage = syncMessage || "Ready";
-
   return (
     <div className="space-y-6">
-      {/* Sync info panel */}
-      <section className="sync-panel border border-stone-200 rounded-2xl bg-linear-to-r from-white/50 to-amber-50/30 shadow-soft">
-        <div className="mx-auto grid gap-3 px-4 py-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-stone-500">File:</span>
-            <span className="font-mono text-xs">
-              {syncService.getSyncFilename()}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Account:</span>
-            <span>{accountLabel}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Last Push:</span>
-            <span>{formatTime(lastPushTime)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Last Pull:</span>
-            <span>{formatTime(lastPullTime)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Status:</span>
-            <span className={statusClass[syncStatus]}>
-              {statusLabel[syncStatus]}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Message:</span>
-            <span className={statusClass[syncStatus]}>{statusMessage}</span>
-          </div>
-          {coverSyncMessage && (
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-500">Cover Sync:</span>
-              <span className="text-stone-600">{coverSyncMessage}</span>
-            </div>
-          )}
-        </div>
-      </section>
-
       <section className="rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-soft sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-stone-900">
-              Manage Books
-            </h2>
-            <p className="font-sans mt-2 text-sm leading-relaxed text-stone-600">
-              Add, edit, and delete books from your library. Admin tools for
-              managing your collection.
-            </p>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-display text-3xl font-bold tracking-tight text-stone-900">
+                Manage Books
+              </h2>
+              <p className="font-sans mt-2 text-sm leading-relaxed text-stone-600">
+                Add, edit, and delete books from your library. Admin tools for
+                managing your collection.
+              </p>
+            </div>
+            {!showForm && (
+              <Button variant="primary" onClick={() => setShowForm(true)}>
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Book
+                </span>
+              </Button>
+            )}
           </div>
-          {!showForm && (
-            <Button variant="primary" onClick={() => setShowForm(true)}>
-              <span className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Book
-              </span>
-            </Button>
+          {!showForm && books.length > 0 && (
+            <div className="flex gap-1 rounded-lg border border-stone-200 p-1 self-start">
+              <button
+                onClick={() => setCardSize("small")}
+                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                  cardSize === "small"
+                    ? "bg-stone-900 text-white"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                Small
+              </button>
+              <button
+                onClick={() => setCardSize("medium")}
+                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                  cardSize === "medium"
+                    ? "bg-stone-900 text-white"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                Medium
+              </button>
+              <button
+                onClick={() => setCardSize("large")}
+                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                  cardSize === "large"
+                    ? "bg-stone-900 text-white"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                Large
+              </button>
+            </div>
           )}
         </div>
 
@@ -379,18 +317,25 @@ export function AdminBooksPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className={`grid gap-4 ${
+            cardSize === "small"
+              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+              : cardSize === "medium"
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          }`}>
             {books.map((book) => (
               <BookCard
                 key={book.id}
                 book={book}
                 variant="admin"
+                cardSize={cardSize}
                 actions={
-                  <div className="flex gap-2">
+                  <>
                     <Button
                       variant="secondary"
                       onClick={() => handleEditBook(book)}
-                      className="text-xs"
+                      className="text-xs flex-1"
                     >
                       <span className="flex items-center gap-1.5">
                         <Pencil className="h-3.5 w-3.5" />
@@ -400,14 +345,14 @@ export function AdminBooksPage() {
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteBook(book.id, book.title)}
-                      className="text-xs"
+                      className="text-xs flex-1"
                     >
                       <span className="flex items-center gap-1.5">
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete
                       </span>
                     </Button>
-                  </div>
+                  </>
                 }
               />
             ))}

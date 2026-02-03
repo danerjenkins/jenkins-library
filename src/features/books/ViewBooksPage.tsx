@@ -25,6 +25,7 @@ export function ViewBooksPage() {
   >("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("title");
+  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">("medium");
 
   // Load books on mount
   useEffect(() => {
@@ -258,25 +259,59 @@ export function ViewBooksPage() {
               />
             </div>
 
-            <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
               <div className="text-sm text-stone-600">
                 {filteredBooks.length}{" "}
                 {filteredBooks.length === 1 ? "book" : "books"}
               </div>
-              {(searchQuery ||
-                filterGenre !== "ALL" ||
-                filterFinished !== "ALL" ||
-                filterReadStatus !== "ALL" ||
-                filterFormat !== "ALL" ||
-                sortBy !== "title") && (
-                <Button
-                  variant="secondary"
-                  onClick={handleClearFilters}
-                  className="text-xs"
-                >
-                  Clear Filters
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex gap-1 rounded-lg border border-stone-200 p-1">
+                  <button
+                    onClick={() => setCardSize("small")}
+                    className={`px-3 py-1 text-xs font-medium rounded transition ${
+                      cardSize === "small"
+                        ? "bg-stone-900 text-white"
+                        : "text-stone-600 hover:bg-stone-100"
+                    }`}
+                  >
+                    Small
+                  </button>
+                  <button
+                    onClick={() => setCardSize("medium")}
+                    className={`px-3 py-1 text-xs font-medium rounded transition ${
+                      cardSize === "medium"
+                        ? "bg-stone-900 text-white"
+                        : "text-stone-600 hover:bg-stone-100"
+                    }`}
+                  >
+                    Medium
+                  </button>
+                  <button
+                    onClick={() => setCardSize("large")}
+                    className={`px-3 py-1 text-xs font-medium rounded transition ${
+                      cardSize === "large"
+                        ? "bg-stone-900 text-white"
+                        : "text-stone-600 hover:bg-stone-100"
+                    }`}
+                  >
+                    Large
+                  </button>
+                </div>
+                {(searchQuery ||
+                  filterGenre !== "ALL" ||
+                  filterFinished !== "ALL" ||
+                  filterReadStatus !== "ALL" ||
+                  filterFormat !== "ALL" ||
+                  sortBy !== "title") && (
+                  <Button
+                    variant="secondary"
+                    onClick={handleClearFilters}
+                    className="text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -307,12 +342,19 @@ export function ViewBooksPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className={`grid gap-4 ${
+              cardSize === "small"
+                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                : cardSize === "medium"
+                ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            }`}>
               {filteredBooks.map((book) => (
                 <BookCard
                   key={book.id}
                   book={book}
                   variant="view"
+                  cardSize={cardSize}
                   onReadStatusChange={handleReadStatusChange}
                 />
               ))}

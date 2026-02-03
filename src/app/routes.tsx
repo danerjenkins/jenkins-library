@@ -2,6 +2,7 @@ import { Navigate, useRouteError } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 import { ViewBooksPage } from "../features/books/ViewBooksPage";
 import { AdminBooksPage } from "../features/books/AdminBooksPage";
+import { StatsPage } from "../features/books/StatsPage";
 
 // === DIAGNOSTICS START ===
 function ErrorBoundary() {
@@ -34,6 +35,11 @@ export const routes: RouteObject[] = [
   {
     path: "/admin",
     element: <AdminBooksPage />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/stats",
+    element: <StatsPage />,
     errorElement: <ErrorBoundary />,
   },
 ];

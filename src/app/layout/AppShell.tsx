@@ -131,6 +131,16 @@ export function AppShell({ children }: AppShellProps) {
             >
               Admin
             </Link>
+            <Link
+              to="/stats"
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                location.pathname === "/stats"
+                  ? "bg-stone-100/60 text-stone-900"
+                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
+              }`}
+            >
+              Stats
+            </Link>
           </nav>
         </div>
       </header>
