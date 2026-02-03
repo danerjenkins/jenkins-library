@@ -4,16 +4,12 @@
   --color-parchment: #f6f1e7;
   --color-ink: #1f2937;
   --shadow-soft: 0 6px 20px rgba(15, 23, 42, 0.08);
+  --font-display: Fraunces, ui-serif, Georgia, serif;
 }
 
 :root {
   color: var(--color-ink);
   background-color: var(--color-parchment);
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
   line-height: 1.6;
   font-weight: 400;
   text-rendering: optimizeLegibility;
@@ -21,7 +17,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  @apply font-sans;
+}
+
 body {
+  @apply text-stone-800 antialiased;
   margin: 0;
   min-height: 100vh;
 }

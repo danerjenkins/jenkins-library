@@ -11,7 +11,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseClasses =
-    "px-4 py-2 text-sm font-semibold rounded-md shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60";
+    "font-sans px-4 py-2 text-sm font-semibold rounded-md shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60";
 
   const variantClasses = {
     primary: "bg-stone-900 text-white hover:bg-stone-800",

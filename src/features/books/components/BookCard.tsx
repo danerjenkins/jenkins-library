@@ -34,12 +34,14 @@ export function BookCard({
           <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-lg font-semibold text-stone-900">
+                <h3 className="font-display text-lg font-bold text-stone-900">
                   {book.title}
                 </h3>
                 {book.finished && <Badge variant="success">Finished</Badge>}
               </div>
-              <p className="mt-2 text-sm text-stone-600">{book.author}</p>
+              <p className="font-sans mt-2 text-sm text-stone-600">
+                {book.author}
+              </p>
               {book.genre && (
                 <div className="mt-3">
                   <Badge variant="amber">{book.genre}</Badge>
@@ -84,14 +86,16 @@ export function BookCard({
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-semibold text-stone-900">
+            <h3 className="font-display text-lg font-bold text-stone-900">
               {book.title}
             </h3>
             {book.finished && <Badge variant="success">Finished</Badge>}
           </div>
-          <p className="text-sm text-stone-600">{book.author}</p>
+          <p className="font-sans text-sm text-stone-600">{book.author}</p>
           {book.genre && (
-            <p className="mt-1 text-xs text-stone-500">Genre: {book.genre}</p>
+            <p className="font-sans mt-1 text-xs text-stone-500">
+              Genre: {book.genre}
+            </p>
           )}
         </div>
         {actions && (

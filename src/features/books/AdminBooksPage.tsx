@@ -118,10 +118,10 @@ export function AdminBooksPage() {
       <section className="rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-soft sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-3xl font-semibold text-stone-900">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-stone-900">
               Manage Books
             </h2>
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="font-sans mt-2 text-sm leading-relaxed text-stone-600">
               Add, edit, and delete books from your library. Admin tools for
               managing your collection.
             </p>

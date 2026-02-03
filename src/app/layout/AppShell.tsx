@@ -144,7 +144,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold text-stone-900">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
                 Library Catalog
               </h1>
               <div className="flex items-center gap-2 rounded-full border border-stone-200/60 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 backdrop-blur-sm">

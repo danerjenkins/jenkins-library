@@ -333,7 +333,7 @@ export function BookForm({
       onSubmit={onSubmit}
     >
       {children && (
-        <div className="mb-2 text-sm font-medium text-stone-600">
+        <div className="font-sans mb-2 text-sm font-medium text-stone-600">
           {children}
         </div>
       )}
@@ -467,7 +467,7 @@ export function BookForm({
         {/* Cover Search Section */}
         <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="text-sm font-semibold text-stone-700">
+            <h4 className="font-sans text-sm font-semibold text-stone-700">
               Cover Suggestions
             </h4>
             <button
