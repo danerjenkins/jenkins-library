@@ -82,7 +82,6 @@ export function AppShell({ children }: AppShellProps) {
       }
     } catch (error) {
       setSyncStatus("error");
-      const errorMsg = error instanceof Error ? error.message : "Sync failed";
       console.error("Sync error:", error);
     }
   };
