@@ -1,6 +1,11 @@
 import type { Book } from "../bookTypes";
 import { Badge } from "../../../ui/components/Badge";
-import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../bookTypes";
+import {
+  getReadStatusLabel,
+  BOOK_FORMAT_LABELS,
+  getGoogleImageSearchUrl,
+} from "../bookTypes";
+import { Search } from "lucide-react";
 
 interface BookCardProps {
   book: Book;
@@ -57,6 +62,13 @@ export function BookCard({
                 <div className="mt-1">
                   <span className="inline-block rounded-md bg-stone-100 px-2 py-0.5 text-xs text-stone-600">
                     {BOOK_FORMAT_LABELS[book.format]}
+                  </span>
+                </div>
+              )}
+              {book.pages && (
+                <div className="mt-1">
+                  <span className="inline-block rounded-md bg-stone-100 px-2 py-0.5 text-xs text-stone-600">
+                    {book.pages} pages
                   </span>
                 </div>
               )}
@@ -147,12 +159,24 @@ export function BookCard({
               Format: {BOOK_FORMAT_LABELS[book.format]}
             </p>
           )}
+          {book.pages && (
+            <p className="font-sans mt-1 text-xs text-stone-500">
+              Pages: {book.pages}
+            </p>
+          )}
         </div>
-        {actions && (
-          <div className="flex gap-2 self-start sm:self-auto shrink-0">
-            {actions}
-          </div>
-        )}
+        <div className="flex flex-col gap-3 self-start sm:self-auto shrink-0">
+          {actions && <div className="flex gap-2">{actions}</div>}
+          <a
+            href={getGoogleImageSearchUrl(book.title, book.author)}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition"
+          >
+            <Search className="h-3.5 w-3.5" />
+            Find cover
+          </a>
+        </div>
       </div>
     </div>
   );

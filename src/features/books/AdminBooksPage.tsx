@@ -25,6 +25,7 @@ export function AdminBooksPage() {
   const [finished, setFinished] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
   const [format, setFormat] = useState("");
+  const [pages, setPages] = useState("");
   const [readByDane, setReadByDane] = useState(false);
   const [readByEmma, setReadByEmma] = useState(false);
 
@@ -82,6 +83,7 @@ export function AdminBooksPage() {
           finished,
           coverUrl: coverUrl.trim() || null,
           format: format || undefined,
+          pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
         });
@@ -95,6 +97,7 @@ export function AdminBooksPage() {
           finished,
           coverUrl: coverUrl.trim() || null,
           format: format || undefined,
+          pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
         });
@@ -106,6 +109,7 @@ export function AdminBooksPage() {
       setFinished(false);
       setCoverUrl("");
       setFormat("");
+      setPages("");
       setReadByDane(false);
       setReadByEmma(false);
       setEditingId(null);
@@ -124,6 +128,7 @@ export function AdminBooksPage() {
     setFinished(book.finished || false);
     setCoverUrl(book.coverUrl || "");
     setFormat(book.format || "");
+    setPages(book.pages?.toString() || "");
     setReadByDane(book.readByDane);
     setReadByEmma(book.readByEmma);
     setEditingId(book.id);
@@ -138,6 +143,7 @@ export function AdminBooksPage() {
     setFinished(false);
     setCoverUrl("");
     setFormat("");
+    setPages("");
     setReadByDane(false);
     setReadByEmma(false);
     setEditingId(null);
@@ -255,6 +261,7 @@ export function AdminBooksPage() {
               finished={finished}
               coverUrl={coverUrl}
               format={format}
+              pages={pages}
               readByDane={readByDane}
               readByEmma={readByEmma}
               onTitleChange={setTitle}
@@ -264,6 +271,7 @@ export function AdminBooksPage() {
               onFinishedChange={setFinished}
               onCoverUrlChange={setCoverUrl}
               onFormatChange={setFormat}
+              onPagesChange={setPages}
               onReadByDaneChange={setReadByDane}
               onReadByEmmaChange={setReadByEmma}
               onSubmit={handleAddBook}

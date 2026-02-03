@@ -13,7 +13,11 @@ import {
 } from "../../../integrations/openLibrary";
 import { debounce } from "../../../utils/debounce";
 import type { BookFormat } from "../bookTypes";
-import { BOOK_FORMAT_LABELS, COMMON_GENRES } from "../bookTypes";
+import {
+  BOOK_FORMAT_LABELS,
+  COMMON_GENRES,
+  getGoogleImageSearchUrl,
+} from "../bookTypes";
 
 interface BookFormProps {
   isEditing: boolean;
@@ -24,6 +28,7 @@ interface BookFormProps {
   finished: boolean;
   coverUrl: string;
   format: string;
+  pages: string;
   readByDane: boolean;
   readByEmma: boolean;
   onTitleChange: (value: string) => void;
@@ -33,6 +38,7 @@ interface BookFormProps {
   onFinishedChange: (checked: boolean) => void;
   onCoverUrlChange: (value: string) => void;
   onFormatChange: (value: string) => void;
+  onPagesChange: (value: string) => void;
   onReadByDaneChange: (checked: boolean) => void;
   onReadByEmmaChange: (checked: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -49,6 +55,7 @@ export function BookForm({
   finished,
   coverUrl,
   format,
+  pages,
   readByDane,
   readByEmma,
   onTitleChange,
@@ -58,6 +65,7 @@ export function BookForm({
   onFinishedChange,
   onCoverUrlChange,
   onFormatChange,
+  onPagesChange,
   onReadByDaneChange,
   onReadByEmmaChange,
   onSubmit,
@@ -513,6 +521,25 @@ export function BookForm({
       </div>
 
       <div>
+        <label
+          htmlFor="pages"
+          className="text-sm font-medium text-stone-700 block mb-1"
+        >
+          Pages (optional)
+        </label>
+        <input
+          id="pages"
+          type="number"
+          min="1"
+          step="1"
+          value={pages}
+          onChange={(e) => onPagesChange(e.target.value)}
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+          placeholder="Enter page count"
+        />
+      </div>
+
+      <div>
         <Input
           id="coverUrl"
           label="Cover Image URL (optional)"
@@ -523,6 +550,21 @@ export function BookForm({
           }
           placeholder="https://example.com/cover.jpg"
         />
+
+        {/* Google Images Search Link */}
+        {title.trim() && (
+          <div className="mt-2">
+            <a
+              href={getGoogleImageSearchUrl(title, author)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition"
+            >
+              <Search className="h-3.5 w-3.5" />
+              Search cover on Google
+            </a>
+          </div>
+        )}
 
         {/* Cover Search Section */}
         <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">

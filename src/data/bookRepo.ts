@@ -23,6 +23,7 @@ export async function getAllBooks(): Promise<Book[]> {
     readByDane: book.readByDane ?? false,
     readByEmma: book.readByEmma ?? false,
     format: book.format,
+    pages: book.pages,
   }));
 }
 
@@ -46,6 +47,7 @@ export async function addBook(input: {
   readByDane?: boolean;
   readByEmma?: boolean;
   format?: string;
+  pages?: number;
 }): Promise<Book> {
   const now = Date.now();
   const book: Book = {
@@ -59,6 +61,7 @@ export async function addBook(input: {
     readByDane: input.readByDane ?? false,
     readByEmma: input.readByEmma ?? false,
     format: input.format as any,
+    pages: input.pages,
     createdAt: now,
     updatedAt: now,
   };

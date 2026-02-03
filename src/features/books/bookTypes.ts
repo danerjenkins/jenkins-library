@@ -64,6 +64,8 @@ export interface Book {
   readByEmma: boolean;
   /** Book format (optional) */
   format?: BookFormat;
+  /** Total number of pages (optional) */
+  pages?: number;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */
@@ -105,4 +107,16 @@ export function getReadStatus(book: Book): ReadStatus {
     return "emma";
   }
   return "neither";
+}
+
+/**
+ * Generate a Google Images search URL for a book
+ */
+export function getGoogleImageSearchUrl(
+  title: string,
+  author?: string | null,
+): string {
+  const query = `${title}${author ? ` ${author}` : ""} book cover`;
+  const encodedQuery = encodeURIComponent(query);
+  return `https://www.google.com/search?q=${encodedQuery}&tbm=isch`;
 }
