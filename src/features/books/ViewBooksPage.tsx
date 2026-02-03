@@ -25,7 +25,9 @@ export function ViewBooksPage() {
   >("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("title");
-  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">("medium");
+  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
+    "medium",
+  );
 
   // Load books on mount
   useEffect(() => {
@@ -342,19 +344,22 @@ export function ViewBooksPage() {
               </p>
             </div>
           ) : (
-            <div className={`grid gap-4 ${
-              cardSize === "small"
-                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-                : cardSize === "medium"
-                ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-            }`}>
+            <div
+              className={`grid gap-4 ${
+                cardSize === "small"
+                  ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                  : cardSize === "medium"
+                    ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                    : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              }`}
+            >
               {filteredBooks.map((book) => (
                 <BookCard
                   key={book.id}
                   book={book}
                   variant="view"
                   cardSize={cardSize}
+                  clickable={true}
                   onReadStatusChange={handleReadStatusChange}
                 />
               ))}

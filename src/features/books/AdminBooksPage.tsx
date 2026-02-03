@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import {
   getAllBooks,
@@ -17,6 +18,7 @@ import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
 
 export function AdminBooksPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -34,12 +36,27 @@ export function AdminBooksPage() {
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [showCoverSaved, setShowCoverSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">("medium");
+  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
+    "medium",
+  );
 
   // Load books on mount
   useEffect(() => {
     loadBooks();
   }, []);
+
+  // Handle edit query parameter
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId && books.length > 0) {
+      const bookToEdit = books.find((b) => b.id === editId);
+      if (bookToEdit) {
+        handleEditBook(bookToEdit);
+        // Clear the query parameter
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, books]);
 
   async function loadBooks() {
     try {
@@ -52,6 +69,27 @@ export function AdminBooksPage() {
       setLoading(false);
     }
   }
+
+  function handleEditBook(book: Book) {
+    setTitle(book.title);
+    setAuthor(book.author);
+    setGenre(book.genre || "");
+    setIsbn(book.isbn || "");
+    setFinished(book.finished || false);
+    setCoverUrl(book.coverUrl || "");
+    setFormat(book.format || "");
+    setPages(book.pages?.toString() || "");
+    setReadByDane(book.readByDane);
+    setReadByEmma(book.readByEmma);
+    setEditingId(book.id);
+    handleLoadCoverPhoto(book.id);
+    setShowForm(true);
+  }
+
+  const handleLoadCoverPhoto = async (bookId: string) => {
+    const url = await getCoverPhotoUrl(bookId);
+    setCoverPhotoUrl(url);
+  };
 
   async function handleAddBook(e: React.FormEvent) {
     e.preventDefault();
@@ -105,22 +143,6 @@ export function AdminBooksPage() {
     }
   }
 
-  function handleEditBook(book: Book) {
-    setTitle(book.title);
-    setAuthor(book.author);
-    setGenre(book.genre || "");
-    setIsbn(book.isbn || "");
-    setFinished(book.finished || false);
-    setCoverUrl(book.coverUrl || "");
-    setFormat(book.format || "");
-    setPages(book.pages?.toString() || "");
-    setReadByDane(book.readByDane);
-    setReadByEmma(book.readByEmma);
-    setEditingId(book.id);
-    handleLoadCoverPhoto(book.id);
-    setShowForm(true);
-  }
-
   function handleCancelEdit() {
     setTitle("");
     setAuthor("");
@@ -172,11 +194,6 @@ export function AdminBooksPage() {
     } catch (error) {
       console.error("Failed to remove cover photo:", error);
     }
-  };
-
-  const handleLoadCoverPhoto = async (bookId: string) => {
-    const url = await getCoverPhotoUrl(bookId);
-    setCoverPhotoUrl(url);
   };
 
   const handleCoverUrlChange = async (value: string) => {
@@ -317,13 +334,15 @@ export function AdminBooksPage() {
             </p>
           </div>
         ) : (
-          <div className={`grid gap-4 ${
-            cardSize === "small"
-              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-              : cardSize === "medium"
-              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-              : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-          }`}>
+          <div
+            className={`grid gap-4 ${
+              cardSize === "small"
+                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                : cardSize === "medium"
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                  : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            }`}
+          >
             {books.map((book) => (
               <BookCard
                 key={book.id}

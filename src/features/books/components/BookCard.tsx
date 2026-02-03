@@ -1,11 +1,9 @@
 import type { Book } from "../bookTypes";
 import { Badge } from "../../../ui/components/Badge";
-import {
-  getReadStatusLabel,
-  BOOK_FORMAT_LABELS,
-} from "../bookTypes";
+import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import { useState, useEffect } from "react";
 import { getCoverPhotoUrl } from "../../../data/db";
+import { Link } from "react-router-dom";
 
 interface BookCardProps {
   book: Book;
@@ -17,6 +15,7 @@ interface BookCardProps {
     readByEmma: boolean,
   ) => void;
   cardSize?: "small" | "medium" | "large";
+  clickable?: boolean;
 }
 
 export function BookCard({
@@ -25,6 +24,7 @@ export function BookCard({
   actions,
   onReadStatusChange,
   cardSize = "medium",
+  clickable = false,
 }: BookCardProps) {
   const isView = variant === "view";
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
@@ -49,35 +49,66 @@ export function BookCard({
     };
   }, [book.id]);
 
-  const coverHeight = cardSize === "small" ? "h-32" : cardSize === "medium" ? "h-40" : "h-48";
-  const titleSize = cardSize === "small" ? "text-sm" : cardSize === "medium" ? "text-base" : "text-lg";
+  const coverHeight =
+    cardSize === "small" ? "h-48" : cardSize === "medium" ? "h-56" : "h-64";
+  const titleSize =
+    cardSize === "small"
+      ? "text-sm"
+      : cardSize === "medium"
+        ? "text-base"
+        : "text-lg";
+
+  const CoverImage = () => (
+    <>
+      {localCoverUrl || book.coverUrl ? (
+        <img
+          src={localCoverUrl || book.coverUrl!}
+          alt={`Cover of ${book.title}`}
+          className={`w-full ${coverHeight} object-cover`}
+        />
+      ) : (
+        <div
+          className={`flex w-full ${coverHeight} items-center justify-center bg-gradient-to-br from-stone-100 to-amber-50 text-stone-400`}
+        >
+          <span className="text-4xl">📚</span>
+        </div>
+      )}
+    </>
+  );
 
   if (isView) {
     return (
       <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm transition hover:shadow-md hover:border-stone-200/70 overflow-hidden">
-        {localCoverUrl || book.coverUrl ? (
-          <img
-            src={localCoverUrl || book.coverUrl!}
-            alt={`Cover of ${book.title}`}
-            className={`w-full ${coverHeight} object-cover`}
-          />
+        {clickable ? (
+          <Link to={`/book/${book.id}`} className="block">
+            <CoverImage />
+          </Link>
         ) : (
-          <div className={`flex w-full ${coverHeight} items-center justify-center bg-gradient-to-br from-stone-100 to-amber-50 text-stone-400`}>
-            <span className="text-4xl">📚</span>
-          </div>
+          <CoverImage />
         )}
         <div className="flex flex-col gap-2 p-4">
           <div>
-            <h3 className={`font-display font-bold text-stone-900 line-clamp-2 ${titleSize}`}>
-              {book.title}
-            </h3>
+            {clickable ? (
+              <Link to={`/book/${book.id}`}>
+                <h3
+                  className={`font-display font-bold text-stone-900 line-clamp-2 hover:text-stone-700 transition ${titleSize}`}
+                >
+                  {book.title}
+                </h3>
+              </Link>
+            ) : (
+              <h3
+                className={`font-display font-bold text-stone-900 line-clamp-2 ${titleSize}`}
+              >
+                {book.title}
+              </h3>
+            )}
             <p className="font-sans mt-1 text-xs text-stone-600 line-clamp-1">
               {book.author}
             </p>
           </div>
           <div className="flex flex-wrap gap-1">
             {book.finished && <Badge variant="success">Finished</Badge>}
-            <Badge variant="amber">{getReadStatusLabel(book)}</Badge>
           </div>
           {book.genre && (
             <div>
@@ -113,9 +144,7 @@ export function BookCard({
                   }
                   className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
                 />
-                <span className="text-xs font-medium text-stone-700">
-                  Dane
-                </span>
+                <span className="text-xs font-medium text-stone-700">Dane</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -130,9 +159,7 @@ export function BookCard({
                   }
                   className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
                 />
-                <span className="text-xs font-medium text-stone-700">
-                  Emma
-                </span>
+                <span className="text-xs font-medium text-stone-700">Emma</span>
               </label>
             </div>
           )}
@@ -144,23 +171,17 @@ export function BookCard({
   // Admin view
   return (
     <div className="flex flex-col rounded-2xl border border-stone-200/50 bg-white/90 shadow-sm overflow-hidden">
-      {localCoverUrl || book.coverUrl ? (
-        <img
-          src={localCoverUrl || book.coverUrl!}
-          alt={`Cover of ${book.title}`}
-          className={`w-full ${coverHeight} object-cover`}
-        />
-      ) : (
-        <div className={`flex w-full ${coverHeight} items-center justify-center bg-gradient-to-br from-stone-100 to-amber-50 text-stone-400`}>
-          <span className="text-4xl">📚</span>
-        </div>
-      )}
+      <CoverImage />
       <div className="flex flex-col gap-2 p-4">
         <div>
-          <h3 className={`font-display font-bold text-stone-900 line-clamp-2 ${titleSize}`}>
+          <h3
+            className={`font-display font-bold text-stone-900 line-clamp-2 ${titleSize}`}
+          >
             {book.title}
           </h3>
-          <p className="font-sans mt-1 text-xs text-stone-600 line-clamp-1">{book.author}</p>
+          <p className="font-sans mt-1 text-xs text-stone-600 line-clamp-1">
+            {book.author}
+          </p>
         </div>
         {(book.genre || book.format || book.pages) && (
           <div className="text-xs text-stone-500 space-y-0.5">

@@ -3,6 +3,7 @@ import type { RouteObject } from "react-router-dom";
 import { ViewBooksPage } from "../features/books/ViewBooksPage";
 import { AdminBooksPage } from "../features/books/AdminBooksPage";
 import { StatsPage } from "../features/books/StatsPage";
+import { BookDetailPage } from "../features/books/BookDetailPage";
 
 // === DIAGNOSTICS START ===
 function ErrorBoundary() {
@@ -30,6 +31,11 @@ export const routes: RouteObject[] = [
   {
     path: "/view",
     element: <ViewBooksPage />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/book/:id",
+    element: <BookDetailPage />,
     errorElement: <ErrorBoundary />,
   },
   {
