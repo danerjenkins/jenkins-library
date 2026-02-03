@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
 import { syncService, type SyncStatus } from "../../sync/syncService";
 import "./AppShell.css";
@@ -14,22 +14,16 @@ export function AppShell({ children }: AppShellProps) {
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [coverSyncMessage, setCoverSyncMessage] = useState<string>("");
 
   // Load persisted sync state on mount
   useEffect(() => {
     const lastMsg = syncService.getLastMessage();
     const lastErr = syncService.getLastError();
-    const lastCoverMsg = syncService.getLastCoverSyncMessage();
 
     if (lastErr) {
       setSyncStatus("error");
     } else if (lastMsg) {
       setSyncStatus("success");
-    }
-
-    if (lastCoverMsg) {
-      setCoverSyncMessage(lastCoverMsg);
     }
 
     // Load stored client ID
@@ -83,38 +77,14 @@ export function AppShell({ children }: AppShellProps) {
 
       if (result.status === "success") {
         setSyncStatus("success");
-        setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
         // Reload the page to show updated data
         window.location.reload();
       } else {
         setSyncStatus("error");
-        setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
       }
     } catch (error) {
       setSyncStatus("error");
       console.error("Sync error:", error);
-    }
-  };
-
-  // DEBUG: remove after cover sync validated
-  const handleCoverSyncDebug = async () => {
-    if (!isOnline) {
-      alert("You must be online to sync with Google Drive.");
-      return;
-    }
-
-    if (!syncService.getClientId() && !configureClientId()) {
-      return;
-    }
-
-    setSyncStatus("syncing");
-    try {
-      await syncService.debugCoverSync();
-      setSyncStatus("success");
-      setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
-    } catch (error) {
-      setSyncStatus("error");
-      console.error("Cover sync debug error:", error);
     }
   };
 
@@ -125,52 +95,20 @@ export function AppShell({ children }: AppShellProps) {
       <header className="border-b border-stone-200/40 bg-linear-to-b from-white/95 to-white/90 shadow-sm backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
-                Library Catalog
-              </h1>
-              <div className="flex items-center gap-2 rounded-full border border-stone-200/60 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 backdrop-blur-sm">
-                {isOnline ? (
-                  <Wifi
-                    className="h-3.5 w-3.5 text-emerald-600"
-                    aria-label="Online"
-                  />
-                ) : (
-                  <WifiOff
-                    className="h-3.5 w-3.5 text-rose-600"
-                    aria-label="Offline"
-                  />
-                )}
-                <span>{isOnline ? "Online" : "Offline"}</span>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={handleSyncNow}
-                disabled={isSyncing || !isOnline}
-                title="Sync with Google Drive"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
-                />
-                Sync now
-              </button>
-              {/* DEBUG: remove after cover sync validated */}
-              <button
-                className="flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={handleCoverSyncDebug}
-                disabled={isSyncing || !isOnline}
-                title="Cover Sync Debug (dry run)"
-              >
-                Cover Sync Debug
-              </button>
-            </div>
-            {coverSyncMessage && (
-              <div className="mt-2 text-xs text-stone-600">
-                {coverSyncMessage}
-              </div>
-            )}
+            <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
+              Library Catalog
+            </h1>
+            <button
+              className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={handleSyncNow}
+              disabled={isSyncing || !isOnline}
+              title="Sync with Google Drive"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
+              />
+              Sync now
+            </button>
           </div>
           <nav className="flex gap-4 border-t border-stone-200/40 py-3">
             <Link
