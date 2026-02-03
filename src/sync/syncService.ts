@@ -1,5 +1,9 @@
 import { driveClient, SYNC_FILENAME } from "./driveClient";
-import { initializeCoverSync } from "./coverSyncService";
+import {
+  initializeCoverSync,
+  pushCoversToDrive,
+  pullCoversFromDrive,
+} from "./coverSyncService";
 import {
   exportBooks,
   importBooks,
@@ -16,6 +20,7 @@ const STORAGE_KEYS = {
   LAST_PULL: "sync:lastPullAt",
   LAST_MESSAGE: "sync:lastMessage",
   LAST_ERROR: "sync:lastError",
+  LAST_COVER_SYNC: "sync:lastCoverSync",
 } as const;
 
 /**
@@ -78,6 +83,13 @@ class SyncService {
   }
 
   /**
+   * Get last cover sync message from localStorage
+   */
+  getLastCoverSyncMessage(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.LAST_COVER_SYNC);
+  }
+
+  /**
    * Save last push timestamp
    */
   private saveLastPushTime(timestamp: number): void {
@@ -97,6 +109,13 @@ class SyncService {
   private saveMessage(message: string): void {
     localStorage.setItem(STORAGE_KEYS.LAST_MESSAGE, message);
     localStorage.removeItem(STORAGE_KEYS.LAST_ERROR);
+  }
+
+  /**
+   * Save cover sync message
+   */
+  private saveCoverSyncMessage(message: string): void {
+    localStorage.setItem(STORAGE_KEYS.LAST_COVER_SYNC, message);
   }
 
   /**
@@ -187,10 +206,44 @@ class SyncService {
       // Upload to Drive
       await driveClient.uploadFile(jsonContent);
 
+      // Upload cover photos
+      try {
+        const coverSummary = await pushCoversToDrive();
+        const coverMessage = `Cover sync: uploaded ${coverSummary.uploaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
+        this.saveCoverSyncMessage(coverMessage);
+        if (coverSummary.errors.length > 0) {
+          console.error("Cover sync errors:", coverSummary.errors);
+        }
+      } catch (coverError) {
+        const message =
+          coverError instanceof Error
+            ? coverError.message
+            : "Cover sync failed";
+        this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
+        console.error("Cover sync failed:", coverError);
+      }
+
       // Save success state
       const now = Date.now();
       this.saveLastPushTime(now);
       this.saveMessage(`Pushed successfully at ${this.formatTimestamp(now)}`);
+    } catch (error) {
+      const errorMsg = this.normalizeError(error);
+      this.saveError(errorMsg);
+      throw new Error(errorMsg);
+    }
+  }
+
+  /**
+   * DEBUG: Run cover sync in dry-run mode (no uploads)
+   */
+  async debugCoverSync(): Promise<void> {
+    try {
+      await this.ensureAuthenticated();
+      const summary = await pushCoversToDrive({ dryRun: true });
+      const coverMessage = `Cover sync (dry run): ${summary.attempted} covers`;
+      this.saveCoverSyncMessage(coverMessage);
+      console.debug("Cover sync dry run summary", summary);
     } catch (error) {
       const errorMsg = this.normalizeError(error);
       this.saveError(errorMsg);
@@ -248,6 +301,40 @@ class SyncService {
 
       // Import the data
       await importBooks(remoteData);
+
+      // Pull cover photos
+      try {
+        const coverSummary = await pullCoversFromDrive();
+        const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
+        this.saveCoverSyncMessage(coverMessage);
+        if (coverSummary.errors.length > 0) {
+          console.error("Cover sync errors:", coverSummary.errors);
+        }
+      } catch (coverError) {
+        const message =
+          coverError instanceof Error
+            ? coverError.message
+            : "Cover sync failed";
+        this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
+        console.error("Cover sync failed:", coverError);
+      }
+
+      // Pull cover photos
+      try {
+        const coverSummary = await pullCoversFromDrive();
+        const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
+        this.saveCoverSyncMessage(coverMessage);
+        if (coverSummary.errors.length > 0) {
+          console.error("Cover sync errors:", coverSummary.errors);
+        }
+      } catch (coverError) {
+        const message =
+          coverError instanceof Error
+            ? coverError.message
+            : "Cover sync failed";
+        this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
+        console.error("Cover sync failed:", coverError);
+      }
 
       // Save success state
       const now = Date.now();

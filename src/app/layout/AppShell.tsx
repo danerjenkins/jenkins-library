@@ -14,16 +14,22 @@ export function AppShell({ children }: AppShellProps) {
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [coverSyncMessage, setCoverSyncMessage] = useState<string>("");
 
   // Load persisted sync state on mount
   useEffect(() => {
     const lastMsg = syncService.getLastMessage();
     const lastErr = syncService.getLastError();
+    const lastCoverMsg = syncService.getLastCoverSyncMessage();
 
     if (lastErr) {
       setSyncStatus("error");
     } else if (lastMsg) {
       setSyncStatus("success");
+    }
+
+    if (lastCoverMsg) {
+      setCoverSyncMessage(lastCoverMsg);
     }
 
     // Load stored client ID
@@ -77,12 +83,36 @@ export function AppShell({ children }: AppShellProps) {
 
       if (result.status === "success") {
         setSyncStatus("success");
+        setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
       } else {
         setSyncStatus("error");
+        setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
       }
     } catch (error) {
       setSyncStatus("error");
       console.error("Sync error:", error);
+    }
+  };
+
+  // DEBUG: remove after cover sync validated
+  const handleCoverSyncDebug = async () => {
+    if (!isOnline) {
+      alert("You must be online to sync with Google Drive.");
+      return;
+    }
+
+    if (!syncService.getClientId() && !configureClientId()) {
+      return;
+    }
+
+    setSyncStatus("syncing");
+    try {
+      await syncService.debugCoverSync();
+      setSyncStatus("success");
+      setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
+    } catch (error) {
+      setSyncStatus("error");
+      console.error("Cover sync debug error:", error);
     }
   };
 
@@ -124,7 +154,21 @@ export function AppShell({ children }: AppShellProps) {
                 />
                 Sync now
               </button>
+              {/* DEBUG: remove after cover sync validated */}
+              <button
+                className="flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleCoverSyncDebug}
+                disabled={isSyncing || !isOnline}
+                title="Cover Sync Debug (dry run)"
+              >
+                Cover Sync Debug
+              </button>
             </div>
+            {coverSyncMessage && (
+              <div className="mt-2 text-xs text-stone-600">
+                {coverSyncMessage}
+              </div>
+            )}
           </div>
           <nav className="flex gap-4 border-t border-stone-200/40 py-3">
             <Link

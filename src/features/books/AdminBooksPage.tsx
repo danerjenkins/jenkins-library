@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Pencil, Trash2, Plus, Camera } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import {
   getAllBooks,
   addBook,
@@ -11,7 +11,7 @@ import {
   deleteCoverPhoto,
   getCoverPhotoUrl,
 } from "../../data/db";
-import type { Book } from "./bookTypes";
+import type { Book, BookFormat } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
@@ -40,6 +40,7 @@ export function AdminBooksPage() {
   // Sync info state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [syncMessage, setSyncMessage] = useState<string>("");
+  const [coverSyncMessage, setCoverSyncMessage] = useState<string>("");
   const [lastPushTime, setLastPushTime] = useState<number | null>(null);
   const [lastPullTime, setLastPullTime] = useState<number | null>(null);
 
@@ -51,9 +52,11 @@ export function AdminBooksPage() {
     const lastPull = syncService.getLastPullTime();
     const lastMsg = syncService.getLastMessage();
     const lastErr = syncService.getLastError();
+    const lastCoverMsg = syncService.getLastCoverSyncMessage();
 
     setLastPushTime(lastPush);
     setLastPullTime(lastPull);
+    setCoverSyncMessage(lastCoverMsg || "");
 
     if (lastErr) {
       setSyncStatus("error");
@@ -90,7 +93,7 @@ export function AdminBooksPage() {
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
-          format: (format as any) || undefined,
+          format: format ? (format as BookFormat) : undefined,
           pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
@@ -104,7 +107,7 @@ export function AdminBooksPage() {
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
-          format: (format as any) || undefined,
+          format: format ? (format as BookFormat) : undefined,
           pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
@@ -168,6 +171,8 @@ export function AdminBooksPage() {
 
     try {
       await saveCoverPhoto(editingId, file);
+      await updateBook(editingId, { coverUrl: null });
+      setCoverUrl("");
       const url = await getCoverPhotoUrl(editingId);
       setCoverPhotoUrl(url);
       setShowCoverSaved(true);
@@ -198,6 +203,22 @@ export function AdminBooksPage() {
   const handleLoadCoverPhoto = async (bookId: string) => {
     const url = await getCoverPhotoUrl(bookId);
     setCoverPhotoUrl(url);
+  };
+
+  const handleCoverUrlChange = async (value: string) => {
+    setCoverUrl(value);
+
+    if (value.trim() && editingId) {
+      try {
+        await deleteCoverPhoto(editingId);
+        if (coverPhotoUrl) {
+          URL.revokeObjectURL(coverPhotoUrl);
+        }
+        setCoverPhotoUrl(null);
+      } catch (error) {
+        console.error("Failed to clear local cover photo:", error);
+      }
+    }
   };
 
   async function handleDeleteBook(id: string, bookTitle: string) {
@@ -276,6 +297,12 @@ export function AdminBooksPage() {
             <span className="font-semibold text-slate-500">Message:</span>
             <span className={statusClass[syncStatus]}>{statusMessage}</span>
           </div>
+          {coverSyncMessage && (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-500">Cover Sync:</span>
+              <span className="text-stone-600">{coverSyncMessage}</span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -302,67 +329,6 @@ export function AdminBooksPage() {
 
         {showForm && (
           <div className="mt-5 space-y-4">
-            {editingId && (
-              <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-stone-700 mb-2">
-                      Cover Photo
-                    </h4>
-                    {coverPhotoUrl && (
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={coverPhotoUrl}
-                          alt="Cover preview"
-                          className="h-16 w-12 rounded object-cover shadow-sm"
-                        />
-                        <div className="flex flex-col gap-2">
-                          <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
-                          >
-                            <Camera className="h-3 w-3" />
-                            Replace Photo
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleRemoveCoverPhoto}
-                            className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
-                          >
-                            Remove Photo
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {!coverPhotoUrl && (
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
-                      >
-                        <Camera className="h-3.5 w-3.5" />
-                        Take Cover Photo
-                      </button>
-                    )}
-                    {showCoverSaved && (
-                      <div className="mt-2 text-xs text-green-600 font-medium">
-                        ✓ Cover saved
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleCoverPhotoCapture}
-                  className="hidden"
-                />
-              </div>
-            )}
-
             <BookForm
               isEditing={!!editingId}
               title={title}
@@ -375,12 +341,19 @@ export function AdminBooksPage() {
               pages={pages}
               readByDane={readByDane}
               readByEmma={readByEmma}
+              coverPhotoUrl={coverPhotoUrl}
+              showCoverSaved={showCoverSaved}
+              showCoverPhotoControls={!!editingId}
+              coverPhotoInputRef={fileInputRef}
+              onCoverPhotoFileChange={handleCoverPhotoCapture}
+              onCoverPhotoPick={() => fileInputRef.current?.click()}
+              onRemoveCoverPhoto={handleRemoveCoverPhoto}
               onTitleChange={setTitle}
               onAuthorChange={setAuthor}
               onGenreChange={setGenre}
               onIsbnChange={setIsbn}
               onFinishedChange={setFinished}
-              onCoverUrlChange={setCoverUrl}
+              onCoverUrlChange={handleCoverUrlChange}
               onFormatChange={setFormat}
               onPagesChange={setPages}
               onReadByDaneChange={setReadByDane}

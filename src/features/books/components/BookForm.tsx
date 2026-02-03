@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Search } from "lucide-react";
+import { Camera, Search } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
 import { Button } from "../../../ui/components/Button";
 import {
@@ -31,6 +31,13 @@ interface BookFormProps {
   pages: string;
   readByDane: boolean;
   readByEmma: boolean;
+  coverPhotoUrl: string | null;
+  showCoverSaved: boolean;
+  showCoverPhotoControls: boolean;
+  coverPhotoInputRef: React.RefObject<HTMLInputElement>;
+  onCoverPhotoFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onCoverPhotoPick: () => void;
+  onRemoveCoverPhoto: () => void;
   onTitleChange: (value: string) => void;
   onAuthorChange: (value: string) => void;
   onGenreChange: (value: string) => void;
@@ -57,6 +64,13 @@ export function BookForm({
   pages,
   readByDane,
   readByEmma,
+  coverPhotoUrl,
+  showCoverSaved,
+  showCoverPhotoControls,
+  coverPhotoInputRef,
+  onCoverPhotoFileChange,
+  onCoverPhotoPick,
+  onRemoveCoverPhoto,
   onTitleChange,
   onAuthorChange,
   onGenreChange,
@@ -153,6 +167,16 @@ export function BookForm({
   }, [title, author, debouncedSearch]);
 
   const handleCoverSelect = (candidate: OpenLibraryCandidate) => {
+    const isSelected =
+      selectedCoverUrl === candidate.coverUrl ||
+      coverUrl === candidate.coverUrl;
+
+    if (isSelected) {
+      onCoverUrlChange("");
+      setSelectedCoverUrl(null);
+      return;
+    }
+
     onCoverUrlChange(candidate.coverUrl);
     setSelectedCoverUrl(candidate.coverUrl);
   };
@@ -635,6 +659,70 @@ export function BookForm({
             )}
         </div>
 
+        <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-sans text-sm font-semibold text-stone-700">
+              Cover Photo
+            </h4>
+          </div>
+          {showCoverPhotoControls ? (
+            <div className="mt-2">
+              {coverPhotoUrl ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={coverPhotoUrl}
+                    alt="Cover preview"
+                    className="h-16 w-12 rounded object-cover shadow-sm"
+                  />
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={onCoverPhotoPick}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
+                    >
+                      <Camera className="h-3 w-3" />
+                      Replace Photo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onRemoveCoverPhoto}
+                      className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
+                    >
+                      Remove Photo
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onCoverPhotoPick}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                  Take Cover Photo
+                </button>
+              )}
+              {showCoverSaved && (
+                <div className="mt-2 text-xs text-green-600 font-medium">
+                  ✓ Cover saved
+                </div>
+              )}
+              <input
+                ref={coverPhotoInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={onCoverPhotoFileChange}
+                className="hidden"
+              />
+            </div>
+          ) : (
+            <div className="mt-2 text-xs text-stone-500">
+              Save the book first to add a photo.
+            </div>
+          )}
+        </div>
+
         {coverUrl && (
           <div className="mt-2 flex items-center gap-3">
             <img
@@ -645,9 +733,21 @@ export function BookForm({
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
-            <span className="text-xs text-stone-500">
-              Current cover preview
-            </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-stone-500">
+                Current cover preview
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  onCoverUrlChange("");
+                  setSelectedCoverUrl(null);
+                }}
+                className="text-xs font-medium text-stone-600 hover:text-stone-800"
+              >
+                Clear cover
+              </button>
+            </div>
           </div>
         )}
       </div>
