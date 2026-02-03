@@ -264,13 +264,30 @@ export async function pullCoversFromDrive(): Promise<CoverPullSummary> {
 
   for (const file of files) {
     const fileName = file.name;
+    console.debug("pullCoversFromDrive processing file", { fileName });
+
     const match = /^cover_(.+)\.[^.]+$/.exec(fileName);
     if (!match) {
+      console.debug("pullCoversFromDrive filename pattern mismatch", {
+        fileName,
+      });
       summary.skipped += 1;
       continue;
     }
 
     const bookId = match[1];
+    console.debug("pullCoversFromDrive extracted bookId", { bookId, fileName });
+
+    // Check if book exists in local database
+    const bookExists = await db.books.get(bookId);
+    if (!bookExists) {
+      console.warn(
+        "pullCoversFromDrive: book not found in local DB, skipping cover",
+        { bookId, fileName },
+      );
+      summary.skipped += 1;
+      continue;
+    }
 
     try {
       const response = await fetch(

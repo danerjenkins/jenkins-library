@@ -319,23 +319,6 @@ class SyncService {
         console.error("Cover sync failed:", coverError);
       }
 
-      // Pull cover photos
-      try {
-        const coverSummary = await pullCoversFromDrive();
-        const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
-        this.saveCoverSyncMessage(coverMessage);
-        if (coverSummary.errors.length > 0) {
-          console.error("Cover sync errors:", coverSummary.errors);
-        }
-      } catch (coverError) {
-        const message =
-          coverError instanceof Error
-            ? coverError.message
-            : "Cover sync failed";
-        this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
-        console.error("Cover sync failed:", coverError);
-      }
-
       // Save success state
       const now = Date.now();
       this.saveLastPullTime(now);
@@ -458,6 +441,24 @@ class SyncService {
         // Drive is newer - pull automatically (no confirmation needed)
         if (remoteData) {
           await importBooks(remoteData);
+
+          // Pull cover photos
+          try {
+            const coverSummary = await pullCoversFromDrive();
+            const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
+            this.saveCoverSyncMessage(coverMessage);
+            if (coverSummary.errors.length > 0) {
+              console.error("Cover sync errors:", coverSummary.errors);
+            }
+          } catch (coverError) {
+            const message =
+              coverError instanceof Error
+                ? coverError.message
+                : "Cover sync failed";
+            this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
+            console.error("Cover sync failed:", coverError);
+          }
+
           const now = Date.now();
           this.saveLastPullTime(now);
           this.saveMessage(

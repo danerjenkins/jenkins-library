@@ -84,6 +84,8 @@ export function AppShell({ children }: AppShellProps) {
       if (result.status === "success") {
         setSyncStatus("success");
         setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
+        // Reload the page to show updated data
+        window.location.reload();
       } else {
         setSyncStatus("error");
         setCoverSyncMessage(syncService.getLastCoverSyncMessage() || "");
