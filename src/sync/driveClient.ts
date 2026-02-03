@@ -3,6 +3,8 @@
  * Handles authentication and file operations using Google Identity Services
  */
 
+import { getDriveFolderIds } from "../data/db";
+
 const DISCOVERY_DOC =
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
@@ -196,12 +198,22 @@ class DriveClient {
   }
 
   /**
-   * Find the sync file in Drive
+   * Find the sync file in Drive (searches in the Jenkins Library root folder)
    */
   private async findSyncFile(): Promise<string | null> {
     try {
+      // Get the root folder ID from settings
+      const folderIds = await getDriveFolderIds();
+      const rootFolderId = folderIds?.rootFolderId;
+
+      // Build the query - search by name and optionally in the root folder
+      let query = `name='${SYNC_FILENAME}' and trashed=false`;
+      if (rootFolderId) {
+        query += ` and '${rootFolderId}' in parents`;
+      }
+
       const response = await window.gapi!.client.drive.files.list({
-        q: `name='${SYNC_FILENAME}' and trashed=false`,
+        q: query,
         spaces: "drive",
         fields: "files(id, name)",
       });
@@ -216,7 +228,7 @@ class DriveClient {
 
   /**
    * Upload JSON content to Drive
-   * Creates a new file or updates existing one
+   * Creates a new file or updates existing one in the Jenkins Library root folder
    */
   async uploadFile(content: string): Promise<void> {
     if (!this.accessToken) {
@@ -224,10 +236,20 @@ class DriveClient {
     }
 
     const existingFileId = await this.findSyncFile();
-    const metadata = {
+
+    // Get the root folder ID for new file uploads
+    const folderIds = await getDriveFolderIds();
+    const rootFolderId = folderIds?.rootFolderId;
+
+    const metadata: any = {
       name: SYNC_FILENAME,
       mimeType: "application/json",
     };
+
+    // Add parent folder if we have the ID (for new files)
+    if (!existingFileId && rootFolderId) {
+      metadata.parents = [rootFolderId];
+    }
 
     const boundary = "-------314159265358979323846";
     const delimiter = `\r\n--${boundary}\r\n`;
@@ -304,6 +326,84 @@ class DriveClient {
       return null;
     }
     return null;
+  }
+
+  /**
+   * Find or create the root "Jenkins Library" folder
+   */
+  async findOrCreateRootFolder(): Promise<string> {
+    // Try to find existing root folder
+    const rootFolders = await window.gapi!.client.drive.files.list({
+      q: `name='Jenkins Library' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      spaces: "drive",
+      fields: "files(id, name)",
+    });
+
+    if (rootFolders.result.files && rootFolders.result.files.length > 0) {
+      return rootFolders.result.files[0].id;
+    }
+
+    // Create new root folder if not found
+    const newFolder = await window.gapi!.client.drive.files.create({
+      resource: {
+        name: "Jenkins Library",
+        mimeType: "application/vnd.google-apps.folder",
+      },
+    });
+
+    if (!newFolder.result.id) {
+      throw new Error("Failed to create root folder");
+    }
+
+    return newFolder.result.id;
+  }
+
+  /**
+   * Find or create the "covers" subfolder inside root folder
+   */
+  async findOrCreateCoversFolder(rootFolderId: string): Promise<string> {
+    // Try to find existing covers folder
+    const coversFolders = await window.gapi!.client.drive.files.list({
+      q: `name='covers' and mimeType='application/vnd.google-apps.folder' and trashed=false and '${rootFolderId}' in parents`,
+      spaces: "drive",
+      fields: "files(id, name)",
+    });
+
+    if (coversFolders.result.files && coversFolders.result.files.length > 0) {
+      return coversFolders.result.files[0].id;
+    }
+
+    // Create new covers folder if not found
+    const newFolder = await window.gapi!.client.drive.files.create({
+      resource: {
+        name: "covers",
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [rootFolderId],
+      },
+    });
+
+    if (!newFolder.result.id) {
+      throw new Error("Failed to create covers folder");
+    }
+
+    return newFolder.result.id;
+  }
+
+  /**
+   * Ensure Drive folder structure exists and return the folder IDs
+   */
+  async ensureDriveFolders(): Promise<{
+    rootFolderId: string;
+    coversFolderId: string;
+  }> {
+    if (!this.accessToken) {
+      throw new Error("Not authenticated. Please sign in first.");
+    }
+
+    const rootFolderId = await this.findOrCreateRootFolder();
+    const coversFolderId = await this.findOrCreateCoversFolder(rootFolderId);
+
+    return { rootFolderId, coversFolderId };
   }
 }
 

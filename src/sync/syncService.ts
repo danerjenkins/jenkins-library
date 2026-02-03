@@ -1,4 +1,5 @@
 import { driveClient, SYNC_FILENAME } from "./driveClient";
+import { initializeCoverSync } from "./coverSyncService";
 import {
   exportBooks,
   importBooks,
@@ -158,6 +159,14 @@ class SyncService {
 
     if (!driveClient.isAuthenticated()) {
       await driveClient.authorize();
+    }
+
+    // Initialize cover sync folder structure
+    try {
+      await initializeCoverSync();
+    } catch (error) {
+      console.error("Failed to initialize cover sync:", error);
+      // Don't throw - cover sync is optional and shouldn't block main sync
     }
   }
 

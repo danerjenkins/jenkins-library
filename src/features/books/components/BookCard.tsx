@@ -6,6 +6,8 @@ import {
   getGoogleImageSearchUrl,
 } from "../bookTypes";
 import { Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getCoverPhotoUrl } from "../../../data/db";
 
 interface BookCardProps {
   book: Book;
@@ -25,14 +27,35 @@ export function BookCard({
   onReadStatusChange,
 }: BookCardProps) {
   const isView = variant === "view";
+  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
+
+  // Load local cover photo if it exists
+  useEffect(() => {
+    let currentUrl: string | null = null;
+
+    const loadCoverPhoto = async () => {
+      const url = await getCoverPhotoUrl(book.id);
+      currentUrl = url;
+      setLocalCoverUrl(url);
+    };
+
+    loadCoverPhoto();
+
+    // Cleanup object URL on unmount to avoid memory leaks
+    return () => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+    };
+  }, [book.id]);
 
   if (isView) {
     return (
       <div className="rounded-2xl border border-stone-200/50 bg-white/90 px-5 py-5 shadow-sm transition hover:shadow-md hover:border-stone-200/70">
         <div className="flex gap-5">
-          {book.coverUrl ? (
+          {localCoverUrl || book.coverUrl ? (
             <img
-              src={book.coverUrl}
+              src={localCoverUrl || book.coverUrl!}
               alt={`Cover of ${book.title}`}
               className="h-28 w-20 shrink-0 rounded-lg object-cover shadow-md"
             />
@@ -128,9 +151,9 @@ export function BookCard({
   // Admin view
   return (
     <div className="flex gap-4 rounded-2xl border border-stone-200/50 bg-white/90 px-5 py-4 shadow-sm">
-      {book.coverUrl ? (
+      {localCoverUrl || book.coverUrl ? (
         <img
-          src={book.coverUrl}
+          src={localCoverUrl || book.coverUrl!}
           alt={`Cover of ${book.title}`}
           className="h-24 w-16 shrink-0 rounded-lg object-cover shadow-md"
         />

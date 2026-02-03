@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Pencil, Trash2, Plus, Camera } from "lucide-react";
 import {
   getAllBooks,
   addBook,
   updateBook,
   deleteBook,
 } from "../../data/bookRepo";
+import {
+  saveCoverPhoto,
+  deleteCoverPhoto,
+  getCoverPhotoUrl,
+} from "../../data/db";
 import type { Book } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
@@ -28,6 +33,9 @@ export function AdminBooksPage() {
   const [pages, setPages] = useState("");
   const [readByDane, setReadByDane] = useState(false);
   const [readByEmma, setReadByEmma] = useState(false);
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
+  const [showCoverSaved, setShowCoverSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync info state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
@@ -132,6 +140,7 @@ export function AdminBooksPage() {
     setReadByDane(book.readByDane);
     setReadByEmma(book.readByEmma);
     setEditingId(book.id);
+    handleLoadCoverPhoto(book.id);
     setShowForm(true);
   }
 
@@ -146,9 +155,50 @@ export function AdminBooksPage() {
     setPages("");
     setReadByDane(false);
     setReadByEmma(false);
+    setCoverPhotoUrl(null);
     setEditingId(null);
     setShowForm(false);
   }
+
+  const handleCoverPhotoCapture = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingId) return;
+
+    try {
+      await saveCoverPhoto(editingId, file);
+      const url = await getCoverPhotoUrl(editingId);
+      setCoverPhotoUrl(url);
+      setShowCoverSaved(true);
+      setTimeout(() => setShowCoverSaved(false), 2000);
+    } catch (error) {
+      console.error("Failed to save cover photo:", error);
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveCoverPhoto = async () => {
+    if (!editingId) return;
+    try {
+      await deleteCoverPhoto(editingId);
+      if (coverPhotoUrl) {
+        URL.revokeObjectURL(coverPhotoUrl);
+      }
+      setCoverPhotoUrl(null);
+    } catch (error) {
+      console.error("Failed to remove cover photo:", error);
+    }
+  };
+
+  const handleLoadCoverPhoto = async (bookId: string) => {
+    const url = await getCoverPhotoUrl(bookId);
+    setCoverPhotoUrl(url);
+  };
 
   async function handleDeleteBook(id: string, bookTitle: string) {
     if (!confirm(`Delete "${bookTitle}"?`)) return;
@@ -251,7 +301,68 @@ export function AdminBooksPage() {
         </div>
 
         {showForm && (
-          <div className="mt-5">
+          <div className="mt-5 space-y-4">
+            {editingId && (
+              <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold text-stone-700 mb-2">
+                      Cover Photo
+                    </h4>
+                    {coverPhotoUrl && (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={coverPhotoUrl}
+                          alt="Cover preview"
+                          className="h-16 w-12 rounded object-cover shadow-sm"
+                        />
+                        <div className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
+                          >
+                            <Camera className="h-3 w-3" />
+                            Replace Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoverPhoto}
+                            className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
+                          >
+                            Remove Photo
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {!coverPhotoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
+                      >
+                        <Camera className="h-3.5 w-3.5" />
+                        Take Cover Photo
+                      </button>
+                    )}
+                    {showCoverSaved && (
+                      <div className="mt-2 text-xs text-green-600 font-medium">
+                        ✓ Cover saved
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleCoverPhotoCapture}
+                  className="hidden"
+                />
+              </div>
+            )}
+
             <BookForm
               isEditing={!!editingId}
               title={title}
