@@ -109,6 +109,7 @@ export function BookForm({
   const titleSuggestRequestIdRef = useRef(0);
   const suggestionJustSelectedRef = useRef(false);
   const titleInputRef = useRef<HTMLDivElement>(null);
+  const authorFieldFocusedRef = useRef(false);
 
   const performSearch = useCallback(
     async (searchTitle: string, searchAuthor: string) => {
@@ -393,9 +394,13 @@ export function BookForm({
             onTitleChange(e.target.value)
           }
           onFocus={() => {
-            if (titleSuggestions.length > 0) {
+            if (titleSuggestions.length > 0 && !authorFieldFocusedRef.current) {
               setShowSuggestions(true);
             }
+          }}
+          onBlur={() => {
+            // Delay hiding to allow click on suggestion
+            setTimeout(() => setShowSuggestions(false), 200);
           }}
           placeholder="Enter book title"
           autoFocus
@@ -405,8 +410,46 @@ export function BookForm({
           <div className="mt-1 text-xs text-stone-500">ISBN: {isbn}</div>
         )}
 
-        {/* Title suggestions dropdown */}
-        {showSuggestions && titleSuggestions.length > 0 && (
+        {isSuggesting && (
+          <div className="mt-1 text-xs text-stone-500">Searching titles...</div>
+        )}
+      </div>
+
+      <div>
+        <Input
+          id="author"
+          label="Author"
+          type="text"
+          value={author}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleAuthorChange(e.target.value)
+          }
+          onFocus={() => {
+            authorFieldFocusedRef.current = true;
+            setShowSuggestions(false);
+          }}
+          onBlur={() => {
+            authorFieldFocusedRef.current = false;
+          }}
+          placeholder="Enter author name"
+        />
+        {authorWasAutofilled && author.trim().length > 0 && (
+          <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
+            <span>Auto-filled from title — please verify</span>
+            <button
+              type="button"
+              onClick={handleClearAuthor}
+              className="text-stone-600 underline hover:text-stone-900"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Title suggestions dropdown - positioned after author field */}
+      {showSuggestions && titleSuggestions.length > 0 && (
+        <div className="relative -mt-2">
           <div className="absolute z-10 mt-1 w-full rounded-lg border border-stone-300 bg-white shadow-lg">
             <div className="max-h-64 overflow-y-auto">
               {titleSuggestions.map((suggestion) => (
@@ -447,37 +490,8 @@ export function BookForm({
               Suggested results from Open Library
             </div>
           </div>
-        )}
-
-        {isSuggesting && (
-          <div className="mt-1 text-xs text-stone-500">Searching titles...</div>
-        )}
-      </div>
-
-      <div>
-        <Input
-          id="author"
-          label="Author"
-          type="text"
-          value={author}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleAuthorChange(e.target.value)
-          }
-          placeholder="Enter author name"
-        />
-        {authorWasAutofilled && author.trim().length > 0 && (
-          <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
-            <span>Auto-filled from title — please verify</span>
-            <button
-              type="button"
-              onClick={handleClearAuthor}
-              className="text-stone-600 underline hover:text-stone-900"
-            >
-              Clear
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div>
         <label
