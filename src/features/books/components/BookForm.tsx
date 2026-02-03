@@ -96,6 +96,7 @@ export function BookForm({
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const titleSuggestRequestIdRef = useRef(0);
+  const suggestionJustSelectedRef = useRef(false);
   const titleInputRef = useRef<HTMLDivElement>(null);
 
   const performSearch = useCallback(
@@ -260,7 +261,12 @@ export function BookForm({
         // Ignore stale responses
         if (currentRequestId === titleSuggestRequestIdRef.current) {
           setTitleSuggestions(suggestions);
-          setShowSuggestions(suggestions.length > 0);
+          // Only show suggestions if we didn't just select one
+          if (!suggestionJustSelectedRef.current) {
+            setShowSuggestions(suggestions.length > 0);
+          }
+          // Reset the flag after processing
+          suggestionJustSelectedRef.current = false;
         }
       } catch (error) {
         console.error("Failed to search title suggestions:", error);
@@ -296,6 +302,7 @@ export function BookForm({
 
   // Handle title suggestion selection
   const handleSuggestionSelect = (suggestion: TitleSuggestion) => {
+    suggestionJustSelectedRef.current = true;
     onTitleChange(suggestion.title);
 
     // Fill author from suggestion (clear previous edit flag to allow autofill)
