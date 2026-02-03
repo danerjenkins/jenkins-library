@@ -52,7 +52,6 @@ export function BookForm({
   author,
   genre,
   isbn,
-  finished,
   coverUrl,
   format,
   pages,
@@ -62,7 +61,6 @@ export function BookForm({
   onAuthorChange,
   onGenreChange,
   onIsbnChange,
-  onFinishedChange,
   onCoverUrlChange,
   onFormatChange,
   onPagesChange,
@@ -87,7 +85,6 @@ export function BookForm({
 
   // Genre autofill state
   const [genreWasAutofilled, setGenreWasAutofilled] = useState(false);
-  const [genreManuallyEdited, setGenreManuallyEdited] = useState(false);
 
   // Title suggestions state
   const [titleSuggestions, setTitleSuggestions] = useState<TitleSuggestion[]>(
@@ -229,9 +226,6 @@ export function BookForm({
   };
 
   const handleGenreChange = (value: string) => {
-    if (!genreWasAutofilled && value.trim().length > 0) {
-      setGenreManuallyEdited(true);
-    }
     if (genreWasAutofilled && value !== genre) {
       setGenreWasAutofilled(false);
     }
@@ -322,7 +316,6 @@ export function BookForm({
       if (predicted) {
         onGenreChange(predicted);
         setGenreWasAutofilled(true);
-        setGenreManuallyEdited(false);
       }
     }
 
@@ -476,9 +469,6 @@ export function BookForm({
             onChange={(e) => {
               const newGenre = e.target.value;
               handleGenreChange(newGenre);
-              if (newGenre && COMMON_GENRES.includes(newGenre)) {
-                setGenreManuallyEdited(true);
-              }
             }}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
           >
