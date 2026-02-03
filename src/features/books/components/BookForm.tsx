@@ -13,7 +13,7 @@ import {
 } from "../../../integrations/openLibrary";
 import { debounce } from "../../../utils/debounce";
 import type { BookFormat } from "../bookTypes";
-import { BOOK_FORMAT_LABELS } from "../bookTypes";
+import { BOOK_FORMAT_LABELS, COMMON_GENRES } from "../bookTypes";
 
 interface BookFormProps {
   isEditing: boolean;
@@ -449,16 +449,40 @@ export function BookForm({
       </div>
 
       <div>
-        <Input
-          id="genre"
-          label="Genre (optional)"
-          type="text"
-          value={genre}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleGenreChange(e.target.value)
-          }
-          placeholder="e.g., Fiction, Non-fiction, Mystery"
-        />
+        <label
+          htmlFor="genre"
+          className="text-sm font-medium text-stone-700 block mb-1"
+        >
+          Genre (optional)
+        </label>
+        <div className="space-y-2">
+          <select
+            id="genre"
+            value={genre}
+            onChange={(e) => {
+              const newGenre = e.target.value;
+              handleGenreChange(newGenre);
+              if (newGenre && COMMON_GENRES.includes(newGenre)) {
+                setGenreManuallyEdited(true);
+              }
+            }}
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+          >
+            <option value="">— Select or enter custom</option>
+            {COMMON_GENRES.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={genre}
+            onChange={(e) => handleGenreChange(e.target.value)}
+            placeholder="Or type a custom genre"
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+          />
+        </div>
         {genreWasAutofilled && genre.trim().length > 0 && (
           <div className="mt-1.5 text-xs text-stone-500">
             Auto-filled from book metadata — please verify

@@ -2,16 +2,46 @@
  * Book model for the library catalog
  */
 
-export type BookFormat = 'mmpb' | 'paperback' | 'hardcover' | 'ebook' | 'audiobook' | 'other';
+export type BookFormat =
+  | "mmpb"
+  | "paperback"
+  | "hardcover"
+  | "ebook"
+  | "audiobook"
+  | "other";
 
 export const BOOK_FORMAT_LABELS: Record<BookFormat, string> = {
-  mmpb: 'Mass Market Paperback',
-  paperback: 'Paperback',
-  hardcover: 'Hardcover',
-  ebook: 'E-book',
-  audiobook: 'Audiobook',
-  other: 'Other',
+  mmpb: "Mass Market Paperback",
+  paperback: "Paperback",
+  hardcover: "Hardcover",
+  ebook: "E-book",
+  audiobook: "Audiobook",
+  other: "Other",
 };
+
+export const COMMON_GENRES = [
+  "Fantasy",
+  "Science Fiction",
+  "Mystery",
+  "Thriller",
+  "Romance",
+  "Historical Fiction",
+  "Non-fiction",
+  "Biography",
+  "Memoir",
+  "Self-Help",
+  "Business",
+  "History",
+  "Philosophy",
+  "Poetry",
+  "Drama",
+  "Horror",
+  "Young Adult",
+  "Children",
+  "Classic",
+  "Adventure",
+  "Literary Fiction",
+];
 
 export interface Book {
   /** Primary key */
