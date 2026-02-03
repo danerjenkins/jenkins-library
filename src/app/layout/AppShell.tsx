@@ -4,7 +4,6 @@ import { Link, useLocation } from "react-router-dom";
 import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
 import { syncService, type SyncStatus } from "../../sync/syncService";
-import { driveClient } from "../../sync/driveClient";
 import "./AppShell.css";
 
 interface AppShellProps {
@@ -15,26 +14,16 @@ export function AppShell({ children }: AppShellProps) {
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [syncMessage, setSyncMessage] = useState<string>("");
-  const [lastPushTime, setLastPushTime] = useState<number | null>(null);
-  const [lastPullTime, setLastPullTime] = useState<number | null>(null);
 
   // Load persisted sync state on mount
   useEffect(() => {
-    const lastPush = syncService.getLastPushTime();
-    const lastPull = syncService.getLastPullTime();
     const lastMsg = syncService.getLastMessage();
     const lastErr = syncService.getLastError();
 
-    setLastPushTime(lastPush);
-    setLastPullTime(lastPull);
-
     if (lastErr) {
       setSyncStatus("error");
-      setSyncMessage(lastErr);
     } else if (lastMsg) {
       setSyncStatus("success");
-      setSyncMessage(lastMsg);
     }
 
     // Load stored client ID
@@ -72,19 +61,6 @@ export function AppShell({ children }: AppShellProps) {
     return false;
   };
 
-  const formatTime = (timestamp: number | null): string => {
-    if (!timestamp) return "Never";
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
-
   const handleSyncNow = async () => {
     if (!isOnline) {
       alert("You must be online to sync with Google Drive.");
@@ -96,47 +72,22 @@ export function AppShell({ children }: AppShellProps) {
     }
 
     setSyncStatus("syncing");
-    setSyncMessage("Syncing...");
-
     try {
       const result = await syncService.syncNow();
 
       if (result.status === "success") {
-        const pushTime = syncService.getLastPushTime();
-        const pullTime = syncService.getLastPullTime();
-        setLastPushTime(pushTime);
-        setLastPullTime(pullTime);
         setSyncStatus("success");
-        setSyncMessage(result.message);
       } else {
         setSyncStatus("error");
-        setSyncMessage(result.message);
       }
     } catch (error) {
       setSyncStatus("error");
       const errorMsg = error instanceof Error ? error.message : "Sync failed";
-      setSyncMessage(errorMsg);
       console.error("Sync error:", error);
     }
   };
 
   const isSyncing = syncStatus === "syncing";
-  const userEmail = driveClient.getActiveUserEmail();
-  const isSignedIn = driveClient.isAuthenticated();
-  const statusLabel: Record<SyncStatus, string> = {
-    idle: "Idle",
-    syncing: "Syncing",
-    success: "Success",
-    error: "Error",
-  };
-  const statusClass: Record<SyncStatus, string> = {
-    idle: "text-stone-500",
-    syncing: "text-amber-700",
-    success: "text-emerald-700",
-    error: "text-rose-600",
-  };
-  const statusMessage = syncMessage || "Ready";
-  const accountLabel = isSignedIn ? userEmail || "Signed in" : "Not signed in";
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
