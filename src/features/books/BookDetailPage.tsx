@@ -102,6 +102,11 @@ export function BookDetailPage() {
               <p className="font-sans mt-2 text-lg text-stone-600">
                 {book.author}
               </p>
+              {book.description && (
+                <p className="font-sans mt-4 text-stone-700 leading-relaxed">
+                  {book.description}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">

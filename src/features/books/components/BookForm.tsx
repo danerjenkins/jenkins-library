@@ -24,6 +24,7 @@ interface BookFormProps {
   title: string;
   author: string;
   genre: string;
+  description: string;
   isbn: string;
   finished: boolean;
   coverUrl: string;
@@ -41,6 +42,7 @@ interface BookFormProps {
   onTitleChange: (value: string) => void;
   onAuthorChange: (value: string) => void;
   onGenreChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
   onIsbnChange: (value: string) => void;
   onFinishedChange: (checked: boolean) => void;
   onCoverUrlChange: (value: string) => void;
@@ -58,6 +60,7 @@ export function BookForm({
   title,
   author,
   genre,
+  description,
   isbn,
   coverUrl,
   format,
@@ -74,6 +77,7 @@ export function BookForm({
   onTitleChange,
   onAuthorChange,
   onGenreChange,
+  onDescriptionChange,
   onIsbnChange,
   onCoverUrlChange,
   onFormatChange,
@@ -530,6 +534,22 @@ export function BookForm({
             Auto-filled from book metadata — please verify
           </div>
         )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="description"
+          className="text-sm font-medium text-stone-700 block mb-1"
+        >
+          Description (optional)
+        </label>
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-[100px] resize-y"
+          placeholder="Enter book description or summary"
+        />
       </div>
 
       <div>

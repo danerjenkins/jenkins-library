@@ -26,6 +26,7 @@ export function AdminBooksPage() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [genre, setGenre] = useState("");
+  const [description, setDescription] = useState("");
   const [isbn, setIsbn] = useState("");
   const [finished, setFinished] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
@@ -74,6 +75,7 @@ export function AdminBooksPage() {
     setTitle(book.title);
     setAuthor(book.author);
     setGenre(book.genre || "");
+    setDescription(book.description || "");
     setIsbn(book.isbn || "");
     setFinished(book.finished || false);
     setCoverUrl(book.coverUrl || "");
@@ -102,6 +104,7 @@ export function AdminBooksPage() {
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
+          description: description.trim() || null,
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
@@ -116,6 +119,7 @@ export function AdminBooksPage() {
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
+          description: description.trim() || null,
           isbn: isbn.trim() || null,
           finished,
           coverUrl: coverUrl.trim() || null,
@@ -128,6 +132,7 @@ export function AdminBooksPage() {
       setTitle("");
       setAuthor("");
       setGenre("");
+      setDescription("");
       setIsbn("");
       setFinished(false);
       setCoverUrl("");
@@ -147,6 +152,7 @@ export function AdminBooksPage() {
     setTitle("");
     setAuthor("");
     setGenre("");
+    setDescription("");
     setIsbn("");
     setFinished(false);
     setCoverUrl("");
@@ -289,6 +295,7 @@ export function AdminBooksPage() {
               title={title}
               author={author}
               genre={genre}
+              description={description}
               isbn={isbn}
               finished={finished}
               coverUrl={coverUrl}
@@ -306,6 +313,7 @@ export function AdminBooksPage() {
               onTitleChange={setTitle}
               onAuthorChange={setAuthor}
               onGenreChange={setGenre}
+              onDescriptionChange={setDescription}
               onIsbnChange={setIsbn}
               onFinishedChange={setFinished}
               onCoverUrlChange={handleCoverUrlChange}
