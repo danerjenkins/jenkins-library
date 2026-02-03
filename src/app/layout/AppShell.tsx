@@ -201,40 +201,6 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      {/* Sync status panel */}
-      <section className="sync-panel border-b border-stone-200/30 bg-linear-to-r from-white/50 to-amber-50/30 backdrop-blur-sm">
-        <div className="mx-auto grid max-w-5xl gap-3 px-4 py-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-stone-500">File:</span>
-            <span className="font-mono text-xs">
-              {syncService.getSyncFilename()}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Account:</span>
-            <span>{accountLabel}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Last Push:</span>
-            <span>{formatTime(lastPushTime)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Last Pull:</span>
-            <span>{formatTime(lastPullTime)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Status:</span>
-            <span className={statusClass[syncStatus]}>
-              {statusLabel[syncStatus]}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Message:</span>
-            <span className={statusClass[syncStatus]}>{statusMessage}</span>
-          </div>
-        </div>
-      </section>
-
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
         {children}
       </main>

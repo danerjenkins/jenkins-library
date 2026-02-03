@@ -10,6 +10,8 @@ import type { Book } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
+import { syncService, type SyncStatus } from "../../sync/syncService";
+import { driveClient } from "../../sync/driveClient";
 
 export function AdminBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -23,9 +25,31 @@ export function AdminBooksPage() {
   const [finished, setFinished] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
 
+  // Sync info state
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [syncMessage, setSyncMessage] = useState<string>("");
+  const [lastPushTime, setLastPushTime] = useState<number | null>(null);
+  const [lastPullTime, setLastPullTime] = useState<number | null>(null);
+
   // Load books on mount
   useEffect(() => {
     loadBooks();
+    // Load sync info
+    const lastPush = syncService.getLastPushTime();
+    const lastPull = syncService.getLastPullTime();
+    const lastMsg = syncService.getLastMessage();
+    const lastErr = syncService.getLastError();
+
+    setLastPushTime(lastPush);
+    setLastPullTime(lastPull);
+
+    if (lastErr) {
+      setSyncStatus("error");
+      setSyncMessage(lastErr);
+    } else if (lastMsg) {
+      setSyncStatus("success");
+      setSyncMessage(lastMsg);
+    }
   }, []);
 
   async function loadBooks() {
@@ -113,8 +137,74 @@ export function AdminBooksPage() {
     }
   }
 
+  const formatTime = (timestamp: number | null): string => {
+    if (!timestamp) return "Never";
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  const statusLabel: Record<SyncStatus, string> = {
+    idle: "Idle",
+    syncing: "Syncing",
+    success: "Success",
+    error: "Error",
+  };
+
+  const statusClass: Record<SyncStatus, string> = {
+    idle: "text-stone-500",
+    syncing: "text-amber-700",
+    success: "text-emerald-700",
+    error: "text-rose-600",
+  };
+
+  const userEmail = driveClient.getActiveUserEmail();
+  const isSignedIn = driveClient.isAuthenticated();
+  const accountLabel = isSignedIn ? userEmail || "Signed in" : "Not signed in";
+  const statusMessage = syncMessage || "Ready";
+
   return (
     <div className="space-y-6">
+      {/* Sync info panel */}
+      <section className="sync-panel border border-stone-200 rounded-2xl bg-linear-to-r from-white/50 to-amber-50/30 shadow-soft">
+        <div className="mx-auto grid gap-3 px-4 py-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-stone-500">File:</span>
+            <span className="font-mono text-xs">
+              {syncService.getSyncFilename()}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Account:</span>
+            <span>{accountLabel}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Last Push:</span>
+            <span>{formatTime(lastPushTime)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Last Pull:</span>
+            <span>{formatTime(lastPullTime)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Status:</span>
+            <span className={statusClass[syncStatus]}>
+              {statusLabel[syncStatus]}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-500">Message:</span>
+            <span className={statusClass[syncStatus]}>{statusMessage}</span>
+          </div>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-soft sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
