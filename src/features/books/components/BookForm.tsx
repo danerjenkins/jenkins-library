@@ -298,25 +298,24 @@ export function BookForm({
   const handleSuggestionSelect = (suggestion: TitleSuggestion) => {
     onTitleChange(suggestion.title);
 
-    // Fill author if not manually edited and suggestion has author
-    if (
-      !userHasEditedAuthor &&
-      author.trim().length === 0 &&
-      suggestion.author
-    ) {
+    // Fill author from suggestion (clear previous edit flag to allow autofill)
+    if (suggestion.author) {
       onAuthorChange(suggestion.author);
       setAuthorWasAutofilled(true);
+      setUserHasEditedAuthor(false);
     }
 
     if (suggestion.isbn) {
       onIsbnChange(suggestion.isbn);
     }
 
-    if (!genreManuallyEdited && genre.trim().length === 0) {
+    // Fill genre from subjects
+    if (suggestion.subjects) {
       const predicted = predictGenreFromSubjects(suggestion.subjects);
       if (predicted) {
         onGenreChange(predicted);
         setGenreWasAutofilled(true);
+        setGenreManuallyEdited(false);
       }
     }
 
