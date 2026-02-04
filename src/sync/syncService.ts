@@ -427,57 +427,70 @@ class SyncService {
         };
       }
 
-      if (localTimestamp > driveTimestamp) {
-        // Local is newer - push local automatically (no confirmation needed)
-        await this.pushToDrive();
-
-        return {
-          status: "success",
-          message: "Sync completed: local data pushed to Drive",
-        };
-      }
+      // ALWAYS push local changes first to ensure deletions are synced
+      // This prevents the issue where deleted books reappear after syncing
+      await this.pushToDrive();
 
       if (driveTimestamp > localTimestamp) {
-        // Drive is newer - pull automatically (no confirmation needed)
-        if (remoteData) {
-          await importBooks(remoteData);
-
-          // Pull cover photos
-          try {
-            const coverSummary = await pullCoversFromDrive();
-            const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
-            this.saveCoverSyncMessage(coverMessage);
-            if (coverSummary.errors.length > 0) {
-              console.error("Cover sync errors:", coverSummary.errors);
-            }
-          } catch (coverError) {
-            const message =
-              coverError instanceof Error
-                ? coverError.message
-                : "Cover sync failed";
-            this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
-            console.error("Cover sync failed:", coverError);
-          }
-
-          const now = Date.now();
-          this.saveLastPullTime(now);
-          this.saveMessage(
-            `Pulled successfully at ${this.formatTimestamp(now)}`,
+        // Drive had newer data, pull it after pushing local changes
+        // This ensures any local changes are preserved on Drive before pulling
+        const freshDriveContent = await driveClient.downloadFile();
+        let freshRemoteData: SyncPayload;
+        try {
+          freshRemoteData = JSON.parse(freshDriveContent);
+        } catch (error) {
+          throw new Error(
+            "Failed to parse sync file. The file may be corrupted.",
           );
-
-          return {
-            status: "success",
-            message: "Sync completed: pulled Drive data to local",
-          };
         }
-        // This shouldn't happen, but fall through to error
-        throw new Error("Failed to import Drive data");
+
+        if (validatePayload(freshRemoteData)) {
+          // Only pull if the remote data is actually newer than what we just pushed
+          // Get updated local timestamp after our push
+          const updatedLocalTimestamp = await getLatestLocalTimestamp();
+          if (freshRemoteData.exportedAt > updatedLocalTimestamp) {
+            await importBooks(freshRemoteData);
+
+            // Pull cover photos
+            try {
+              const coverSummary = await pullCoversFromDrive();
+              const coverMessage = `Cover sync: downloaded ${coverSummary.downloaded} / ${coverSummary.attempted} (skipped ${coverSummary.skipped})`;
+              this.saveCoverSyncMessage(coverMessage);
+              if (coverSummary.errors.length > 0) {
+                console.error("Cover sync errors:", coverSummary.errors);
+              }
+            } catch (coverError) {
+              const message =
+                coverError instanceof Error
+                  ? coverError.message
+                  : "Cover sync failed";
+              this.saveCoverSyncMessage(`Cover sync failed: ${message}`);
+              console.error("Cover sync failed:", coverError);
+            }
+
+            const now = Date.now();
+            this.saveLastPullTime(now);
+            this.saveMessage(
+              `Sync completed: pushed local changes and pulled updates at ${this.formatTimestamp(now)}`,
+            );
+
+            return {
+              status: "success",
+              message:
+                "Sync completed: pushed local changes and pulled updates",
+            };
+          }
+        }
       }
 
-      // Timestamps are equal - already in sync
+      const now = Date.now();
+      this.saveMessage(
+        `Sync completed: local changes pushed to Drive at ${this.formatTimestamp(now)}`,
+      );
+
       return {
         status: "success",
-        message: "Already in sync",
+        message: "Sync completed: local changes pushed to Drive",
       };
     } catch (error) {
       const errorMsg = this.normalizeError(error);
