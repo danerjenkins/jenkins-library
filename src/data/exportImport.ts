@@ -1,5 +1,9 @@
 import { db } from "./db";
-import { getAllBooks, getDeletedBookIds, clearDeletedBookIds } from "./bookRepo";
+import {
+  getAllBooks,
+  getDeletedBookIds,
+  clearDeletedBookIds,
+} from "./bookRepo";
 import type { Book } from "../features/books/bookTypes";
 
 export interface SyncPayload {
@@ -15,7 +19,7 @@ export interface SyncPayload {
 export async function exportBooks(): Promise<SyncPayload> {
   const books = await getAllBooks();
   const deletedIds = getDeletedBookIds();
-  
+
   return {
     schemaVersion: 1,
     exportedAt: Date.now(),
