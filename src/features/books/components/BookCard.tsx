@@ -1,9 +1,27 @@
 import type { Book } from "../bookTypes";
-import { Badge } from "../../../ui/components/Badge";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import { useState, useEffect } from "react";
 import { getCoverPhotoUrl } from "../../../data/db";
 import { Link } from "react-router-dom";
+
+// Helper function to get genre color
+function getGenreColor(genre: string): string {
+  const genreLower = genre.toLowerCase();
+  
+  if (genreLower.includes("fantasy")) return "bg-purple-100 text-purple-800 border-purple-200";
+  if (genreLower.includes("science") || genreLower.includes("sci-fi")) return "bg-blue-100 text-blue-800 border-blue-200";
+  if (genreLower.includes("mystery") || genreLower.includes("thriller")) return "bg-red-100 text-red-800 border-red-200";
+  if (genreLower.includes("romance")) return "bg-pink-100 text-pink-800 border-pink-200";
+  if (genreLower.includes("horror")) return "bg-gray-900 text-white border-gray-800";
+  if (genreLower.includes("historical")) return "bg-amber-100 text-amber-800 border-amber-200";
+  if (genreLower.includes("non-fiction") || genreLower.includes("biography") || genreLower.includes("memoir")) return "bg-teal-100 text-teal-800 border-teal-200";
+  if (genreLower.includes("young adult") || genreLower.includes("ya")) return "bg-indigo-100 text-indigo-800 border-indigo-200";
+  if (genreLower.includes("children")) return "bg-yellow-100 text-yellow-800 border-yellow-200";
+  if (genreLower.includes("classic")) return "bg-stone-200 text-stone-800 border-stone-300";
+  
+  // Default color for other genres
+  return "bg-emerald-100 text-emerald-800 border-emerald-200";
+}
 
 interface BookCardProps {
   book: Book;
@@ -107,31 +125,18 @@ export function BookCard({
               {book.author}
             </p>
           </div>
-          <div className="flex flex-wrap gap-1">
-            {book.finished && <Badge variant="success">Finished</Badge>}
-          </div>
           {book.genre && (
             <div>
-              <Badge variant="amber">{book.genre}</Badge>
-            </div>
-          )}
-          {(book.format || book.pages) && (
-            <div className="flex flex-wrap gap-1 text-xs text-stone-500">
-              {book.format && (
-                <span className="inline-block rounded-md bg-stone-100 px-2 py-0.5">
-                  {BOOK_FORMAT_LABELS[book.format]}
-                </span>
-              )}
-              {book.pages && (
-                <span className="inline-block rounded-md bg-stone-100 px-2 py-0.5">
-                  {book.pages} pages
-                </span>
-              )}
+              <span className={`inline-block rounded-md px-2 py-1 text-xs font-medium border ${getGenreColor(book.genre)}`}>
+                {book.genre}
+              </span>
             </div>
           )}
           {onReadStatusChange && (
             <div className="flex items-center gap-2 mt-auto pt-2 border-t border-stone-200">
-              <span className="text-xs font-medium text-stone-700">Read by:</span>
+              <span className="text-xs font-medium text-stone-700">
+                Read by:
+              </span>
               <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
