@@ -10,11 +10,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["pwa-192.png", "pwa-512.png"],
+      includeAssets: ["houselogo.png"],
       manifest: {
-        name: "Library Catalog",
-        short_name: "Library",
-        description: "A local-first library catalog progressive web app",
+        name: "Jenkins Library",
+        short_name: "Jenkins",
+        description: "The Jenkins family library catalog progressive web app",
         // PWA start_url must match the base path (/) for installed app to launch correctly
         start_url: "/",
         // Scope must match base path to ensure PWA controls all app navigation
@@ -24,18 +24,19 @@ export default defineConfig({
         background_color: "#2c3e50",
         icons: [
           {
-            src: "pwa-192.png",
+            src: "houselogo.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512.png",
+            src: "houselogo.png",
             sizes: "512x512",
             type: "image/png",
           },
         ],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {

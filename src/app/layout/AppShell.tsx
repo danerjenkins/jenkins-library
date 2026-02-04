@@ -94,10 +94,17 @@ export function AppShell({ children }: AppShellProps) {
     <div className="min-h-screen bg-parchment text-ink">
       <header className="border-b border-stone-200/40 bg-linear-to-b from-white/95 to-white/90 shadow-sm backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
-              Library Catalog
-            </h1>
+          <div className="flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-6">
+              <img
+                src="/houselogo.png"
+                alt="Jenkins Library"
+                className="h-24"
+              />
+              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
+                Jenkins Library
+              </h1>
+            </div>
             <button
               className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleSyncNow}
