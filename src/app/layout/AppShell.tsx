@@ -92,7 +92,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
-      <header className="border-b border-stone-200/40 bg-linear-to-b from-white/95 to-white/90 shadow-sm backdrop-blur-sm">
+      <header className="border-b border-warm-gray bg-cream shadow-soft backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-6">
@@ -101,12 +101,12 @@ export function AppShell({ children }: AppShellProps) {
                 alt="Jenkins Library"
                 className="h-24"
               />
-              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-900">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-charcoal">
                 Jenkins Library
               </h1>
             </div>
             <button
-              className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-md bg-sage px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-sage-dark hover:shadow-soft-md active:shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleSyncNow}
               disabled={isSyncing || !isOnline}
               title="Sync with Google Drive"
@@ -117,33 +117,33 @@ export function AppShell({ children }: AppShellProps) {
               Sync now
             </button>
           </div>
-          <nav className="flex gap-4 border-t border-stone-200/40 py-3">
+          <nav className="flex gap-4 border-t border-warm-gray py-3">
             <Link
               to="/view"
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/view"
-                  ? "bg-stone-100/60 text-stone-900"
-                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
+                  ? "bg-warm-gray-light text-charcoal"
+                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
               }`}
             >
               Library
             </Link>
             <Link
               to="/admin"
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/admin"
-                  ? "bg-stone-100/60 text-stone-900"
-                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
+                  ? "bg-warm-gray-light text-charcoal"
+                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
               }`}
             >
               Admin
             </Link>
             <Link
               to="/stats"
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/stats"
-                  ? "bg-stone-100/60 text-stone-900"
-                  : "text-stone-600 hover:text-stone-800 hover:bg-stone-50/40"
+                  ? "bg-warm-gray-light text-charcoal"
+                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
               }`}
             >
               Stats
@@ -152,7 +152,7 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 text-charcoal">
         {children}
       </main>
     </div>

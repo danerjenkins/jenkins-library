@@ -1,20 +1,54 @@
 @import "tailwindcss";
 
+/**
+ * Jenkins Library Global Theme
+ * Inspired by: old house library, warm afternoon light, paper, wood, ink
+ * Palette: muted sage greens, warm creams, charcoal text, soft brass accents
+ */
+
 @theme {
-  --color-parchment: #f6f1e7;
-  --color-ink: #1f2937;
-  --shadow-soft: 0 6px 20px rgba(15, 23, 42, 0.08);
+  /* Warm, cozy palette inspired by old house and library aesthetic */
+  --color-parchment: #faf7f2; /* Aged paper - main background */
+  --color-cream: #f5f1e8; /* Soft cream - secondary backgrounds */
+  --color-sage: #7a8b6f; /* Muted eucalyptus green - primary accent */
+  --color-sage-light: #a4b598; /* Light sage - secondary accents */
+  --color-sage-dark: #5a6b4f; /* Dark sage - emphasis & hover states */
+  --color-brass: #c9a96e; /* Soft brass - warm accent, like warm metal */
+  --color-wood: #8b7355; /* Warm wood brown - rich accent */
+  --color-charcoal: #2c2c2c; /* Deep ink - primary text */
+  --color-ink: #1f2937; /* Ink - for compatibility */
+  --color-warm-gray: #e8e6e0; /* Subtle borders & dividers */
+  --color-warm-gray-light: #f0ede7; /* Very light - subtle backgrounds */
+
+  /* Typography - bookish and readable */
   --font-display: Fraunces, ui-serif, Georgia, serif;
+  --font-body: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+
+  /* Shadows - minimal and diffuse */
+  --shadow-soft: 0 4px 12px rgba(44, 44, 44, 0.06);
+  --shadow-soft-md: 0 8px 16px rgba(44, 44, 44, 0.08);
+  --shadow-soft-lg: 0 12px 24px rgba(44, 44, 44, 0.1);
+
+  /* Borders - light and soft */
+  --border-warm: 1px solid #e8e6e0;
+  --border-warm-light: 1px solid #f0ede7;
 }
 
 :root {
-  color: var(--color-ink);
-  background-color: var(--color-parchment);
+  /* Primary text color - deep charcoal for excellent readability */
+  color: #2c2c2c;
+  background-color: #faf7f2;
   line-height: 1.6;
   font-weight: 400;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Improve letter spacing slightly for print-like feel */
+  letter-spacing: 0.3px;
 }
 
 html {
@@ -22,7 +56,127 @@ html {
 }
 
 body {
-  @apply text-stone-800 antialiased;
+  @apply text-charcoal antialiased;
   margin: 0;
   min-height: 100vh;
+  background-color: #faf7f2;
+}
+
+/* Typography: Headings - slightly characterful with restraint */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-display font-bold text-charcoal;
+  letter-spacing: -0.5px; /* Slightly tighter for display text */
+}
+
+h1 {
+  @apply text-3xl md:text-4xl;
+  line-height: 1.2;
+}
+
+h2 {
+  @apply text-2xl md:text-3xl;
+  line-height: 1.3;
+}
+
+h3 {
+  @apply text-xl md:text-2xl;
+  line-height: 1.4;
+}
+
+/* Body text: highly readable, optimized for reading */
+p {
+  @apply leading-relaxed;
+  max-width: 65ch; /* Optimal line length for reading */
+}
+
+/* Links - sage green, subtle but clear */
+a {
+  @apply text-sage hover:text-sage-dark transition-colors duration-200;
+  text-underline-offset: 4px;
+}
+
+/* Focus states - important for accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-sage;
+}
+
+/* Forms - resemble paper forms, not SaaS dashboards */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  @apply w-full rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-charcoal shadow-soft transition-all duration-200;
+  font-family: inherit;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  @apply border-warm-gray shadow-soft-md;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  @apply border-sage bg-white shadow-soft-md ring-2 ring-sage/20;
+}
+
+/* Checkbox - sage green accent for warm aesthetic */
+input[type="checkbox"] {
+  accent-color: #7a8b6f; /* sage green */
+}
+
+/* Buttons - solid, calm, print-like */
+button {
+  @apply rounded-md px-4 py-2 font-medium transition-all duration-200;
+  /* Ensure text is readable */
+  line-height: 1.5;
+}
+
+button:not([class*="text"]) {
+  @apply bg-sage text-white shadow-soft hover:bg-sage-dark hover:shadow-soft-md active:shadow-soft;
+}
+
+button.text,
+button[class*="secondary"] {
+  @apply bg-transparent text-sage hover:bg-warm-gray-light hover:text-sage-dark;
+}
+
+button[disabled] {
+  @apply cursor-not-allowed opacity-50;
+}
+
+/* Subtle borders and dividers */
+hr {
+  @apply border-t border-warm-gray my-6;
+}
+
+/* Cards and containers - warm surfaces with soft edges */
+.card,
+.surface {
+  @apply bg-white rounded-md border border-warm-gray shadow-soft;
+}
+
+/* Ensure consistent text color throughout */
+.text-charcoal {
+  color: #2c2c2c;
+}
+
+.bg-parchment {
+  background-color: #faf7f2;
+}
+
+.bg-cream {
+  background-color: #f5f1e8;
 }

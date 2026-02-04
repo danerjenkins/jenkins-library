@@ -267,13 +267,13 @@ export function ViewBooksPage() {
                 {filteredBooks.length === 1 ? "book" : "books"}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex gap-1 rounded-lg border border-stone-200 p-1">
+                <div className="flex gap-1 rounded-lg border border-warm-gray p-1">
                   <button
                     onClick={() => setCardSize("small")}
                     className={`px-3 py-1 text-xs font-medium rounded transition ${
                       cardSize === "small"
-                        ? "bg-stone-900 text-white"
-                        : "text-stone-600 hover:bg-stone-100"
+                        ? "bg-sage text-white"
+                        : "text-charcoal/70 hover:bg-warm-gray-light"
                     }`}
                   >
                     Small
@@ -282,8 +282,8 @@ export function ViewBooksPage() {
                     onClick={() => setCardSize("medium")}
                     className={`px-3 py-1 text-xs font-medium rounded transition ${
                       cardSize === "medium"
-                        ? "bg-stone-900 text-white"
-                        : "text-stone-600 hover:bg-stone-100"
+                        ? "bg-sage text-white"
+                        : "text-charcoal/70 hover:bg-warm-gray-light"
                     }`}
                   >
                     Medium
@@ -292,8 +292,8 @@ export function ViewBooksPage() {
                     onClick={() => setCardSize("large")}
                     className={`px-3 py-1 text-xs font-medium rounded transition ${
                       cardSize === "large"
-                        ? "bg-stone-900 text-white"
-                        : "text-stone-600 hover:bg-stone-100"
+                        ? "bg-sage text-white"
+                        : "text-charcoal/70 hover:bg-warm-gray-light"
                     }`}
                   >
                     Large
