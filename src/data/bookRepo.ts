@@ -1,11 +1,39 @@
 import { db } from "./db";
 import type { Book } from "../features/books/bookTypes";
 
+const DELETED_IDS_STORAGE_KEY = "sync:deletedBookIds";
+
 /**
  * Generate a unique ID for a book
  */
 function generateId(): string {
   return `book_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Get the list of deleted book IDs since last sync
+ */
+export function getDeletedBookIds(): string[] {
+  const stored = localStorage.getItem(DELETED_IDS_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+/**
+ * Add a book ID to the deletion tracking list
+ */
+function addDeletedBookId(id: string): void {
+  const deleted = getDeletedBookIds();
+  if (!deleted.includes(id)) {
+    deleted.push(id);
+    localStorage.setItem(DELETED_IDS_STORAGE_KEY, JSON.stringify(deleted));
+  }
+}
+
+/**
+ * Clear the deletion tracking list (call after successful sync)
+ */
+export function clearDeletedBookIds(): void {
+  localStorage.removeItem(DELETED_IDS_STORAGE_KEY);
 }
 
 /**
@@ -100,4 +128,6 @@ export async function updateBook(
  */
 export async function deleteBook(id: string): Promise<void> {
   await db.books.delete(id);
+  // Track this deletion for sync purposes
+  addDeletedBookId(id);
 }

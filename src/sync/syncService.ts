@@ -11,6 +11,7 @@ import {
   validatePayload,
   type SyncPayload,
 } from "../data/exportImport";
+import { clearDeletedBookIds } from "../data/bookRepo";
 
 export type SyncStatus = "idle" | "syncing" | "success" | "error";
 
@@ -205,6 +206,9 @@ class SyncService {
 
       // Upload to Drive
       await driveClient.uploadFile(jsonContent);
+
+      // Clear deletion tracking after successful push
+      clearDeletedBookIds();
 
       // Upload cover photos
       try {

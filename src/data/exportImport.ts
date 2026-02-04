@@ -1,11 +1,12 @@
 import { db } from "./db";
-import { getAllBooks } from "./bookRepo";
+import { getAllBooks, getDeletedBookIds, clearDeletedBookIds } from "./bookRepo";
 import type { Book } from "../features/books/bookTypes";
 
 export interface SyncPayload {
   schemaVersion: number;
   exportedAt: number;
   books: Book[];
+  deletedIds?: string[];
 }
 
 /**
@@ -13,16 +14,19 @@ export interface SyncPayload {
  */
 export async function exportBooks(): Promise<SyncPayload> {
   const books = await getAllBooks();
+  const deletedIds = getDeletedBookIds();
+  
   return {
     schemaVersion: 1,
     exportedAt: Date.now(),
     books,
+    deletedIds: deletedIds.length > 0 ? deletedIds : undefined,
   };
 }
 
 /**
  * Import books from a sync payload
- * Replaces all local books with the imported ones
+ * Replaces all local books with the imported ones and applies remote deletions
  */
 export async function importBooks(payload: SyncPayload): Promise<void> {
   // Validate schema version
@@ -46,9 +50,20 @@ export async function importBooks(payload: SyncPayload): Promise<void> {
       isbn: book.isbn ?? null,
       finished: book.finished ?? false,
       coverUrl: book.coverUrl ?? null,
+      description: book.description ?? null,
     }));
     await db.books.bulkAdd(booksWithDefaults);
   });
+
+  // Apply remote deletions - these track what was deleted on other devices
+  if (payload.deletedIds && payload.deletedIds.length > 0) {
+    for (const deletedId of payload.deletedIds) {
+      await db.books.delete(deletedId);
+    }
+  }
+
+  // Clear our local deletion tracking after successful import
+  clearDeletedBookIds();
 }
 
 /**
