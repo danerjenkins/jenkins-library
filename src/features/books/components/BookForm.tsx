@@ -114,6 +114,8 @@ export function BookForm({
   const suggestionJustSelectedRef = useRef(false);
   const titleInputRef = useRef<HTMLDivElement>(null);
   const authorFieldFocusedRef = useRef(false);
+  const [titleWasEdited, setTitleWasEdited] = useState(false);
+  const initialTitleRef = useRef<string>(title);
 
   const performSearch = useCallback(
     async (searchTitle: string, searchAuthor: string) => {
@@ -194,6 +196,7 @@ export function BookForm({
   const performAuthorGuess = useCallback(
     async (searchTitle: string) => {
       if (
+        !isEditing ||
         !searchTitle.trim() ||
         searchTitle.trim().length < 4 ||
         userHasEditedAuthor ||
@@ -221,7 +224,7 @@ export function BookForm({
         console.error("Failed to guess author:", error);
       }
     },
-    [author, userHasEditedAuthor, onAuthorChange],
+    [author, userHasEditedAuthor, onAuthorChange, isEditing],
   );
 
   // Debounced author guess
@@ -315,18 +318,26 @@ export function BookForm({
 
   // Auto-search titles when title changes
   useEffect(() => {
-    if (title.trim().length >= 3) {
+    if (title.trim().length >= 3 && (!isEditing || titleWasEdited)) {
       debouncedTitleSearch(title);
     } else {
       setTitleSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [title, debouncedTitleSearch]);
+  }, [title, debouncedTitleSearch, isEditing, titleWasEdited]);
+
+  useEffect(() => {
+    if (isEditing) {
+      initialTitleRef.current = title;
+      setTitleWasEdited(false);
+    }
+  }, [isEditing, title]);
 
   // Handle title suggestion selection
   const handleSuggestionSelect = (suggestion: TitleSuggestion) => {
     suggestionJustSelectedRef.current = true;
     onTitleChange(suggestion.title);
+    setTitleWasEdited(true);
 
     // Fill author from suggestion (clear previous edit flag to allow autofill)
     if (suggestion.author) {
@@ -394,11 +405,21 @@ export function BookForm({
           label="Title"
           type="text"
           value={title}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onTitleChange(e.target.value)
-          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            const nextTitle = e.target.value;
+            const hasMeaningfulChange =
+              nextTitle.trim() !== initialTitleRef.current.trim();
+            if (hasMeaningfulChange) {
+              setTitleWasEdited(true);
+            }
+            onTitleChange(nextTitle);
+          }}
           onFocus={() => {
-            if (titleSuggestions.length > 0 && !authorFieldFocusedRef.current) {
+            if (
+              titleSuggestions.length > 0 &&
+              !authorFieldFocusedRef.current &&
+              (!isEditing || titleWasEdited)
+            ) {
               setShowSuggestions(true);
             }
           }}
@@ -460,7 +481,10 @@ export function BookForm({
                 <button
                   key={suggestion.key}
                   type="button"
-                  onClick={() => handleSuggestionSelect(suggestion)}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    handleSuggestionSelect(suggestion);
+                  }}
                   className="flex w-full items-start gap-3 border-b border-stone-100 px-3 py-2 text-left transition hover:bg-stone-50 last:border-b-0"
                 >
                   {suggestion.coverUrl && (
