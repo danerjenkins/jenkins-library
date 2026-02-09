@@ -32,6 +32,8 @@ interface BookFormProps {
   pages: string;
   readByDane: boolean;
   readByEmma: boolean;
+  seriesName: string;
+  seriesLabel: string;
   coverPhotoUrl: string | null;
   showCoverSaved: boolean;
   showCoverPhotoControls: boolean;
@@ -50,6 +52,9 @@ interface BookFormProps {
   onPagesChange: (value: string) => void;
   onReadByDaneChange: (checked: boolean) => void;
   onReadByEmmaChange: (checked: boolean) => void;
+  onSeriesNameChange: (value: string) => void;
+  onSeriesLabelChange: (value: string) => void;
+  onClearSeries: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -67,6 +72,8 @@ export function BookForm({
   pages,
   readByDane,
   readByEmma,
+  seriesName,
+  seriesLabel,
   coverPhotoUrl,
   showCoverSaved,
   showCoverPhotoControls,
@@ -84,6 +91,9 @@ export function BookForm({
   onPagesChange,
   onReadByDaneChange,
   onReadByEmmaChange,
+  onSeriesNameChange,
+  onSeriesLabelChange,
+  onClearSeries,
   onSubmit,
   onCancel,
   children,
@@ -467,6 +477,42 @@ export function BookForm({
               className="text-stone-600 underline hover:text-stone-900"
             >
               Clear
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input
+            id="seriesName"
+            label="Series name (optional)"
+            type="text"
+            value={seriesName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onSeriesNameChange(e.target.value)
+            }
+            placeholder="Enter series name"
+          />
+          <Input
+            id="seriesLabel"
+            label="# in series (optional)"
+            type="text"
+            value={seriesLabel}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onSeriesLabelChange(e.target.value)
+            }
+            placeholder="e.g. 2 or 2.5"
+          />
+        </div>
+        {(seriesName.trim() || seriesLabel.trim()) && (
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={onClearSeries}
+              className="text-xs font-medium text-stone-600 underline hover:text-stone-900"
+            >
+              Clear series
             </button>
           </div>
         )}

@@ -33,6 +33,13 @@ type BookRow = {
   deleted_at: string | null;
 };
 
+type BookWithSeriesRow = BookRow & {
+  series_id: string | null;
+  series_name: string | null;
+  series_label: string | null;
+  series_sort: number | null;
+};
+
 const supabaseSchema = import.meta.env.VITE_SUPABASE_SCHEMA ?? "library";
 
 function toTimestamp(value: string | null): number {
@@ -43,7 +50,7 @@ function toTimestamp(value: string | null): number {
   return Number.isNaN(parsed) ? Date.now() : parsed;
 }
 
-function mapRowToBook(row: BookRow): Book {
+function mapRowToBook(row: BookWithSeriesRow): Book {
   const createdAt = toTimestamp(row.created_at);
   const updatedAt = row.updated_at ? toTimestamp(row.updated_at) : createdAt;
 
@@ -60,6 +67,10 @@ function mapRowToBook(row: BookRow): Book {
     readByEmma: row.read_by_emma ?? false,
     format: undefined,
     pages: undefined,
+    seriesId: row.series_id ?? null,
+    seriesName: row.series_name ?? null,
+    seriesLabel: row.series_label ?? null,
+    seriesSort: row.series_sort ?? null,
     createdAt,
     updatedAt,
   };
@@ -68,7 +79,7 @@ function mapRowToBook(row: BookRow): Book {
 export async function listBooks(): Promise<Book[]> {
   const { data, error } = await supabase
     .schema(supabaseSchema)
-    .from("books")
+    .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
     .order("genre", { ascending: true, nullsFirst: false })
@@ -78,13 +89,13 @@ export async function listBooks(): Promise<Book[]> {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((row) => mapRowToBook(row as BookRow));
+  return (data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow));
 }
 
 export async function getBook(id: string): Promise<Book | null> {
   const { data, error } = await supabase
     .schema(supabaseSchema)
-    .from("books")
+    .from("books_with_series")
     .select("*")
     .eq("id", id)
     .is("deleted_at", null)
@@ -98,7 +109,7 @@ export async function getBook(id: string): Promise<Book | null> {
     return null;
   }
 
-  return mapRowToBook(data as BookRow);
+  return mapRowToBook(data as BookWithSeriesRow);
 }
 
 export async function createBook(input: BookInput): Promise<Book> {
@@ -128,8 +139,18 @@ export async function createBook(input: BookInput): Promise<Book> {
   if (!data) {
     throw new Error("Failed to create book in Supabase.");
   }
+  const withSeries = await getBook(data.id);
+  if (withSeries) {
+    return withSeries;
+  }
 
-  return mapRowToBook(data as BookRow);
+  return mapRowToBook({
+    ...(data as BookRow),
+    series_id: null,
+    series_name: null,
+    series_label: null,
+    series_sort: null,
+  });
 }
 
 export async function updateBook(
@@ -168,8 +189,18 @@ export async function updateBook(
   if (!data) {
     throw new Error("Failed to update book in Supabase.");
   }
+  const withSeries = await getBook(data.id);
+  if (withSeries) {
+    return withSeries;
+  }
 
-  return mapRowToBook(data as BookRow);
+  return mapRowToBook({
+    ...(data as BookRow),
+    series_id: null,
+    series_name: null,
+    series_label: null,
+    series_sort: null,
+  });
 }
 
 export async function softDeleteBook(id: string): Promise<void> {

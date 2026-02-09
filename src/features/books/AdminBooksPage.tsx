@@ -6,7 +6,10 @@ import {
   addBook,
   updateBook,
   deleteBook,
+  setBookSeries,
+  clearBookSeries,
 } from "../../data/bookRepo";
+import { createSeries, findSeriesByName } from "../../repos/seriesRepo";
 import {
   saveCoverPhoto,
   deleteCoverPhoto,
@@ -35,6 +38,8 @@ export function AdminBooksPage() {
   const [pages, setPages] = useState("");
   const [readByDane, setReadByDane] = useState(false);
   const [readByEmma, setReadByEmma] = useState(false);
+  const [seriesName, setSeriesName] = useState("");
+  const [seriesLabel, setSeriesLabel] = useState("");
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [showCoverSaved, setShowCoverSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,10 +97,49 @@ export function AdminBooksPage() {
     setPages(book.pages?.toString() || "");
     setReadByDane(book.readByDane);
     setReadByEmma(book.readByEmma);
+    setSeriesName(book.seriesName || "");
+    setSeriesLabel(
+      book.seriesLabel ??
+        (book.seriesSort !== null && book.seriesSort !== undefined
+          ? String(book.seriesSort)
+          : ""),
+    );
     setEditingId(book.id);
     handleLoadCoverPhoto(book.id);
     setShowForm(true);
   }
+
+  const handleClearSeries = () => {
+    setSeriesName("");
+    setSeriesLabel("");
+  };
+
+  const resolveSeriesId = async (name: string) => {
+    const existing = await findSeriesByName(name);
+    if (existing) return existing.id;
+    const created = await createSeries(name);
+    return created.id;
+  };
+
+  const syncBookSeries = async (bookId: string) => {
+    const trimmedName = seriesName.trim();
+    const trimmedLabel = seriesLabel.trim();
+
+    if (!trimmedName) {
+      await clearBookSeries(bookId);
+      return;
+    }
+
+    const seriesId = await resolveSeriesId(trimmedName);
+    const parsedSort = trimmedLabel ? Number.parseFloat(trimmedLabel) : NaN;
+    const seriesSort = Number.isFinite(parsedSort) ? parsedSort : null;
+
+    await setBookSeries(bookId, {
+      seriesId,
+      seriesLabel: trimmedLabel || null,
+      seriesSort,
+    });
+  };
 
   const handleLoadCoverPhoto = async (bookId: string) => {
     const url = await getCoverPhotoUrl(bookId);
@@ -110,7 +154,7 @@ export function AdminBooksPage() {
       setErrorMessage(null);
       if (editingId) {
         // Update existing book
-        await updateBook(editingId, {
+        const updated = await updateBook(editingId, {
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
@@ -123,9 +167,10 @@ export function AdminBooksPage() {
           readByDane,
           readByEmma,
         });
+        await syncBookSeries(updated.id);
       } else {
         // Add new book
-        await addBook({
+        const created = await addBook({
           title: title.trim(),
           author: author.trim(),
           genre: genre.trim() || null,
@@ -138,6 +183,7 @@ export function AdminBooksPage() {
           readByDane,
           readByEmma,
         });
+        await syncBookSeries(created.id);
       }
       setTitle("");
       setAuthor("");
@@ -150,6 +196,8 @@ export function AdminBooksPage() {
       setPages("");
       setReadByDane(false);
       setReadByEmma(false);
+      setSeriesName("");
+      setSeriesLabel("");
       setEditingId(null);
       setShowForm(false);
       await loadBooks();
@@ -171,6 +219,8 @@ export function AdminBooksPage() {
     setPages("");
     setReadByDane(false);
     setReadByEmma(false);
+    setSeriesName("");
+    setSeriesLabel("");
     setCoverPhotoUrl(null);
     setEditingId(null);
     setShowForm(false);
@@ -321,6 +371,8 @@ export function AdminBooksPage() {
               pages={pages}
               readByDane={readByDane}
               readByEmma={readByEmma}
+              seriesName={seriesName}
+              seriesLabel={seriesLabel}
               coverPhotoUrl={coverPhotoUrl}
               showCoverSaved={showCoverSaved}
               showCoverPhotoControls={!!editingId}
@@ -339,6 +391,9 @@ export function AdminBooksPage() {
               onPagesChange={setPages}
               onReadByDaneChange={setReadByDane}
               onReadByEmmaChange={setReadByEmma}
+              onSeriesNameChange={setSeriesName}
+              onSeriesLabelChange={setSeriesLabel}
+              onClearSeries={handleClearSeries}
               onSubmit={handleAddBook}
               onCancel={handleCancelEdit}
             >

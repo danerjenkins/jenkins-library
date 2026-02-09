@@ -68,10 +68,31 @@ export interface Book {
   format?: BookFormat;
   /** Total number of pages (optional) */
   pages?: number;
+  /** Series id (optional) */
+  seriesId?: string | null;
+  /** Series name (optional) */
+  seriesName?: string | null;
+  /** Series label (optional, display value) */
+  seriesLabel?: string | null;
+  /** Series sort order (optional, numeric) */
+  seriesSort?: number | null;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */
   updatedAt: number;
+}
+
+export interface Series {
+  id: string;
+  name: string;
+  parentSeriesId?: string | null;
+}
+
+export interface BookSeries {
+  bookId: string;
+  seriesId: string;
+  seriesLabel?: string | null;
+  seriesSort?: number | null;
 }
 
 /**

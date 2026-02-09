@@ -89,6 +89,16 @@ export function BookCard({
       : cardSize === "medium"
         ? "text-base"
         : "text-lg";
+  const seriesNumber =
+    book.seriesLabel ??
+    (book.seriesSort !== null && book.seriesSort !== undefined
+      ? String(book.seriesSort)
+      : null);
+  const seriesText = book.seriesName
+    ? seriesNumber
+      ? `${book.seriesName} • #${seriesNumber}`
+      : book.seriesName
+    : null;
 
   const CoverImage = () => (
     <>
@@ -138,6 +148,11 @@ export function BookCard({
             <p className="font-sans mt-1 text-xs text-stone-600 line-clamp-1">
               {book.author}
             </p>
+            {seriesText && (
+              <p className="font-sans mt-1 text-xs text-stone-500 line-clamp-1">
+                {seriesText}
+              </p>
+            )}
           </div>
           {book.genre && (
             <div>
@@ -204,6 +219,11 @@ export function BookCard({
           <p className="font-sans mt-1 text-xs text-stone-600 line-clamp-1">
             {book.author}
           </p>
+          {seriesText && (
+            <p className="font-sans mt-1 text-xs text-stone-500 line-clamp-1">
+              {seriesText}
+            </p>
+          )}
         </div>
         {(book.genre || book.format || book.pages) && (
           <div className="text-xs text-stone-500 space-y-0.5">
