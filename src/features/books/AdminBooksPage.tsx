@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import {
   getAllBooks,
   addBook,
@@ -15,8 +15,11 @@ import {
   deleteCoverPhoto,
   getCoverPhotoUrl,
 } from "../../data/db";
-import type { Book, BookFormat } from "./bookTypes";
+import type { Book, BookFormat, ReadStatus } from "./bookTypes";
+import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
+import { Input } from "../../ui/components/Input";
+import { Select } from "../../ui/components/Select";
 import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
 
@@ -46,6 +49,15 @@ export function AdminBooksPage() {
   const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
     "medium",
   );
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterGenre, setFilterGenre] = useState("ALL");
+  const [filterReadStatus, setFilterReadStatus] = useState<
+    "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
+  >("ALL");
+  const [filterFormat, setFilterFormat] = useState("ALL");
+  const [filterSeries, setFilterSeries] = useState("ALL");
 
   const resolveErrorMessage = (error: unknown) => {
     if (error instanceof Error) return error.message;
@@ -85,6 +97,71 @@ export function AdminBooksPage() {
     }
   }
 
+  const availableGenres = Array.from(
+    new Set(
+      books
+        .map((b) => b.genre)
+        .filter((g): g is string => g !== null && g !== undefined),
+    ),
+  ).sort();
+
+  const availableFormats = Array.from(
+    new Set(
+      books
+        .map((b) => b.format)
+        .filter((f): f is BookFormat => f !== null && f !== undefined),
+    ),
+  ).sort();
+
+  const availableSeries = Array.from(
+    new Set(
+      books
+        .map((b) => b.seriesName)
+        .filter((s): s is string => s !== null && s !== undefined),
+    ),
+  ).sort();
+
+  const filteredBooks = books.filter((book) => {
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch =
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query);
+      if (!matchesSearch) return false;
+    }
+
+    if (filterGenre !== "ALL" && book.genre !== filterGenre) {
+      return false;
+    }
+
+    if (filterReadStatus !== "ALL") {
+      const readStatus = getReadStatus(book);
+      const filterMap: Record<string, ReadStatus> = {
+        NEITHER: "neither",
+        DANE: "dane",
+        EMMA: "emma",
+        BOTH: "both",
+      };
+      if (readStatus !== filterMap[filterReadStatus]) {
+        return false;
+      }
+    }
+
+    if (filterFormat !== "ALL" && book.format !== filterFormat) {
+      return false;
+    }
+
+    if (filterSeries !== "ALL") {
+      if (filterSeries === "NONE") {
+        if (book.seriesName) return false;
+      } else if (book.seriesName !== filterSeries) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
   function handleEditBook(book: Book) {
     setTitle(book.title);
     setAuthor(book.author);
@@ -112,6 +189,14 @@ export function AdminBooksPage() {
   const handleClearSeries = () => {
     setSeriesName("");
     setSeriesLabel("");
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setFilterGenre("ALL");
+    setFilterReadStatus("ALL");
+    setFilterFormat("ALL");
+    setFilterSeries("ALL");
   };
 
   const resolveSeriesId = async (name: string) => {
@@ -336,6 +421,105 @@ export function AdminBooksPage() {
             </div>
           )}
           {!showForm && books.length > 0 && (
+            <div className="rounded-2xl border border-stone-200/60 bg-stone-50/40 p-4 shadow-sm space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="relative">
+                  <Input
+                    id="admin-search"
+                    label="Search"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Title or author"
+                  />
+                  <Search className="absolute right-3 top-9 h-4 w-4 text-stone-400" />
+                </div>
+
+                <Select
+                  id="admin-filter-genre"
+                  label="Genre"
+                  value={filterGenre}
+                  onChange={(e) => setFilterGenre(e.target.value)}
+                  options={[
+                    { value: "ALL", label: "All Genres" },
+                    ...availableGenres.map((g) => ({ value: g, label: g })),
+                  ]}
+                />
+
+                <Select
+                  id="admin-filter-read"
+                  label="Read Status"
+                  value={filterReadStatus}
+                  onChange={(e) =>
+                    setFilterReadStatus(
+                      e.target.value as
+                        | "ALL"
+                        | "NEITHER"
+                        | "DANE"
+                        | "EMMA"
+                        | "BOTH",
+                    )
+                  }
+                  options={[
+                    { value: "ALL", label: "All" },
+                    { value: "NEITHER", label: "To read" },
+                    { value: "DANE", label: "Read by Dane" },
+                    { value: "EMMA", label: "Read by Emma" },
+                    { value: "BOTH", label: "Read by both" },
+                  ]}
+                />
+
+                <Select
+                  id="admin-filter-format"
+                  label="Format"
+                  value={filterFormat}
+                  onChange={(e) => setFilterFormat(e.target.value)}
+                  options={[
+                    { value: "ALL", label: "All Formats" },
+                    ...availableFormats.map((fmt) => ({
+                      value: fmt,
+                      label: BOOK_FORMAT_LABELS[fmt],
+                    })),
+                  ]}
+                />
+
+                <Select
+                  id="admin-filter-series"
+                  label="Series"
+                  value={filterSeries}
+                  onChange={(e) => setFilterSeries(e.target.value)}
+                  options={[
+                    { value: "ALL", label: "All Series" },
+                    { value: "NONE", label: "No Series" },
+                    ...availableSeries.map((series) => ({
+                      value: series,
+                      label: series,
+                    })),
+                  ]}
+                />
+              </div>
+
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+                <div className="text-sm text-stone-600">
+                  {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"}
+                </div>
+                {(searchQuery ||
+                  filterGenre !== "ALL" ||
+                  filterReadStatus !== "ALL" ||
+                  filterFormat !== "ALL" ||
+                  filterSeries !== "ALL") && (
+                  <Button
+                    variant="secondary"
+                    onClick={handleClearFilters}
+                    className="text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+          {!showForm && books.length > 0 && (
             <div className="flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
               <button
                 onClick={() => setCardSize("small")}
@@ -429,6 +613,19 @@ export function AdminBooksPage() {
               Click "Add Book" to get started!
             </p>
           </div>
+        ) : filteredBooks.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
+            <p className="font-medium">No matches found</p>
+            <p className="mt-2">
+              <Button
+                variant="secondary"
+                onClick={handleClearFilters}
+                className="text-xs"
+              >
+                Clear Filters
+              </Button>
+            </p>
+          </div>
         ) : (
           <div
             className={`grid gap-4 ${
@@ -439,7 +636,7 @@ export function AdminBooksPage() {
                   : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             }`}
           >
-            {books.map((book) => (
+            {filteredBooks.map((book) => (
               <BookCard
                 key={book.id}
                 book={book}

@@ -110,7 +110,7 @@ export function BookCard({
         />
       ) : (
         <div
-          className={`flex w-full ${coverHeight} items-center justify-center bg-gradient-to-br from-stone-100 to-amber-50 text-stone-400`}
+          className={`flex w-full ${coverHeight} items-center justify-center bg-linear-to-br from-stone-100 to-amber-50 text-stone-400`}
         >
           <span className="text-4xl">📚</span>
         </div>

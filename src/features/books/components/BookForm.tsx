@@ -617,7 +617,7 @@ export function BookForm({
           id="description"
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
-          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-[100px] resize-y"
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-25 resize-y"
           placeholder="Enter book description or summary"
         />
       </div>
