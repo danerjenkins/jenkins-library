@@ -501,7 +501,8 @@ export function AdminBooksPage() {
 
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="text-sm text-stone-600">
-                  {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"}
+                  {filteredBooks.length}{" "}
+                  {filteredBooks.length === 1 ? "book" : "books"}
                 </div>
                 {(searchQuery ||
                   filterGenre !== "ALL" ||
@@ -630,9 +631,9 @@ export function AdminBooksPage() {
           <div
             className={`grid gap-4 ${
               cardSize === "small"
-                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
                 : cardSize === "medium"
-                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                  ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
                   : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             }`}
           >
