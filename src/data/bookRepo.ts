@@ -5,6 +5,7 @@ import {
   deleteBook as deleteSupabaseBook,
   getBook as getSupabaseBook,
   listBooks as listSupabaseBooks,
+  listWishlistBooks,
   updateBook as updateSupabaseBook,
   type BookInput as SupabaseBookInput,
 } from "../repos/supabaseBookRepo";
@@ -24,6 +25,7 @@ type BookInput = {
   readByEmma?: boolean;
   format?: string;
   pages?: number;
+  ownershipStatus?: "owned" | "wishlist";
 };
 
 export type BookSeriesInput = {
@@ -42,6 +44,7 @@ function toSupabaseInput(input: BookInput): SupabaseBookInput {
     coverUrl: input.coverUrl ?? null,
     readByDane: input.readByDane ?? false,
     readByEmma: input.readByEmma ?? false,
+    ownershipStatus: input.ownershipStatus,
   };
 }
 
@@ -59,6 +62,8 @@ function toSupabasePatch(
   if (patch.coverUrl !== undefined) result.coverUrl = patch.coverUrl ?? null;
   if (patch.readByDane !== undefined) result.readByDane = patch.readByDane;
   if (patch.readByEmma !== undefined) result.readByEmma = patch.readByEmma;
+  if (patch.ownershipStatus !== undefined)
+    result.ownershipStatus = patch.ownershipStatus;
 
   return result;
 }
@@ -80,6 +85,10 @@ export function clearDeletedBookIds(): void {
 
 export async function getAllBooks(): Promise<Book[]> {
   return await listSupabaseBooks();
+}
+
+export async function getWishlistBooks(): Promise<Book[]> {
+  return await listWishlistBooks();
 }
 
 export async function getBookById(id: string): Promise<Book | undefined> {

@@ -32,6 +32,7 @@ interface BookFormProps {
   pages: string;
   readByDane: boolean;
   readByEmma: boolean;
+  ownershipStatus: "owned" | "wishlist";
   seriesName: string;
   seriesLabel: string;
   coverPhotoUrl: string | null;
@@ -52,6 +53,7 @@ interface BookFormProps {
   onPagesChange: (value: string) => void;
   onReadByDaneChange: (checked: boolean) => void;
   onReadByEmmaChange: (checked: boolean) => void;
+  onOwnershipStatusChange: (value: "owned" | "wishlist") => void;
   onSeriesNameChange: (value: string) => void;
   onSeriesLabelChange: (value: string) => void;
   onClearSeries: () => void;
@@ -72,6 +74,7 @@ export function BookForm({
   pages,
   readByDane,
   readByEmma,
+  ownershipStatus,
   seriesName,
   seriesLabel,
   coverPhotoUrl,
@@ -91,6 +94,7 @@ export function BookForm({
   onPagesChange,
   onReadByDaneChange,
   onReadByEmmaChange,
+  onOwnershipStatusChange,
   onSeriesNameChange,
   onSeriesLabelChange,
   onClearSeries,
@@ -854,6 +858,26 @@ export function BookForm({
             </div>
           </div>
         )}
+      </div>
+
+      <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+        <h4 className="text-sm font-semibold text-stone-700">Ownership</h4>
+        <label htmlFor="ownershipStatus" className="text-xs text-stone-500">
+          Track whether the book is in your library or wishlist.
+        </label>
+        <select
+          id="ownershipStatus"
+          value={ownershipStatus}
+          onChange={(e) =>
+            onOwnershipStatusChange(
+              e.target.value as "owned" | "wishlist",
+            )
+          }
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+        >
+          <option value="owned">Owned</option>
+          <option value="wishlist">Wishlist</option>
+        </select>
       </div>
 
       <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">

@@ -76,6 +76,8 @@ export interface Book {
   seriesLabel?: string | null;
   /** Series sort order (optional, numeric) */
   seriesSort?: number | null;
+  /** Ownership status (optional) */
+  ownershipStatus?: "owned" | "wishlist";
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */

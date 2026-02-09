@@ -14,6 +14,7 @@ export type BookInput = {
   readByEmma?: boolean;
   format?: BookFormat;
   pages?: number;
+  ownershipStatus?: "owned" | "wishlist";
 };
 
 type BookRow = {
@@ -28,6 +29,7 @@ type BookRow = {
   cover_drive_file_id: string | null;
   read_by_dane: boolean | null;
   read_by_emma: boolean | null;
+  ownership_status: "owned" | "wishlist" | null;
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
@@ -71,6 +73,7 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     seriesName: row.series_name ?? null,
     seriesLabel: row.series_label ?? null,
     seriesSort: row.series_sort ?? null,
+    ownershipStatus: row.ownership_status ?? undefined,
     createdAt,
     updatedAt,
   };
@@ -82,6 +85,24 @@ export async function listBooks(): Promise<Book[]> {
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
+    .eq("ownership_status", "owned")
+    .order("genre", { ascending: true, nullsFirst: false })
+    .order("author", { ascending: true, nullsFirst: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow));
+}
+
+export async function listWishlistBooks(): Promise<Book[]> {
+  const { data, error } = await supabase
+    .schema(supabaseSchema)
+    .from("books_with_series")
+    .select("*")
+    .is("deleted_at", null)
+    .eq("ownership_status", "wishlist")
     .order("genre", { ascending: true, nullsFirst: false })
     .order("author", { ascending: true, nullsFirst: false });
 
@@ -123,6 +144,7 @@ export async function createBook(input: BookInput): Promise<Book> {
     published_year: input.publishedYear ?? null,
     read_by_dane: input.readByDane ?? false,
     read_by_emma: input.readByEmma ?? false,
+    ownership_status: input.ownershipStatus ?? "owned",
   };
 
   const { data, error } = await supabase
@@ -173,6 +195,8 @@ export async function updateBook(
     updateRow.published_year = patch.publishedYear ?? null;
   if (patch.readByDane !== undefined) updateRow.read_by_dane = patch.readByDane;
   if (patch.readByEmma !== undefined) updateRow.read_by_emma = patch.readByEmma;
+  if (patch.ownershipStatus !== undefined)
+    updateRow.ownership_status = patch.ownershipStatus;
 
   const { data, error } = await supabase
     .schema(supabaseSchema)

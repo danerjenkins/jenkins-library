@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import {
   getAllBooks,
+  getWishlistBooks,
   addBook,
   updateBook,
   deleteBook,
@@ -41,6 +42,9 @@ export function AdminBooksPage() {
   const [pages, setPages] = useState("");
   const [readByDane, setReadByDane] = useState(false);
   const [readByEmma, setReadByEmma] = useState(false);
+  const [ownershipStatus, setOwnershipStatus] = useState<
+    "owned" | "wishlist"
+  >("owned");
   const [seriesName, setSeriesName] = useState("");
   const [seriesLabel, setSeriesLabel] = useState("");
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
@@ -56,6 +60,9 @@ export function AdminBooksPage() {
   const [filterReadStatus, setFilterReadStatus] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
+  const [filterOwnership, setFilterOwnership] = useState<
+    "owned" | "wishlist"
+  >("owned");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
 
@@ -67,8 +74,8 @@ export function AdminBooksPage() {
 
   // Load books on mount
   useEffect(() => {
-    loadBooks();
-  }, []);
+    loadBooks(filterOwnership);
+  }, [filterOwnership]);
 
   // Handle edit query parameter
   useEffect(() => {
@@ -83,11 +90,12 @@ export function AdminBooksPage() {
     }
   }, [searchParams, books]);
 
-  async function loadBooks() {
+  async function loadBooks(status: "owned" | "wishlist") {
     try {
       setLoading(true);
       setErrorMessage(null);
-      const allBooks = await getAllBooks();
+      const allBooks =
+        status === "owned" ? await getAllBooks() : await getWishlistBooks();
       setBooks(allBooks);
     } catch (error) {
       console.error("Failed to load books:", error);
@@ -147,6 +155,11 @@ export function AdminBooksPage() {
       }
     }
 
+    const ownershipStatus = book.ownershipStatus ?? "owned";
+    if (ownershipStatus !== filterOwnership) {
+      return false;
+    }
+
     if (filterFormat !== "ALL" && book.format !== filterFormat) {
       return false;
     }
@@ -174,6 +187,7 @@ export function AdminBooksPage() {
     setPages(book.pages?.toString() || "");
     setReadByDane(book.readByDane);
     setReadByEmma(book.readByEmma);
+    setOwnershipStatus(book.ownershipStatus ?? "owned");
     setSeriesName(book.seriesName || "");
     setSeriesLabel(
       book.seriesLabel ??
@@ -195,6 +209,7 @@ export function AdminBooksPage() {
     setSearchQuery("");
     setFilterGenre("ALL");
     setFilterReadStatus("ALL");
+    setFilterOwnership("owned");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
   };
@@ -251,6 +266,7 @@ export function AdminBooksPage() {
           pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
+          ownershipStatus,
         });
         await syncBookSeries(updated.id);
       } else {
@@ -267,6 +283,7 @@ export function AdminBooksPage() {
           pages: pages ? parseInt(pages, 10) : undefined,
           readByDane,
           readByEmma,
+          ownershipStatus,
         });
         await syncBookSeries(created.id);
       }
@@ -281,11 +298,12 @@ export function AdminBooksPage() {
       setPages("");
       setReadByDane(false);
       setReadByEmma(false);
+      setOwnershipStatus("owned");
       setSeriesName("");
       setSeriesLabel("");
       setEditingId(null);
       setShowForm(false);
-      await loadBooks();
+      await loadBooks(filterOwnership);
     } catch (error) {
       console.error("Failed to save book:", error);
       setErrorMessage(resolveErrorMessage(error));
@@ -304,6 +322,7 @@ export function AdminBooksPage() {
     setPages("");
     setReadByDane(false);
     setReadByEmma(false);
+    setOwnershipStatus("owned");
     setSeriesName("");
     setSeriesLabel("");
     setCoverPhotoUrl(null);
@@ -422,7 +441,7 @@ export function AdminBooksPage() {
           )}
           {!showForm && books.length > 0 && (
             <div className="rounded-2xl border border-stone-200/60 bg-stone-50/40 p-4 shadow-sm space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
                 <div className="relative">
                   <Input
                     id="admin-search"
@@ -470,6 +489,21 @@ export function AdminBooksPage() {
                 />
 
                 <Select
+                  id="admin-filter-ownership"
+                  label="Ownership"
+                  value={filterOwnership}
+                  onChange={(e) =>
+                    setFilterOwnership(
+                      e.target.value as "owned" | "wishlist",
+                    )
+                  }
+                  options={[
+                    { value: "owned", label: "Owned" },
+                    { value: "wishlist", label: "Wishlist" },
+                  ]}
+                />
+
+                <Select
                   id="admin-filter-format"
                   label="Format"
                   value={filterFormat}
@@ -507,6 +541,7 @@ export function AdminBooksPage() {
                 {(searchQuery ||
                   filterGenre !== "ALL" ||
                   filterReadStatus !== "ALL" ||
+                  filterOwnership !== "owned" ||
                   filterFormat !== "ALL" ||
                   filterSeries !== "ALL") && (
                   <Button
@@ -571,6 +606,7 @@ export function AdminBooksPage() {
               pages={pages}
               readByDane={readByDane}
               readByEmma={readByEmma}
+              ownershipStatus={ownershipStatus}
               seriesName={seriesName}
               seriesLabel={seriesLabel}
               coverPhotoUrl={coverPhotoUrl}
@@ -591,6 +627,7 @@ export function AdminBooksPage() {
               onPagesChange={setPages}
               onReadByDaneChange={setReadByDane}
               onReadByEmmaChange={setReadByEmma}
+              onOwnershipStatusChange={setOwnershipStatus}
               onSeriesNameChange={setSeriesName}
               onSeriesLabelChange={setSeriesLabel}
               onClearSeries={handleClearSeries}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import {
   getAllBooks,
+  getWishlistBooks,
   sortBooksBySeriesOrder,
   updateBook,
 } from "../../data/bookRepo";
@@ -21,6 +22,9 @@ export function ViewBooksPage() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
+  const [filterOwnership, setFilterOwnership] = useState<
+    "owned" | "wishlist"
+  >("owned");
   const [filterFinished, setFilterFinished] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
@@ -33,13 +37,14 @@ export function ViewBooksPage() {
 
   // Load books on mount
   useEffect(() => {
-    loadBooks();
-  }, []);
+    loadBooks(filterOwnership);
+  }, [filterOwnership]);
 
-  async function loadBooks() {
+  async function loadBooks(status: "owned" | "wishlist") {
     try {
       setLoading(true);
-      const allBooks = await getAllBooks();
+      const allBooks =
+        status === "owned" ? await getAllBooks() : await getWishlistBooks();
       setBooks(allBooks);
     } catch (error) {
       console.error("Failed to load books:", error);
@@ -87,6 +92,11 @@ export function ViewBooksPage() {
 
     // Genre filter
     if (filterGenre !== "ALL" && book.genre !== filterGenre) {
+      return false;
+    }
+
+    const ownershipStatus = book.ownershipStatus ?? "owned";
+    if (ownershipStatus !== filterOwnership) {
       return false;
     }
 
@@ -191,6 +201,7 @@ export function ViewBooksPage() {
   const handleClearFilters = () => {
     setSearchQuery("");
     setFilterGenre("ALL");
+    setFilterOwnership("owned");
     setFilterFinished("ALL");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
@@ -212,7 +223,7 @@ export function ViewBooksPage() {
           </div>
 
           <div className="mt-8 space-y-5 rounded-2xl border border-stone-200/60 bg-stone-50/40 p-5 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-8">
               <div className="relative">
                 <Input
                   id="search"
@@ -233,6 +244,19 @@ export function ViewBooksPage() {
                 options={[
                   { value: "ALL", label: "All Genres" },
                   ...availableGenres.map((g) => ({ value: g, label: g })),
+                ]}
+              />
+
+              <Select
+                id="filter-ownership"
+                label="Ownership"
+                value={filterOwnership}
+                onChange={(e) =>
+                  setFilterOwnership(e.target.value as "owned" | "wishlist")
+                }
+                options={[
+                  { value: "owned", label: "Owned" },
+                  { value: "wishlist", label: "Wishlist" },
                 ]}
               />
 
@@ -343,6 +367,7 @@ export function ViewBooksPage() {
                 </div>
                 {(searchQuery ||
                   filterGenre !== "ALL" ||
+                  filterOwnership !== "owned" ||
                   filterFinished !== "ALL" ||
                   filterFormat !== "ALL" ||
                   filterSeries !== "ALL" ||
