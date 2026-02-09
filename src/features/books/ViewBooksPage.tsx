@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-import { getAllBooks, updateBook } from "../../data/bookRepo";
+import {
+  getAllBooks,
+  sortBooksBySeriesOrder,
+  updateBook,
+} from "../../data/bookRepo";
 import type { Book, ReadStatus, BookFormat } from "./bookTypes";
 import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
@@ -8,7 +12,7 @@ import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
 
-type SortOption = "genre-author" | "title" | "author" | "updated";
+type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
 
 export function ViewBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -128,10 +132,15 @@ export function ViewBooksPage() {
         return a.author.localeCompare(b.author);
       case "updated":
         return b.updatedAt - a.updatedAt;
+      case "series":
+        return 0;
       default:
         return 0;
     }
   });
+  if (sortBy === "series") {
+    filteredBooks = sortBooksBySeriesOrder(filteredBooks);
+  }
 
   const handleReadStatusChange = async (
     bookId: string,
@@ -264,6 +273,7 @@ export function ViewBooksPage() {
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 options={[
                   { value: "genre-author", label: "Genre then author" },
+                  { value: "series", label: "Series order" },
                   { value: "title", label: "Title (A–Z)" },
                   { value: "author", label: "Author (A–Z)" },
                   { value: "updated", label: "Recently Updated" },
