@@ -1,7 +1,57 @@
 import { db } from "./db";
 import type { Book } from "../features/books/bookTypes";
+import {
+  createBook as createSupabaseBook,
+  getBook as getSupabaseBook,
+  listBooks as listSupabaseBooks,
+  softDeleteBook as softDeleteSupabaseBook,
+  updateBook as updateSupabaseBook,
+  type BookInput as SupabaseBookInput,
+} from "../repos/supabaseBookRepo";
 
 const DELETED_IDS_STORAGE_KEY = "sync:deletedBookIds";
+const useSupabase = import.meta.env.VITE_DATA_SOURCE === "supabase";
+
+type LocalBookInput = {
+  title: string;
+  author: string;
+  genre?: string | null;
+  description?: string | null;
+  isbn?: string | null;
+  finished?: boolean;
+  coverUrl?: string | null;
+  readByDane?: boolean;
+  readByEmma?: boolean;
+  format?: string;
+  pages?: number;
+};
+
+function toSupabaseInput(input: LocalBookInput): SupabaseBookInput {
+  return {
+    title: input.title,
+    author: input.author,
+    genre: input.genre ?? null,
+    description: input.description ?? null,
+    isbn: input.isbn ?? null,
+    coverUrl: input.coverUrl ?? null,
+  };
+}
+
+function toSupabasePatch(
+  patch: Partial<Omit<Book, "id" | "createdAt">>,
+): Partial<SupabaseBookInput> {
+  const result: Partial<SupabaseBookInput> = {};
+
+  if (patch.title !== undefined) result.title = patch.title;
+  if (patch.author !== undefined) result.author = patch.author;
+  if (patch.genre !== undefined) result.genre = patch.genre ?? null;
+  if (patch.description !== undefined)
+    result.description = patch.description ?? null;
+  if (patch.isbn !== undefined) result.isbn = patch.isbn ?? null;
+  if (patch.coverUrl !== undefined) result.coverUrl = patch.coverUrl ?? null;
+
+  return result;
+}
 
 /**
  * Generate a unique ID for a book
@@ -39,7 +89,7 @@ export function clearDeletedBookIds(): void {
 /**
  * Get all books from the database, sorted by title
  */
-export async function getAllBooks(): Promise<Book[]> {
+async function getAllBooksLocal(): Promise<Book[]> {
   const books = await db.books.orderBy("title").toArray();
   // Apply defaults for books missing new fields
   return books.map((book) => ({
@@ -59,26 +109,14 @@ export async function getAllBooks(): Promise<Book[]> {
 /**
  * Get a single book by ID
  */
-export async function getBookById(id: string): Promise<Book | undefined> {
+async function getBookByIdLocal(id: string): Promise<Book | undefined> {
   return await db.books.get(id);
 }
 
 /**
  * Add a new book to the database
  */
-export async function addBook(input: {
-  title: string;
-  author: string;
-  genre?: string | null;
-  description?: string | null;
-  isbn?: string | null;
-  finished?: boolean;
-  coverUrl?: string | null;
-  readByDane?: boolean;
-  readByEmma?: boolean;
-  format?: string;
-  pages?: number;
-}): Promise<Book> {
+async function addBookLocal(input: LocalBookInput): Promise<Book> {
   const now = Date.now();
   const book: Book = {
     id: generateId(),
@@ -104,7 +142,7 @@ export async function addBook(input: {
 /**
  * Update an existing book
  */
-export async function updateBook(
+async function updateBookLocal(
   id: string,
   patch: Partial<Omit<Book, "id" | "createdAt">>,
 ): Promise<Book> {
@@ -126,8 +164,48 @@ export async function updateBook(
 /**
  * Delete a book by ID
  */
-export async function deleteBook(id: string): Promise<void> {
+async function deleteBookLocal(id: string): Promise<void> {
   await db.books.delete(id);
   // Track this deletion for sync purposes
   addDeletedBookId(id);
+}
+
+export async function getAllBooks(): Promise<Book[]> {
+  if (useSupabase) {
+    return await listSupabaseBooks();
+  }
+  return await getAllBooksLocal();
+}
+
+export async function getBookById(id: string): Promise<Book | undefined> {
+  if (useSupabase) {
+    const book = await getSupabaseBook(id);
+    return book ?? undefined;
+  }
+  return await getBookByIdLocal(id);
+}
+
+export async function addBook(input: LocalBookInput): Promise<Book> {
+  if (useSupabase) {
+    return await createSupabaseBook(toSupabaseInput(input));
+  }
+  return await addBookLocal(input);
+}
+
+export async function updateBook(
+  id: string,
+  patch: Partial<Omit<Book, "id" | "createdAt">>,
+): Promise<Book> {
+  if (useSupabase) {
+    return await updateSupabaseBook(id, toSupabasePatch(patch));
+  }
+  return await updateBookLocal(id, patch);
+}
+
+export async function deleteBook(id: string): Promise<void> {
+  if (useSupabase) {
+    await softDeleteSupabaseBook(id);
+    return;
+  }
+  await deleteBookLocal(id);
 }

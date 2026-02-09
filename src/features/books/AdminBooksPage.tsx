@@ -21,6 +21,7 @@ export function AdminBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -40,6 +41,12 @@ export function AdminBooksPage() {
   const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
     "medium",
   );
+
+  const resolveErrorMessage = (error: unknown) => {
+    if (error instanceof Error) return error.message;
+    if (typeof error === "string") return error;
+    return "Something went wrong. Please try again.";
+  };
 
   // Load books on mount
   useEffect(() => {
@@ -62,10 +69,12 @@ export function AdminBooksPage() {
   async function loadBooks() {
     try {
       setLoading(true);
+      setErrorMessage(null);
       const allBooks = await getAllBooks();
       setBooks(allBooks);
     } catch (error) {
       console.error("Failed to load books:", error);
+      setErrorMessage(resolveErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -98,6 +107,7 @@ export function AdminBooksPage() {
     if (!title.trim() || !author.trim()) return;
 
     try {
+      setErrorMessage(null);
       if (editingId) {
         // Update existing book
         await updateBook(editingId, {
@@ -145,6 +155,7 @@ export function AdminBooksPage() {
       await loadBooks();
     } catch (error) {
       console.error("Failed to save book:", error);
+      setErrorMessage(resolveErrorMessage(error));
     }
   }
 
@@ -222,10 +233,12 @@ export function AdminBooksPage() {
     if (!confirm(`Delete "${bookTitle}"?`)) return;
 
     try {
+      setErrorMessage(null);
       await deleteBook(id);
       await loadBooks();
     } catch (error) {
       console.error("Failed to delete book:", error);
+      setErrorMessage(resolveErrorMessage(error));
     }
   }
 
@@ -252,6 +265,11 @@ export function AdminBooksPage() {
               </Button>
             )}
           </div>
+          {errorMessage && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {errorMessage}
+            </div>
+          )}
           {!showForm && books.length > 0 && (
             <div className="flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
               <button
