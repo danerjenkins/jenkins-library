@@ -94,20 +94,30 @@ export function clearDeletedBookIds(): void {
  * Get all books from the database, sorted by title
  */
 async function getAllBooksLocal(): Promise<Book[]> {
-  const books = await db.books.orderBy("title").toArray();
+  const books = await db.books.toArray();
   // Apply defaults for books missing new fields
-  return books.map((book) => ({
-    ...book,
-    genre: book.genre ?? null,
-    description: book.description ?? null,
-    isbn: book.isbn ?? null,
-    finished: book.finished ?? false,
-    coverUrl: book.coverUrl ?? null,
-    readByDane: book.readByDane ?? false,
-    readByEmma: book.readByEmma ?? false,
-    format: book.format,
-    pages: book.pages,
-  }));
+  return books
+    .map((book) => ({
+      ...book,
+      genre: book.genre ?? null,
+      description: book.description ?? null,
+      isbn: book.isbn ?? null,
+      finished: book.finished ?? false,
+      coverUrl: book.coverUrl ?? null,
+      readByDane: book.readByDane ?? false,
+      readByEmma: book.readByEmma ?? false,
+      format: book.format,
+      pages: book.pages,
+    }))
+    .sort((a, b) => {
+      const genreA = (a.genre ?? "").toLowerCase();
+      const genreB = (b.genre ?? "").toLowerCase();
+      if (genreA !== genreB) return genreA.localeCompare(genreB);
+      const authorA = (a.author ?? "").toLowerCase();
+      const authorB = (b.author ?? "").toLowerCase();
+      if (authorA !== authorB) return authorA.localeCompare(authorB);
+      return a.title.localeCompare(b.title);
+    });
 }
 
 /**

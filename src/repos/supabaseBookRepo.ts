@@ -71,7 +71,8 @@ export async function listBooks(): Promise<Book[]> {
     .from("books")
     .select("*")
     .is("deleted_at", null)
-    .order("title", { ascending: true });
+    .order("genre", { ascending: true, nullsFirst: false })
+    .order("author", { ascending: true, nullsFirst: false });
 
   if (error) {
     throw new Error(error.message);

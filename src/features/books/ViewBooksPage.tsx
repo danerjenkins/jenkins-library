@@ -8,7 +8,7 @@ import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
 import { BookCard } from "./components/BookCard";
 
-type SortOption = "title" | "author" | "updated";
+type SortOption = "genre-author" | "title" | "author" | "updated";
 
 export function ViewBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -24,7 +24,7 @@ export function ViewBooksPage() {
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
-  const [sortBy, setSortBy] = useState<SortOption>("title");
+  const [sortBy, setSortBy] = useState<SortOption>("genre-author");
   const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
     "medium",
   );
@@ -113,6 +113,15 @@ export function ViewBooksPage() {
   // Sort books
   filteredBooks = [...filteredBooks].sort((a, b) => {
     switch (sortBy) {
+      case "genre-author": {
+        const genreA = (a.genre ?? "").toLowerCase();
+        const genreB = (b.genre ?? "").toLowerCase();
+        if (genreA !== genreB) return genreA.localeCompare(genreB);
+        const authorA = (a.author ?? "").toLowerCase();
+        const authorB = (b.author ?? "").toLowerCase();
+        if (authorA !== authorB) return authorA.localeCompare(authorB);
+        return a.title.localeCompare(b.title);
+      }
       case "title":
         return a.title.localeCompare(b.title);
       case "author":
@@ -153,7 +162,7 @@ export function ViewBooksPage() {
     setFilterFinished("ALL");
     setFilterReadStatus("ALL");
     setFilterFormat("ALL");
-    setSortBy("title");
+    setSortBy("genre-author");
   };
 
   return (
@@ -254,6 +263,7 @@ export function ViewBooksPage() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 options={[
+                  { value: "genre-author", label: "Genre then author" },
                   { value: "title", label: "Title (A–Z)" },
                   { value: "author", label: "Author (A–Z)" },
                   { value: "updated", label: "Recently Updated" },
@@ -304,7 +314,7 @@ export function ViewBooksPage() {
                   filterFinished !== "ALL" ||
                   filterReadStatus !== "ALL" ||
                   filterFormat !== "ALL" ||
-                  sortBy !== "title") && (
+                  sortBy !== "genre-author") && (
                   <Button
                     variant="secondary"
                     onClick={handleClearFilters}
