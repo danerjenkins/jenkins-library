@@ -6,6 +6,17 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
   // Base path for deployment - must match manifest scope and router basename for PWA to work
   base: "/",
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+          icons: ["lucide-react"],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

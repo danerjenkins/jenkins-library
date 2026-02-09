@@ -2,9 +2,9 @@ import { db } from "./db";
 import type { Book } from "../features/books/bookTypes";
 import {
   createBook as createSupabaseBook,
+  deleteBook as deleteSupabaseBook,
   getBook as getSupabaseBook,
   listBooks as listSupabaseBooks,
-  softDeleteBook as softDeleteSupabaseBook,
   updateBook as updateSupabaseBook,
   type BookInput as SupabaseBookInput,
 } from "../repos/supabaseBookRepo";
@@ -34,6 +34,8 @@ function toSupabaseInput(input: LocalBookInput): SupabaseBookInput {
     description: input.description ?? null,
     isbn: input.isbn ?? null,
     coverUrl: input.coverUrl ?? null,
+    readByDane: input.readByDane ?? false,
+    readByEmma: input.readByEmma ?? false,
   };
 }
 
@@ -49,6 +51,8 @@ function toSupabasePatch(
     result.description = patch.description ?? null;
   if (patch.isbn !== undefined) result.isbn = patch.isbn ?? null;
   if (patch.coverUrl !== undefined) result.coverUrl = patch.coverUrl ?? null;
+  if (patch.readByDane !== undefined) result.readByDane = patch.readByDane;
+  if (patch.readByEmma !== undefined) result.readByEmma = patch.readByEmma;
 
   return result;
 }
@@ -204,7 +208,7 @@ export async function updateBook(
 
 export async function deleteBook(id: string): Promise<void> {
   if (useSupabase) {
-    await softDeleteSupabaseBook(id);
+    await deleteSupabaseBook(id);
     return;
   }
   await deleteBookLocal(id);

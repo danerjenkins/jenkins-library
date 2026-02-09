@@ -230,7 +230,7 @@ export function AdminBooksPage() {
   };
 
   async function handleDeleteBook(id: string, bookTitle: string) {
-    if (!confirm(`Delete "${bookTitle}"?`)) return;
+    if (!confirm(`Delete "${bookTitle}"? This cannot be undone.`)) return;
 
     try {
       setErrorMessage(null);

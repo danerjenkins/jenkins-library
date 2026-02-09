@@ -26,6 +26,8 @@ type BookRow = {
   published_year: number | null;
   cover_url: string | null;
   cover_drive_file_id: string | null;
+  read_by_dane: boolean | null;
+  read_by_emma: boolean | null;
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
@@ -54,8 +56,8 @@ function mapRowToBook(row: BookRow): Book {
     isbn: row.isbn ?? null,
     finished: false,
     coverUrl: row.cover_url ?? null,
-    readByDane: false,
-    readByEmma: false,
+    readByDane: row.read_by_dane ?? false,
+    readByEmma: row.read_by_emma ?? false,
     format: undefined,
     pages: undefined,
     createdAt,
@@ -107,6 +109,8 @@ export async function createBook(input: BookInput): Promise<Book> {
     isbn: input.isbn ?? null,
     cover_url: input.coverUrl ?? null,
     published_year: input.publishedYear ?? null,
+    read_by_dane: input.readByDane ?? false,
+    read_by_emma: input.readByEmma ?? false,
   };
 
   const { data, error } = await supabase
@@ -145,6 +149,8 @@ export async function updateBook(
     updateRow.cover_url = patch.coverUrl ?? null;
   if (patch.publishedYear !== undefined)
     updateRow.published_year = patch.publishedYear ?? null;
+  if (patch.readByDane !== undefined) updateRow.read_by_dane = patch.readByDane;
+  if (patch.readByEmma !== undefined) updateRow.read_by_emma = patch.readByEmma;
 
   const { data, error } = await supabase
     .schema(supabaseSchema)
@@ -174,5 +180,22 @@ export async function softDeleteBook(id: string): Promise<void> {
 
   if (error) {
     throw new Error(error.message);
+  }
+}
+
+export async function deleteBook(id: string): Promise<void> {
+  const { data, error } = await supabase
+    .schema(supabaseSchema)
+    .from("books")
+    .delete()
+    .eq("id", id)
+    .select("id");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Delete failed or was not permitted.");
   }
 }
