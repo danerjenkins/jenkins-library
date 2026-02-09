@@ -22,9 +22,9 @@ export function ViewBooksPage() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
-  const [filterOwnership, setFilterOwnership] = useState<
-    "owned" | "wishlist"
-  >("owned");
+  const [filterOwnership, setFilterOwnership] = useState<"owned" | "wishlist">(
+    "owned",
+  );
   const [filterFinished, setFilterFinished] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");

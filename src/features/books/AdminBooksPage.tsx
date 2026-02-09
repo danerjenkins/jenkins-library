@@ -42,9 +42,9 @@ export function AdminBooksPage() {
   const [pages, setPages] = useState("");
   const [readByDane, setReadByDane] = useState(false);
   const [readByEmma, setReadByEmma] = useState(false);
-  const [ownershipStatus, setOwnershipStatus] = useState<
-    "owned" | "wishlist"
-  >("owned");
+  const [ownershipStatus, setOwnershipStatus] = useState<"owned" | "wishlist">(
+    "owned",
+  );
   const [seriesName, setSeriesName] = useState("");
   const [seriesLabel, setSeriesLabel] = useState("");
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
@@ -60,9 +60,9 @@ export function AdminBooksPage() {
   const [filterReadStatus, setFilterReadStatus] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
-  const [filterOwnership, setFilterOwnership] = useState<
-    "owned" | "wishlist"
-  >("owned");
+  const [filterOwnership, setFilterOwnership] = useState<"owned" | "wishlist">(
+    "owned",
+  );
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
 
@@ -493,9 +493,7 @@ export function AdminBooksPage() {
                   label="Ownership"
                   value={filterOwnership}
                   onChange={(e) =>
-                    setFilterOwnership(
-                      e.target.value as "owned" | "wishlist",
-                    )
+                    setFilterOwnership(e.target.value as "owned" | "wishlist")
                   }
                   options={[
                     { value: "owned", label: "Owned" },

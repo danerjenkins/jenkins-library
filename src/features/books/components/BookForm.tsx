@@ -869,9 +869,7 @@ export function BookForm({
           id="ownershipStatus"
           value={ownershipStatus}
           onChange={(e) =>
-            onOwnershipStatusChange(
-              e.target.value as "owned" | "wishlist",
-            )
+            onOwnershipStatusChange(e.target.value as "owned" | "wishlist")
           }
           className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
         >
