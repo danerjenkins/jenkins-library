@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
-import { useOnlineStatus } from "../../ui/hooks/useOnlineStatus";
-import { syncService, type SyncStatus } from "../../sync/syncService";
 import "./AppShell.css";
 
 interface AppShellProps {
@@ -11,85 +7,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const isOnline = useOnlineStatus();
   const location = useLocation();
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-
-  // Load persisted sync state on mount
-  useEffect(() => {
-    const lastMsg = syncService.getLastMessage();
-    const lastErr = syncService.getLastError();
-
-    if (lastErr) {
-      setSyncStatus("error");
-    } else if (lastMsg) {
-      setSyncStatus("success");
-    }
-
-    // Load stored client ID
-    const storedClientId = localStorage.getItem("googleClientId");
-    if (storedClientId) {
-      syncService.setClientId(storedClientId);
-    }
-  }, []);
-
-  // Google Client ID - User should configure this
-  const configureClientId = () => {
-    const storedClientId = localStorage.getItem("googleClientId");
-    if (storedClientId) {
-      syncService.setClientId(storedClientId);
-      return true;
-    }
-
-    const clientId = prompt(
-      "Enter your Google OAuth Client ID:\n\n" +
-        "To get a Client ID:\n" +
-        "1. Go to Google Cloud Console\n" +
-        "2. Create/select a project\n" +
-        "3. Enable Google Drive API\n" +
-        "4. Create OAuth 2.0 Client ID (Web application)\n" +
-        "5. Add your domain to authorized origins\n\n" +
-        "The Client ID will be saved in localStorage.",
-    );
-
-    if (clientId) {
-      localStorage.setItem("googleClientId", clientId);
-      syncService.setClientId(clientId);
-      return true;
-    }
-
-    return false;
-  };
-
-  const handleSyncNow = async () => {
-    if (!isOnline) {
-      alert("You must be online to sync with Google Drive.");
-      return;
-    }
-
-    if (!syncService.getClientId() && !configureClientId()) {
-      return;
-    }
-
-    setSyncStatus("syncing");
-    try {
-      const result = await syncService.syncNow();
-
-      if (result.status === "success") {
-        setSyncStatus("success");
-        // Reload the page to show updated data
-        window.location.reload();
-      } else {
-        setSyncStatus("error");
-      }
-    } catch (error) {
-      setSyncStatus("error");
-      console.error("Sync error:", error);
-    }
-  };
-
-  const isSyncing = syncStatus === "syncing";
-
   return (
     <div className="min-h-screen bg-parchment text-ink">
       <header className="border-b border-warm-gray bg-cream shadow-soft backdrop-blur-sm">
@@ -105,17 +23,6 @@ export function AppShell({ children }: AppShellProps) {
                 Jenkins Library
               </h1>
             </div>
-            <button
-              className="flex items-center gap-2 rounded-md bg-sage px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-sage-dark hover:shadow-soft-md active:shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handleSyncNow}
-              disabled={isSyncing || !isOnline}
-              title="Sync with Google Drive"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
-              />
-              Sync now
-            </button>
           </div>
           <nav className="flex gap-4 border-t border-warm-gray py-3">
             <Link
