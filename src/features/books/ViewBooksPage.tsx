@@ -22,12 +22,10 @@ export function ViewBooksPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
   const [filterFinished, setFilterFinished] = useState<
-    "ALL" | "FINISHED" | "UNFINISHED"
-  >("ALL");
-  const [filterReadStatus, setFilterReadStatus] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
+  const [filterSeries, setFilterSeries] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("genre-author");
   const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
     "medium",
@@ -68,6 +66,14 @@ export function ViewBooksPage() {
     ),
   ).sort();
 
+  const availableSeries = Array.from(
+    new Set(
+      books
+        .map((b) => b.seriesName)
+        .filter((s): s is string => s !== null && s !== undefined),
+    ),
+  ).sort();
+
   // Filter books based on search and filter state
   let filteredBooks = books.filter((book) => {
     // Search filter: case-insensitive match on title or author
@@ -84,16 +90,8 @@ export function ViewBooksPage() {
       return false;
     }
 
-    // Finished filter
-    if (filterFinished === "FINISHED" && !book.finished) {
-      return false;
-    }
-    if (filterFinished === "UNFINISHED" && book.finished) {
-      return false;
-    }
-
-    // Read status filter
-    if (filterReadStatus !== "ALL") {
+    // Read status filter (based on read-by flags)
+    if (filterFinished !== "ALL") {
       const readStatus = getReadStatus(book);
       const filterMap: Record<string, ReadStatus> = {
         NEITHER: "neither",
@@ -101,7 +99,7 @@ export function ViewBooksPage() {
         EMMA: "emma",
         BOTH: "both",
       };
-      if (readStatus !== filterMap[filterReadStatus]) {
+      if (readStatus !== filterMap[filterFinished]) {
         return false;
       }
     }
@@ -109,6 +107,15 @@ export function ViewBooksPage() {
     // Format filter
     if (filterFormat !== "ALL" && book.format !== filterFormat) {
       return false;
+    }
+
+    // Series filter
+    if (filterSeries !== "ALL") {
+      if (filterSeries === "NONE") {
+        if (book.seriesName) return false;
+      } else if (book.seriesName !== filterSeries) {
+        return false;
+      }
     }
 
     return true;
@@ -147,21 +154,37 @@ export function ViewBooksPage() {
     readByDane: boolean,
     readByEmma: boolean,
   ) => {
+    let previousState: { readByDane: boolean; readByEmma: boolean } | null =
+      null;
+
     try {
       // Optimistically update UI
       setBooks((prevBooks) =>
         prevBooks.map((book) =>
-          book.id === bookId ? { ...book, readByDane, readByEmma } : book,
+          book.id === bookId
+            ? (() => {
+                previousState = {
+                  readByDane: book.readByDane,
+                  readByEmma: book.readByEmma,
+                };
+                return { ...book, readByDane, readByEmma };
+              })()
+            : book,
         ),
       );
 
       // Update database
       await updateBook(bookId, { readByDane, readByEmma });
-      await loadBooks();
     } catch (error) {
       console.error("Failed to update book:", error);
       // Revert on error
-      await loadBooks();
+      if (previousState) {
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.id === bookId ? { ...book, ...previousState } : book,
+          ),
+        );
+      }
     }
   };
 
@@ -169,8 +192,8 @@ export function ViewBooksPage() {
     setSearchQuery("");
     setFilterGenre("ALL");
     setFilterFinished("ALL");
-    setFilterReadStatus("ALL");
     setFilterFormat("ALL");
+    setFilterSeries("ALL");
     setSortBy("genre-author");
   };
 
@@ -189,7 +212,7 @@ export function ViewBooksPage() {
           </div>
 
           <div className="mt-8 space-y-5 rounded-2xl border border-stone-200/60 bg-stone-50/40 p-5 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
               <div className="relative">
                 <Input
                   id="search"
@@ -215,26 +238,10 @@ export function ViewBooksPage() {
 
               <Select
                 id="filter-finished"
-                label="Status"
+                label="Read Status"
                 value={filterFinished}
                 onChange={(e) =>
                   setFilterFinished(
-                    e.target.value as "ALL" | "FINISHED" | "UNFINISHED",
-                  )
-                }
-                options={[
-                  { value: "ALL", label: "All Books" },
-                  { value: "FINISHED", label: "Finished" },
-                  { value: "UNFINISHED", label: "Unfinished" },
-                ]}
-              />
-
-              <Select
-                id="filter-read-status"
-                label="Read By"
-                value={filterReadStatus}
-                onChange={(e) =>
-                  setFilterReadStatus(
                     e.target.value as
                       | "ALL"
                       | "NEITHER"
@@ -262,6 +269,21 @@ export function ViewBooksPage() {
                   ...availableFormats.map((fmt) => ({
                     value: fmt,
                     label: BOOK_FORMAT_LABELS[fmt],
+                  })),
+                ]}
+              />
+
+              <Select
+                id="filter-series"
+                label="Series"
+                value={filterSeries}
+                onChange={(e) => setFilterSeries(e.target.value)}
+                options={[
+                  { value: "ALL", label: "All Series" },
+                  { value: "NONE", label: "No Series" },
+                  ...availableSeries.map((series) => ({
+                    value: series,
+                    label: series,
                   })),
                 ]}
               />
@@ -322,8 +344,8 @@ export function ViewBooksPage() {
                 {(searchQuery ||
                   filterGenre !== "ALL" ||
                   filterFinished !== "ALL" ||
-                  filterReadStatus !== "ALL" ||
                   filterFormat !== "ALL" ||
+                  filterSeries !== "ALL" ||
                   sortBy !== "genre-author") && (
                   <Button
                     variant="secondary"

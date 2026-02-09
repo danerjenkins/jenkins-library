@@ -282,13 +282,28 @@ export function AdminBooksPage() {
   async function handleDeleteBook(id: string, bookTitle: string) {
     if (!confirm(`Delete "${bookTitle}"? This cannot be undone.`)) return;
 
+    let removed: { book: Book; index: number } | null = null;
+
     try {
       setErrorMessage(null);
+      setBooks((prevBooks) => {
+        const index = prevBooks.findIndex((book) => book.id === id);
+        if (index >= 0) {
+          removed = { book: prevBooks[index], index };
+        }
+        return prevBooks.filter((book) => book.id !== id);
+      });
       await deleteBook(id);
-      await loadBooks();
     } catch (error) {
       console.error("Failed to delete book:", error);
       setErrorMessage(resolveErrorMessage(error));
+      if (removed) {
+        setBooks((prevBooks) => {
+          const next = [...prevBooks];
+          next.splice(removed.index, 0, removed.book);
+          return next;
+        });
+      }
     }
   }
 
