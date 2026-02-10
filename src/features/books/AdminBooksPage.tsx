@@ -631,6 +631,11 @@ export function AdminBooksPage() {
               onClearSeries={handleClearSeries}
               onSubmit={handleAddBook}
               onCancel={handleCancelEdit}
+              onDelete={
+                editingId
+                  ? () => handleDeleteBook(editingId, title || "Untitled")
+                  : undefined
+              }
             >
               {editingId && <span>Editing book...</span>}
             </BookForm>
@@ -683,21 +688,27 @@ export function AdminBooksPage() {
                     <Button
                       variant="secondary"
                       onClick={() => handleEditBook(book)}
-                      className="text-xs flex-1"
+                      className="text-xs px-2"
+                      aria-label={`Edit ${book.title}`}
+                      title="Edit"
                     >
                       <span className="flex items-center gap-1.5">
                         <Pencil className="h-3.5 w-3.5" />
-                        Edit
+                        <span className="hidden sm:inline">Edit</span>
+                        <span className="sr-only">Edit</span>
                       </span>
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteBook(book.id, book.title)}
-                      className="text-xs flex-1"
+                      className="text-xs px-2"
+                      aria-label={`Delete ${book.title}`}
+                      title="Delete"
                     >
                       <span className="flex items-center gap-1.5">
                         <Trash2 className="h-3.5 w-3.5" />
-                        Delete
+                        <span className="hidden sm:inline">Delete</span>
+                        <span className="sr-only">Delete</span>
                       </span>
                     </Button>
                   </>

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Camera, Search } from "lucide-react";
+import { Camera, Search, Trash2 } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
 import { Button } from "../../../ui/components/Button";
 import {
@@ -59,6 +59,7 @@ interface BookFormProps {
   onClearSeries: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
+  onDelete?: () => void;
   children?: ReactNode;
 }
 
@@ -100,6 +101,7 @@ export function BookForm({
   onClearSeries,
   onSubmit,
   onCancel,
+  onDelete,
   children,
 }: BookFormProps) {
   const [coverCandidates, setCoverCandidates] = useState<
@@ -923,6 +925,14 @@ export function BookForm({
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
+        {isEditing && onDelete && (
+          <Button type="button" variant="danger" onClick={onDelete}>
+            <span className="flex items-center gap-2">
+              <Trash2 className="h-4 w-4" />
+              Delete Book
+            </span>
+          </Button>
+        )}
       </div>
     </form>
   );
