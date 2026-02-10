@@ -70,6 +70,7 @@ export function BookForm({
   genre,
   description,
   isbn,
+  finished,
   coverUrl,
   format,
   pages,
@@ -110,6 +111,9 @@ export function BookForm({
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<
+    "core" | "reading" | "meta"
+  >("core");
   const requestIdRef = useRef(0);
 
   // Author autofill state
@@ -406,7 +410,7 @@ export function BookForm({
 
   return (
     <form
-      className="grid gap-4 rounded-xl border border-stone-200 bg-white p-4 shadow-sm"
+      className="grid gap-4 rounded-xl border border-stone-200 bg-white p-4 pb-24 shadow-sm"
       onSubmit={onSubmit}
     >
       {children && (
@@ -415,524 +419,650 @@ export function BookForm({
         </div>
       )}
 
-      <div ref={titleInputRef} className="relative">
-        <Input
-          id="title"
-          label="Title"
-          type="text"
-          value={title}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const nextTitle = e.target.value;
-            const hasMeaningfulChange =
-              nextTitle.trim() !== initialTitleRef.current.trim();
-            if (hasMeaningfulChange) {
-              setTitleWasEdited(true);
-            }
-            onTitleChange(nextTitle);
-          }}
-          onFocus={() => {
-            if (
-              titleSuggestions.length > 0 &&
-              !authorFieldFocusedRef.current &&
-              (!isEditing || titleWasEdited)
-            ) {
-              setShowSuggestions(true);
-            }
-          }}
-          onBlur={() => {
-            // Delay hiding to allow click on suggestion
-            setTimeout(() => setShowSuggestions(false), 200);
-          }}
-          placeholder="Enter book title"
-          autoFocus
-        />
-
-        {isbn && (
-          <div className="mt-1 text-xs text-stone-500">ISBN: {isbn}</div>
-        )}
-
-        {isSuggesting && (
-          <div className="mt-1 text-xs text-stone-500">Searching titles...</div>
-        )}
+      <div className="hidden sm:flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
+        <button
+          type="button"
+          onClick={() => setActiveSection("core")}
+          className={`px-3 py-1 text-xs font-medium rounded transition ${
+            activeSection === "core"
+              ? "bg-sage text-white"
+              : "text-charcoal/70 hover:bg-warm-gray-light"
+          }`}
+        >
+          Core Info
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveSection("reading")}
+          className={`px-3 py-1 text-xs font-medium rounded transition ${
+            activeSection === "reading"
+              ? "bg-sage text-white"
+              : "text-charcoal/70 hover:bg-warm-gray-light"
+          }`}
+        >
+          Reading Status
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveSection("meta")}
+          className={`px-3 py-1 text-xs font-medium rounded transition ${
+            activeSection === "meta"
+              ? "bg-sage text-white"
+              : "text-charcoal/70 hover:bg-warm-gray-light"
+          }`}
+        >
+          Description & Metadata
+        </button>
       </div>
 
-      <div>
-        <Input
-          id="author"
-          label="Author"
-          type="text"
-          value={author}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleAuthorChange(e.target.value)
-          }
-          onFocus={() => {
-            authorFieldFocusedRef.current = true;
-            setShowSuggestions(false);
-          }}
-          onBlur={() => {
-            authorFieldFocusedRef.current = false;
-          }}
-          placeholder="Enter author name"
-        />
-        {authorWasAutofilled && author.trim().length > 0 && (
-          <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
-            <span>Auto-filled from title — please verify</span>
-            <button
-              type="button"
-              onClick={handleClearAuthor}
-              className="text-stone-600 underline hover:text-stone-900"
-            >
-              Clear
-            </button>
-          </div>
-        )}
-      </div>
+      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+        <button
+          type="button"
+          onClick={() => setActiveSection("core")}
+          aria-controls="section-core"
+          aria-expanded={activeSection === "core"}
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+        >
+          <span>Core Info</span>
+          <span className="text-xs text-stone-500">
+            {activeSection === "core" ? "Open" : "Closed"}
+          </span>
+        </button>
+        <div
+          id="section-core"
+          className={`${activeSection === "core" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        >
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-stone-700">Core Info</h3>
+            <div ref={titleInputRef} className="relative">
+              <Input
+                id="title"
+                label="Title"
+                type="text"
+                value={title}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const nextTitle = e.target.value;
+                  const hasMeaningfulChange =
+                    nextTitle.trim() !== initialTitleRef.current.trim();
+                  if (hasMeaningfulChange) {
+                    setTitleWasEdited(true);
+                  }
+                  onTitleChange(nextTitle);
+                }}
+                onFocus={() => {
+                  if (
+                    titleSuggestions.length > 0 &&
+                    !authorFieldFocusedRef.current &&
+                    (!isEditing || titleWasEdited)
+                  ) {
+                    setShowSuggestions(true);
+                  }
+                }}
+                onBlur={() => {
+                  // Delay hiding to allow click on suggestion
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                placeholder="Enter book title"
+                autoFocus
+              />
+              {isSuggesting && (
+                <div className="mt-1 text-xs text-stone-500">
+                  Searching titles...
+                </div>
+              )}
+            </div>
 
-      <div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Input
-            id="seriesName"
-            label="Series name (optional)"
-            type="text"
-            value={seriesName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onSeriesNameChange(e.target.value)
-            }
-            placeholder="Enter series name"
-          />
-          <Input
-            id="seriesLabel"
-            label="# in series (optional)"
-            type="text"
-            value={seriesLabel}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onSeriesLabelChange(e.target.value)
-            }
-            placeholder="e.g. 2 or 2.5"
-          />
-        </div>
-        {(seriesName.trim() || seriesLabel.trim()) && (
-          <div className="mt-2">
-            <button
-              type="button"
-              onClick={onClearSeries}
-              className="text-xs font-medium text-stone-600 underline hover:text-stone-900"
-            >
-              Clear series
-            </button>
-          </div>
-        )}
-      </div>
+            <div>
+              <Input
+                id="author"
+                label="Author"
+                type="text"
+                value={author}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleAuthorChange(e.target.value)
+                }
+                onFocus={() => {
+                  authorFieldFocusedRef.current = true;
+                  setShowSuggestions(false);
+                }}
+                onBlur={() => {
+                  authorFieldFocusedRef.current = false;
+                }}
+                placeholder="Enter author name"
+              />
+              {authorWasAutofilled && author.trim().length > 0 && (
+                <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
+                  <span>Auto-filled from title — please verify</span>
+                  <button
+                    type="button"
+                    onClick={handleClearAuthor}
+                    className="text-stone-600 underline hover:text-stone-900"
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
+            </div>
 
-      {/* Title suggestions dropdown - positioned after author field */}
-      {showSuggestions && titleSuggestions.length > 0 && (
-        <div className="relative -mt-2">
-          <div className="absolute z-10 mt-1 w-full rounded-lg border border-stone-300 bg-white shadow-lg">
-            <div className="max-h-64 overflow-y-auto">
-              {titleSuggestions.map((suggestion) => (
-                <button
-                  key={suggestion.key}
-                  type="button"
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    handleSuggestionSelect(suggestion);
-                  }}
-                  className="flex w-full items-start gap-3 border-b border-stone-100 px-3 py-2 text-left transition hover:bg-stone-50 last:border-b-0"
-                >
-                  {suggestion.coverUrl && (
-                    <img
-                      src={suggestion.coverUrl}
-                      alt=""
-                      className="h-12 w-8 shrink-0 rounded object-cover"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-stone-900 truncate">
-                      {suggestion.title}
-                    </div>
-                    {(suggestion.author || suggestion.year) && (
-                      <div className="mt-0.5 text-xs text-stone-500">
-                        {suggestion.author}
-                        {suggestion.author && suggestion.year && " • "}
-                        {suggestion.year}
-                      </div>
-                    )}
-                    {suggestion.isbn && (
-                      <div className="mt-0.5 text-xs text-stone-400">
-                        ISBN: {suggestion.isbn}
-                      </div>
-                    )}
+            <div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  id="seriesName"
+                  label="Series name (optional)"
+                  type="text"
+                  value={seriesName}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onSeriesNameChange(e.target.value)
+                  }
+                  placeholder="Enter series name"
+                />
+                <Input
+                  id="seriesLabel"
+                  label="# in series (optional)"
+                  type="text"
+                  value={seriesLabel}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onSeriesLabelChange(e.target.value)
+                  }
+                  placeholder="e.g. 2 or 2.5"
+                />
+              </div>
+              {(seriesName.trim() || seriesLabel.trim()) && (
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={onClearSeries}
+                    className="text-xs font-medium text-stone-600 underline hover:text-stone-900"
+                  >
+                    Clear series
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Title suggestions dropdown - positioned after author field */}
+            {showSuggestions && titleSuggestions.length > 0 && (
+              <div className="relative -mt-2">
+                <div className="absolute z-10 mt-1 w-full rounded-lg border border-stone-300 bg-white shadow-lg">
+                  <div className="max-h-64 overflow-y-auto">
+                    {titleSuggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.key}
+                        type="button"
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          handleSuggestionSelect(suggestion);
+                        }}
+                        className="flex w-full items-start gap-3 border-b border-stone-100 px-3 py-2 text-left transition hover:bg-stone-50 last:border-b-0"
+                      >
+                        {suggestion.coverUrl && (
+                          <img
+                            src={suggestion.coverUrl}
+                            alt=""
+                            className="h-12 w-8 shrink-0 rounded object-cover"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-stone-900 truncate">
+                            {suggestion.title}
+                          </div>
+                          {(suggestion.author || suggestion.year) && (
+                            <div className="mt-0.5 text-xs text-stone-500">
+                              {suggestion.author}
+                              {suggestion.author && suggestion.year && " • "}
+                              {suggestion.year}
+                            </div>
+                          )}
+                          {suggestion.isbn && (
+                            <div className="mt-0.5 text-xs text-stone-400">
+                              ISBN: {suggestion.isbn}
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </button>
-              ))}
-            </div>
-            <div className="border-t border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-500">
-              Suggested results from Open Library
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div>
-        <label
-          htmlFor="genre"
-          className="text-sm font-medium text-stone-700 block mb-1"
-        >
-          Genre (optional)
-        </label>
-        <div className="space-y-2">
-          <select
-            id="genre"
-            value={genre}
-            onChange={(e) => {
-              const newGenre = e.target.value;
-              handleGenreChange(newGenre);
-            }}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-          >
-            <option value="">— Select or enter custom</option>
-            {COMMON_GENRES.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={genre}
-            onChange={(e) => handleGenreChange(e.target.value)}
-            placeholder="Or type a custom genre"
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-          />
-        </div>
-        {genreWasAutofilled && genre.trim().length > 0 && (
-          <div className="mt-1.5 text-xs text-stone-500">
-            Auto-filled from book metadata — please verify
-          </div>
-        )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="description"
-          className="text-sm font-medium text-stone-700 block mb-1"
-        >
-          Description (optional)
-        </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value)}
-          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-25 resize-y"
-          placeholder="Enter book description or summary"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="format"
-          className="text-sm font-medium text-stone-700 block mb-1"
-        >
-          Format (optional)
-        </label>
-        <select
-          id="format"
-          value={format}
-          onChange={(e) => onFormatChange(e.target.value)}
-          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-        >
-          <option value="">— Unknown</option>
-          {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map((fmt) => (
-            <option key={fmt} value={fmt}>
-              {BOOK_FORMAT_LABELS[fmt]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label
-          htmlFor="pages"
-          className="text-sm font-medium text-stone-700 block mb-1"
-        >
-          Pages (optional)
-        </label>
-        <input
-          id="pages"
-          type="number"
-          min="1"
-          step="1"
-          value={pages}
-          onChange={(e) => onPagesChange(e.target.value)}
-          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-          placeholder="Enter page count"
-        />
-      </div>
-
-      <div>
-        <Input
-          id="coverUrl"
-          label="Cover Image URL (optional)"
-          type="text"
-          value={coverUrl}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onCoverUrlChange(e.target.value)
-          }
-          placeholder="https://example.com/cover.jpg"
-        />
-
-        {/* Google Images Search Link */}
-        {title.trim() && (
-          <div className="mt-2">
-            <a
-              href={getGoogleImageSearchUrl(title, author)}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition"
-            >
-              <Search className="h-3.5 w-3.5" />
-              Search cover on Google
-            </a>
-          </div>
-        )}
-
-        {/* Cover Search Section */}
-        <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
-          <div className="flex items-center justify-between gap-2">
-            <h4 className="font-sans text-sm font-semibold text-stone-700">
-              Cover Suggestions
-            </h4>
-            <button
-              type="button"
-              onClick={handleManualSearch}
-              disabled={!title.trim() || !author.trim() || isSearching}
-              className="flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-2 py-1 text-xs font-medium text-stone-600 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Search className="h-3 w-3" />
-              Find covers
-            </button>
-          </div>
-
-          {isSearching && (
-            <div className="mt-3 text-center text-sm text-stone-500">
-              Searching...
-            </div>
-          )}
-
-          {searchError && !isSearching && (
-            <div className="mt-3 text-center text-sm text-stone-500">
-              {searchError}
-            </div>
-          )}
-
-          {!isSearching && !searchError && coverCandidates.length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {coverCandidates.map((candidate) => (
-                <button
-                  key={candidate.key}
-                  type="button"
-                  onClick={() => handleCoverSelect(candidate)}
-                  className={`group relative overflow-hidden rounded-md transition ${
-                    selectedCoverUrl === candidate.coverUrl ||
-                    coverUrl === candidate.coverUrl
-                      ? "ring-2 ring-emerald-600"
-                      : "ring-1 ring-stone-300 hover:ring-2 hover:ring-stone-400"
-                  }`}
-                  title={`${candidate.title}${candidate.author ? ` by ${candidate.author}` : ""}`}
-                >
-                  <img
-                    src={candidate.coverUrl}
-                    alt={candidate.title}
-                    className="h-32 w-full object-cover"
-                    loading="lazy"
-                  />
-                  {(selectedCoverUrl === candidate.coverUrl ||
-                    coverUrl === candidate.coverUrl) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-emerald-600/20">
-                      <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
-                        Selected
-                      </span>
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {!isSearching &&
-            !searchError &&
-            coverCandidates.length === 0 &&
-            (!title.trim() || !author.trim()) && (
-              <div className="mt-3 text-center text-xs text-stone-500">
-                Enter title and author to search for covers
+                  <div className="border-t border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-500">
+                    Suggested results from Open Library
+                  </div>
+                </div>
               </div>
             )}
-        </div>
 
-        <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
-          <div className="flex items-center justify-between gap-2">
-            <h4 className="font-sans text-sm font-semibold text-stone-700">
-              Cover Photo
-            </h4>
+            <div>
+              <label
+                htmlFor="genre"
+                className="text-sm font-medium text-stone-700 block mb-1"
+              >
+                Genre (optional)
+              </label>
+              <div className="space-y-2">
+                <select
+                  id="genre"
+                  value={genre}
+                  onChange={(e) => {
+                    const newGenre = e.target.value;
+                    handleGenreChange(newGenre);
+                  }}
+                  className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                >
+                  <option value="">— Select or enter custom</option>
+                  {COMMON_GENRES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={genre}
+                  onChange={(e) => handleGenreChange(e.target.value)}
+                  placeholder="Or type a custom genre"
+                  className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                />
+              </div>
+              {genreWasAutofilled && genre.trim().length > 0 && (
+                <div className="mt-1.5 text-xs text-stone-500">
+                  Auto-filled from book metadata — please verify
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="format"
+                className="text-sm font-medium text-stone-700 block mb-1"
+              >
+                Format (optional)
+              </label>
+              <select
+                id="format"
+                value={format}
+                onChange={(e) => onFormatChange(e.target.value)}
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+              >
+                <option value="">— Unknown</option>
+                {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map((fmt) => (
+                  <option key={fmt} value={fmt}>
+                    {BOOK_FORMAT_LABELS[fmt]}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          {showCoverPhotoControls ? (
-            <div className="mt-2">
-              {coverPhotoUrl ? (
-                <div className="flex items-center gap-3">
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+        <button
+          type="button"
+          onClick={() => setActiveSection("reading")}
+          aria-controls="section-reading"
+          aria-expanded={activeSection === "reading"}
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+        >
+          <span>Reading Status</span>
+          <span className="text-xs text-stone-500">
+            {activeSection === "reading" ? "Open" : "Closed"}
+          </span>
+        </button>
+        <div
+          id="section-reading"
+          className={`${activeSection === "reading" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        >
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-stone-700">
+              Reading Status
+            </h3>
+            <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+              <h4 className="text-sm font-semibold text-stone-700">Ownership</h4>
+              <label
+                htmlFor="ownershipStatus"
+                className="text-xs text-stone-500"
+              >
+                Track whether the book is in your library or wishlist.
+              </label>
+              <select
+                id="ownershipStatus"
+                value={ownershipStatus}
+                onChange={(e) =>
+                  onOwnershipStatusChange(
+                    e.target.value as "owned" | "wishlist",
+                  )
+                }
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+              >
+                <option value="owned">Owned</option>
+                <option value="wishlist">Wishlist</option>
+              </select>
+            </div>
+
+            <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+              <h4 className="text-sm font-semibold text-stone-700">
+                Read Status
+              </h4>
+              <div className="flex items-center gap-2">
+                <input
+                  id="finished"
+                  type="checkbox"
+                  checked={finished}
+                  onChange={(e) => onFinishedChange(e.target.checked)}
+                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                />
+                <label
+                  htmlFor="finished"
+                  className="text-sm font-medium text-stone-700"
+                >
+                  Finished
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="readByDane"
+                  type="checkbox"
+                  checked={readByDane}
+                  onChange={(e) => onReadByDaneChange(e.target.checked)}
+                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                />
+                <label
+                  htmlFor="readByDane"
+                  className="text-sm font-medium text-stone-700"
+                >
+                  Read by Dane
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="readByEmma"
+                  type="checkbox"
+                  checked={readByEmma}
+                  onChange={(e) => onReadByEmmaChange(e.target.checked)}
+                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                />
+                <label
+                  htmlFor="readByEmma"
+                  className="text-sm font-medium text-stone-700"
+                >
+                  Read by Emma
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+        <button
+          type="button"
+          onClick={() => setActiveSection("meta")}
+          aria-controls="section-meta"
+          aria-expanded={activeSection === "meta"}
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+        >
+          <span>Description & Metadata</span>
+          <span className="text-xs text-stone-500">
+            {activeSection === "meta" ? "Open" : "Closed"}
+          </span>
+        </button>
+        <div
+          id="section-meta"
+          className={`${activeSection === "meta" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        >
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-stone-700">
+              Description & Metadata
+            </h3>
+
+            {isbn && (
+              <div className="text-xs text-stone-500">ISBN: {isbn}</div>
+            )}
+
+            <div>
+              <label
+                htmlFor="description"
+                className="text-sm font-medium text-stone-700 block mb-1"
+              >
+                Description (optional)
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => onDescriptionChange(e.target.value)}
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-25 resize-y"
+                placeholder="Enter book description or summary"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="pages"
+                className="text-sm font-medium text-stone-700 block mb-1"
+              >
+                Pages (optional)
+              </label>
+              <input
+                id="pages"
+                type="number"
+                min="1"
+                step="1"
+                value={pages}
+                onChange={(e) => onPagesChange(e.target.value)}
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                placeholder="Enter page count"
+              />
+            </div>
+
+            <div>
+              <Input
+                id="coverUrl"
+                label="Cover Image URL (optional)"
+                type="text"
+                value={coverUrl}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onCoverUrlChange(e.target.value)
+                }
+                placeholder="https://example.com/cover.jpg"
+              />
+
+              {/* Google Images Search Link */}
+              {title.trim() && (
+                <div className="mt-2">
+                  <a
+                    href={getGoogleImageSearchUrl(title, author)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition"
+                  >
+                    <Search className="h-3.5 w-3.5" />
+                    Search cover on Google
+                  </a>
+                </div>
+              )}
+
+              {/* Cover Search Section */}
+              <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-sans text-sm font-semibold text-stone-700">
+                    Cover Suggestions
+                  </h4>
+                </div>
+
+                {isSearching && (
+                  <div className="mt-3 text-center text-sm text-stone-500">
+                    Searching...
+                  </div>
+                )}
+
+                {searchError && !isSearching && (
+                  <div className="mt-3 text-center text-sm text-stone-500">
+                    {searchError}
+                  </div>
+                )}
+
+                {!isSearching && !searchError && coverCandidates.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-3 px-3 snap-x snap-mandatory">
+                      {coverCandidates.map((candidate) => (
+                        <button
+                          key={candidate.key}
+                          type="button"
+                          onClick={() => handleCoverSelect(candidate)}
+                          className={`group relative shrink-0 overflow-hidden rounded-md transition snap-start ${
+                            selectedCoverUrl === candidate.coverUrl ||
+                            coverUrl === candidate.coverUrl
+                              ? "ring-2 ring-emerald-600"
+                              : "ring-1 ring-stone-300 hover:ring-2 hover:ring-stone-400"
+                          }`}
+                          title={`${candidate.title}${candidate.author ? ` by ${candidate.author}` : ""}`}
+                        >
+                          <img
+                            src={candidate.coverUrl}
+                            alt={candidate.title}
+                            className="h-32 w-24 object-cover"
+                            loading="lazy"
+                          />
+                          {(selectedCoverUrl === candidate.coverUrl ||
+                            coverUrl === candidate.coverUrl) && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-emerald-600/20">
+                              <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
+                                Selected
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="text-xs text-stone-500">Swipe to see more</div>
+                  </div>
+                )}
+
+                {!isSearching &&
+                  !searchError &&
+                  coverCandidates.length === 0 &&
+                  (!title.trim() || !author.trim()) && (
+                    <div className="mt-3 text-center text-xs text-stone-500">
+                      Enter title and author to search for covers
+                    </div>
+                  )}
+              </div>
+
+              <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-sans text-sm font-semibold text-stone-700">
+                    Cover Photo
+                  </h4>
+                </div>
+                {showCoverPhotoControls ? (
+                  <div className="mt-2">
+                    {coverPhotoUrl ? (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={coverPhotoUrl}
+                          alt="Cover preview"
+                          className="h-16 w-12 rounded object-cover shadow-sm"
+                        />
+                        <div className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={onCoverPhotoPick}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
+                          >
+                            <Camera className="h-3 w-3" />
+                            Replace Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={onRemoveCoverPhoto}
+                            className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
+                          >
+                            Remove Photo
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={onCoverPhotoPick}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
+                      >
+                        <Camera className="h-3.5 w-3.5" />
+                        Take Cover Photo
+                      </button>
+                    )}
+                    {showCoverSaved && (
+                      <div className="mt-2 text-xs text-green-600 font-medium">
+                        ✓ Cover saved
+                      </div>
+                    )}
+                    <input
+                      ref={coverPhotoInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={onCoverPhotoFileChange}
+                      className="hidden"
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-2 text-xs text-stone-500">
+                    Save the book first to add a photo.
+                  </div>
+                )}
+              </div>
+
+              {coverUrl && (
+                <div className="mt-2 flex items-center gap-3">
                   <img
-                    src={coverPhotoUrl}
+                    src={coverUrl}
                     alt="Cover preview"
-                    className="h-16 w-12 rounded object-cover shadow-sm"
+                    className="h-24 w-16 rounded object-cover shadow-sm"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
                   />
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-stone-500">
+                      Current cover preview
+                    </span>
                     <button
                       type="button"
-                      onClick={onCoverPhotoPick}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
+                      onClick={() => {
+                        onCoverUrlChange("");
+                        setSelectedCoverUrl(null);
+                      }}
+                      className="text-xs font-medium text-stone-600 hover:text-stone-800"
                     >
-                      <Camera className="h-3 w-3" />
-                      Replace Photo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onRemoveCoverPhoto}
-                      className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
-                    >
-                      Remove Photo
+                      Clear cover
                     </button>
                   </div>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onCoverPhotoPick}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
-                >
-                  <Camera className="h-3.5 w-3.5" />
-                  Take Cover Photo
-                </button>
               )}
-              {showCoverSaved && (
-                <div className="mt-2 text-xs text-green-600 font-medium">
-                  ✓ Cover saved
-                </div>
-              )}
-              <input
-                ref={coverPhotoInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={onCoverPhotoFileChange}
-                className="hidden"
-              />
-            </div>
-          ) : (
-            <div className="mt-2 text-xs text-stone-500">
-              Save the book first to add a photo.
-            </div>
-          )}
-        </div>
-
-        {coverUrl && (
-          <div className="mt-2 flex items-center gap-3">
-            <img
-              src={coverUrl}
-              alt="Cover preview"
-              className="h-24 w-16 rounded object-cover shadow-sm"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-stone-500">
-                Current cover preview
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  onCoverUrlChange("");
-                  setSelectedCoverUrl(null);
-                }}
-                className="text-xs font-medium text-stone-600 hover:text-stone-800"
-              >
-                Clear cover
-              </button>
             </div>
           </div>
-        )}
-      </div>
-
-      <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
-        <h4 className="text-sm font-semibold text-stone-700">Ownership</h4>
-        <label htmlFor="ownershipStatus" className="text-xs text-stone-500">
-          Track whether the book is in your library or wishlist.
-        </label>
-        <select
-          id="ownershipStatus"
-          value={ownershipStatus}
-          onChange={(e) =>
-            onOwnershipStatusChange(e.target.value as "owned" | "wishlist")
-          }
-          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-        >
-          <option value="owned">Owned</option>
-          <option value="wishlist">Wishlist</option>
-        </select>
-      </div>
-
-      <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
-        <h4 className="text-sm font-semibold text-stone-700">Read Status</h4>
-        <div className="flex items-center gap-2">
-          <input
-            id="readByDane"
-            type="checkbox"
-            checked={readByDane}
-            onChange={(e) => onReadByDaneChange(e.target.checked)}
-            className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
-          />
-          <label
-            htmlFor="readByDane"
-            className="text-sm font-medium text-stone-700"
-          >
-            Read by Dane
-          </label>
         </div>
-        <div className="flex items-center gap-2">
-          <input
-            id="readByEmma"
-            type="checkbox"
-            checked={readByEmma}
-            onChange={(e) => onReadByEmmaChange(e.target.checked)}
-            className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
-          />
-          <label
-            htmlFor="readByEmma"
-            className="text-sm font-medium text-stone-700"
-          >
-            Read by Emma
-          </label>
-        </div>
-      </div>
+      </section>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          type="submit"
-          variant="success"
-          disabled={!title.trim() || !author.trim()}
-        >
-          {isEditing ? "Update Book" : "Add Book"}
-        </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        {isEditing && onDelete && (
-          <Button type="button" variant="danger" onClick={onDelete}>
-            <span className="flex items-center gap-2">
-              <Trash2 className="h-4 w-4" />
-              Delete Book
-            </span>
+      <div className="sticky bottom-0 -mx-4 mt-4 border-t border-stone-200 bg-white/95 px-4 py-3 backdrop-blur">
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button
+            type="submit"
+            variant="success"
+            disabled={!title.trim() || !author.trim()}
+          >
+            {isEditing ? "Update Book" : "Add Book"}
           </Button>
-        )}
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          {isEditing && onDelete && (
+            <Button type="button" variant="danger" onClick={onDelete}>
+              <span className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                Delete Book
+              </span>
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );
