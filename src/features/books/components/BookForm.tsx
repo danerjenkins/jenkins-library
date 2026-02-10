@@ -91,6 +91,7 @@ export function BookForm({
   onGenreChange,
   onDescriptionChange,
   onIsbnChange,
+  onFinishedChange,
   onCoverUrlChange,
   onFormatChange,
   onPagesChange,
@@ -206,10 +207,6 @@ export function BookForm({
 
     onCoverUrlChange(candidate.coverUrl);
     setSelectedCoverUrl(candidate.coverUrl);
-  };
-
-  const handleManualSearch = () => {
-    performSearch(title, author);
   };
 
   // Author autofill logic
