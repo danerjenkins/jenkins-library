@@ -682,11 +682,13 @@ export function BookForm({
                 className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
               >
                 <option value="">— Unknown</option>
-                {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map((fmt) => (
-                  <option key={fmt} value={fmt}>
-                    {BOOK_FORMAT_LABELS[fmt]}
-                  </option>
-                ))}
+                {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map(
+                  (fmt) => (
+                    <option key={fmt} value={fmt}>
+                      {BOOK_FORMAT_LABELS[fmt]}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
           </div>
@@ -715,7 +717,9 @@ export function BookForm({
               Reading Status
             </h3>
             <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
-              <h4 className="text-sm font-semibold text-stone-700">Ownership</h4>
+              <h4 className="text-sm font-semibold text-stone-700">
+                Ownership
+              </h4>
               <label
                 htmlFor="ownershipStatus"
                 className="text-xs text-stone-500"
@@ -813,9 +817,7 @@ export function BookForm({
               Description & Metadata
             </h3>
 
-            {isbn && (
-              <div className="text-xs text-stone-500">ISBN: {isbn}</div>
-            )}
+            {isbn && <div className="text-xs text-stone-500">ISBN: {isbn}</div>}
 
             <div>
               <label
@@ -932,7 +934,9 @@ export function BookForm({
                         </button>
                       ))}
                     </div>
-                    <div className="text-xs text-stone-500">Swipe to see more</div>
+                    <div className="text-xs text-stone-500">
+                      Swipe to see more
+                    </div>
                   </div>
                 )}
 
