@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import {
   getAllBooks,
-  getWishlistBooks,
   sortBooksBySeriesOrder,
   updateBook,
 } from "../../data/bookRepo";
@@ -22,9 +21,6 @@ export function ViewBooksPage() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
-  const [filterOwnership, setFilterOwnership] = useState<"owned" | "wishlist">(
-    "owned",
-  );
   const [filterFinished, setFilterFinished] = useState<
     "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
   >("ALL");
@@ -37,14 +33,13 @@ export function ViewBooksPage() {
 
   // Load books on mount
   useEffect(() => {
-    loadBooks(filterOwnership);
-  }, [filterOwnership]);
+    loadBooks();
+  }, []);
 
-  async function loadBooks(status: "owned" | "wishlist") {
+  async function loadBooks() {
     try {
       setLoading(true);
-      const allBooks =
-        status === "owned" ? await getAllBooks() : await getWishlistBooks();
+      const allBooks = await getAllBooks();
       setBooks(allBooks);
     } catch (error) {
       console.error("Failed to load books:", error);
@@ -92,11 +87,6 @@ export function ViewBooksPage() {
 
     // Genre filter
     if (filterGenre !== "ALL" && book.genre !== filterGenre) {
-      return false;
-    }
-
-    const ownershipStatus = book.ownershipStatus ?? "owned";
-    if (ownershipStatus !== filterOwnership) {
       return false;
     }
 
@@ -201,7 +191,6 @@ export function ViewBooksPage() {
   const handleClearFilters = () => {
     setSearchQuery("");
     setFilterGenre("ALL");
-    setFilterOwnership("owned");
     setFilterFinished("ALL");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
@@ -244,19 +233,6 @@ export function ViewBooksPage() {
                 options={[
                   { value: "ALL", label: "All Genres" },
                   ...availableGenres.map((g) => ({ value: g, label: g })),
-                ]}
-              />
-
-              <Select
-                id="filter-ownership"
-                label="Ownership"
-                value={filterOwnership}
-                onChange={(e) =>
-                  setFilterOwnership(e.target.value as "owned" | "wishlist")
-                }
-                options={[
-                  { value: "owned", label: "Owned" },
-                  { value: "wishlist", label: "Wishlist" },
                 ]}
               />
 
@@ -367,7 +343,6 @@ export function ViewBooksPage() {
                 </div>
                 {(searchQuery ||
                   filterGenre !== "ALL" ||
-                  filterOwnership !== "owned" ||
                   filterFinished !== "ALL" ||
                   filterFormat !== "ALL" ||
                   filterSeries !== "ALL" ||
