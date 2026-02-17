@@ -129,51 +129,63 @@ export function AdminBooksPage() {
     ),
   ).sort();
 
-  const filteredBooks = books.filter((book) => {
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
+  const filteredBooks = books
+    .filter((book) => {
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          book.title.toLowerCase().includes(query) ||
+          book.author.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
 
-    if (filterGenre !== "ALL" && book.genre !== filterGenre) {
-      return false;
-    }
-
-    if (filterReadStatus !== "ALL") {
-      const readStatus = getReadStatus(book);
-      const filterMap: Record<string, ReadStatus> = {
-        NEITHER: "neither",
-        DANE: "dane",
-        EMMA: "emma",
-        BOTH: "both",
-      };
-      if (readStatus !== filterMap[filterReadStatus]) {
+      if (filterGenre !== "ALL" && book.genre !== filterGenre) {
         return false;
       }
-    }
 
-    const ownershipStatus = book.ownershipStatus ?? "owned";
-    if (ownershipStatus !== filterOwnership) {
-      return false;
-    }
+      if (filterReadStatus !== "ALL") {
+        const readStatus = getReadStatus(book);
+        const filterMap: Record<string, ReadStatus> = {
+          NEITHER: "neither",
+          DANE: "dane",
+          EMMA: "emma",
+          BOTH: "both",
+        };
+        if (readStatus !== filterMap[filterReadStatus]) {
+          return false;
+        }
+      }
 
-    if (filterFormat !== "ALL" && book.format !== filterFormat) {
-      return false;
-    }
-
-    if (filterSeries !== "ALL") {
-      if (filterSeries === "NONE") {
-        if (book.seriesName) return false;
-      } else if (book.seriesName !== filterSeries) {
+      const ownershipStatus = book.ownershipStatus ?? "owned";
+      if (ownershipStatus !== filterOwnership) {
         return false;
       }
-    }
 
-    return true;
-  });
+      if (filterFormat !== "ALL" && book.format !== filterFormat) {
+        return false;
+      }
+
+      if (filterSeries !== "ALL") {
+        if (filterSeries === "NONE") {
+          if (book.seriesName) return false;
+        } else if (book.seriesName !== filterSeries) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const genreA = (a.genre ?? "").toLowerCase();
+      const genreB = (b.genre ?? "").toLowerCase();
+      if (genreA !== genreB) return genreA.localeCompare(genreB);
+
+      const authorA = (a.author ?? "").toLowerCase();
+      const authorB = (b.author ?? "").toLowerCase();
+      if (authorA !== authorB) return authorA.localeCompare(authorB);
+
+      return a.title.localeCompare(b.title);
+    });
 
   function handleEditBook(book: Book) {
     setTitle(book.title);

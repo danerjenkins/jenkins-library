@@ -16,7 +16,9 @@ export function WishlistPage() {
       setLoading(true);
       const wishlistBooks = await getWishlistBooks();
       setBooks(
-        wishlistBooks.filter((book) => (book.ownershipStatus ?? "owned") === "wishlist"),
+        wishlistBooks.filter(
+          (book) => (book.ownershipStatus ?? "owned") === "wishlist",
+        ),
       );
     } catch (error) {
       console.error("Failed to load wishlist books:", error);
@@ -27,19 +29,31 @@ export function WishlistPage() {
 
   const sortedBooks = useMemo(() => {
     return [...books].sort((a, b) => {
-      const genreCompare = (a.genre ?? "").localeCompare(b.genre ?? "", undefined, {
-        sensitivity: "base",
-      });
+      const genreCompare = (a.genre ?? "").localeCompare(
+        b.genre ?? "",
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      );
       if (genreCompare !== 0) return genreCompare;
 
-      const authorCompare = (a.author ?? "").localeCompare(b.author ?? "", undefined, {
-        sensitivity: "base",
-      });
+      const authorCompare = (a.author ?? "").localeCompare(
+        b.author ?? "",
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      );
       if (authorCompare !== 0) return authorCompare;
 
-      const seriesCompare = (a.seriesName ?? "").localeCompare(b.seriesName ?? "", undefined, {
-        sensitivity: "base",
-      });
+      const seriesCompare = (a.seriesName ?? "").localeCompare(
+        b.seriesName ?? "",
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      );
       if (seriesCompare !== 0) return seriesCompare;
 
       return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });

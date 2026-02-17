@@ -13,10 +13,7 @@ import {
 } from "../../../integrations/openLibrary";
 import { debounce } from "../../../utils/debounce";
 import type { BookFormat } from "../bookTypes";
-import {
-  BOOK_FORMAT_LABELS,
-  getGoogleImageSearchUrl,
-} from "../bookTypes";
+import { BOOK_FORMAT_LABELS, getGoogleImageSearchUrl } from "../bookTypes";
 
 const EDIT_BOOK_GENRES = [
   "Adventure",
