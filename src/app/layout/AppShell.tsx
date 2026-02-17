@@ -36,6 +36,16 @@ export function AppShell({ children }: AppShellProps) {
               Library
             </Link>
             <Link
+              to="/wishlist"
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                location.pathname === "/wishlist"
+                  ? "bg-warm-gray-light text-charcoal"
+                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
+              }`}
+            >
+              Wishlist
+            </Link>
+            <Link
               to="/admin"
               className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 location.pathname === "/admin"

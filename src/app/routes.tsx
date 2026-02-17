@@ -4,6 +4,7 @@ import { ViewBooksPage } from "../features/books/ViewBooksPage";
 import { AdminBooksPage } from "../features/books/AdminBooksPage";
 import { StatsPage } from "../features/books/StatsPage";
 import { BookDetailPage } from "../features/books/BookDetailPage";
+import { WishlistPage } from "../features/books/WishlistPage";
 
 // === DIAGNOSTICS START ===
 function ErrorBoundary() {
@@ -31,6 +32,11 @@ export const routes: RouteObject[] = [
   {
     path: "/view",
     element: <ViewBooksPage />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/wishlist",
+    element: <WishlistPage />,
     errorElement: <ErrorBoundary />,
   },
   {

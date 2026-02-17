@@ -48,6 +48,7 @@ interface BookCardProps {
   ) => void;
   cardSize?: "small" | "medium" | "large";
   clickable?: boolean;
+  showGenreTag?: boolean;
 }
 
 export function BookCard({
@@ -57,6 +58,7 @@ export function BookCard({
   onReadStatusChange,
   cardSize = "medium",
   clickable = false,
+  showGenreTag = true,
 }: BookCardProps) {
   const isView = variant === "view";
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
@@ -154,7 +156,7 @@ export function BookCard({
               </p>
             )}
           </div>
-          {book.genre && (
+          {showGenreTag && book.genre && (
             <div>
               <span
                 className={`inline-block rounded-md px-2 py-1 text-xs font-medium border ${getGenreColor(book.genre)}`}
