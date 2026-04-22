@@ -30,6 +30,30 @@ function resolveErrorMessage(error: unknown) {
   return "Something went wrong. Please try again.";
 }
 
+function AdminBookCover({ book }: { book: Book }) {
+  return (
+    <div className="flex h-16 w-11 flex-none overflow-hidden rounded-md border border-warm-gray bg-warm-gray-light shadow-sm">
+      {book.coverUrl ? (
+        <img
+          src={book.coverUrl}
+          alt=""
+          width={44}
+          height={64}
+          loading="lazy"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-stone-400"
+          aria-hidden="true"
+        >
+          No Cover
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdminBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
@@ -483,8 +507,8 @@ export function AdminBooksPage() {
             </div>
           )}
           {!showForm && books.length > 0 && (
-            <div className="rounded-2xl border border-warm-gray bg-parchment/75 p-4 shadow-sm space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="rounded-xl border border-warm-gray bg-parchment/75 p-3 shadow-sm space-y-3">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
                 <div className="relative">
                   <Input
                     id="admin-search"
@@ -497,7 +521,7 @@ export function AdminBooksPage() {
                     autoComplete="off"
                   />
                   <Search
-                    className="absolute right-3 top-9 h-4 w-4 text-stone-400"
+                    className="absolute right-2.5 top-8 h-4 w-4 text-stone-400"
                     aria-hidden="true"
                   />
                 </div>
@@ -580,7 +604,7 @@ export function AdminBooksPage() {
               </div>
 
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="text-sm text-stone-600">
+                <div className="text-xs text-stone-600">
                   {filteredBooks.length}{" "}
                   {filteredBooks.length === 1 ? "book" : "books"}
                 </div>
@@ -589,7 +613,7 @@ export function AdminBooksPage() {
                     type="button"
                     variant="secondary"
                     onClick={handleClearFilters}
-                    className="text-xs"
+                    className="min-h-8 px-3 text-xs"
                   >
                     Clear Filters
                   </Button>
@@ -693,12 +717,13 @@ export function AdminBooksPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-warm-gray bg-cream/95 shadow-soft">
+          <div className="grid gap-3 lg:grid-cols-2">
             {filteredBooks.map((book) => (
               <article
                 key={book.id}
-                className="grid min-w-0 gap-3 border-b border-warm-gray px-4 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-xl border border-warm-gray bg-cream/95 px-3 py-3 shadow-soft sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
               >
+                <AdminBookCover book={book} />
                 <div className="min-w-0">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <h3 className="min-w-0 break-words text-base font-semibold leading-6 text-stone-900">
@@ -718,24 +743,32 @@ export function AdminBooksPage() {
                     {book.seriesName && <span>{book.seriesName}</span>}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 sm:justify-end">
+                <div className="col-span-2 flex flex-wrap gap-1.5 sm:col-span-1 sm:justify-end">
                   <Button
                     variant="secondary"
                     onClick={() => handleEditBook(book)}
-                    className="min-h-9 gap-1.5 px-3 text-xs"
+                    className="h-8 min-h-8 w-8 shrink-0 !p-0"
                     aria-label={`Edit ${book.title}`}
+                    title="Edit"
                   >
-                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                    Edit
+                    <Pencil
+                      className="h-4 w-4 shrink-0 text-current"
+                      aria-hidden="true"
+                      strokeWidth={2.25}
+                    />
                   </Button>
                   <Button
                     variant="danger"
                     onClick={() => handleDeleteBook(book.id, book.title)}
-                    className="min-h-9 gap-1.5 px-3 text-xs"
+                    className="h-8 min-h-8 w-8 shrink-0 !p-0"
                     aria-label={`Delete ${book.title}`}
+                    title="Delete"
                   >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    Delete
+                    <Trash2
+                      className="h-4 w-4 shrink-0 text-current"
+                      aria-hidden="true"
+                      strokeWidth={2.25}
+                    />
                   </Button>
                 </div>
               </article>

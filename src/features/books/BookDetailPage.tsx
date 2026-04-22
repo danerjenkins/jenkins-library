@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit } from "lucide-react";
-import { getBookById } from "../../data/bookRepo";
+import { getBookById, updateBook } from "../../data/bookRepo";
 import { getCoverPhotoUrl } from "../../data/db";
 import type { Book } from "./bookTypes";
 import { Badge } from "../../ui/components/Badge";
@@ -15,6 +15,8 @@ export function BookDetailPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
+  const [savingReadStatus, setSavingReadStatus] = useState(false);
+  const [readStatusError, setReadStatusError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -68,6 +70,33 @@ export function BookDetailPage() {
       }),
     [],
   );
+
+  const handleReadStatusChange = async (
+    field: "readByDane" | "readByEmma",
+    checked: boolean,
+  ) => {
+    if (!book) return;
+
+    const previousBook = book;
+    const nextBook = { ...book, [field]: checked };
+
+    setBook(nextBook);
+    setSavingReadStatus(true);
+    setReadStatusError(null);
+
+    try {
+      const updatedBook = await updateBook(book.id, {
+        [field]: checked,
+      });
+      setBook(updatedBook);
+    } catch (error) {
+      console.error("Failed to update read status:", error);
+      setBook(previousBook);
+      setReadStatusError("Read status could not be saved. Try again.");
+    } finally {
+      setSavingReadStatus(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -156,6 +185,75 @@ export function BookDetailPage() {
                 <Badge variant="amber">To Read</Badge>
               )}
             </div>
+
+            <section className="rounded-xl border border-warm-gray bg-parchment/75 p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-sans text-sm font-semibold text-stone-800">
+                    Read Status
+                  </h2>
+                  <p className="text-xs text-stone-500">
+                    Mark who has read this book.
+                  </p>
+                </div>
+                <div
+                  className="text-xs text-stone-500"
+                  aria-live="polite"
+                >
+                  {savingReadStatus ? "Saving…" : "Saved"}
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <label
+                  htmlFor="detail-read-dane"
+                  className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                >
+                  <input
+                    id="detail-read-dane"
+                    name="detailReadByDane"
+                    type="checkbox"
+                    checked={book.readByDane}
+                    disabled={savingReadStatus}
+                    onChange={(event) =>
+                      void handleReadStatusChange(
+                        "readByDane",
+                        event.target.checked,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                  />
+                  Dane
+                </label>
+
+                <label
+                  htmlFor="detail-read-emma"
+                  className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                >
+                  <input
+                    id="detail-read-emma"
+                    name="detailReadByEmma"
+                    type="checkbox"
+                    checked={book.readByEmma}
+                    disabled={savingReadStatus}
+                    onChange={(event) =>
+                      void handleReadStatusChange(
+                        "readByEmma",
+                        event.target.checked,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                  />
+                  Emma
+                </label>
+              </div>
+
+              {readStatusError && (
+                <p className="mt-2 text-xs text-rose-700" role="alert">
+                  {readStatusError}
+                </p>
+              )}
+            </section>
 
             <div className="space-y-3 pt-4 border-t border-warm-gray">
               {book.genre && (

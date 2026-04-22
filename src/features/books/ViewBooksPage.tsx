@@ -6,11 +6,7 @@ import {
   useState,
 } from "react";
 import { Search } from "lucide-react";
-import {
-  getAllBooks,
-  sortBooksBySeriesOrder,
-  updateBook,
-} from "../../data/bookRepo";
+import { getAllBooks, sortBooksBySeriesOrder } from "../../data/bookRepo";
 import type { Book, BookFormat, ReadStatus } from "./bookTypes";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
@@ -20,7 +16,7 @@ import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 
 type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
 type ReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";
-type CardSize = "small" | "medium" | "large";
+type CardSize = "xsmall" | "small" | "medium" | "large";
 
 const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
   NEITHER: "neither",
@@ -30,6 +26,7 @@ const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
 };
 
 const sizeOptions: Array<{ value: CardSize; label: string }> = [
+  { value: "xsmall", label: "XS" },
   { value: "small", label: "Small" },
   { value: "medium", label: "Medium" },
   { value: "large", label: "Large" },
@@ -193,38 +190,6 @@ export function ViewBooksPage() {
     filterSeries !== "ALL" ||
     sortBy !== "genre-author";
 
-  const handleReadStatusChange = useCallback(
-    async (bookId: string, readByDane: boolean, readByEmma: boolean) => {
-      const previousState = books.find((book) => book.id === bookId);
-
-      try {
-        setBooks((prevBooks) =>
-          prevBooks.map((book) =>
-            book.id === bookId ? { ...book, readByDane, readByEmma } : book,
-          ),
-        );
-
-        await updateBook(bookId, { readByDane, readByEmma });
-      } catch (error) {
-        console.error("Failed to update book:", error);
-        if (previousState) {
-          setBooks((prevBooks) =>
-            prevBooks.map((book) =>
-              book.id === bookId
-                ? {
-                    ...book,
-                    readByDane: previousState.readByDane,
-                    readByEmma: previousState.readByEmma,
-                  }
-                : book,
-            ),
-          );
-        }
-      }
-    },
-    [books],
-  );
-
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
     setFilterGenre("ALL");
@@ -247,9 +212,9 @@ export function ViewBooksPage() {
             </p>
           </div>
 
-          <div className="mt-6 space-y-4 rounded-lg border border-warm-gray bg-parchment/80 p-4 shadow-sm sm:p-5">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-              <div className="relative sm:col-span-2 lg:col-span-2">
+          <div className="mt-3 space-y-2 rounded-lg border border-warm-gray bg-parchment/80 p-2.5 shadow-sm">
+            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-7">
+              <div className="relative sm:col-span-3 lg:col-span-2">
                 <Input
                   id="search"
                   name="search"
@@ -262,7 +227,7 @@ export function ViewBooksPage() {
                   className="pr-9"
                 />
                 <Search
-                  className="pointer-events-none absolute right-3 top-9 h-4 w-4 text-stone-400"
+                  className="pointer-events-none absolute right-2.5 top-8 h-4 w-4 text-stone-400"
                   aria-hidden="true"
                 />
               </div>
@@ -341,14 +306,14 @@ export function ViewBooksPage() {
               />
             </div>
 
-            <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-              <div className="text-sm text-stone-600" aria-live="polite">
+            <div className="flex flex-col items-stretch justify-between gap-1.5 sm:flex-row sm:items-center">
+              <div className="text-xs text-stone-600" aria-live="polite">
                 {filteredBooks.length}{" "}
                 {filteredBooks.length === 1 ? "book" : "books"}
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
                 <div
-                  className="grid grid-cols-3 rounded-lg border border-warm-gray bg-cream p-1"
+                  className="grid grid-cols-4 rounded-md border border-warm-gray bg-cream p-0.5"
                   role="group"
                   aria-label="Card size"
                 >
@@ -357,7 +322,7 @@ export function ViewBooksPage() {
                       key={option.value}
                       type="button"
                       onClick={() => setCardSize(option.value)}
-                      className={`min-h-9 rounded-md px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
+                      className={`min-h-7 rounded px-2 text-[11px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
                         cardSize === option.value
                           ? "bg-sage text-white"
                           : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -372,7 +337,7 @@ export function ViewBooksPage() {
                   <Button
                     variant="secondary"
                     onClick={handleClearFilters}
-                    className="min-h-9 text-xs"
+                    className="min-h-7 px-2.5 text-[11px]"
                   >
                     Clear Filters
                   </Button>
@@ -413,7 +378,6 @@ export function ViewBooksPage() {
                   variant="view"
                   cardSize={cardSize}
                   clickable={true}
-                  onReadStatusChange={handleReadStatusChange}
                 />
               ))}
             </BookGrid>

@@ -1,0 +1,86 @@
+.book-card {
+  --book-card-title-size: 1rem;
+  --book-card-title-line-height: 1.25rem;
+  --book-card-meta-size: 0.75rem;
+  --book-card-meta-line-height: 1rem;
+  --book-card-body-gap: 0.5rem;
+  --book-card-body-padding: 0.75rem;
+  --book-card-content-min-height: 9rem;
+  --book-card-tag-font-size: 0.75rem;
+  --book-card-tag-line-height: 1rem;
+  --book-card-tag-padding: 0.25rem 0.5rem;
+  --book-card-divider-gap: 0.5rem;
+  --book-card-divider-padding-top: 0.75rem;
+}
+
+.book-card[data-card-size="xsmall"] {
+  --book-card-title-size: 0.75rem;
+  --book-card-title-line-height: 0.75rem;
+  --book-card-meta-size: 0.625rem;
+  --book-card-meta-line-height: 0.75rem;
+  --book-card-body-gap: 0.25rem;
+  --book-card-body-padding: 0.5rem;
+  --book-card-content-min-height: 6.25rem;
+  --book-card-tag-font-size: 0.5625rem;
+  --book-card-tag-line-height: 0.75rem;
+  --book-card-tag-padding: 0.125rem 0.25rem;
+  --book-card-divider-gap: 0.25rem;
+  --book-card-divider-padding-top: 0.375rem;
+}
+
+.book-card[data-card-size="small"] {
+  --book-card-title-size: 0.8125rem;
+  --book-card-title-line-height: 1rem;
+  --book-card-meta-size: 0.6875rem;
+  --book-card-meta-line-height: 1rem;
+  --book-card-body-gap: 0.375rem;
+  --book-card-body-padding: 0.625rem;
+  --book-card-content-min-height: 7.75rem;
+  --book-card-tag-font-size: 0.625rem;
+  --book-card-tag-line-height: 0.75rem;
+  --book-card-tag-padding: 0.125rem 0.375rem;
+  --book-card-divider-gap: 0.375rem;
+  --book-card-divider-padding-top: 0.5rem;
+}
+
+.book-card[data-card-size="large"] {
+  --book-card-title-size: 1.25rem;
+  --book-card-title-line-height: 1.5rem;
+  --book-card-meta-size: 0.875rem;
+  --book-card-meta-line-height: 1.25rem;
+  --book-card-body-gap: 0.75rem;
+  --book-card-body-padding: 1.25rem;
+  --book-card-content-min-height: 10rem;
+  --book-card-tag-font-size: 0.75rem;
+  --book-card-tag-line-height: 1rem;
+  --book-card-tag-padding: 0.25rem 0.625rem;
+  --book-card-divider-gap: 0.625rem;
+  --book-card-divider-padding-top: 0.75rem;
+}
+
+.book-card__body {
+  gap: var(--book-card-body-gap);
+  padding: var(--book-card-body-padding);
+  min-height: var(--book-card-content-min-height);
+}
+
+.book-card__title {
+  font-size: var(--book-card-title-size);
+  line-height: var(--book-card-title-line-height);
+}
+
+.book-card__meta {
+  font-size: var(--book-card-meta-size);
+  line-height: var(--book-card-meta-line-height);
+}
+
+.book-card__tag {
+  font-size: var(--book-card-tag-font-size);
+  line-height: var(--book-card-tag-line-height);
+  padding: var(--book-card-tag-padding);
+}
+
+.book-card__divider {
+  gap: var(--book-card-divider-gap);
+  padding-top: var(--book-card-divider-padding-top);
+}

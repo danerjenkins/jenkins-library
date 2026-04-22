@@ -5,6 +5,7 @@ import { BookOpen } from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
+import "./BookCard.css";
 
 function getGenreColor(genre: string): string {
   const genreLower = genre.toLowerCase();
@@ -46,7 +47,7 @@ interface BookCardProps {
     readByDane: boolean,
     readByEmma: boolean,
   ) => void;
-  cardSize?: "small" | "medium" | "large";
+  cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
   showGenreTag?: boolean;
 }
@@ -54,18 +55,22 @@ interface BookCardProps {
 type CardSize = NonNullable<BookCardProps["cardSize"]>;
 
 const coverHeightBySize: Record<CardSize, string> = {
-  small: "h-44 sm:h-48",
+  xsmall: "h-32 sm:h-36",
+  small: "h-40 sm:h-44",
   medium: "h-52 sm:h-56",
   large: "h-60 sm:h-64",
 };
 
-const titleSizeByCardSize: Record<CardSize, string> = {
-  small: "text-sm",
-  medium: "text-base",
-  large: "text-lg",
+const titleLineClampByCardSize: Record<CardSize, string> = {
+  xsmall: "line-clamp-2",
+  small: "line-clamp-2",
+  medium: "line-clamp-2",
+  large: "line-clamp-2",
 };
 
 const gridClassesByCardSize: Record<CardSize, string> = {
+  xsmall:
+    "grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8",
   small:
     "grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
   medium:
@@ -178,7 +183,7 @@ export function BookCard({
   }, [book.id]);
 
   const coverHeight = coverHeightBySize[cardSize];
-  const titleSize = titleSizeByCardSize[cardSize];
+  const titleClamp = titleLineClampByCardSize[cardSize];
   const seriesNumber =
     book.seriesLabel ??
     (book.seriesSort !== null && book.seriesSort !== undefined
@@ -198,12 +203,13 @@ export function BookCard({
     <BookCover book={book} coverUrl={coverUrl} coverHeight={coverHeight} />
   );
   const cardChrome =
-    "flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm [contain-intrinsic-size:320px_520px] [content-visibility:auto]";
+    "book-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm [contain-intrinsic-size:320px_520px] [content-visibility:auto]";
 
   if (isView) {
     return (
       <article
         className={`${cardChrome} transition hover:border-sage-light hover:shadow-md`}
+        data-card-size={cardSize}
       >
         {clickable ? (
           <Link
@@ -216,7 +222,7 @@ export function BookCard({
         ) : (
           cover
         )}
-        <div className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+        <div className="book-card__body flex min-w-0 flex-1 flex-col">
           <div className="min-w-0">
             {clickable ? (
               <Link
@@ -224,42 +230,44 @@ export function BookCard({
                 className="group/title block min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
               >
                 <h3
-                  className={`font-display line-clamp-2 break-words font-bold text-stone-900 transition group-hover/title:text-stone-700 ${titleSize}`}
+                  className={`book-card__title font-display break-words font-bold text-stone-900 transition group-hover/title:text-stone-700 ${titleClamp}`}
                 >
                   {book.title}
                 </h3>
               </Link>
             ) : (
               <h3
-                className={`font-display line-clamp-2 break-words font-bold text-stone-900 ${titleSize}`}
+                className={`book-card__title font-display break-words font-bold text-stone-900 ${titleClamp}`}
               >
                 {book.title}
               </h3>
             )}
-            <p className="font-sans mt-1 line-clamp-1 break-words text-xs text-stone-600">
+            <p className="book-card__meta font-sans mt-1 line-clamp-1 break-words text-stone-600">
               {book.author}
             </p>
             {seriesText && (
-              <p className="font-sans mt-1 line-clamp-1 break-words text-xs text-stone-500">
+              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
                 {seriesText}
               </p>
             )}
           </div>
+          <div className="min-h-0 flex-1" aria-hidden="true" />
+
           {showGenreTag && book.genre && (
             <div className="min-w-0">
               <span
-                className={`inline-block max-w-full rounded-md border px-2 py-1 text-xs font-medium leading-4 break-words ${genreClasses}`}
+                className={`book-card__tag inline-block max-w-full rounded border font-medium break-words ${genreClasses}`}
               >
                 {book.genre}
               </span>
             </div>
           )}
           {onReadStatusChange && (
-            <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-warm-gray pt-3">
-              <span className="text-xs font-medium text-stone-700">
+            <div className="book-card__divider mt-auto flex flex-wrap items-center border-t border-warm-gray">
+              <span className="book-card__meta font-medium text-stone-700">
                 Read by:
               </span>
-              <label className="flex min-h-8 cursor-pointer items-center gap-1 rounded-md px-1 text-xs font-medium text-stone-700 hover:bg-warm-gray-light">
+              <label className="book-card__meta flex min-h-7 cursor-pointer items-center gap-1 rounded-md px-1 font-medium text-stone-700 hover:bg-warm-gray-light">
                 <input
                   type="checkbox"
                   checked={book.readByDane}
@@ -274,7 +282,7 @@ export function BookCard({
                 />
                 <span>Dane</span>
               </label>
-              <label className="flex min-h-8 cursor-pointer items-center gap-1 rounded-md px-1 text-xs font-medium text-stone-700 hover:bg-warm-gray-light">
+              <label className="book-card__meta flex min-h-7 cursor-pointer items-center gap-1 rounded-md px-1 font-medium text-stone-700 hover:bg-warm-gray-light">
                 <input
                   type="checkbox"
                   checked={book.readByEmma}
@@ -292,7 +300,7 @@ export function BookCard({
             </div>
           )}
           {actions && (
-            <div className="mt-auto flex flex-wrap gap-2 border-t border-warm-gray pt-3">
+            <div className="book-card__divider mt-auto flex flex-wrap border-t border-warm-gray">
               {actions}
             </div>
           )}
@@ -302,33 +310,40 @@ export function BookCard({
   }
 
   return (
-    <article className={cardChrome}>
+    <article className={cardChrome} data-card-size={cardSize}>
       {cover}
-      <div className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+      <div className="book-card__body flex min-w-0 flex-1 flex-col">
         <div className="min-w-0">
           <h3
-            className={`font-display line-clamp-2 break-words font-bold text-stone-900 ${titleSize}`}
+            className={`book-card__title font-display break-words font-bold text-stone-900 ${titleClamp}`}
           >
             {book.title}
           </h3>
-          <p className="font-sans mt-1 line-clamp-1 break-words text-xs text-stone-600">
+          <p className="book-card__meta font-sans mt-1 line-clamp-1 break-words text-stone-600">
             {book.author}
           </p>
           {seriesText && (
-            <p className="font-sans mt-1 line-clamp-1 break-words text-xs text-stone-500">
+            <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
               {seriesText}
             </p>
           )}
         </div>
+        <div className="min-h-0 flex-1" aria-hidden="true" />
         {(book.genre || book.format || book.pages) && (
-          <div className="space-y-0.5 text-xs text-stone-500">
-            {book.genre && <p className="break-words">Genre: {book.genre}</p>}
-            {book.format && <p>Format: {BOOK_FORMAT_LABELS[book.format]}</p>}
+          <div className="book-card__meta space-y-0.5 border-t border-warm-gray pt-2 text-stone-500">
+            {book.genre && (
+              <p className="line-clamp-1 break-words">Genre: {book.genre}</p>
+            )}
+            {book.format && (
+              <p className="line-clamp-1">
+                Format: {BOOK_FORMAT_LABELS[book.format]}
+              </p>
+            )}
             {book.pages && <p>Pages: {book.pages}</p>}
           </div>
         )}
         {actions && (
-          <div className="mt-auto flex flex-wrap gap-2 border-t border-warm-gray pt-3">
+          <div className="book-card__divider mt-auto flex flex-wrap border-t border-warm-gray">
             {actions}
           </div>
         )}
