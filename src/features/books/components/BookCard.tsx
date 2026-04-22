@@ -291,6 +291,11 @@ export function BookCard({
               </label>
             </div>
           )}
+          {actions && (
+            <div className="mt-auto flex flex-wrap gap-2 border-t border-warm-gray pt-3">
+              {actions}
+            </div>
+          )}
         </div>
       </article>
     );

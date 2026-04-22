@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check } from "lucide-react";
 import { getWishlistBooks, updateBook } from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+import { Button } from "../../ui/components/Button";
 
 function sortWishlistBooks(books: Book[]) {
   return [...books].sort((a, b) => {
@@ -31,6 +33,7 @@ function sortWishlistBooks(books: Book[]) {
 export function WishlistPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [movingBookIds, setMovingBookIds] = useState<Set<string>>(new Set());
 
   const loadBooks = useCallback(async () => {
     try {
@@ -86,6 +89,32 @@ export function WishlistPage() {
     [books],
   );
 
+  const handleMoveToLibrary = useCallback(
+    async (bookId: string) => {
+      const bookToMove = books.find((book) => book.id === bookId);
+      if (!bookToMove) return;
+
+      setMovingBookIds((current) => new Set(current).add(bookId));
+      setBooks((currentBooks) =>
+        currentBooks.filter((book) => book.id !== bookId),
+      );
+
+      try {
+        await updateBook(bookId, { ownershipStatus: "owned" });
+      } catch (error) {
+        console.error("Failed to move book to library:", error);
+        setBooks((currentBooks) => sortWishlistBooks([...currentBooks, bookToMove]));
+      } finally {
+        setMovingBookIds((current) => {
+          const next = new Set(current);
+          next.delete(bookId);
+          return next;
+        });
+      }
+    },
+    [books],
+  );
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
@@ -121,6 +150,21 @@ export function WishlistPage() {
                   cardSize="medium"
                   clickable={true}
                   onReadStatusChange={handleReadStatusChange}
+                  actions={
+                    <Button
+                      type="button"
+                      variant="success"
+                      className="min-h-9 w-full gap-2 text-xs sm:w-auto"
+                      disabled={movingBookIds.has(book.id)}
+                      onClick={() => void handleMoveToLibrary(book.id)}
+                      aria-label={`Move ${book.title} to library`}
+                    >
+                      <Check className="h-4 w-4" aria-hidden="true" />
+                      {movingBookIds.has(book.id)
+                        ? "Adding To Library…"
+                        : "Add To Library"}
+                    </Button>
+                  }
                 />
               ))}
             </BookGrid>
