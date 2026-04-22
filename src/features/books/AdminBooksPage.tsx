@@ -21,7 +21,7 @@ import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
-import { BookCard } from "./components/BookCard";
+import { Badge } from "../../ui/components/Badge";
 import { BookForm } from "./components/BookForm";
 
 function resolveErrorMessage(error: unknown) {
@@ -56,9 +56,6 @@ export function AdminBooksPage() {
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [showCoverSaved, setShowCoverSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
-    "medium",
-  );
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,6 +202,30 @@ export function AdminBooksPage() {
     setCoverPhotoUrl(url);
   }, []);
 
+  const resetFormFields = useCallback(() => {
+    setTitle("");
+    setAuthor("");
+    setGenre("");
+    setDescription("");
+    setIsbn("");
+    setFinished(false);
+    setCoverUrl("");
+    setFormat("");
+    setPages("");
+    setReadByDane(false);
+    setReadByEmma(false);
+    setOwnershipStatus("owned");
+    setSeriesName("");
+    setSeriesLabel("");
+    setCoverPhotoUrl(null);
+    setEditingId(null);
+  }, []);
+
+  const handleStartAddBook = useCallback(() => {
+    resetFormFields();
+    setShowForm(true);
+  }, [resetFormFields]);
+
   const handleEditBook = useCallback((book: Book) => {
     setTitle(book.title);
     setAuthor(book.author);
@@ -237,6 +258,12 @@ export function AdminBooksPage() {
 
   // Handle edit query parameter once books are available.
   useEffect(() => {
+    if (searchParams.get("add") === "1") {
+      handleStartAddBook();
+      setSearchParams({});
+      return;
+    }
+
     const editId = searchParams.get("edit");
     if (editId && books.length > 0) {
       const bookToEdit = books.find((b) => b.id === editId);
@@ -245,7 +272,7 @@ export function AdminBooksPage() {
         setSearchParams({});
       }
     }
-  }, [books, handleEditBook, searchParams, setSearchParams]);
+  }, [books, handleEditBook, handleStartAddBook, searchParams, setSearchParams]);
 
   const handleClearSeries = () => {
     setSeriesName("");
@@ -329,21 +356,7 @@ export function AdminBooksPage() {
         });
         await syncBookSeries(created.id);
       }
-      setTitle("");
-      setAuthor("");
-      setGenre("");
-      setDescription("");
-      setIsbn("");
-      setFinished(false);
-      setCoverUrl("");
-      setFormat("");
-      setPages("");
-      setReadByDane(false);
-      setReadByEmma(false);
-      setOwnershipStatus("owned");
-      setSeriesName("");
-      setSeriesLabel("");
-      setEditingId(null);
+      resetFormFields();
       setShowForm(false);
       await loadBooks(filterOwnership);
     } catch (error) {
@@ -353,22 +366,7 @@ export function AdminBooksPage() {
   }
 
   function handleCancelEdit() {
-    setTitle("");
-    setAuthor("");
-    setGenre("");
-    setDescription("");
-    setIsbn("");
-    setFinished(false);
-    setCoverUrl("");
-    setFormat("");
-    setPages("");
-    setReadByDane(false);
-    setReadByEmma(false);
-    setOwnershipStatus("owned");
-    setSeriesName("");
-    setSeriesLabel("");
-    setCoverPhotoUrl(null);
-    setEditingId(null);
+    resetFormFields();
     setShowForm(false);
   }
 
@@ -463,12 +461,12 @@ export function AdminBooksPage() {
                 Manage Books
               </h2>
               <p className="font-sans mt-2 text-sm leading-relaxed text-stone-600">
-                Add, edit, and delete books from your library. Admin tools for
-                managing your collection.
+                Add books and maintain catalog details. Browse covers and
+                reading status from the Library and Wishlist pages.
               </p>
             </div>
             {!showForm && (
-              <Button variant="primary" onClick={() => setShowForm(true)}>
+              <Button variant="primary" onClick={handleStartAddBook}>
                 <span className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Add Book
@@ -599,43 +597,6 @@ export function AdminBooksPage() {
               </div>
             </div>
           )}
-          {!showForm && books.length > 0 && (
-            <div className="flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
-              <button
-                type="button"
-                onClick={() => setCardSize("small")}
-                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
-                  cardSize === "small"
-                    ? "bg-sage text-white"
-                    : "text-charcoal/70 hover:bg-warm-gray-light"
-                }`}
-              >
-                Small
-              </button>
-              <button
-                type="button"
-                onClick={() => setCardSize("medium")}
-                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
-                  cardSize === "medium"
-                    ? "bg-sage text-white"
-                    : "text-charcoal/70 hover:bg-warm-gray-light"
-                }`}
-              >
-                Medium
-              </button>
-              <button
-                type="button"
-                onClick={() => setCardSize("large")}
-                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
-                  cardSize === "large"
-                    ? "bg-sage text-white"
-                    : "text-charcoal/70 hover:bg-warm-gray-light"
-                }`}
-              >
-                Large
-              </button>
-            </div>
-          )}
         </div>
 
         {showForm && (
@@ -703,12 +664,12 @@ export function AdminBooksPage() {
           <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
             <p className="font-medium">No books yet</p>
             <p className="mt-1 text-xs text-stone-500">
-              Add your first book to start managing the library.
+            Add your first book to start managing the library.
             </p>
             <Button
               type="button"
               variant="primary"
-              onClick={() => setShowForm(true)}
+              onClick={handleStartAddBook}
               className="mt-4"
             >
               Add Book
@@ -732,52 +693,52 @@ export function AdminBooksPage() {
             </p>
           </div>
         ) : (
-          <div
-            className={`grid gap-4 ${
-              cardSize === "small"
-                ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-                : cardSize === "medium"
-                  ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                  : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-            }`}
-          >
+          <div className="overflow-hidden rounded-xl border border-warm-gray bg-cream/95 shadow-soft">
             {filteredBooks.map((book) => (
-              <BookCard
+              <article
                 key={book.id}
-                book={book}
-                variant="admin"
-                cardSize={cardSize}
-                actions={
-                  <>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleEditBook(book)}
-                      className="text-xs px-2"
-                      aria-label={`Edit ${book.title}`}
-                      title="Edit"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Pencil className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Edit</span>
-                        <span className="sr-only">Edit</span>
-                      </span>
-                    </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => handleDeleteBook(book.id, book.title)}
-                      className="text-xs px-2"
-                      aria-label={`Delete ${book.title}`}
-                      title="Delete"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Delete</span>
-                        <span className="sr-only">Delete</span>
-                      </span>
-                    </Button>
-                  </>
-                }
-              />
+                className="grid min-w-0 gap-3 border-b border-warm-gray px-4 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              >
+                <div className="min-w-0">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <h3 className="min-w-0 break-words text-base font-semibold leading-6 text-stone-900">
+                      {book.title}
+                    </h3>
+                    {(book.ownershipStatus ?? "owned") === "wishlist" && (
+                      <Badge variant="amber">Wishlist</Badge>
+                    )}
+                    {book.finished && <Badge variant="success">Finished</Badge>}
+                  </div>
+                  <p className="mt-1 break-words text-sm text-stone-600">
+                    {book.author}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-stone-500">
+                    {book.genre && <span>{book.genre}</span>}
+                    {book.format && <span>{BOOK_FORMAT_LABELS[book.format]}</span>}
+                    {book.seriesName && <span>{book.seriesName}</span>}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:justify-end">
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleEditBook(book)}
+                    className="min-h-9 gap-1.5 px-3 text-xs"
+                    aria-label={`Edit ${book.title}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDeleteBook(book.id, book.title)}
+                    className="min-h-9 gap-1.5 px-3 text-xs"
+                    aria-label={`Delete ${book.title}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Delete
+                  </Button>
+                </div>
+              </article>
             ))}
           </div>
         )}

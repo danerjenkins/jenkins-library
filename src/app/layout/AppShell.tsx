@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Heart, Settings } from "lucide-react";
+import { BarChart3, BookOpen, Heart, Plus, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import "./AppShell.css";
 
@@ -66,6 +66,15 @@ export function AppShell({ children }: AppShellProps) {
       <main id="main-content" className="app-main" tabIndex={-1}>
         {children}
       </main>
+
+      <Link
+        to="/admin?add=1"
+        className="floating-add"
+        aria-label="Add a book"
+        title="Add a book"
+      >
+        <Plus aria-hidden="true" size={24} />
+      </Link>
     </div>
   );
 }
