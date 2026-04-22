@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Camera, Search, Trash2 } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
 import { Button } from "../../../ui/components/Button";
@@ -27,6 +27,12 @@ const EDIT_BOOK_GENRES = [
   "Science Fiction",
   "Self-Help",
 ];
+
+const sectionButtonBase =
+  "rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300";
+
+const fieldClassName =
+  "w-full rounded-lg border border-warm-gray bg-cream px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20";
 
 interface BookFormProps {
   isEditing: boolean;
@@ -171,7 +177,7 @@ export function BookForm({
             setSearchError("No covers found. Try adjusting title/author.");
           }
         }
-      } catch (error) {
+      } catch {
         if (currentRequestId === requestIdRef.current) {
           setSearchError("Failed to search covers. Please try again.");
           setCoverCandidates([]);
@@ -186,10 +192,11 @@ export function BookForm({
   );
 
   // Debounced search
-  const debouncedSearch = useCallback(
-    debounce((searchTitle: string, searchAuthor: string) => {
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchTitle: string, searchAuthor: string) => {
       performSearch(searchTitle, searchAuthor);
-    }, 700),
+      }, 700),
     [performSearch],
   );
 
@@ -254,10 +261,11 @@ export function BookForm({
   );
 
   // Debounced author guess
-  const debouncedAuthorGuess = useCallback(
-    debounce((searchTitle: string) => {
-      performAuthorGuess(searchTitle);
-    }, 700),
+  const debouncedAuthorGuess = useMemo(
+    () =>
+      debounce((searchTitle: string) => {
+        performAuthorGuess(searchTitle);
+      }, 700),
     [performAuthorGuess],
   );
 
@@ -295,6 +303,9 @@ export function BookForm({
     setAuthorWasAutofilled(false);
     setUserHasEditedAuthor(false);
   };
+
+  const titleError = title.trim() ? null : "Title is required.";
+  const authorError = author.trim() ? null : "Author is required.";
 
   // Title suggestions logic
   const performTitleSearch = useCallback(
@@ -335,10 +346,11 @@ export function BookForm({
   );
 
   // Debounced title search
-  const debouncedTitleSearch = useCallback(
-    debounce((searchTitle: string) => {
-      performTitleSearch(searchTitle);
-    }, 600),
+  const debouncedTitleSearch = useMemo(
+    () =>
+      debounce((searchTitle: string) => {
+        performTitleSearch(searchTitle);
+      }, 600),
     [performTitleSearch],
   );
 
@@ -416,7 +428,7 @@ export function BookForm({
 
   return (
     <form
-      className="grid gap-4 rounded-xl border border-stone-200 bg-white p-4 pb-24 shadow-sm"
+      className="grid gap-4 rounded-xl border border-warm-gray bg-cream p-4 pb-24 shadow-sm"
       onSubmit={onSubmit}
     >
       {children && (
@@ -425,11 +437,18 @@ export function BookForm({
         </div>
       )}
 
-      <div className="hidden sm:flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
+      <div
+        className="hidden gap-1 self-start rounded-lg border border-warm-gray p-1 sm:flex"
+        role="tablist"
+        aria-label="Book form sections"
+      >
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSection === "core"}
+          aria-controls="section-core"
           onClick={() => setActiveSection("core")}
-          className={`px-3 py-1 text-xs font-medium rounded transition ${
+          className={`${sectionButtonBase} ${
             activeSection === "core"
               ? "bg-sage text-white"
               : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -439,8 +458,11 @@ export function BookForm({
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSection === "reading"}
+          aria-controls="section-reading"
           onClick={() => setActiveSection("reading")}
-          className={`px-3 py-1 text-xs font-medium rounded transition ${
+          className={`${sectionButtonBase} ${
             activeSection === "reading"
               ? "bg-sage text-white"
               : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -450,8 +472,11 @@ export function BookForm({
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSection === "meta"}
+          aria-controls="section-meta"
           onClick={() => setActiveSection("meta")}
-          className={`px-3 py-1 text-xs font-medium rounded transition ${
+          className={`${sectionButtonBase} ${
             activeSection === "meta"
               ? "bg-sage text-white"
               : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -461,13 +486,13 @@ export function BookForm({
         </button>
       </div>
 
-      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+      <section className="rounded-lg border border-warm-gray bg-parchment/75">
         <button
           type="button"
           onClick={() => setActiveSection("core")}
           aria-controls="section-core"
           aria-expanded={activeSection === "core"}
-          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-300 sm:hidden"
         >
           <span>Core Info</span>
           <span className="text-xs text-stone-500">
@@ -476,6 +501,7 @@ export function BookForm({
         </button>
         <div
           id="section-core"
+          role="tabpanel"
           className={`${activeSection === "core" ? "block" : "hidden"} px-4 pb-4 pt-4`}
         >
           <div className="space-y-4">
@@ -483,9 +509,13 @@ export function BookForm({
             <div ref={titleInputRef} className="relative">
               <Input
                 id="title"
+                name="title"
                 label="Title"
                 type="text"
                 value={title}
+                required
+                aria-invalid={!!titleError}
+                aria-describedby={titleError ? "title-error" : undefined}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const nextTitle = e.target.value;
                   const hasMeaningfulChange =
@@ -508,22 +538,31 @@ export function BookForm({
                   // Delay hiding to allow click on suggestion
                   setTimeout(() => setShowSuggestions(false), 200);
                 }}
-                placeholder="Enter book title"
-                autoFocus
+                placeholder="The Hobbit…"
+                autoComplete="off"
               />
               {isSuggesting && (
-                <div className="mt-1 text-xs text-stone-500">
-                  Searching titles...
+                <div className="mt-1 text-xs text-stone-500" aria-live="polite">
+                  Searching titles…
                 </div>
+              )}
+              {titleError && (
+                <p id="title-error" className="mt-1 text-xs text-rose-600">
+                  {titleError}
+                </p>
               )}
             </div>
 
             <div>
               <Input
                 id="author"
+                name="author"
                 label="Author"
                 type="text"
                 value={author}
+                required
+                aria-invalid={!!authorError}
+                aria-describedby={authorError ? "author-error" : undefined}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   handleAuthorChange(e.target.value)
                 }
@@ -534,15 +573,21 @@ export function BookForm({
                 onBlur={() => {
                   authorFieldFocusedRef.current = false;
                 }}
-                placeholder="Enter author name"
+                placeholder="Ursula K. Le Guin…"
+                autoComplete="off"
               />
+              {authorError && (
+                <p id="author-error" className="mt-1 text-xs text-rose-600">
+                  {authorError}
+                </p>
+              )}
               {authorWasAutofilled && author.trim().length > 0 && (
                 <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-500">
                   <span>Auto-filled from title — please verify</span>
                   <button
                     type="button"
                     onClick={handleClearAuthor}
-                    className="text-stone-600 underline hover:text-stone-900"
+                    className="text-stone-600 underline transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
                   >
                     Clear
                   </button>
@@ -554,23 +599,27 @@ export function BookForm({
               <div className="grid gap-3 sm:grid-cols-2">
                 <Input
                   id="seriesName"
+                  name="seriesName"
                   label="Series name (optional)"
                   type="text"
                   value={seriesName}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     onSeriesNameChange(e.target.value)
                   }
-                  placeholder="Enter series name"
+                  placeholder="Earthsea…"
+                  autoComplete="off"
                 />
                 <Input
                   id="seriesLabel"
+                  name="seriesLabel"
                   label="# in series (optional)"
                   type="text"
                   value={seriesLabel}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     onSeriesLabelChange(e.target.value)
                   }
-                  placeholder="e.g. 2 or 2.5"
+                  placeholder="2 or 2.5…"
+                  autoComplete="off"
                 />
               </div>
               {(seriesName.trim() || seriesLabel.trim()) && (
@@ -578,7 +627,7 @@ export function BookForm({
                   <button
                     type="button"
                     onClick={onClearSeries}
-                    className="text-xs font-medium text-stone-600 underline hover:text-stone-900"
+                    className="text-xs font-medium text-stone-600 underline transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
                   >
                     Clear series
                   </button>
@@ -589,7 +638,7 @@ export function BookForm({
             {/* Title suggestions dropdown - positioned after author field */}
             {showSuggestions && titleSuggestions.length > 0 && (
               <div className="relative -mt-2">
-                <div className="absolute z-10 mt-1 w-full rounded-lg border border-stone-300 bg-white shadow-lg">
+                <div className="absolute z-10 mt-1 w-full rounded-lg border border-warm-gray bg-cream shadow-lg">
                   <div className="max-h-64 overflow-y-auto">
                     {titleSuggestions.map((suggestion) => (
                       <button
@@ -599,7 +648,7 @@ export function BookForm({
                           event.preventDefault();
                           handleSuggestionSelect(suggestion);
                         }}
-                        className="flex w-full items-start gap-3 border-b border-stone-100 px-3 py-2 text-left transition hover:bg-stone-50 last:border-b-0"
+                        className="flex w-full items-start gap-3 border-b border-warm-gray px-3 py-2 text-left transition-colors hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage/30 last:border-b-0"
                       >
                         {suggestion.coverUrl && (
                           <img
@@ -608,8 +657,8 @@ export function BookForm({
                             className="h-12 w-8 shrink-0 rounded object-cover"
                           />
                         )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-stone-900 truncate">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-semibold text-stone-900">
                             {suggestion.title}
                           </div>
                           {(suggestion.author || suggestion.year) && (
@@ -628,7 +677,7 @@ export function BookForm({
                       </button>
                     ))}
                   </div>
-                  <div className="border-t border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-500">
+                  <div className="border-t border-warm-gray bg-parchment px-3 py-1.5 text-xs text-stone-500">
                     Suggested results from Open Library
                   </div>
                 </div>
@@ -644,12 +693,13 @@ export function BookForm({
               </label>
               <select
                 id="genre"
+                name="genre"
                 value={genre}
                 onChange={(e) => {
                   const newGenre = e.target.value;
                   handleGenreChange(newGenre);
                 }}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                className={fieldClassName}
               >
                 <option value="">— Select genre</option>
                 {EDIT_BOOK_GENRES.map((g) => (
@@ -674,9 +724,10 @@ export function BookForm({
               </label>
               <select
                 id="format"
+                name="format"
                 value={format}
                 onChange={(e) => onFormatChange(e.target.value)}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                className={fieldClassName}
               >
                 <option value="">— Unknown</option>
                 {(Object.keys(BOOK_FORMAT_LABELS) as BookFormat[]).map(
@@ -692,13 +743,13 @@ export function BookForm({
         </div>
       </section>
 
-      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+      <section className="rounded-lg border border-warm-gray bg-parchment/75">
         <button
           type="button"
           onClick={() => setActiveSection("reading")}
           aria-controls="section-reading"
           aria-expanded={activeSection === "reading"}
-          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-300 sm:hidden"
         >
           <span>Reading Status</span>
           <span className="text-xs text-stone-500">
@@ -707,13 +758,14 @@ export function BookForm({
         </button>
         <div
           id="section-reading"
+          role="tabpanel"
           className={`${activeSection === "reading" ? "block" : "hidden"} px-4 pb-4 pt-4`}
         >
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-stone-700">
               Reading Status
             </h3>
-            <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+            <div className="space-y-2 rounded-lg border border-warm-gray bg-cream/70 p-3">
               <h4 className="text-sm font-semibold text-stone-700">
                 Ownership
               </h4>
@@ -725,80 +777,78 @@ export function BookForm({
               </label>
               <select
                 id="ownershipStatus"
+                name="ownershipStatus"
                 value={ownershipStatus}
                 onChange={(e) =>
                   onOwnershipStatusChange(
                     e.target.value as "owned" | "wishlist",
                   )
                 }
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                className={fieldClassName}
               >
                 <option value="owned">Owned</option>
                 <option value="wishlist">Wishlist</option>
               </select>
             </div>
 
-            <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/50 p-3">
+            <div className="space-y-2 rounded-lg border border-warm-gray bg-cream/70 p-3">
               <h4 className="text-sm font-semibold text-stone-700">
                 Read Status
               </h4>
-              <div className="flex items-center gap-2">
+              <label
+                htmlFor="finished"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-stone-700 transition-colors hover:bg-white"
+              >
                 <input
                   id="finished"
+                  name="finished"
                   type="checkbox"
                   checked={finished}
                   onChange={(e) => onFinishedChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                  className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
                 />
-                <label
-                  htmlFor="finished"
-                  className="text-sm font-medium text-stone-700"
-                >
-                  Finished
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
+                <span>Finished</span>
+              </label>
+              <label
+                htmlFor="readByDane"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-stone-700 transition-colors hover:bg-white"
+              >
                 <input
                   id="readByDane"
+                  name="readByDane"
                   type="checkbox"
                   checked={readByDane}
                   onChange={(e) => onReadByDaneChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                  className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
                 />
-                <label
-                  htmlFor="readByDane"
-                  className="text-sm font-medium text-stone-700"
-                >
-                  Read by Dane
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
+                <span>Read by Dane</span>
+              </label>
+              <label
+                htmlFor="readByEmma"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-stone-700 transition-colors hover:bg-white"
+              >
                 <input
                   id="readByEmma"
+                  name="readByEmma"
                   type="checkbox"
                   checked={readByEmma}
                   onChange={(e) => onReadByEmmaChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-2 focus:ring-stone-200"
+                  className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
                 />
-                <label
-                  htmlFor="readByEmma"
-                  className="text-sm font-medium text-stone-700"
-                >
-                  Read by Emma
-                </label>
-              </div>
+                <span>Read by Emma</span>
+              </label>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="rounded-lg border border-stone-200 bg-stone-50/40">
+      <section className="rounded-lg border border-warm-gray bg-parchment/75">
         <button
           type="button"
           onClick={() => setActiveSection("meta")}
           aria-controls="section-meta"
           aria-expanded={activeSection === "meta"}
-          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 sm:hidden"
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-300 sm:hidden"
         >
           <span>Description & Metadata</span>
           <span className="text-xs text-stone-500">
@@ -807,6 +857,7 @@ export function BookForm({
         </button>
         <div
           id="section-meta"
+          role="tabpanel"
           className={`${activeSection === "meta" ? "block" : "hidden"} px-4 pb-4 pt-4`}
         >
           <div className="space-y-4">
@@ -825,10 +876,12 @@ export function BookForm({
               </label>
               <textarea
                 id="description"
+                name="description"
                 value={description}
                 onChange={(e) => onDescriptionChange(e.target.value)}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 min-h-25 resize-y"
-                placeholder="Enter book description or summary"
+                className={`${fieldClassName} min-h-25 resize-y`}
+                placeholder="Short summary or notes…"
+                autoComplete="off"
               />
             </div>
 
@@ -841,26 +894,33 @@ export function BookForm({
               </label>
               <input
                 id="pages"
+                name="pages"
                 type="number"
                 min="1"
                 step="1"
                 value={pages}
                 onChange={(e) => onPagesChange(e.target.value)}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                placeholder="Enter page count"
+                className={fieldClassName}
+                placeholder="320…"
+                inputMode="numeric"
+                autoComplete="off"
               />
             </div>
 
             <div>
               <Input
                 id="coverUrl"
+                name="coverUrl"
                 label="Cover Image URL (optional)"
-                type="text"
+                type="url"
                 value={coverUrl}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   onCoverUrlChange(e.target.value)
                 }
-                placeholder="https://example.com/cover.jpg"
+                placeholder="https://example.com/cover.jpg…"
+                autoComplete="off"
+                inputMode="url"
+                spellCheck={false}
               />
 
               {/* Google Images Search Link */}
@@ -870,16 +930,16 @@ export function BookForm({
                     href={getGoogleImageSearchUrl(title, author)}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 transition-colors hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
                   >
-                    <Search className="h-3.5 w-3.5" />
+                    <Search className="h-3.5 w-3.5" aria-hidden="true" />
                     Search cover on Google
                   </a>
                 </div>
               )}
 
               {/* Cover Search Section */}
-              <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+              <div className="mt-3 rounded-lg border border-warm-gray bg-parchment p-3">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-sans text-sm font-semibold text-stone-700">
                     Cover Suggestions
@@ -888,7 +948,7 @@ export function BookForm({
 
                 {isSearching && (
                   <div className="mt-3 text-center text-sm text-stone-500">
-                    Searching...
+                    Searching…
                   </div>
                 )}
 
@@ -906,7 +966,8 @@ export function BookForm({
                           key={candidate.key}
                           type="button"
                           onClick={() => handleCoverSelect(candidate)}
-                          className={`group relative shrink-0 overflow-hidden rounded-md transition snap-start ${
+                          aria-label={`${selectedCoverUrl === candidate.coverUrl || coverUrl === candidate.coverUrl ? "Clear selected cover" : "Select cover"} for ${candidate.title}`}
+                          className={`group relative shrink-0 snap-start overflow-hidden rounded-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
                             selectedCoverUrl === candidate.coverUrl ||
                             coverUrl === candidate.coverUrl
                               ? "ring-2 ring-emerald-600"
@@ -947,7 +1008,7 @@ export function BookForm({
                   )}
               </div>
 
-              <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+              <div className="mt-3 rounded-lg border border-warm-gray bg-parchment p-3">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-sans text-sm font-semibold text-stone-700">
                     Cover Photo
@@ -966,15 +1027,15 @@ export function BookForm({
                           <button
                             type="button"
                             onClick={onCoverPhotoPick}
-                            className="inline-flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 border border-stone-300 transition hover:bg-stone-50"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-warm-gray bg-cream px-2.5 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30"
                           >
-                            <Camera className="h-3 w-3" />
+                            <Camera className="h-3 w-3" aria-hidden="true" />
                             Replace Photo
                           </button>
                           <button
                             type="button"
                             onClick={onRemoveCoverPhoto}
-                            className="inline-flex text-xs font-medium text-red-600 hover:text-red-700 transition"
+                            className="inline-flex text-xs font-medium text-red-600 transition-colors hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                           >
                             Remove Photo
                           </button>
@@ -984,9 +1045,9 @@ export function BookForm({
                       <button
                         type="button"
                         onClick={onCoverPhotoPick}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 border border-amber-200 transition hover:bg-amber-100"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
                       >
-                        <Camera className="h-3.5 w-3.5" />
+                        <Camera className="h-3.5 w-3.5" aria-hidden="true" />
                         Take Cover Photo
                       </button>
                     )}
@@ -997,6 +1058,7 @@ export function BookForm({
                     )}
                     <input
                       ref={coverPhotoInputRef}
+                      name="coverPhoto"
                       type="file"
                       accept="image/*"
                       capture="environment"
@@ -1031,7 +1093,7 @@ export function BookForm({
                         onCoverUrlChange("");
                         setSelectedCoverUrl(null);
                       }}
-                      className="text-xs font-medium text-stone-600 hover:text-stone-800"
+                      className="text-xs font-medium text-stone-600 transition-colors hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
                     >
                       Clear cover
                     </button>
@@ -1043,7 +1105,7 @@ export function BookForm({
         </div>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 mt-4 border-t border-stone-200 bg-white/95 px-4 py-3 backdrop-blur">
+      <div className="sticky bottom-0 -mx-4 mt-4 border-t border-warm-gray bg-cream/95 px-4 py-3 backdrop-blur">
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <Button
             type="submit"

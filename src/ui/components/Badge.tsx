@@ -1,20 +1,29 @@
 import type { ReactNode } from "react";
 
-interface BadgeProps {
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: "default" | "success" | "amber";
   children: ReactNode;
 }
 
-export function Badge({ variant = "default", children }: BadgeProps) {
-  const variantClasses = {
-    default: "bg-warm-gray-light text-charcoal",
-    success: "bg-emerald-100 text-emerald-700",
-    amber: "bg-brass/20 text-wood",
-  };
+const baseClasses =
+  "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 font-sans text-xs font-medium leading-4";
 
+const variantClasses = {
+  default: "border-warm-gray bg-warm-gray-light text-charcoal",
+  success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  amber: "border-brass/30 bg-brass/15 text-wood",
+} satisfies Record<NonNullable<BadgeProps["variant"]>, string>;
+
+export function Badge({
+  variant = "default",
+  children,
+  className,
+  ...props
+}: BadgeProps) {
   return (
     <span
-      className={`font-sans inline-block rounded-full px-3 py-1 text-xs font-medium ${variantClasses[variant]}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${className ?? ""}`}
+      {...props}
     >
       {children}
     </span>

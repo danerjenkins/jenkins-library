@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BarChart3, BookOpen, Heart, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import "./AppShell.css";
 
@@ -6,70 +7,63 @@ interface AppShellProps {
   children: ReactNode;
 }
 
+const navItems = [
+  { to: "/view", label: "Library", Icon: BookOpen },
+  { to: "/wishlist", label: "Wishlist", Icon: Heart },
+  { to: "/admin", label: "Admin", Icon: Settings },
+  { to: "/stats", label: "Stats", Icon: BarChart3 },
+] as const;
+
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
+
   return (
-    <div className="min-h-screen bg-parchment text-ink">
-      <header className="border-b border-warm-gray bg-cream shadow-soft backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-6">
+    <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Skip To Content
+      </a>
+
+      <header className="app-header">
+        <div className="app-header__inner">
+          <div className="app-brand" translate="no">
+            <Link
+              to="/view"
+              className="app-brand__link"
+              aria-label="Jenkins Library home"
+            >
               <img
                 src="/houselogo.png"
                 alt="Jenkins Library"
-                className="h-24"
+                width="96"
+                height="96"
+                className="app-brand__logo"
               />
-              <h1 className="font-display text-2xl font-bold tracking-tight text-charcoal">
-                Jenkins Library
-              </h1>
-            </div>
+              <span className="app-brand__title">Jenkins Library</span>
+            </Link>
           </div>
-          <nav className="flex gap-4 border-t border-warm-gray py-3">
-            <Link
-              to="/view"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                location.pathname === "/view"
-                  ? "bg-warm-gray-light text-charcoal"
-                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
-              }`}
-            >
-              Library
-            </Link>
-            <Link
-              to="/wishlist"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                location.pathname === "/wishlist"
-                  ? "bg-warm-gray-light text-charcoal"
-                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
-              }`}
-            >
-              Wishlist
-            </Link>
-            <Link
-              to="/admin"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                location.pathname === "/admin"
-                  ? "bg-warm-gray-light text-charcoal"
-                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
-              }`}
-            >
-              Admin
-            </Link>
-            <Link
-              to="/stats"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                location.pathname === "/stats"
-                  ? "bg-warm-gray-light text-charcoal"
-                  : "text-charcoal/70 hover:text-charcoal hover:bg-warm-gray-light/60"
-              }`}
-            >
-              Stats
-            </Link>
+
+          <nav className="app-nav" aria-label="Primary navigation">
+            {navItems.map(({ to, label, Icon }) => {
+              const isActive = location.pathname === to;
+
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className="app-nav__link"
+                  aria-current={isActive ? "page" : undefined}
+                  data-active={isActive ? "true" : undefined}
+                >
+                  <Icon className="app-nav__icon" aria-hidden="true" size={18} />
+                  <span className="app-nav__label">{label}</span>
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 text-charcoal">
+      <main id="main-content" className="app-main" tabIndex={-1}>
         {children}
       </main>
     </div>

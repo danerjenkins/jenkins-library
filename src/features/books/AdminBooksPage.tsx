@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import {
@@ -23,6 +23,12 @@ import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { BookCard } from "./components/BookCard";
 import { BookForm } from "./components/BookForm";
+
+function resolveErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "Something went wrong. Please try again.";
+}
 
 export function AdminBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,31 +72,7 @@ export function AdminBooksPage() {
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
 
-  const resolveErrorMessage = (error: unknown) => {
-    if (error instanceof Error) return error.message;
-    if (typeof error === "string") return error;
-    return "Something went wrong. Please try again.";
-  };
-
-  // Load books on mount
-  useEffect(() => {
-    loadBooks(filterOwnership);
-  }, [filterOwnership]);
-
-  // Handle edit query parameter
-  useEffect(() => {
-    const editId = searchParams.get("edit");
-    if (editId && books.length > 0) {
-      const bookToEdit = books.find((b) => b.id === editId);
-      if (bookToEdit) {
-        handleEditBook(bookToEdit);
-        // Clear the query parameter
-        setSearchParams({});
-      }
-    }
-  }, [searchParams, books]);
-
-  async function loadBooks(status: "owned" | "wishlist") {
+  const loadBooks = useCallback(async (status: "owned" | "wishlist") => {
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -103,39 +85,61 @@ export function AdminBooksPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  const availableGenres = Array.from(
-    new Set(
-      books
-        .map((b) => b.genre)
-        .filter((g): g is string => g !== null && g !== undefined),
-    ),
-  ).sort();
+  const availableGenres = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((b) => b.genre)
+            .filter((g): g is string => g !== null && g !== undefined),
+        ),
+      ).sort(),
+    [books],
+  );
 
-  const availableFormats = Array.from(
-    new Set(
-      books
-        .map((b) => b.format)
-        .filter((f): f is BookFormat => f !== null && f !== undefined),
-    ),
-  ).sort();
+  const availableFormats = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((b) => b.format)
+            .filter((f): f is BookFormat => f !== null && f !== undefined),
+        ),
+      ).sort(),
+    [books],
+  );
 
-  const availableSeries = Array.from(
-    new Set(
-      books
-        .map((b) => b.seriesName)
-        .filter((s): s is string => s !== null && s !== undefined),
-    ),
-  ).sort();
+  const availableSeries = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((b) => b.seriesName)
+            .filter((s): s is string => s !== null && s !== undefined),
+        ),
+      ).sort(),
+    [books],
+  );
 
-  const filteredBooks = books
-    .filter((book) => {
+  const hasActiveFilters =
+    !!searchQuery ||
+    filterGenre !== "ALL" ||
+    filterReadStatus !== "ALL" ||
+    filterOwnership !== "owned" ||
+    filterFormat !== "ALL" ||
+    filterSeries !== "ALL";
+
+  const filteredBooks = useMemo(() => {
+    const trimmedSearch = searchQuery.trim().toLowerCase();
+
+    return books
+      .filter((book) => {
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
         const matchesSearch =
-          book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query);
+          book.title.toLowerCase().includes(trimmedSearch) ||
+          book.author.toLowerCase().includes(trimmedSearch);
         if (!matchesSearch) return false;
       }
 
@@ -175,7 +179,7 @@ export function AdminBooksPage() {
 
       return true;
     })
-    .sort((a, b) => {
+      .sort((a, b) => {
       const genreA = (a.genre ?? "").toLowerCase();
       const genreB = (b.genre ?? "").toLowerCase();
       if (genreA !== genreB) return genreA.localeCompare(genreB);
@@ -186,8 +190,22 @@ export function AdminBooksPage() {
 
       return a.title.localeCompare(b.title);
     });
+  }, [
+    books,
+    filterFormat,
+    filterGenre,
+    filterOwnership,
+    filterReadStatus,
+    filterSeries,
+    searchQuery,
+  ]);
 
-  function handleEditBook(book: Book) {
+  const handleLoadCoverPhoto = useCallback(async (bookId: string) => {
+    const url = await getCoverPhotoUrl(bookId);
+    setCoverPhotoUrl(url);
+  }, []);
+
+  const handleEditBook = useCallback((book: Book) => {
     setTitle(book.title);
     setAuthor(book.author);
     setGenre(book.genre || "");
@@ -210,7 +228,24 @@ export function AdminBooksPage() {
     setEditingId(book.id);
     handleLoadCoverPhoto(book.id);
     setShowForm(true);
-  }
+  }, [handleLoadCoverPhoto]);
+
+  // Load books on mount and when ownership tab changes.
+  useEffect(() => {
+    void loadBooks(filterOwnership);
+  }, [filterOwnership, loadBooks]);
+
+  // Handle edit query parameter once books are available.
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId && books.length > 0) {
+      const bookToEdit = books.find((b) => b.id === editId);
+      if (bookToEdit) {
+        handleEditBook(bookToEdit);
+        setSearchParams({});
+      }
+    }
+  }, [books, handleEditBook, searchParams, setSearchParams]);
 
   const handleClearSeries = () => {
     setSeriesName("");
@@ -251,11 +286,6 @@ export function AdminBooksPage() {
       seriesLabel: trimmedLabel || null,
       seriesSort,
     });
-  };
-
-  const handleLoadCoverPhoto = async (bookId: string) => {
-    const url = await getCoverPhotoUrl(bookId);
-    setCoverPhotoUrl(url);
   };
 
   async function handleAddBook(e: React.FormEvent) {
@@ -425,7 +455,7 @@ export function AdminBooksPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-stone-200 bg-white/90 p-4 shadow-soft sm:p-6">
+      <section className="rounded-2xl border border-warm-gray bg-cream/95 p-4 shadow-soft sm:p-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -447,23 +477,31 @@ export function AdminBooksPage() {
             )}
           </div>
           {errorMessage && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <div
+              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+              role="alert"
+            >
               {errorMessage}
             </div>
           )}
           {!showForm && books.length > 0 && (
-            <div className="rounded-2xl border border-stone-200/60 bg-stone-50/40 p-4 shadow-sm space-y-3">
+            <div className="rounded-2xl border border-warm-gray bg-parchment/75 p-4 shadow-sm space-y-3">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
                 <div className="relative">
                   <Input
                     id="admin-search"
+                    name="adminSearch"
                     label="Search"
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Title or author"
+                    placeholder="Title or author…"
+                    autoComplete="off"
                   />
-                  <Search className="absolute right-3 top-9 h-4 w-4 text-stone-400" />
+                  <Search
+                    className="absolute right-3 top-9 h-4 w-4 text-stone-400"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <Select
@@ -548,13 +586,9 @@ export function AdminBooksPage() {
                   {filteredBooks.length}{" "}
                   {filteredBooks.length === 1 ? "book" : "books"}
                 </div>
-                {(searchQuery ||
-                  filterGenre !== "ALL" ||
-                  filterReadStatus !== "ALL" ||
-                  filterOwnership !== "owned" ||
-                  filterFormat !== "ALL" ||
-                  filterSeries !== "ALL") && (
+                {hasActiveFilters && (
                   <Button
+                    type="button"
                     variant="secondary"
                     onClick={handleClearFilters}
                     className="text-xs"
@@ -568,8 +602,9 @@ export function AdminBooksPage() {
           {!showForm && books.length > 0 && (
             <div className="flex gap-1 rounded-lg border border-warm-gray p-1 self-start">
               <button
+                type="button"
                 onClick={() => setCardSize("small")}
-                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
                   cardSize === "small"
                     ? "bg-sage text-white"
                     : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -578,8 +613,9 @@ export function AdminBooksPage() {
                 Small
               </button>
               <button
+                type="button"
                 onClick={() => setCardSize("medium")}
-                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
                   cardSize === "medium"
                     ? "bg-sage text-white"
                     : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -588,8 +624,9 @@ export function AdminBooksPage() {
                 Medium
               </button>
               <button
+                type="button"
                 onClick={() => setCardSize("large")}
-                className={`px-3 py-1 text-xs font-medium rounded transition ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
                   cardSize === "large"
                     ? "bg-sage text-white"
                     : "text-charcoal/70 hover:bg-warm-gray-light"
@@ -649,28 +686,43 @@ export function AdminBooksPage() {
                   : undefined
               }
             >
-              {editingId && <span>Editing book...</span>}
+              {editingId && <span>Editing Book</span>}
             </BookForm>
           </div>
         )}
       </section>
       <section className="space-y-3">
         {loading ? (
-          <div className="rounded-xl border border-stone-200 bg-white/80 px-4 py-8 text-center text-sm text-stone-500 shadow-sm">
-            Loading books...
+          <div
+            className="rounded-xl border border-warm-gray bg-cream/90 px-4 py-8 text-center text-sm text-stone-500 shadow-sm"
+            aria-live="polite"
+          >
+            Loading books…
           </div>
         ) : books.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
+          <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
             <p className="font-medium">No books yet</p>
             <p className="mt-1 text-xs text-stone-500">
-              Click "Add Book" to get started!
+              Add your first book to start managing the library.
             </p>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setShowForm(true)}
+              className="mt-4"
+            >
+              Add Book
+            </Button>
           </div>
         ) : filteredBooks.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-12 text-center text-sm text-stone-600">
+          <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
             <p className="font-medium">No matches found</p>
+            <p className="mt-1 text-xs text-stone-500">
+              Adjust search or filters to see more books.
+            </p>
             <p className="mt-2">
               <Button
+                type="button"
                 variant="secondary"
                 onClick={handleClearFilters}
                 className="text-xs"

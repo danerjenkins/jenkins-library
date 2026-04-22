@@ -49,7 +49,7 @@ export class LibraryCatalogDB extends Dexie {
         await tx
           .table("books")
           .toCollection()
-          .modify((book: any) => {
+          .modify((book: Partial<Book>) => {
             // If book doesn't have new fields, set them to false
             if (book.readByDane === undefined) {
               book.readByDane = false;
@@ -70,7 +70,7 @@ export class LibraryCatalogDB extends Dexie {
         await tx
           .table("books")
           .toCollection()
-          .modify((book: any) => {
+          .modify((book: Partial<Book>) => {
             if (book.format === undefined) {
               book.format = undefined;
             }
@@ -87,7 +87,7 @@ export class LibraryCatalogDB extends Dexie {
         await tx
           .table("books")
           .toCollection()
-          .modify((book: any) => {
+          .modify((book: Partial<Book>) => {
             if (book.pages === undefined) {
               book.pages = undefined;
             }

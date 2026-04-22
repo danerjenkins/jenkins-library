@@ -1,17 +1,38 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getWishlistBooks, updateBook } from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
-import { BookCard } from "./components/BookCard";
+import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+
+function sortWishlistBooks(books: Book[]) {
+  return [...books].sort((a, b) => {
+    const genreCompare = (a.genre ?? "").localeCompare(
+      b.genre ?? "",
+      undefined,
+      { sensitivity: "base" },
+    );
+    if (genreCompare !== 0) return genreCompare;
+
+    const authorCompare = a.author.localeCompare(b.author, undefined, {
+      sensitivity: "base",
+    });
+    if (authorCompare !== 0) return authorCompare;
+
+    const seriesCompare = (a.seriesName ?? "").localeCompare(
+      b.seriesName ?? "",
+      undefined,
+      { sensitivity: "base" },
+    );
+    if (seriesCompare !== 0) return seriesCompare;
+
+    return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+  });
+}
 
 export function WishlistPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void loadBooks();
-  }, []);
-
-  async function loadBooks() {
+  const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
       const wishlistBooks = await getWishlistBooks();
@@ -25,108 +46,73 @@ export function WishlistPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  const sortedBooks = useMemo(() => {
-    return [...books].sort((a, b) => {
-      const genreCompare = (a.genre ?? "").localeCompare(
-        b.genre ?? "",
-        undefined,
-        {
-          sensitivity: "base",
-        },
-      );
-      if (genreCompare !== 0) return genreCompare;
+  useEffect(() => {
+    void loadBooks();
+  }, [loadBooks]);
 
-      const authorCompare = (a.author ?? "").localeCompare(
-        b.author ?? "",
-        undefined,
-        {
-          sensitivity: "base",
-        },
-      );
-      if (authorCompare !== 0) return authorCompare;
+  const sortedBooks = useMemo(() => sortWishlistBooks(books), [books]);
 
-      const seriesCompare = (a.seriesName ?? "").localeCompare(
-        b.seriesName ?? "",
-        undefined,
-        {
-          sensitivity: "base",
-        },
-      );
-      if (seriesCompare !== 0) return seriesCompare;
+  const handleReadStatusChange = useCallback(
+    async (bookId: string, readByDane: boolean, readByEmma: boolean) => {
+      const previousState = books.find((book) => book.id === bookId);
 
-      return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
-    });
-  }, [books]);
-
-  const handleReadStatusChange = async (
-    bookId: string,
-    readByDane: boolean,
-    readByEmma: boolean,
-  ) => {
-    let previousState: { readByDane: boolean; readByEmma: boolean } | null =
-      null;
-
-    try {
-      setBooks((prevBooks) =>
-        prevBooks.map((book) =>
-          book.id === bookId
-            ? (() => {
-                previousState = {
-                  readByDane: book.readByDane,
-                  readByEmma: book.readByEmma,
-                };
-                return { ...book, readByDane, readByEmma };
-              })()
-            : book,
-        ),
-      );
-
-      await updateBook(bookId, { readByDane, readByEmma });
-    } catch (error) {
-      console.error("Failed to update book:", error);
-      if (previousState) {
+      try {
         setBooks((prevBooks) =>
           prevBooks.map((book) =>
-            book.id === bookId ? { ...book, ...previousState } : book,
+            book.id === bookId ? { ...book, readByDane, readByEmma } : book,
           ),
         );
+
+        await updateBook(bookId, { readByDane, readByEmma });
+      } catch (error) {
+        console.error("Failed to update book:", error);
+        if (previousState) {
+          setBooks((prevBooks) =>
+            prevBooks.map((book) =>
+              book.id === bookId
+                ? {
+                    ...book,
+                    readByDane: previousState.readByDane,
+                    readByEmma: previousState.readByEmma,
+                  }
+                : book,
+            ),
+          );
+        }
       }
-    }
-  };
+    },
+    [books],
+  );
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-stone-50 to-amber-50/30">
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
-        <section className="rounded-3xl bg-white/95 p-6 shadow-soft backdrop-blur-sm sm:p-8">
+    <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
+        <section className="rounded-lg border border-warm-gray bg-cream/95 p-5 shadow-soft backdrop-blur-sm sm:p-7">
           <div className="space-y-2">
-            <h2 className="font-display text-4xl font-bold tracking-tight text-stone-900">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-pretty text-stone-900 sm:text-4xl">
               Wishlist
             </h2>
-            <p className="font-sans text-base leading-relaxed text-stone-600">
+            <p className="font-sans max-w-3xl text-base leading-relaxed text-stone-600">
               Books you want to own, ordered by genre, author, and series.
             </p>
           </div>
-          <div className="mt-6 text-sm text-stone-600">
+          <div className="mt-6 text-sm text-stone-600" aria-live="polite">
             {sortedBooks.length} {sortedBooks.length === 1 ? "book" : "books"}
           </div>
         </section>
 
         <section className="space-y-6">
           {loading ? (
-            <div className="rounded-2xl border border-stone-200/40 bg-white/60 px-6 py-12 text-center text-sm text-stone-500 shadow-sm">
-              Loading wishlist...
-            </div>
+            <BookShelfState title="Loading Wishlist…" />
           ) : sortedBooks.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-stone-300/60 bg-stone-50 px-6 py-14 text-center text-sm text-stone-600">
-              <p className="font-medium">No wishlist books yet</p>
-              <p className="mt-1 text-xs text-stone-500">
-                Add books as wishlist items from the Admin page.
-              </p>
-            </div>
+            <BookShelfState
+              title="No Wishlist Books Yet"
+              description="Add books as wishlist items from the Admin page."
+            />
           ) : (
-            <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <BookGrid cardSize="medium">
               {sortedBooks.map((book) => (
                 <BookCard
                   key={book.id}
@@ -137,7 +123,7 @@ export function WishlistPage() {
                   onReadStatusChange={handleReadStatusChange}
                 />
               ))}
-            </div>
+            </BookGrid>
           )}
         </section>
       </div>

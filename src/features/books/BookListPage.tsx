@@ -1,6 +1,18 @@
-import { useEffect, useState } from "react";
-import { getAllBooks, addBook, deleteBook } from "../../data/bookRepo";
+import type { FormEvent, ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Plus, Trash2, X } from "lucide-react";
+import { addBook, deleteBook, getAllBooks } from "../../data/bookRepo";
 import type { Book } from "./bookTypes";
+
+type FinishedFilter = "ALL" | "FINISHED" | "UNFINISHED";
+
+function BookListState({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-dashed border-warm-gray bg-cream/80 px-4 py-8 text-center text-sm text-slate-500">
+      {children}
+    </div>
+  );
+}
 
 export function BookListPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -10,20 +22,12 @@ export function BookListPage() {
   const [author, setAuthor] = useState("");
   const [genre, setGenre] = useState("");
   const [finished, setFinished] = useState(false);
-
-  // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
-  const [filterFinished, setFilterFinished] = useState<
-    "ALL" | "FINISHED" | "UNFINISHED"
-  >("ALL");
+  const [filterFinished, setFilterFinished] =
+    useState<FinishedFilter>("ALL");
 
-  // Load books on mount
-  useEffect(() => {
-    loadBooks();
-  }, []);
-
-  async function loadBooks() {
+  const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
       const allBooks = await getAllBooks();
@@ -33,154 +37,177 @@ export function BookListPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  async function handleAddBook(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim() || !author.trim()) return;
+  useEffect(() => {
+    void loadBooks();
+  }, [loadBooks]);
 
-    try {
-      await addBook({
-        title: title.trim(),
-        author: author.trim(),
-        genre: genre.trim() || null,
-        finished,
-      });
-      setTitle("");
-      setAuthor("");
-      setGenre("");
-      setFinished(false);
-      setShowForm(false);
-      await loadBooks();
-    } catch (error) {
-      console.error("Failed to add book:", error);
-    }
-  }
+  const resetForm = useCallback(() => {
+    setTitle("");
+    setAuthor("");
+    setGenre("");
+    setFinished(false);
+  }, []);
 
-  async function handleDeleteBook(id: string, bookTitle: string) {
-    if (!confirm(`Delete "${bookTitle}"?`)) return;
+  const handleAddBook = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
+      if (!title.trim() || !author.trim()) return;
 
-    try {
-      await deleteBook(id);
-      await loadBooks();
-    } catch (error) {
-      console.error("Failed to delete book:", error);
-    }
-  }
+      try {
+        await addBook({
+          title: title.trim(),
+          author: author.trim(),
+          genre: genre.trim() || null,
+          finished,
+        });
+        resetForm();
+        setShowForm(false);
+        await loadBooks();
+      } catch (error) {
+        console.error("Failed to add book:", error);
+      }
+    },
+    [author, finished, genre, loadBooks, resetForm, title],
+  );
 
-  // Derive available genres from books
-  const availableGenres = Array.from(
-    new Set(
-      books
-        .map((b) => b.genre)
-        .filter((g): g is string => g !== null && g !== undefined),
-    ),
-  ).sort();
+  const handleDeleteBook = useCallback(
+    async (id: string, bookTitle: string) => {
+      if (!confirm(`Delete "${bookTitle}"?`)) return;
 
-  // Filter books based on search and filter state
-  const filteredBooks = books.filter((book) => {
-    // Search filter: case-insensitive match on title or author
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
+      try {
+        await deleteBook(id);
+        await loadBooks();
+      } catch (error) {
+        console.error("Failed to delete book:", error);
+      }
+    },
+    [loadBooks],
+  );
 
-    // Genre filter
-    if (filterGenre !== "ALL" && book.genre !== filterGenre) {
-      return false;
-    }
+  const availableGenres = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((book) => book.genre)
+            .filter((genre): genre is string => Boolean(genre)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [books],
+  );
 
-    // Finished filter
-    if (filterFinished === "FINISHED" && !book.finished) {
-      return false;
-    }
-    if (filterFinished === "UNFINISHED" && book.finished) {
-      return false;
-    }
+  const filteredBooks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
 
-    return true;
-  });
+    return books.filter((book) => {
+      if (
+        query &&
+        !book.title.toLowerCase().includes(query) &&
+        !book.author.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+
+      if (filterGenre !== "ALL" && book.genre !== filterGenre) {
+        return false;
+      }
+
+      if (filterFinished === "FINISHED" && !book.finished) {
+        return false;
+      }
+
+      if (filterFinished === "UNFINISHED" && book.finished) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [books, filterFinished, filterGenre, searchQuery]);
+
+  const canSubmit = Boolean(title.trim() && author.trim());
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-800">Books</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Your personal library catalog. Add and manage your book collection
-              here. This is a local-first progressive web app that works
-              offline.
+    <div className="space-y-6 overflow-x-hidden">
+      <section className="rounded-lg border border-warm-gray bg-cream/95 p-4 shadow-soft sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="text-2xl font-semibold text-pretty text-slate-800">
+              Books
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+              Your personal library catalog. Add books, scan the shelf, and
+              keep local reading status available offline.
             </p>
           </div>
           {!showForm && (
             <button
-              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              type="button"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-sage-dark px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35"
               onClick={() => setShowForm(true)}
             >
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Add Book
             </button>
           )}
         </div>
 
-        <div className="mt-4 space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mt-4 space-y-3 rounded-lg border border-warm-gray bg-parchment/80 p-4 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="flex flex-col gap-1 sm:col-span-1">
+            <div className="flex min-w-0 flex-col gap-1">
               <label
                 htmlFor="search"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
+                className="text-xs font-medium uppercase tracking-wide text-slate-600"
               >
                 Search
               </label>
               <input
                 id="search"
-                type="text"
+                name="search"
+                type="search"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Title or author"
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Title or author…"
+                autoComplete="off"
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-1">
               <label
                 htmlFor="filter-genre"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
+                className="text-xs font-medium uppercase tracking-wide text-slate-600"
               >
                 Genre
               </label>
               <select
                 id="filter-genre"
                 value={filterGenre}
-                onChange={(e) => setFilterGenre(e.target.value)}
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setFilterGenre(event.target.value)}
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               >
                 <option value="ALL">All Genres</option>
-                {availableGenres.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
+                {availableGenres.map((bookGenre) => (
+                  <option key={bookGenre} value={bookGenre}>
+                    {bookGenre}
                   </option>
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-1">
               <label
                 htmlFor="filter-finished"
-                className="text-xs font-medium text-slate-600 uppercase tracking-wide"
+                className="text-xs font-medium uppercase tracking-wide text-slate-600"
               >
                 Status
               </label>
               <select
                 id="filter-finished"
                 value={filterFinished}
-                onChange={(e) =>
-                  setFilterFinished(
-                    e.target.value as "ALL" | "FINISHED" | "UNFINISHED",
-                  )
+                onChange={(event) =>
+                  setFilterFinished(event.target.value as FinishedFilter)
                 }
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               >
                 <option value="ALL">All Books</option>
                 <option value="FINISHED">Finished</option>
@@ -188,7 +215,7 @@ export function BookListPage() {
               </select>
             </div>
           </div>
-          <div className="text-sm text-slate-600">
+          <div className="text-sm text-slate-600" aria-live="polite">
             {filteredBooks.length}{" "}
             {filteredBooks.length === 1 ? "book" : "books"}
           </div>
@@ -196,7 +223,7 @@ export function BookListPage() {
 
         {showForm && (
           <form
-            className="mt-5 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            className="mt-5 grid gap-4 rounded-lg border border-warm-gray bg-parchment/80 p-4 shadow-sm"
             onSubmit={handleAddBook}
           >
             <div className="grid gap-2">
@@ -208,12 +235,13 @@ export function BookListPage() {
               </label>
               <input
                 id="title"
+                name="title"
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter book title"
-                autoFocus
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Enter book title…"
+                autoComplete="off"
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               />
             </div>
             <div className="grid gap-2">
@@ -225,11 +253,13 @@ export function BookListPage() {
               </label>
               <input
                 id="author"
+                name="author"
                 type="text"
                 value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Enter author name"
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setAuthor(event.target.value)}
+                placeholder="Enter author name…"
+                autoComplete="off"
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               />
             </div>
             <div className="grid gap-2">
@@ -237,51 +267,50 @@ export function BookListPage() {
                 htmlFor="genre"
                 className="text-sm font-medium text-slate-700"
               >
-                Genre (optional)
+                Genre (Optional)
               </label>
               <input
                 id="genre"
+                name="genre"
                 type="text"
                 value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                placeholder="e.g., Fiction, Non-fiction, Mystery"
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setGenre(event.target.value)}
+                placeholder="Fiction, Non-fiction, Mystery…"
+                autoComplete="off"
+                className="rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20"
               />
             </div>
-            <div className="flex items-center gap-2">
+            <label
+              htmlFor="finished"
+              className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md text-sm font-medium text-slate-700"
+            >
               <input
                 id="finished"
+                name="finished"
                 type="checkbox"
                 checked={finished}
-                onChange={(e) => setFinished(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-2 focus:ring-slate-200"
+                onChange={(event) => setFinished(event.target.checked)}
+                className="h-4 w-4 rounded border-warm-gray text-slate-900 focus:ring-2 focus:ring-sage/20"
               />
-              <label
-                htmlFor="finished"
-                className="text-sm font-medium text-slate-700"
-              >
-                I've finished reading this book
-              </label>
-            </div>
+              I've finished reading this book
+            </label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="submit"
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={!title.trim() || !author.trim()}
+                className="inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={!canSubmit}
               >
                 Add Book
               </button>
               <button
                 type="button"
-                className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-warm-gray px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
                 onClick={() => {
                   setShowForm(false);
-                  setTitle("");
-                  setAuthor("");
-                  setGenre("");
-                  setFinished(false);
+                  resetForm();
                 }}
               >
+                <X className="h-4 w-4" aria-hidden="true" />
                 Cancel
               </button>
             </div>
@@ -291,27 +320,27 @@ export function BookListPage() {
 
       <section className="space-y-3">
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-6 text-center text-sm text-slate-500 shadow-sm">
-            Loading books...
-          </div>
+          <BookListState>Loading Books…</BookListState>
         ) : books.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
-            No books yet. Click "Add Book" to get started!
-          </div>
+          <BookListState>
+            <p className="font-medium text-slate-700">No Books Yet</p>
+            <p className="mt-1 text-xs">Use Add Book to start your catalog.</p>
+          </BookListState>
         ) : filteredBooks.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
-            No matches. Try clearing filters.
-          </div>
+          <BookListState>
+            <p className="font-medium text-slate-700">No Matches Found</p>
+            <p className="mt-1 text-xs">Try a different search or filter.</p>
+          </BookListState>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-3">
             {filteredBooks.map((book) => (
-              <div
+              <article
                 key={book.id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                className="grid min-w-0 gap-3 rounded-lg border border-warm-gray bg-cream px-4 py-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-slate-800">
+                <div className="min-w-0">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <h3 className="min-w-0 break-words text-lg font-semibold leading-6 text-slate-800">
                       {book.title}
                     </h3>
                     {book.finished && (
@@ -320,21 +349,25 @@ export function BookListPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-slate-600">{book.author}</p>
+                  <p className="mt-1 break-words text-sm text-slate-600">
+                    {book.author}
+                  </p>
                   {book.genre && (
-                    <p className="mt-1 text-xs text-slate-500">
-                      Genre: {book.genre}
+                    <p className="mt-2 inline-flex max-w-full rounded-md bg-warm-gray-light px-2 py-1 text-xs text-slate-600">
+                      <span className="break-words">Genre: {book.genre}</span>
                     </p>
                   )}
                 </div>
                 <button
-                  className="self-start rounded-md border border-rose-200 px-3 py-1.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                  type="button"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-100 sm:self-center"
                   onClick={() => handleDeleteBook(book.id, book.title)}
                   aria-label={`Delete ${book.title}`}
                 >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
                   Delete
                 </button>
-              </div>
+              </article>
             ))}
           </div>
         )}

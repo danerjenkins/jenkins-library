@@ -241,7 +241,11 @@ class DriveClient {
     const folderIds = await getDriveFolderIds();
     const rootFolderId = folderIds?.rootFolderId;
 
-    const metadata: any = {
+    const metadata: {
+      name: string;
+      mimeType: string;
+      parents?: string[];
+    } = {
       name: SYNC_FILENAME,
       mimeType: "application/json",
     };

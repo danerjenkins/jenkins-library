@@ -1,42 +1,91 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Search } from "lucide-react";
 import {
   getAllBooks,
   sortBooksBySeriesOrder,
   updateBook,
 } from "../../data/bookRepo";
-import type { Book, ReadStatus, BookFormat } from "./bookTypes";
-import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
+import type { Book, BookFormat, ReadStatus } from "./bookTypes";
+import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
-import { BookCard } from "./components/BookCard";
+import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 
 type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
+type ReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";
+type CardSize = "small" | "medium" | "large";
+
+const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
+  NEITHER: "neither",
+  DANE: "dane",
+  EMMA: "emma",
+  BOTH: "both",
+};
+
+const sizeOptions: Array<{ value: CardSize; label: string }> = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
+];
+
+function sortVisibleBooks(books: Book[], sortBy: SortOption) {
+  if (sortBy === "series") {
+    return sortBooksBySeriesOrder(books);
+  }
+
+  return [...books].sort((a, b) => {
+    switch (sortBy) {
+      case "genre-author": {
+        const genreCompare = (a.genre ?? "").localeCompare(b.genre ?? "", undefined, {
+          sensitivity: "base",
+        });
+        if (genreCompare !== 0) return genreCompare;
+
+        const authorCompare = a.author.localeCompare(b.author, undefined, {
+          sensitivity: "base",
+        });
+        if (authorCompare !== 0) return authorCompare;
+
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        });
+      }
+      case "title":
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        });
+      case "author":
+        return a.author.localeCompare(b.author, undefined, {
+          sensitivity: "base",
+        });
+      case "updated":
+        return b.updatedAt - a.updatedAt;
+      default:
+        return 0;
+    }
+  });
+}
 
 export function ViewBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
-  const [filterFinished, setFilterFinished] = useState<
-    "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH"
-  >("ALL");
+  const [filterFinished, setFilterFinished] = useState<ReadFilter>("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("genre-author");
-  const [cardSize, setCardSize] = useState<"small" | "medium" | "large">(
-    "medium",
-  );
+  const [cardSize, setCardSize] = useState<CardSize>("medium");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
-  // Load books on mount
-  useEffect(() => {
-    loadBooks();
-  }, []);
-
-  async function loadBooks() {
+  const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
       const allBooks = await getAllBooks();
@@ -46,193 +95,189 @@ export function ViewBooksPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  // Derive available genres from books
-  const availableGenres = Array.from(
-    new Set(
-      books
-        .map((b) => b.genre)
-        .filter((g): g is string => g !== null && g !== undefined),
-    ),
-  ).sort();
+  useEffect(() => {
+    void loadBooks();
+  }, [loadBooks]);
 
-  // Derive available formats from books
-  const availableFormats = Array.from(
-    new Set(
-      books
-        .map((b) => b.format)
-        .filter((f): f is BookFormat => f !== null && f !== undefined),
-    ),
-  ).sort();
-
-  const availableSeries = Array.from(
-    new Set(
-      books
-        .map((b) => b.seriesName)
-        .filter((s): s is string => s !== null && s !== undefined),
-    ),
-  ).sort();
-
-  // Filter books based on search and filter state
-  let filteredBooks = books.filter((book) => {
-    // Search filter: case-insensitive match on title or author
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
-
-    // Genre filter
-    if (filterGenre !== "ALL" && book.genre !== filterGenre) {
-      return false;
-    }
-
-    // Read status filter (based on read-by flags)
-    if (filterFinished !== "ALL") {
-      const readStatus = getReadStatus(book);
-      const filterMap: Record<string, ReadStatus> = {
-        NEITHER: "neither",
-        DANE: "dane",
-        EMMA: "emma",
-        BOTH: "both",
-      };
-      if (readStatus !== filterMap[filterFinished]) {
-        return false;
-      }
-    }
-
-    // Format filter
-    if (filterFormat !== "ALL" && book.format !== filterFormat) {
-      return false;
-    }
-
-    // Series filter
-    if (filterSeries !== "ALL") {
-      if (filterSeries === "NONE") {
-        if (book.seriesName) return false;
-      } else if (book.seriesName !== filterSeries) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  // Sort books
-  filteredBooks = [...filteredBooks].sort((a, b) => {
-    switch (sortBy) {
-      case "genre-author": {
-        const genreA = (a.genre ?? "").toLowerCase();
-        const genreB = (b.genre ?? "").toLowerCase();
-        if (genreA !== genreB) return genreA.localeCompare(genreB);
-        const authorA = (a.author ?? "").toLowerCase();
-        const authorB = (b.author ?? "").toLowerCase();
-        if (authorA !== authorB) return authorA.localeCompare(authorB);
-        return a.title.localeCompare(b.title);
-      }
-      case "title":
-        return a.title.localeCompare(b.title);
-      case "author":
-        return a.author.localeCompare(b.author);
-      case "updated":
-        return b.updatedAt - a.updatedAt;
-      case "series":
-        return 0;
-      default:
-        return 0;
-    }
-  });
-  if (sortBy === "series") {
-    filteredBooks = sortBooksBySeriesOrder(filteredBooks);
-  }
-
-  const handleReadStatusChange = async (
-    bookId: string,
-    readByDane: boolean,
-    readByEmma: boolean,
-  ) => {
-    let previousState: { readByDane: boolean; readByEmma: boolean } | null =
-      null;
-
-    try {
-      // Optimistically update UI
-      setBooks((prevBooks) =>
-        prevBooks.map((book) =>
-          book.id === bookId
-            ? (() => {
-                previousState = {
-                  readByDane: book.readByDane,
-                  readByEmma: book.readByEmma,
-                };
-                return { ...book, readByDane, readByEmma };
-              })()
-            : book,
+  const availableGenres = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((book) => book.genre)
+            .filter((genre): genre is string => Boolean(genre)),
         ),
-      );
+      ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [books],
+  );
 
-      // Update database
-      await updateBook(bookId, { readByDane, readByEmma });
-    } catch (error) {
-      console.error("Failed to update book:", error);
-      // Revert on error
-      if (previousState) {
+  const availableFormats = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((book) => book.format)
+            .filter((format): format is BookFormat => Boolean(format)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [books],
+  );
+
+  const availableSeries = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          books
+            .map((book) => book.seriesName)
+            .filter((series): series is string => Boolean(series)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [books],
+  );
+
+  const filteredBooks = useMemo(() => {
+    const query = deferredSearchQuery.trim().toLowerCase();
+    const visible = books.filter((book) => {
+      if (
+        query &&
+        !book.title.toLowerCase().includes(query) &&
+        !book.author.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+
+      if (filterGenre !== "ALL" && book.genre !== filterGenre) {
+        return false;
+      }
+
+      if (
+        filterFinished !== "ALL" &&
+        getReadStatus(book) !== readStatusByFilter[filterFinished]
+      ) {
+        return false;
+      }
+
+      if (filterFormat !== "ALL" && book.format !== filterFormat) {
+        return false;
+      }
+
+      if (filterSeries === "NONE") {
+        return !book.seriesName;
+      }
+
+      if (filterSeries !== "ALL" && book.seriesName !== filterSeries) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return sortVisibleBooks(visible, sortBy);
+  }, [
+    books,
+    deferredSearchQuery,
+    filterFinished,
+    filterFormat,
+    filterGenre,
+    filterSeries,
+    sortBy,
+  ]);
+
+  const hasActiveFilters =
+    searchQuery ||
+    filterGenre !== "ALL" ||
+    filterFinished !== "ALL" ||
+    filterFormat !== "ALL" ||
+    filterSeries !== "ALL" ||
+    sortBy !== "genre-author";
+
+  const handleReadStatusChange = useCallback(
+    async (bookId: string, readByDane: boolean, readByEmma: boolean) => {
+      const previousState = books.find((book) => book.id === bookId);
+
+      try {
         setBooks((prevBooks) =>
           prevBooks.map((book) =>
-            book.id === bookId ? { ...book, ...previousState } : book,
+            book.id === bookId ? { ...book, readByDane, readByEmma } : book,
           ),
         );
-      }
-    }
-  };
 
-  const handleClearFilters = () => {
+        await updateBook(bookId, { readByDane, readByEmma });
+      } catch (error) {
+        console.error("Failed to update book:", error);
+        if (previousState) {
+          setBooks((prevBooks) =>
+            prevBooks.map((book) =>
+              book.id === bookId
+                ? {
+                    ...book,
+                    readByDane: previousState.readByDane,
+                    readByEmma: previousState.readByEmma,
+                  }
+                : book,
+            ),
+          );
+        }
+      }
+    },
+    [books],
+  );
+
+  const handleClearFilters = useCallback(() => {
     setSearchQuery("");
     setFilterGenre("ALL");
     setFilterFinished("ALL");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
     setSortBy("genre-author");
-  };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-stone-50 to-amber-50/30">
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
-        <section className="rounded-3xl bg-white/95 p-6 shadow-soft backdrop-blur-sm sm:p-8">
+    <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
+        <section className="rounded-lg border border-warm-gray bg-cream/95 p-5 shadow-soft backdrop-blur-sm sm:p-7">
           <div className="space-y-2">
-            <h2 className="font-display text-4xl font-bold tracking-tight text-stone-900">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-pretty text-stone-900 sm:text-4xl">
               My Library
             </h2>
-            <p className="font-sans text-base leading-relaxed text-stone-600">
-              Browse and search your personal book collection. A cozy place to
-              explore what you're reading.
+            <p className="font-sans max-w-3xl text-base leading-relaxed text-stone-600">
+              Browse and search your personal book collection.
             </p>
           </div>
 
-          <div className="mt-8 space-y-5 rounded-2xl border border-stone-200/60 bg-stone-50/40 p-5 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-8">
-              <div className="relative">
+          <div className="mt-6 space-y-4 rounded-lg border border-warm-gray bg-parchment/80 p-4 shadow-sm sm:p-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+              <div className="relative sm:col-span-2 lg:col-span-2">
                 <Input
                   id="search"
+                  name="search"
                   label="Search"
-                  type="text"
+                  type="search"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Title or author"
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Title or author…"
+                  autoComplete="off"
+                  className="pr-9"
                 />
-                <Search className="absolute right-3 top-9 h-4 w-4 text-stone-400" />
+                <Search
+                  className="pointer-events-none absolute right-3 top-9 h-4 w-4 text-stone-400"
+                  aria-hidden="true"
+                />
               </div>
 
               <Select
                 id="filter-genre"
                 label="Genre"
                 value={filterGenre}
-                onChange={(e) => setFilterGenre(e.target.value)}
+                onChange={(event) => setFilterGenre(event.target.value)}
                 options={[
                   { value: "ALL", label: "All Genres" },
-                  ...availableGenres.map((g) => ({ value: g, label: g })),
+                  ...availableGenres.map((genre) => ({
+                    value: genre,
+                    label: genre,
+                  })),
                 ]}
               />
 
@@ -240,22 +285,15 @@ export function ViewBooksPage() {
                 id="filter-finished"
                 label="Read Status"
                 value={filterFinished}
-                onChange={(e) =>
-                  setFilterFinished(
-                    e.target.value as
-                      | "ALL"
-                      | "NEITHER"
-                      | "DANE"
-                      | "EMMA"
-                      | "BOTH",
-                  )
+                onChange={(event) =>
+                  setFilterFinished(event.target.value as ReadFilter)
                 }
                 options={[
                   { value: "ALL", label: "All" },
-                  { value: "NEITHER", label: "To read" },
+                  { value: "NEITHER", label: "To Read" },
                   { value: "DANE", label: "Read by Dane" },
                   { value: "EMMA", label: "Read by Emma" },
-                  { value: "BOTH", label: "Read by both" },
+                  { value: "BOTH", label: "Read by Both" },
                 ]}
               />
 
@@ -263,12 +301,12 @@ export function ViewBooksPage() {
                 id="filter-format"
                 label="Format"
                 value={filterFormat}
-                onChange={(e) => setFilterFormat(e.target.value)}
+                onChange={(event) => setFilterFormat(event.target.value)}
                 options={[
                   { value: "ALL", label: "All Formats" },
-                  ...availableFormats.map((fmt) => ({
-                    value: fmt,
-                    label: BOOK_FORMAT_LABELS[fmt],
+                  ...availableFormats.map((format) => ({
+                    value: format,
+                    label: BOOK_FORMAT_LABELS[format],
                   })),
                 ]}
               />
@@ -277,7 +315,7 @@ export function ViewBooksPage() {
                 id="filter-series"
                 label="Series"
                 value={filterSeries}
-                onChange={(e) => setFilterSeries(e.target.value)}
+                onChange={(event) => setFilterSeries(event.target.value)}
                 options={[
                   { value: "ALL", label: "All Series" },
                   { value: "NONE", label: "No Series" },
@@ -292,65 +330,49 @@ export function ViewBooksPage() {
                 id="sort-by"
                 label="Sort"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                onChange={(event) => setSortBy(event.target.value as SortOption)}
                 options={[
-                  { value: "genre-author", label: "Genre then author" },
-                  { value: "series", label: "Series order" },
-                  { value: "title", label: "Title (A–Z)" },
-                  { value: "author", label: "Author (A–Z)" },
+                  { value: "genre-author", label: "Genre then Author" },
+                  { value: "series", label: "Series Order" },
+                  { value: "title", label: "Title (A-Z)" },
+                  { value: "author", label: "Author (A-Z)" },
                   { value: "updated", label: "Recently Updated" },
                 ]}
               />
             </div>
 
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-              <div className="text-sm text-stone-600">
+            <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="text-sm text-stone-600" aria-live="polite">
                 {filteredBooks.length}{" "}
                 {filteredBooks.length === 1 ? "book" : "books"}
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex gap-1 rounded-lg border border-warm-gray p-1">
-                  <button
-                    onClick={() => setCardSize("small")}
-                    className={`px-3 py-1 text-xs font-medium rounded transition ${
-                      cardSize === "small"
-                        ? "bg-sage text-white"
-                        : "text-charcoal/70 hover:bg-warm-gray-light"
-                    }`}
-                  >
-                    Small
-                  </button>
-                  <button
-                    onClick={() => setCardSize("medium")}
-                    className={`px-3 py-1 text-xs font-medium rounded transition ${
-                      cardSize === "medium"
-                        ? "bg-sage text-white"
-                        : "text-charcoal/70 hover:bg-warm-gray-light"
-                    }`}
-                  >
-                    Medium
-                  </button>
-                  <button
-                    onClick={() => setCardSize("large")}
-                    className={`px-3 py-1 text-xs font-medium rounded transition ${
-                      cardSize === "large"
-                        ? "bg-sage text-white"
-                        : "text-charcoal/70 hover:bg-warm-gray-light"
-                    }`}
-                  >
-                    Large
-                  </button>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div
+                  className="grid grid-cols-3 rounded-lg border border-warm-gray bg-cream p-1"
+                  role="group"
+                  aria-label="Card size"
+                >
+                  {sizeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setCardSize(option.value)}
+                      className={`min-h-9 rounded-md px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
+                        cardSize === option.value
+                          ? "bg-sage text-white"
+                          : "text-charcoal/70 hover:bg-warm-gray-light"
+                      }`}
+                      aria-pressed={cardSize === option.value}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
-                {(searchQuery ||
-                  filterGenre !== "ALL" ||
-                  filterFinished !== "ALL" ||
-                  filterFormat !== "ALL" ||
-                  filterSeries !== "ALL" ||
-                  sortBy !== "genre-author") && (
+                {hasActiveFilters && (
                   <Button
                     variant="secondary"
                     onClick={handleClearFilters}
-                    className="text-xs"
+                    className="min-h-9 text-xs"
                   >
                     Clear Filters
                   </Button>
@@ -362,20 +384,17 @@ export function ViewBooksPage() {
 
         <section className="space-y-6">
           {loading ? (
-            <div className="rounded-2xl border border-stone-200/40 bg-white/60 px-6 py-12 text-center text-sm text-stone-500 shadow-sm">
-              Loading library...
-            </div>
+            <BookShelfState title="Loading Library…" />
           ) : books.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-stone-300/60 bg-stone-50 px-6 py-14 text-center text-sm text-stone-600">
-              <p className="font-medium">No books yet</p>
-              <p className="mt-1 text-xs text-stone-500">
-                Start building your library by adding books from the Admin page.
-              </p>
-            </div>
+            <BookShelfState
+              title="No Books Yet"
+              description="Start building your library by adding books from the Admin page."
+            />
           ) : filteredBooks.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-stone-300/60 bg-stone-50 px-6 py-14 text-center text-sm text-stone-600">
-              <p className="font-medium">No matches found</p>
-              <p className="mt-2">
+            <BookShelfState
+              title="No Matches Found"
+              description="Adjust your search or clear filters to see the full shelf."
+              action={
                 <Button
                   variant="secondary"
                   onClick={handleClearFilters}
@@ -383,18 +402,10 @@ export function ViewBooksPage() {
                 >
                   Clear Filters
                 </Button>
-              </p>
-            </div>
+              }
+            />
           ) : (
-            <div
-              className={`grid gap-4 ${
-                cardSize === "small"
-                  ? "grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-                  : cardSize === "medium"
-                    ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                    : "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-              }`}
-            >
+            <BookGrid cardSize={cardSize}>
               {filteredBooks.map((book) => (
                 <BookCard
                   key={book.id}
@@ -405,7 +416,7 @@ export function ViewBooksPage() {
                   onReadStatusChange={handleReadStatusChange}
                 />
               ))}
-            </div>
+            </BookGrid>
           )}
         </section>
       </div>

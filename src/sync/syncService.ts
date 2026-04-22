@@ -277,7 +277,7 @@ class SyncService {
       let remoteData: SyncPayload;
       try {
         remoteData = JSON.parse(jsonContent);
-      } catch (error) {
+      } catch {
         throw new Error(
           "Failed to parse sync file. The file may be corrupted.",
         );
@@ -393,7 +393,7 @@ class SyncService {
             throw new Error("Sync file is empty or invalid");
           }
           driveTimestamp = remoteData.exportedAt || 0;
-        } catch (error) {
+        } catch {
           throw new Error(
             "Failed to parse sync file. The file may be corrupted.",
           );
@@ -442,7 +442,7 @@ class SyncService {
         let freshRemoteData: SyncPayload;
         try {
           freshRemoteData = JSON.parse(freshDriveContent);
-        } catch (error) {
+        } catch {
           throw new Error(
             "Failed to parse sync file. The file may be corrupted.",
           );

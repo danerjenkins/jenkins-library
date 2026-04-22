@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit } from "lucide-react";
 import { getBookById } from "../../data/bookRepo";
@@ -13,6 +13,7 @@ export function BookDetailPage() {
   const navigate = useNavigate();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,9 +22,12 @@ export function BookDetailPage() {
       return;
     }
 
+    let objectUrl: string | null = null;
+
     const loadBook = async () => {
       try {
         setLoading(true);
+        setErrorMessage(null);
         const bookData = await getBookById(id);
         if (!bookData) {
           navigate("/view");
@@ -33,10 +37,13 @@ export function BookDetailPage() {
 
         // Load cover photo
         const coverUrl = await getCoverPhotoUrl(id);
+        objectUrl = coverUrl;
         setLocalCoverUrl(coverUrl);
       } catch (error) {
         console.error("Failed to load book:", error);
-        navigate("/view");
+        setErrorMessage(
+          "Book details could not load. Return to the library and try again.",
+        );
       } finally {
         setLoading(false);
       }
@@ -46,22 +53,54 @@ export function BookDetailPage() {
 
     // Cleanup
     return () => {
-      if (localCoverUrl) {
-        URL.revokeObjectURL(localCoverUrl);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
   }, [id, navigate]);
 
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+    [],
+  );
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-stone-500">Loading book details...</div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div
+          className="rounded-xl border border-warm-gray bg-cream/90 px-4 py-3 text-sm text-stone-500 shadow-sm"
+          aria-live="polite"
+        >
+          Loading book details…
+        </div>
       </div>
     );
   }
 
-  if (!book) {
-    return null;
+  if (errorMessage || !book) {
+    return (
+      <div className="space-y-4">
+        <Link
+          to="/view"
+          className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to Library
+        </Link>
+        <div
+          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+          role="alert"
+        >
+          {errorMessage ??
+            "Book not found. Return to the library and choose another book."}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -69,14 +108,14 @@ export function BookDetailPage() {
       <div className="flex items-center gap-4">
         <Link
           to="/view"
-          className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition"
+          className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to Library
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-stone-200 bg-white/90 shadow-soft overflow-hidden">
+      <div className="rounded-2xl border border-warm-gray bg-cream/95 shadow-soft overflow-hidden">
         <div className="grid gap-6 p-6 md:grid-cols-3">
           {/* Cover Image */}
           <div className="md:col-span-1">
@@ -84,10 +123,10 @@ export function BookDetailPage() {
               <img
                 src={localCoverUrl || book.coverUrl!}
                 alt={`Cover of ${book.title}`}
-                className="w-full rounded-lg object-cover shadow-md"
+                className="aspect-[2/3] w-full rounded-lg object-cover shadow-md"
               />
             ) : (
-              <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-gradient-to-br from-stone-100 to-amber-50 text-stone-400 shadow-md">
+              <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-400 shadow-md">
                 <span className="text-6xl">📚</span>
               </div>
             )}
@@ -118,7 +157,7 @@ export function BookDetailPage() {
               )}
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-stone-200">
+            <div className="space-y-3 pt-4 border-t border-warm-gray">
               {book.genre && (
                 <div>
                   <span className="text-sm font-semibold text-stone-500">
@@ -164,7 +203,7 @@ export function BookDetailPage() {
                   Added:
                 </span>
                 <p className="text-stone-900 mt-1">
-                  {new Date(book.createdAt).toLocaleDateString()}
+                  {dateFormatter.format(new Date(book.createdAt))}
                 </p>
               </div>
 
@@ -173,7 +212,7 @@ export function BookDetailPage() {
                   Last Updated:
                 </span>
                 <p className="text-stone-900 mt-1">
-                  {new Date(book.updatedAt).toLocaleDateString()}
+                  {dateFormatter.format(new Date(book.updatedAt))}
                 </p>
               </div>
             </div>
@@ -182,7 +221,7 @@ export function BookDetailPage() {
               <Link to={`/admin?edit=${book.id}`}>
                 <Button variant="secondary">
                   <span className="flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4" aria-hidden="true" />
                     Edit Book
                   </span>
                 </Button>
