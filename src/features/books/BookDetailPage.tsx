@@ -17,6 +17,8 @@ export function BookDetailPage() {
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
   const [savingReadStatus, setSavingReadStatus] = useState(false);
   const [readStatusError, setReadStatusError] = useState<string | null>(null);
+  const [savingOwnership, setSavingOwnership] = useState(false);
+  const [ownershipError, setOwnershipError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -98,6 +100,32 @@ export function BookDetailPage() {
     }
   };
 
+  const handleOwnershipChange = async (
+    nextOwnershipStatus: "owned" | "wishlist",
+  ) => {
+    if (!book) return;
+
+    const previousBook = book;
+    const nextBook = { ...book, ownershipStatus: nextOwnershipStatus };
+
+    setBook(nextBook);
+    setSavingOwnership(true);
+    setOwnershipError(null);
+
+    try {
+      const updatedBook = await updateBook(book.id, {
+        ownershipStatus: nextOwnershipStatus,
+      });
+      setBook(updatedBook);
+    } catch (error) {
+      console.error("Failed to update ownership:", error);
+      setBook(previousBook);
+      setOwnershipError("Ownership could not be saved. Try again.");
+    } finally {
+      setSavingOwnership(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -132,15 +160,19 @@ export function BookDetailPage() {
     );
   }
 
+  const isWishlistBook = (book.ownershipStatus ?? "owned") === "wishlist";
+  const backPath = isWishlistBook ? "/wishlist" : "/view";
+  const backLabel = isWishlistBook ? "Back to Wishlist" : "Back to Library";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link
-          to="/view"
+          to={backPath}
           className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to Library
+          {backLabel}
         </Link>
       </div>
 
@@ -178,6 +210,9 @@ export function BookDetailPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
+              <Badge variant={isWishlistBook ? "amber" : "default"}>
+                {isWishlistBook ? "Wishlist" : "Owned"}
+              </Badge>
               {book.finished && <Badge variant="success">Finished</Badge>}
               {book.readByDane && <Badge variant="amber">Read by Dane</Badge>}
               {book.readByEmma && <Badge variant="amber">Read by Emma</Badge>}
@@ -255,6 +290,43 @@ export function BookDetailPage() {
               )}
             </section>
 
+            <section className="rounded-xl border border-warm-gray bg-parchment/75 p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-sans text-sm font-semibold text-stone-800">
+                    Ownership
+                  </h2>
+                  <p className="text-xs text-stone-500">
+                    Move this book between your library and wishlist.
+                  </p>
+                </div>
+                <div className="text-xs text-stone-500" aria-live="polite">
+                  {savingOwnership ? "Saving…" : "Saved"}
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  variant={isWishlistBook ? "success" : "secondary"}
+                  disabled={savingOwnership}
+                  onClick={() =>
+                    void handleOwnershipChange(
+                      isWishlistBook ? "owned" : "wishlist",
+                    )
+                  }
+                >
+                  {isWishlistBook ? "Add To Library" : "Move To Wishlist"}
+                </Button>
+              </div>
+
+              {ownershipError && (
+                <p className="mt-2 text-xs text-rose-700" role="alert">
+                  {ownershipError}
+                </p>
+              )}
+            </section>
+
             <div className="space-y-3 pt-4 border-t border-warm-gray">
               {book.genre && (
                 <div>
@@ -316,7 +388,11 @@ export function BookDetailPage() {
             </div>
 
             <div className="pt-4">
-              <Link to={`/admin?edit=${book.id}`}>
+              <Link
+                to={`/admin?edit=${book.id}&ownership=${
+                  isWishlistBook ? "wishlist" : "owned"
+                }`}
+              >
                 <Button variant="secondary">
                   <span className="flex items-center gap-2">
                     <Edit className="h-4 w-4" aria-hidden="true" />

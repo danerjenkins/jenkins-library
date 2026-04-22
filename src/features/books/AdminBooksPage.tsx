@@ -148,7 +148,6 @@ export function AdminBooksPage() {
     !!searchQuery ||
     filterGenre !== "ALL" ||
     filterReadStatus !== "ALL" ||
-    filterOwnership !== "owned" ||
     filterFormat !== "ALL" ||
     filterSeries !== "ALL";
 
@@ -245,10 +244,11 @@ export function AdminBooksPage() {
     setEditingId(null);
   }, []);
 
-  const handleStartAddBook = useCallback(() => {
+  const handleStartAddBook = useCallback((defaultOwnership = filterOwnership) => {
     resetFormFields();
+    setOwnershipStatus(defaultOwnership);
     setShowForm(true);
-  }, [resetFormFields]);
+  }, [filterOwnership, resetFormFields]);
 
   const handleEditBook = useCallback((book: Book) => {
     setTitle(book.title);
@@ -283,9 +283,20 @@ export function AdminBooksPage() {
   // Handle edit query parameter once books are available.
   useEffect(() => {
     if (searchParams.get("add") === "1") {
-      handleStartAddBook();
+      const requestedOwnership =
+        searchParams.get("ownership") === "wishlist" ? "wishlist" : "owned";
+      setFilterOwnership(requestedOwnership);
+      handleStartAddBook(requestedOwnership);
       setSearchParams({});
       return;
+    }
+
+    const requestedOwnership = searchParams.get("ownership");
+    if (
+      requestedOwnership === "owned" ||
+      requestedOwnership === "wishlist"
+    ) {
+      setFilterOwnership(requestedOwnership);
     }
 
     const editId = searchParams.get("edit");
@@ -307,9 +318,13 @@ export function AdminBooksPage() {
     setSearchQuery("");
     setFilterGenre("ALL");
     setFilterReadStatus("ALL");
-    setFilterOwnership("owned");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
+  };
+
+  const handleOwnershipTabChange = (nextOwnership: "owned" | "wishlist") => {
+    setFilterOwnership(nextOwnership);
+    setSearchParams({ ownership: nextOwnership });
   };
 
   const resolveSeriesId = async (name: string) => {
@@ -490,7 +505,7 @@ export function AdminBooksPage() {
               </p>
             </div>
             {!showForm && (
-              <Button variant="primary" onClick={handleStartAddBook}>
+              <Button variant="primary" onClick={() => handleStartAddBook()}>
                 <span className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Add Book
@@ -506,9 +521,42 @@ export function AdminBooksPage() {
               {errorMessage}
             </div>
           )}
-          {!showForm && books.length > 0 && (
+          {!showForm && (
             <div className="rounded-xl border border-warm-gray bg-parchment/75 p-3 shadow-sm space-y-3">
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+              <div
+                className="grid grid-cols-2 rounded-lg border border-warm-gray bg-cream p-1"
+                role="tablist"
+                aria-label="Manage ownership"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filterOwnership === "owned"}
+                  onClick={() => handleOwnershipTabChange("owned")}
+                  className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 ${
+                    filterOwnership === "owned"
+                      ? "bg-sage text-white"
+                      : "text-charcoal/70 hover:bg-warm-gray-light"
+                  }`}
+                >
+                  Owned
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filterOwnership === "wishlist"}
+                  onClick={() => handleOwnershipTabChange("wishlist")}
+                  className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 ${
+                    filterOwnership === "wishlist"
+                      ? "bg-sage text-white"
+                      : "text-charcoal/70 hover:bg-warm-gray-light"
+                  }`}
+                >
+                  Wishlist
+                </button>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
                 <div className="relative">
                   <Input
                     id="admin-search"
@@ -557,19 +605,6 @@ export function AdminBooksPage() {
                     { value: "DANE", label: "Read by Dane" },
                     { value: "EMMA", label: "Read by Emma" },
                     { value: "BOTH", label: "Read by both" },
-                  ]}
-                />
-
-                <Select
-                  id="admin-filter-ownership"
-                  label="Ownership"
-                  value={filterOwnership}
-                  onChange={(e) =>
-                    setFilterOwnership(e.target.value as "owned" | "wishlist")
-                  }
-                  options={[
-                    { value: "owned", label: "Owned" },
-                    { value: "wishlist", label: "Wishlist" },
                   ]}
                 />
 
@@ -688,15 +723,17 @@ export function AdminBooksPage() {
           <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
             <p className="font-medium">No books yet</p>
             <p className="mt-1 text-xs text-stone-500">
-            Add your first book to start managing the library.
+              {filterOwnership === "wishlist"
+                ? "Add a wishlist book to start tracking what you want."
+                : "Add your first book to start managing the library."}
             </p>
             <Button
               type="button"
               variant="primary"
-              onClick={handleStartAddBook}
+              onClick={() => handleStartAddBook(filterOwnership)}
               className="mt-4"
             >
-              Add Book
+              {filterOwnership === "wishlist" ? "Add Wishlist Book" : "Add Book"}
             </Button>
           </div>
         ) : filteredBooks.length === 0 ? (

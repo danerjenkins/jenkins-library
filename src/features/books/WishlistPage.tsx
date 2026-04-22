@@ -358,7 +358,7 @@ export function WishlistPage() {
           ) : books.length === 0 ? (
             <BookShelfState
               title="No Wishlist Books Yet"
-              description="Add books as wishlist items from the Admin page."
+              description="Add books as wishlist items from Manage."
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState

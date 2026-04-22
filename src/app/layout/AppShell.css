@@ -143,6 +143,10 @@
   min-width: 0;
 }
 
+.mobile-bottom-nav {
+  display: none;
+}
+
 .floating-add {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
@@ -249,6 +253,10 @@
 }
 
 @media (max-width: 720px) {
+  .app-main {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+
   .app-header__inner {
     flex-direction: column;
     align-items: stretch;
@@ -270,8 +278,56 @@
   }
 
   .floating-add {
-    width: 3.25rem;
-    height: 3.25rem;
+    display: none;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.25rem;
+    border-top: 1px solid rgba(44, 44, 44, 0.12);
+    background-color: rgba(251, 247, 239, 0.96);
+    padding: 0.4rem max(0.5rem, env(safe-area-inset-right))
+      max(0.45rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left));
+    box-shadow: 0 -8px 24px rgba(44, 44, 44, 0.12);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-bottom-nav__link,
+  .mobile-bottom-nav__add {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.15rem;
+    border: 1px solid transparent;
+    border-radius: 0.6rem;
+    color: rgba(44, 44, 44, 0.72);
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  .mobile-bottom-nav__link[data-active="true"] {
+    border-color: rgba(122, 139, 111, 0.24);
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+  }
+
+  .mobile-bottom-nav__add {
+    background-color: var(--color-sage);
+    color: #ffffff;
+    box-shadow: var(--shadow-soft);
   }
 }
 
@@ -284,9 +340,14 @@
     font-size: 0.82rem;
   }
 
-  .floating-add {
-    right: 0.85rem;
-    bottom: 0.85rem;
+  .mobile-bottom-nav {
+    gap: 0.15rem;
+    padding-inline: 0.35rem;
+  }
+
+  .mobile-bottom-nav__link,
+  .mobile-bottom-nav__add {
+    font-size: 0.64rem;
   }
 }
 
@@ -294,6 +355,8 @@
   .app-brand__link,
   .app-nav__link,
   .floating-add,
+  .mobile-bottom-nav__link,
+  .mobile-bottom-nav__add,
   .skip-link {
     transition-duration: 1ms;
   }

@@ -10,12 +10,19 @@ interface AppShellProps {
 const navItems = [
   { to: "/view", label: "Library", Icon: BookOpen },
   { to: "/wishlist", label: "Wishlist", Icon: Heart },
-  { to: "/admin", label: "Admin", Icon: Settings },
+  { to: "/admin", label: "Manage", Icon: Settings },
   { to: "/stats", label: "Stats", Icon: BarChart3 },
 ] as const;
 
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const activeOwnership =
+    location.pathname === "/wishlist" ||
+    searchParams.get("ownership") === "wishlist"
+      ? "wishlist"
+      : "owned";
+  const addBookPath = `/admin?add=1&ownership=${activeOwnership}`;
 
   return (
     <div className="app-shell">
@@ -67,8 +74,31 @@ export function AppShell({ children }: AppShellProps) {
         {children}
       </main>
 
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        {navItems.map(({ to, label, Icon }) => {
+          const isActive = location.pathname === to;
+
+          return (
+            <Link
+              key={to}
+              to={to}
+              className="mobile-bottom-nav__link"
+              aria-current={isActive ? "page" : undefined}
+              data-active={isActive ? "true" : undefined}
+            >
+              <Icon aria-hidden="true" size={19} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+        <Link to={addBookPath} className="mobile-bottom-nav__add">
+          <Plus aria-hidden="true" size={22} />
+          <span>Add</span>
+        </Link>
+      </nav>
+
       <Link
-        to="/admin?add=1"
+        to={addBookPath}
         className="floating-add"
         aria-label="Add a book"
         title="Add a book"

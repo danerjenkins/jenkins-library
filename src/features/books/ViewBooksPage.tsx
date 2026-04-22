@@ -353,7 +353,7 @@ export function ViewBooksPage() {
           ) : books.length === 0 ? (
             <BookShelfState
               title="No Books Yet"
-              description="Start building your library by adding books from the Admin page."
+              description="Start building your library by adding books from Manage."
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState
