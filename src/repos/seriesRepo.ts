@@ -1,7 +1,7 @@
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import type { Series } from "../features/books/bookTypes";
 
-const supabaseSchema = import.meta.env.VITE_SUPABASE_SCHEMA ?? "library";
+const supabaseClient = getSupabaseClientWithSchema();
 
 type SeriesRow = {
   id: string;
@@ -18,8 +18,7 @@ function mapRowToSeries(row: SeriesRow): Series {
 }
 
 export async function listSeries(): Promise<Series[]> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("series")
     .select("*")
     .order("name", { ascending: true });
@@ -35,8 +34,7 @@ export async function findSeriesByName(name: string): Promise<Series | null> {
   const trimmed = name.trim();
   if (!trimmed) return null;
 
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("series")
     .select("*")
     .ilike("name", trimmed)
@@ -54,8 +52,7 @@ export async function createSeries(
   name: string,
   parentSeriesId?: string | null,
 ): Promise<Series> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("series")
     .insert({
       name: name.trim(),

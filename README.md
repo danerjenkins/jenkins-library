@@ -119,6 +119,15 @@ npm install
 npm run dev
 ```
 
+## Environment variables
+
+Supply the same Vite env vars that power the running demo:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_DATA_SOURCE=supabase`
+- `VITE_SUPABASE_SCHEMA` (set this to the schema your catalog lives in, e.g. `library`; leave it blank only if you explicitly want Supabase's default `public` schema)
+
 ## Recruiter Takeaway
 
 This project demonstrates that I can:

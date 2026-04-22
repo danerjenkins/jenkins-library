@@ -1,5 +1,5 @@
 import type { Book } from "../features/books/bookTypes";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import {
   createBook as createSupabaseBook,
   deleteBook as deleteSupabaseBook,
@@ -11,7 +11,7 @@ import {
 } from "../repos/supabaseBookRepo";
 
 const DELETED_IDS_STORAGE_KEY = "sync:deletedBookIds";
-const supabaseSchema = import.meta.env.VITE_SUPABASE_SCHEMA ?? "library";
+const supabaseClient = getSupabaseClientWithSchema();
 
 type BookInput = {
   title: string;
@@ -115,8 +115,7 @@ export async function setBookSeries(
   bookId: string,
   input: BookSeriesInput,
 ): Promise<void> {
-  const { error } = await supabase
-    .schema(supabaseSchema)
+  const { error } = await supabaseClient
     .from("book_series")
     .upsert(
       {
@@ -134,8 +133,7 @@ export async function setBookSeries(
 }
 
 export async function clearBookSeries(bookId: string): Promise<void> {
-  const { error } = await supabase
-    .schema(supabaseSchema)
+  const { error } = await supabaseClient
     .from("book_series")
     .delete()
     .eq("book_id", bookId);

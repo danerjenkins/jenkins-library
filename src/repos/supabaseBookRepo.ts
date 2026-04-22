@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import type { Book, BookFormat } from "../features/books/bookTypes";
 
 export type BookInput = {
@@ -42,7 +42,7 @@ type BookWithSeriesRow = BookRow & {
   series_sort: number | null;
 };
 
-const supabaseSchema = import.meta.env.VITE_SUPABASE_SCHEMA ?? "library";
+const supabaseClient = getSupabaseClientWithSchema();
 
 function toTimestamp(value: string | null): number {
   if (!value) {
@@ -80,8 +80,7 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
 }
 
 export async function listBooks(): Promise<Book[]> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
@@ -97,8 +96,7 @@ export async function listBooks(): Promise<Book[]> {
 }
 
 export async function listWishlistBooks(): Promise<Book[]> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
@@ -114,8 +112,7 @@ export async function listWishlistBooks(): Promise<Book[]> {
 }
 
 export async function getBook(id: string): Promise<Book | null> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books_with_series")
     .select("*")
     .eq("id", id)
@@ -147,8 +144,7 @@ export async function createBook(input: BookInput): Promise<Book> {
     ownership_status: input.ownershipStatus ?? "owned",
   };
 
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books")
     .insert(insertRow)
     .select("*")
@@ -198,8 +194,7 @@ export async function updateBook(
   if (patch.ownershipStatus !== undefined)
     updateRow.ownership_status = patch.ownershipStatus;
 
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books")
     .update(updateRow)
     .eq("id", id)
@@ -228,8 +223,7 @@ export async function updateBook(
 }
 
 export async function softDeleteBook(id: string): Promise<void> {
-  const { error } = await supabase
-    .schema(supabaseSchema)
+  const { error } = await supabaseClient
     .from("books")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", id);
@@ -240,8 +234,7 @@ export async function softDeleteBook(id: string): Promise<void> {
 }
 
 export async function deleteBook(id: string): Promise<void> {
-  const { data, error } = await supabase
-    .schema(supabaseSchema)
+  const { data, error } = await supabaseClient
     .from("books")
     .delete()
     .eq("id", id)

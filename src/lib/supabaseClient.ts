@@ -17,4 +17,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase: SupabaseClient = createClient(
   supabaseUrl,
   supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  },
 );
