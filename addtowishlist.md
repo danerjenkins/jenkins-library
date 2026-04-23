@@ -1,6 +1,8 @@
-# addtowishlist.md1000 real book recommendations grouped by recommendation reason.
+# addtowishlist.md
+
 
 ## Books by authors you already own
+
 - The Idiot — Fyodor Dostoevsky
 - Demons — Fyodor Dostoevsky
 - Notes from Underground — Fyodor Dostoevsky
@@ -92,7 +94,25 @@
 - The Man in the High Castle — Philip K. Dick
 - A Scanner Darkly — Philip K. Dick
 - Flow My Tears, the Policeman Said — Philip K. Dick
+- Martin Chuzzlewit — Charles Dickens
+- Sketches by Boz — Charles Dickens
+- Sanditon — Jane Austen
+- Vilette — Charlotte Brontë
+- Catriona — Robert Louis Stevenson
+- The Master of Ballantrae — Robert Louis Stevenson
+- Prince Otto — Robert Louis Stevenson
+- The Vicomte de Bragelonne — Alexandre Dumas
+- Queen Margot — Alexandre Dumas
+- Toilers of the Sea — Victor Hugo
+- The Innocents Abroad — Mark Twain
+- Pudd'nhead Wilson — Mark Twain
+- Following the Equator — Mark Twain
+- Richard III — William Shakespeare
+- Henry V — William Shakespeare
+- As You Like It — William Shakespeare
+
 ## Books in series you partially own
+
 - God Emperor of Dune — Frank Herbert
 - Heretics of Dune — Frank Herbert
 - Chapterhouse: Dune — Frank Herbert
@@ -159,7 +179,15 @@
 - Small Gods — Terry Pratchett
 - Wyrd Sisters — Terry Pratchett
 - Reaper Man — Terry Pratchett
+- Wrath of the Triple Goddess — Rick Riordan
+- The Red Pyramid — Rick Riordan
+- The Throne of Fire — Rick Riordan
+- The Serpent's Shadow — Rick Riordan
+- To Sleep in a Sea of Stars — Christopher Paolini
+- Fractal Noise — Christopher Paolini
+
 ## Popular fantasy in genres you already own
+
 - The Once and Future King — T. H. White
 - Tigana — Guy Gavriel Kay
 - The Lions of Al-Rassan — Guy Gavriel Kay
@@ -243,7 +271,14 @@
 - Little, Big — John Crowley
 - Lud-in-the-Mist — Hope Mirrlees
 - The King of Elfland's Daughter — Lord Dunsany
+- Od Magic — Patricia A. McKillip
+- A Wizard of Earthsea — Ursula K. Le Guin
+- Sailing to Sarantium — Guy Gavriel Kay
+- The Book That Wouldn't Burn — Mark Lawrence
+- The Tainted Cup — Robert Jackson Bennett
+
 ## Popular sci-fi in genres you already own
+
 - Hyperion — Dan Simmons
 - The Fall of Hyperion — Dan Simmons
 - Endymion — Dan Simmons
@@ -329,7 +364,13 @@
 - A Swiftly Tilting Planet — Madeleine L'Engle
 - The Island of Doctor Moreau — H. G. Wells
 - The First Men in the Moon — H. G. Wells
+- Lord of Light — Roger Zelazny
+- Roadside Picnic — Arkady and Boris Strugatsky
+- The Mountain in the Sea — Ray Nayler
+- Spin — Robert Charles Wilson
+
 ## Mystery, thriller, and adventure adjacent to books you own
+
 - And Then There Were None — Agatha Christie
 - Death on the Nile — Agatha Christie
 - The ABC Murders — Agatha Christie
@@ -400,7 +441,11 @@
 - King Kong — Delos W. Lovelace
 - The Call of the Wild — Jack London
 - White Fang — Jack London
+- A Coffin for Dimitrios — Eric Ambler
+- The Mask of Dimitrios — Eric Ambler
+
 ## Must-own classics and literary canon
+
 - Middlemarch — George Eliot
 - Silas Marner — George Eliot
 - Daniel Deronda — George Eliot
@@ -423,12 +468,10 @@
 - The Snows of Kilimanjaro and Other Stories — Ernest Hemingway
 - The Garden of Eden — Ernest Hemingway
 - The Moveable Feast — Ernest Hemingway
-- Moby-Dick — Herman Melville
 - Billy Budd, Sailor — Herman Melville
 - Bartleby, the Scrivener — Herman Melville
 - Typee — Herman Melville
 - Bleak House — Charles Dickens
-- David Copperfield — Charles Dickens
 - Little Dorrit — Charles Dickens
 - Hard Times — Charles Dickens
 - Our Mutual Friend — Charles Dickens
@@ -442,7 +485,6 @@
 - Mansfield Park — Jane Austen
 - Northanger Abbey — Jane Austen
 - Lady Susan — Jane Austen
-- Jane Eyre — Charlotte Bronte
 - Villette — Charlotte Bronte
 - Shirley — Charlotte Bronte
 - The Professor — Charlotte Bronte
@@ -509,14 +551,23 @@
 - Sula — Toni Morrison
 - The Bluest Eye — Toni Morrison
 - Jazz — Toni Morrison
-- Invisible Man — Ralph Ellison
 - Go Tell It on the Mountain — James Baldwin
 - Another Country — James Baldwin
 - Giovanni's Room — James Baldwin
 - Their Eyes Were Watching God — Zora Neale Hurston
 - Native Son — Richard Wright
 - Black Boy — Richard Wright
+- Sons and Lovers — D. H. Lawrence
+- The Return of the Soldier — Rebecca West
+- A Room with a View — E. M. Forster
+- Howards End — E. M. Forster
+- The Way We Live Now — Anthony Trollope
+- Barchester Towers — Anthony Trollope
+- The Last Chronicle of Barset — Anthony Trollope
+- Phèdre — Jean Racine
+
 ## Must-own philosophy, religion, and spiritual works
+
 - Beyond Good and Evil — Friedrich Nietzsche
 - Thus Spoke Zarathustra — Friedrich Nietzsche
 - On the Genealogy of Morals — Friedrich Nietzsche
@@ -588,7 +639,6 @@
 - Zhuangzi — Zhuangzi
 - The Analects — Confucius
 - Mencius — Mencius
-- The Brothers Karamazov — Fyodor Dostoevsky
 - Mere Christianity — C. S. Lewis
 - The Problem of Pain — C. S. Lewis
 - Miracles — C. S. Lewis
@@ -609,7 +659,12 @@
 - The Varieties of Religious Experience — William James
 - Pragmatism — William James
 - The Protestant Ethic and the Spirit of Capitalism — Max Weber
+- A Grief Observed — C. S. Lewis
+- Works and Days — Hesiod
+- The Symposium — Plato
+
 ## Modern and popular literary fiction worth owning
+
 - Stoner — John Williams
 - Butcher's Crossing — John Williams
 - Augustus — John Williams
@@ -663,6 +718,7 @@
 - Cities of the Plain — Cormac McCarthy
 - Suttree — Cormac McCarthy
 - The Border Trilogy — Cormac McCarthy
+- The Kite Runner — Khaled Hosseini
 - A Thousand Splendid Suns — Khaled Hosseini
 - And the Mountains Echoed — Khaled Hosseini
 - The Poisonwood Bible — Barbara Kingsolver
@@ -719,8 +775,15 @@
 - The Spectator Bird — Wallace Stegner
 - A Visit from the Goon Squad — Jennifer Egan
 - The Candy House — Jennifer Egan
+- A Prayer for Owen Meany — John Irving
+- My Ántonia — Willa Cather
+- Death Comes for the Archbishop — Willa Cather
+- A Month in the Country — J. L. Carr
+- Peace Like a River — Leif Enger
+- The Song of Achilles — Madeline Miller
+
 ## General must-read nonfiction, history, biography, and essays
-- The Autobiography of Benjamin Franklin — Benjamin Franklin
+
 - Narrative of the Life of Frederick Douglass — Frederick Douglass
 - Up from Slavery — Booker T. Washington
 - The Diary of a Young Girl — Anne Frank
@@ -761,6 +824,7 @@
 - The Passage of Power — Robert A. Caro
 - Into Thin Air — Jon Krakauer
 - Under the Banner of Heaven — Jon Krakauer
+- Into the Wild — Jon Krakauer
 - Unbroken — Laura Hillenbrand
 - Seabiscuit — Laura Hillenbrand
 - The Right Stuff — Tom Wolfe
@@ -805,7 +869,12 @@
 - An Army at Dawn — Rick Atkinson
 - The Day of Battle — Rick Atkinson
 - The Guns at Last Light — Rick Atkinson
+- The Making of the Atomic Bomb — Richard Rhodes
+- The River of Doubt — Candice Millard
+- The Worst Hard Time — Timothy Egan
+
 ## World literature, drama, poetry, and major gaps to fill
+
 - Things Fall Apart — Chinua Achebe
 - No Longer at Ease — Chinua Achebe
 - Arrow of God — Chinua Achebe
@@ -875,7 +944,11 @@
 - Sir Gawain and the Green Knight — Unknown
 - The Song of Roland — Unknown
 - Njal's Saga — Anonymous
+- The Epic of Gilgamesh — Anonymous
+- The Brothers Ashkenazi — I. J. Singer
+
 ## Popular fantasy, YA, and speculative staples you are likely to enjoy
+
 - Gathering Blue — Lois Lowry
 - Messenger — Lois Lowry
 - Son — Lois Lowry
@@ -883,18 +956,17 @@
 - I Am the Messenger — Markus Zusak
 - Catching Fire — Suzanne Collins
 - The Ballad of Songbirds and Snakes — Suzanne Collins
+- Mockingjay — Suzanne Collins
+- Sunrise on the Reaping — Suzanne Collins
 - Renegades — Marissa Meyer
 - Supernova — Marissa Meyer
+- Artemis Fowl — Eoin Colfer
 - The Arctic Incident — Eoin Colfer
 - The Eternity Code — Eoin Colfer
 - The Opal Deception — Eoin Colfer
 - The Lost Colony — Eoin Colfer
 - Inkspell — Cornelia Funke
 - Inkdeath — Cornelia Funke
-- Eragon — Christopher Paolini
-- Eldest — Christopher Paolini
-- Brisingr — Christopher Paolini
-- Inheritance — Christopher Paolini
 - Murtagh — Christopher Paolini
 - The Lost Hero — Rick Riordan
 - The Son of Neptune — Rick Riordan
@@ -902,7 +974,9 @@
 - The House of Hades — Rick Riordan
 - The Blood of Olympus — Rick Riordan
 - The Chalice of the Gods — Rick Riordan
+
 ## More high-upside additions across your tastes
+
 - The Last Unicorn — Peter S. Beagle
 - Bridge of Birds — Barry Hughart
 - Watership Down — Richard Adams
@@ -921,6 +995,4 @@
 - The Gone World — Tom Sweterlitsch
 - Version Control — Dexter Palmer
 - This Is How You Lose the Time War — Amal El-Mohtar and Max Gladstone
-- The First Fifteen Lives of Harry August — Claire North<!-
-- Total books: 1000 -->
-
+- The First Fifteen Lives of Harry August — Claire North
