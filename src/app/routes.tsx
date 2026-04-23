@@ -5,6 +5,8 @@ import { AdminBooksPage } from "../features/books/AdminBooksPage";
 import { StatsPage } from "../features/books/StatsPage";
 import { BookDetailPage } from "../features/books/BookDetailPage";
 import { WishlistPage } from "../features/books/WishlistPage";
+import { SeriesPage } from "../features/books/SeriesPage";
+import { GenresPage } from "../features/books/GenresPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 
 export const routes: RouteObject[] = [
@@ -36,6 +38,16 @@ export const routes: RouteObject[] = [
   {
     path: "/stats",
     element: <StatsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/series",
+    element: <SeriesPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/genres",
+    element: <GenresPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ];

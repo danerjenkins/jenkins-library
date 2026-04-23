@@ -207,11 +207,11 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Search across Library and Wishlist.
   - Show ownership status in results.
 
-- [ ] Add series browsing
+- [x] Add series browsing
   - Group by series.
   - Sort books within series by series order.
 
-- [ ] Add a genres page
+- [x] Add a genres page
   - Show genre-based carousels or grouped shelves.
   - Keep it secondary to Library and Wishlist, not a primary navigation destination.
 
@@ -286,11 +286,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Only for empty library state.
   - Avoid a marketing-style landing page.
 
-- [ ] Update Cosmere books to mass market paperback and refresh cover images
+- [X] Update Cosmere books to mass market paperback and refresh cover images
   - Treat this as a catalog/content cleanup task rather than a UI feature.
-- [ ] Replace low-definition remote cover URLs with higher quality cover photos
+- [X] Replace low-definition remote cover URLs with higher quality cover photos
   - Prefer higher resolution sources where remote URLs are still being used.
   - Treat this as catalog/content cleanup, not a layout task.
 
 - [ ] revamp the stats page to make it more interesting
-

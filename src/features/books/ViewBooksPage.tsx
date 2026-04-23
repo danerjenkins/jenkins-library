@@ -63,6 +63,8 @@ const densityGroupClasses =
   "grid grid-cols-4 rounded-lg border border-warm-gray bg-cream p-0.5 shadow-inner shadow-white/50";
 const densityButtonClasses =
   "min-h-11 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+const discoveryLinkClasses =
+  "group flex min-h-32 flex-col justify-between rounded-2xl border border-warm-gray/80 bg-cream/95 p-4 text-left no-underline shadow-soft transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-sage/55 hover:bg-parchment/90 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:min-h-36 sm:p-5";
 
 interface StoredLibraryViewPreferences {
   filterGenre: string;
@@ -300,6 +302,10 @@ export function ViewBooksPage() {
       ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
     [books],
   );
+  const noSeriesCount = useMemo(
+    () => books.filter((book) => !book.seriesName).length,
+    [books],
+  );
 
   const filteredBooks = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
@@ -443,7 +449,7 @@ export function ViewBooksPage() {
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Title or author…"
                   autoComplete="off"
-                  className="pl-11 pr-10"
+                  className="!pl-11 pr-10"
                 />
                 <Search
                   className="pointer-events-none absolute left-3 top-8 h-4 w-4 text-stone-400"
@@ -537,6 +543,91 @@ export function ViewBooksPage() {
               <div className="text-xs text-stone-500">
                 Search, filter, and resize your shelf without leaving the page.
               </div>
+            </div>
+          </div>
+
+          <div
+            className="mt-4 space-y-3 rounded-2xl border border-warm-gray/75 bg-parchment/80 p-3 shadow-sm ring-1 ring-white/35 sm:p-4"
+            role="navigation"
+            aria-labelledby="library-discovery-heading"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div className="space-y-1">
+                <h3
+                  id="library-discovery-heading"
+                  className="font-display text-xl font-semibold tracking-tight text-pretty text-stone-900"
+                >
+                  Browse Beyond the Shelf
+                </h3>
+                <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
+                  Jump into grouped browsing when you want to scan series order
+                  or explore the collection by genre.
+                </p>
+              </div>
+              <div
+                className="text-xs font-medium text-stone-500"
+                aria-live="polite"
+              >
+                {loading
+                  ? "Loading discovery views…"
+                  : `${availableSeries.length} series groups • ${availableGenres.length} genres`}
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <Link to="/series" className={discoveryLinkClasses}>
+                <div className="space-y-2">
+                  <div className="inline-flex w-fit rounded-full border border-sage/20 bg-sage/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-dark">
+                    Series View
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-display text-2xl font-semibold tracking-tight text-stone-900 text-pretty">
+                      Read in Order
+                    </div>
+                    <p className="max-w-md text-sm leading-relaxed text-stone-600">
+                      Browse complete series stacks, spot gaps quickly, and keep
+                      long-running reads in sequence.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-medium text-stone-600">
+                    {loading
+                      ? "Preparing series…"
+                      : `${availableSeries.length} series groups`}
+                  </span>
+                  <span className="font-semibold text-sage-dark transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5">
+                    Open Series
+                  </span>
+                </div>
+              </Link>
+
+              <Link to="/genres" className={discoveryLinkClasses}>
+                <div className="space-y-2">
+                  <div className="inline-flex w-fit rounded-full border border-clay/20 bg-clay/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-clay">
+                    Genre View
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-display text-2xl font-semibold tracking-tight text-stone-900 text-pretty">
+                      Explore by Mood
+                    </div>
+                    <p className="max-w-md text-sm leading-relaxed text-stone-600">
+                      Move through genre shelves, compare categories, and surface
+                      titles that fit the kind of read you want next.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-medium text-stone-600">
+                    {loading
+                      ? "Preparing genres…"
+                      : `${availableGenres.length} genres • ${noSeriesCount} standalones`}
+                  </span>
+                  <span className="font-semibold text-clay transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5">
+                    Open Genres
+                  </span>
+                </div>
+              </Link>
             </div>
           </div>
         </section>

@@ -21,4 +21,9 @@
 - Refined book cards with denser grid sizing, stronger unclipped focus states, richer fallback cover art, and genre-aware tag/fallback styling.
 - Moved the decorative search icon to the leading side of the Library, Wishlist, and Manage search fields so it no longer overlaps the native clear button.
 - Increased leading padding on those same search fields so the magnifying glass also clears the placeholder text.
+- Completed the `Series` and `Genres` discovery pages from the `Search And Discovery` section.
+- Added a grouped `Series` browser with ownership filtering, deferred search, density controls, and series-order shelves, including a standalone-books summary.
+- Added a `Genres` page with genre shelf groupings, quick-jump links, visible Library/Wishlist orientation, and a secondary browse mode that stays outside primary navigation.
+- Refined the discovery UI with mobile-friendly carousel layouts, motion-safe loading skeletons, and clearer Library entry points into the Series and Genres pages.
+- Tightened the discovery pages to use the shared shelf card treatment more directly, fixed wishlist inclusion in both browsers, removed clipped hover/extra wrapper whitespace, and softened the Library discovery cards.
 - Verified the changes with `npm run lint` and `npm run build`.

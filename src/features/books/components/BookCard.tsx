@@ -59,6 +59,7 @@ interface BookCardProps {
   cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
   showGenreTag?: boolean;
+  deferRendering?: boolean;
 }
 
 const coverHeightBySize: Record<CardSize, string> = {
@@ -174,6 +175,7 @@ export function BookCard({
   cardSize = "medium",
   clickable = false,
   showGenreTag = true,
+  deferRendering = true,
 }: BookCardProps) {
   const isView = variant === "view";
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
@@ -224,8 +226,9 @@ export function BookCard({
       coverHeight={coverHeight}
     />
   );
-  const cardChrome =
-    "book-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm [contain-intrinsic-size:320px_520px] [content-visibility:auto]";
+  const cardChrome = `book-card flex h-full w-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm${
+    deferRendering ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]" : ""
+  }`;
   const detailPath = `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
 

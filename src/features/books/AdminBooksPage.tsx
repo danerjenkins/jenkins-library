@@ -744,7 +744,7 @@ export function AdminBooksPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Title or author…"
                     autoComplete="off"
-                    className="pl-11 pr-10"
+                    className="!pl-11 pr-10"
                   />
                   <Search
                     className="pointer-events-none absolute left-3 top-8 h-4 w-4 text-stone-400"
