@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import "./BookCard.css";
+import type { CardSize } from "../shelfViewPreferences";
 
 function getGenreColor(genre: string): string {
   const genreLower = genre.toLowerCase();
@@ -51,8 +52,6 @@ interface BookCardProps {
   clickable?: boolean;
   showGenreTag?: boolean;
 }
-
-type CardSize = NonNullable<BookCardProps["cardSize"]>;
 
 const coverHeightBySize: Record<CardSize, string> = {
   xsmall: "h-32 sm:h-36",
@@ -204,17 +203,19 @@ export function BookCard({
   );
   const cardChrome =
     "book-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm [contain-intrinsic-size:320px_520px] [content-visibility:auto]";
+  const detailPath = `/book/${book.id}`;
+  const clickableCardClasses = clickable ? " book-card--interactive" : "";
 
   if (isView) {
     return (
       <article
-        className={`${cardChrome} transition hover:border-sage-light hover:shadow-md`}
+        className={`${cardChrome}${clickableCardClasses}`}
         data-card-size={cardSize}
       >
         {clickable ? (
           <Link
-            to={`/book/${book.id}`}
-            className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+            to={detailPath}
+            className="book-card__cover-link block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
             aria-label={`View ${book.title}`}
           >
             {cover}
@@ -226,11 +227,11 @@ export function BookCard({
           <div className="min-w-0">
             {clickable ? (
               <Link
-                to={`/book/${book.id}`}
-                className="group/title block min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                to={detailPath}
+                className="book-card__title-link group/title block min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
               >
                 <h3
-                  className={`book-card__title font-display break-words font-bold text-stone-900 transition group-hover/title:text-stone-700 ${titleClamp}`}
+                  className={`book-card__title font-display break-words font-bold text-stone-900 transition-colors duration-150 group-hover/title:text-stone-700 ${titleClamp}`}
                 >
                   {book.title}
                 </h3>
@@ -252,6 +253,18 @@ export function BookCard({
             )}
           </div>
           <div className="min-h-0 flex-1" aria-hidden="true" />
+
+          {clickable && (
+            <Link
+              to={detailPath}
+              className="book-card__detail-link inline-flex items-center gap-1.5 self-start rounded-sm text-stone-600 no-underline transition-colors duration-150 hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+            >
+              <span className="book-card__meta font-semibold uppercase tracking-[0.14em]">
+                View Details
+              </span>
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          )}
 
           {showGenreTag && book.genre && (
             <div className="min-w-0">

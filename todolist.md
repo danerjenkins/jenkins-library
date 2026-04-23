@@ -46,30 +46,32 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Library And Wishlist
 
-- [ ] Strengthen card click affordance
+- [x] Strengthen card click affordance
   - Make cards clearly clickable with hover/focus styling.
   - Consider a subtle “View Details” affordance on focus/hover.
   - Preserve a clean card design without edit/delete buttons.
 
-- [ ] Remember card size per page
-  - Persist Library card size in `localStorage`.
-  - Persist Wishlist card size in `localStorage`.
-  - Restore choices on page load.
+- [x] Remember card size preferences
+  - Persist the chosen card size in `localStorage`.
+  - Keep Library and Wishlist card size in sync unless separate preferences prove more useful.
+  - Restore the saved choice on page load.
+  - Default to `Small` on mobile.
 
-- [ ] Remember sort and filter preferences
+- [x] Remember sort and filter preferences
   - Persist Library sort option.
+  - Persist filter preferences in `localStorage` where it improves repeat use.
   - Consider persisting filters only if it does not make returning confusing.
   - Add a visible Clear Filters action when filters are active.
 
-- [ ] Improve Wishlist empty states
+- [x] Improve Wishlist empty states
   - Add an `Add Wishlist Book` action.
   - Open the add form with ownership set to Wishlist.
 
-- [ ] Improve Library empty states
+- [x] Improve Library empty states
   - Add an `Add Book` action.
   - Open the add form with ownership set to Owned.
 
-- [ ] Add a compact/comfortable view toggle later if needed
+- [x] Add a compact/comfortable view toggle later if needed
   - Keep current card-size control for now.
   - Revisit if too many size choices become noisy.
 
@@ -148,14 +150,24 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [ ] Add bottom navigation for phone layouts
   - Keep tap targets at least 44px.
   - Avoid overlap with the floating add button.
+  - Remove the top navigation bar on mobile if the bottom nav fully covers primary navigation.
 
 - [ ] Audit mobile filter layout
   - Make filter panels compact but not cramped.
   - Consider collapsible filters on small screens.
+  - Keep the card-size control visible even if other filters collapse.
 
 - [ ] Improve touch targets on cards
   - Ensure card click area is large.
   - Keep action buttons separated enough to avoid accidental taps.
+
+- [ ] Fix mobile card actions and sizing
+  - Reduce the `Add To Library` button size on Wishlist cards for `XS` on mobile.
+  - Make mobile card-size steps meaningfully different:
+    - `Large` = 1 per row
+    - `Medium` = 2 per row
+    - `Small` = 3 per row
+    - `XS` = 4 per row
 
 - [ ] Test common mobile workflows
   - Add a wishlist book.
@@ -177,6 +189,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Group by series.
   - Sort books within series by series order.
 
+- [ ] Add a genres page
+  - Show genre-based carousels or grouped shelves.
+  - Keep it secondary to Library and Wishlist, not a primary navigation destination.
+
 - [ ] Add “Recently Added” and “Recently Updated”
   - Useful on both Library and Manage.
 
@@ -193,6 +209,8 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [ ] Refine book cards after real use
   - Confirm XS/Small/Medium/Large are all useful.
   - Remove a size option if the control feels too busy.
+  - Reduce wasted whitespace in grids.
+  - Let cards align to a shared row height instead of forcing one height across the entire list.
 
 - [ ] Add stronger focus states to cards
   - Make keyboard navigation obvious.
@@ -201,6 +219,9 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [ ] Improve thumbnail fallback art
   - Replace text-only fallback with a simple book icon or styled placeholder.
   - Keep it lightweight and consistent.
+
+- [ ] Use genre-aware tag styling
+  - Make genre tag colors correlate to genre while keeping contrast accessible.
 
 ## Data And Sync
 

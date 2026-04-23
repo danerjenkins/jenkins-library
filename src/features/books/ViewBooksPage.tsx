@@ -1,4 +1,5 @@
 import {
+  startTransition,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -6,6 +7,7 @@ import {
   useState,
 } from "react";
 import { Search } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import { getAllBooks, sortBooksBySeriesOrder } from "../../data/bookRepo";
 import type { Book, BookFormat, ReadStatus } from "./bookTypes";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
@@ -13,10 +15,19 @@ import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+import {
+  CARD_SIZE_OPTIONS,
+  type CardSize,
+  getDefaultCardSize,
+  isCardSize,
+  LIBRARY_VIEW_STORAGE_KEY,
+  readStorageValue,
+  SHELF_CARD_SIZE_STORAGE_KEY,
+  writeStorageValue,
+} from "./shelfViewPreferences";
 
 type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
 type ReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";
-type CardSize = "xsmall" | "small" | "medium" | "large";
 
 const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
   NEITHER: "neither",
@@ -25,12 +36,51 @@ const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
   BOTH: "both",
 };
 
-const sizeOptions: Array<{ value: CardSize; label: string }> = [
-  { value: "xsmall", label: "XS" },
-  { value: "small", label: "Small" },
-  { value: "medium", label: "Medium" },
-  { value: "large", label: "Large" },
-];
+const readFilterValues = new Set<ReadFilter>([
+  "ALL",
+  "NEITHER",
+  "DANE",
+  "EMMA",
+  "BOTH",
+]);
+const sortOptionValues = new Set<SortOption>([
+  "genre-author",
+  "series",
+  "title",
+  "author",
+  "updated",
+]);
+const actionLinkClasses =
+  "inline-flex min-h-10 items-center justify-center rounded-md border border-sage bg-sage px-4 py-2 text-sm font-semibold text-white no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage-dark hover:bg-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+
+interface StoredLibraryViewPreferences {
+  filterGenre: string;
+  filterFinished: ReadFilter;
+  filterFormat: string;
+  filterSeries: string;
+  sortBy: SortOption;
+}
+
+function getStoredLibraryViewPreferences(): StoredLibraryViewPreferences | null {
+  const stored = readStorageValue<Partial<StoredLibraryViewPreferences>>(
+    LIBRARY_VIEW_STORAGE_KEY,
+  );
+  if (!stored) {
+    return null;
+  }
+
+  return {
+    filterGenre: stored.filterGenre ?? "ALL",
+    filterFinished: readFilterValues.has(stored.filterFinished as ReadFilter)
+      ? (stored.filterFinished as ReadFilter)
+      : "ALL",
+    filterFormat: stored.filterFormat ?? "ALL",
+    filterSeries: stored.filterSeries ?? "ALL",
+    sortBy: sortOptionValues.has(stored.sortBy as SortOption)
+      ? (stored.sortBy as SortOption)
+      : "genre-author",
+  };
+}
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   if (sortBy === "series") {
@@ -71,16 +121,19 @@ function sortVisibleBooks(books: Book[], sortBy: SortOption) {
 }
 
 export function ViewBooksPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasHydratedViewState, setHasHydratedViewState] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
   const [filterFinished, setFilterFinished] = useState<ReadFilter>("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("genre-author");
-  const [cardSize, setCardSize] = useState<CardSize>("medium");
+  const [cardSize, setCardSize] = useState<CardSize>(getDefaultCardSize);
   const deferredSearchQuery = useDeferredValue(searchQuery);
+  const searchParamsKey = searchParams.toString();
 
   const loadBooks = useCallback(async () => {
     try {
@@ -97,6 +150,109 @@ export function ViewBooksPage() {
   useEffect(() => {
     void loadBooks();
   }, [loadBooks]);
+
+  useEffect(() => {
+    const storedView = getStoredLibraryViewPreferences();
+    const storedCardSize = readStorageValue<string>(SHELF_CARD_SIZE_STORAGE_KEY);
+    const queryCardSize = searchParams.get("size");
+    const nextCardSize = isCardSize(queryCardSize)
+      ? queryCardSize
+      : isCardSize(storedCardSize)
+        ? storedCardSize
+        : getDefaultCardSize();
+
+    const nextSearchQuery = searchParams.get("q") ?? "";
+    const nextFilterGenre =
+      searchParams.get("genre") ?? storedView?.filterGenre ?? "ALL";
+    const queryRead = searchParams.get("read");
+    const nextFilterFinished = readFilterValues.has(queryRead as ReadFilter)
+      ? (queryRead as ReadFilter)
+      : storedView?.filterFinished ?? "ALL";
+    const nextFilterFormat =
+      searchParams.get("format") ?? storedView?.filterFormat ?? "ALL";
+    const nextFilterSeries =
+      searchParams.get("series") ?? storedView?.filterSeries ?? "ALL";
+    const querySort = searchParams.get("sort");
+    const nextSortBy = sortOptionValues.has(querySort as SortOption)
+      ? (querySort as SortOption)
+      : storedView?.sortBy ?? "genre-author";
+
+    setSearchQuery((current) =>
+      current === nextSearchQuery ? current : nextSearchQuery,
+    );
+    setFilterGenre((current) =>
+      current === nextFilterGenre ? current : nextFilterGenre,
+    );
+    setFilterFinished((current) =>
+      current === nextFilterFinished ? current : nextFilterFinished,
+    );
+    setFilterFormat((current) =>
+      current === nextFilterFormat ? current : nextFilterFormat,
+    );
+    setFilterSeries((current) =>
+      current === nextFilterSeries ? current : nextFilterSeries,
+    );
+    setSortBy((current) => (current === nextSortBy ? current : nextSortBy));
+    setCardSize((current) =>
+      current === nextCardSize ? current : nextCardSize,
+    );
+    setHasHydratedViewState(true);
+  }, [searchParamsKey, searchParams]);
+
+  useEffect(() => {
+    if (!hasHydratedViewState) {
+      return;
+    }
+
+    writeStorageValue(LIBRARY_VIEW_STORAGE_KEY, {
+      filterGenre,
+      filterFinished,
+      filterFormat,
+      filterSeries,
+      sortBy,
+    } satisfies StoredLibraryViewPreferences);
+    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
+
+    const nextSearchParams = new URLSearchParams();
+    if (searchQuery.trim()) {
+      nextSearchParams.set("q", searchQuery);
+    }
+    if (filterGenre !== "ALL") {
+      nextSearchParams.set("genre", filterGenre);
+    }
+    if (filterFinished !== "ALL") {
+      nextSearchParams.set("read", filterFinished);
+    }
+    if (filterFormat !== "ALL") {
+      nextSearchParams.set("format", filterFormat);
+    }
+    if (filterSeries !== "ALL") {
+      nextSearchParams.set("series", filterSeries);
+    }
+    if (sortBy !== "genre-author") {
+      nextSearchParams.set("sort", sortBy);
+    }
+    if (cardSize !== getDefaultCardSize()) {
+      nextSearchParams.set("size", cardSize);
+    }
+
+    if (nextSearchParams.toString() !== searchParamsKey) {
+      startTransition(() => {
+        setSearchParams(nextSearchParams, { replace: true });
+      });
+    }
+  }, [
+    cardSize,
+    filterFinished,
+    filterFormat,
+    filterGenre,
+    filterSeries,
+    hasHydratedViewState,
+    searchParamsKey,
+    searchQuery,
+    setSearchParams,
+    sortBy,
+  ]);
 
   const availableGenres = useMemo(
     () =>
@@ -317,7 +473,7 @@ export function ViewBooksPage() {
                   role="group"
                   aria-label="Card size"
                 >
-                  {sizeOptions.map((option) => (
+                  {CARD_SIZE_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       type="button"
@@ -353,7 +509,15 @@ export function ViewBooksPage() {
           ) : books.length === 0 ? (
             <BookShelfState
               title="No Books Yet"
-              description="Start building your library by adding books from Manage."
+              description="Start building your library by adding your first owned book."
+              action={
+                <Link
+                  to="/admin?add=1&ownership=owned"
+                  className={actionLinkClasses}
+                >
+                  Add Book
+                </Link>
+              }
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState
