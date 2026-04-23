@@ -268,3 +268,13 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [ ] Add lightweight onboarding
   - Only for empty library state.
   - Avoid a marketing-style landing page.
+
+- [ ] Update all cosmere books to mass market paper back and update the cover images
+- [ ] opening/closing a different section of the editing form should refocus to the top of the section that was just opened
+- [ ] Clean up the organization of the edit form to be more mobile friendly
+  - it sais editing book then edit book in a different component directly underneath
+  - it asks for a cover url outside of the core info section (in the first section where it says update the essentials first then adjust)
+  - there are a lot of components stacked on top of eachother which makes it feel cluttered on mobile. for example:
+    - the cover url input is inside the cover url component inside the cover sources component inside the core info component inside the editing book component inside the manage books component inside the main body.that creates like 6 or 7 different layers when editing just that one variable.
+- [ ] I feel like some things should be sticky, specifically in mobile, for ecample, on the manage page, the owned/wishlist toggle should probably always be visble. I'm considering making any filter/sort field that is edited be sticky so that if you search for something and scroll down to look at it you can still see your search query at the top of the screen.
+- [ ] you should be ablle to click on the book cards in the magage page in order to see more details?? or would that be redundant functionality from the library page

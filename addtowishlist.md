@@ -1,0 +1,926 @@
+# addtowishlist.md1000 real book recommendations grouped by recommendation reason.
+
+## Books by authors you already own
+- The Idiot — Fyodor Dostoevsky
+- Demons — Fyodor Dostoevsky
+- Notes from Underground — Fyodor Dostoevsky
+- The House of the Dead — Fyodor Dostoevsky
+- The Gambler — Fyodor Dostoevsky
+- The Adolescent — Fyodor Dostoevsky
+- The Double — Fyodor Dostoevsky
+- White Nights — Fyodor Dostoevsky
+- Poor Folk — Fyodor Dostoevsky
+- Anna Karenina — Leo Tolstoy
+- War and Peace — Leo Tolstoy
+- The Death of Ivan Ilyich — Leo Tolstoy
+- Resurrection — Leo Tolstoy
+- Hadji Murad — Leo Tolstoy
+- Childhood — Leo Tolstoy
+- Boyhood — Leo Tolstoy
+- Youth — Leo Tolstoy
+- Master and Man — Leo Tolstoy
+- Cannery Row — John Steinbeck
+- Tortilla Flat — John Steinbeck
+- The Pearl — John Steinbeck
+- Travels with Charley — John Steinbeck
+- Winter of Our Discontent — John Steinbeck
+- The Moon Is Down — John Steinbeck
+- In Dubious Battle — John Steinbeck
+- Animal Farm — George Orwell
+- Homage to Catalonia — George Orwell
+- Down and Out in Paris and London — George Orwell
+- Burmese Days — George Orwell
+- Keep the Aspidistra Flying — George Orwell
+- Coming Up for Air — George Orwell
+- The Road to Wigan Pier — George Orwell
+- Essays — George Orwell
+- Something Wicked This Way Comes — Ray Bradbury
+- The Illustrated Man — Ray Bradbury
+- Dandelion Wine — Ray Bradbury
+- The October Country — Ray Bradbury
+- The Martian Chronicles — Ray Bradbury
+- Farewell Summer — Ray Bradbury
+- Zen in the Art of Writing — Ray Bradbury
+- Foundation — Isaac Asimov
+- Foundation and Empire — Isaac Asimov
+- Second Foundation — Isaac Asimov
+- Foundation's Edge — Isaac Asimov
+- Foundation and Earth — Isaac Asimov
+- Prelude to Foundation — Isaac Asimov
+- Forward the Foundation — Isaac Asimov
+- The Caves of Steel — Isaac Asimov
+- The Naked Sun — Isaac Asimov
+- The Robots of Dawn — Isaac Asimov
+- Robots and Empire — Isaac Asimov
+- The End of Eternity — Isaac Asimov
+- The Left Hand of Darkness — Ursula K. Le Guin
+- The Tombs of Atuan — Ursula K. Le Guin
+- The Farthest Shore — Ursula K. Le Guin
+- Tehanu — Ursula K. Le Guin
+- Tales from Earthsea — Ursula K. Le Guin
+- The Other Wind — Ursula K. Le Guin
+- The Dispossessed — Ursula K. Le Guin
+- The Lathe of Heaven — Ursula K. Le Guin
+- The Word for World Is Forest — Ursula K. Le Guin
+- Rocannon's World — Ursula K. Le Guin
+- The Silmarillion — J.R.R. Tolkien
+- Unfinished Tales — J.R.R. Tolkien
+- The Children of Hurin — J.R.R. Tolkien
+- Beren and Luthien — J.R.R. Tolkien
+- The Fall of Gondolin — J.R.R. Tolkien
+- The Adventures of Tom Bombadil — J.R.R. Tolkien
+- Leaf by Niggle — J.R.R. Tolkien
+- Neverwhere — Neil Gaiman
+- American Gods — Neil Gaiman
+- Anansi Boys — Neil Gaiman
+- Coraline — Neil Gaiman
+- Stardust — Neil Gaiman
+- The Graveyard Book — Neil Gaiman
+- Norse Mythology — Neil Gaiman
+- Fragile Things — Neil Gaiman
+- Smoke and Mirrors — Neil Gaiman
+- Piranesi — Susanna Clarke
+- Jonathan Strange & Mr Norrell — Susanna Clarke
+- A Game of Thrones — George R. R. Martin
+- A Clash of Kings — George R. R. Martin
+- A Storm of Swords — George R. R. Martin
+- A Feast for Crows — George R. R. Martin
+- A Dance with Dragons — George R. R. Martin
+- The Ocean at the End of the Lane — Neil Gaiman
+- Do Androids Dream of Electric Sheep? — Philip K. Dick
+- Ubik — Philip K. Dick
+- The Man in the High Castle — Philip K. Dick
+- A Scanner Darkly — Philip K. Dick
+- Flow My Tears, the Policeman Said — Philip K. Dick
+## Books in series you partially own
+- God Emperor of Dune — Frank Herbert
+- Heretics of Dune — Frank Herbert
+- Chapterhouse: Dune — Frank Herbert
+- The World of Robert Jordan's The Wheel of Time — Robert Jordan and Teresa Patterson
+- The Wheel of Time Companion — Harriet McDougal, Alan Romanczuk, and Maria Simons
+- Children of Dune — Frank Herbert
+- Dune Messiah — Frank Herbert
+- The Slow Regard of Silent Things — Patrick Rothfuss
+- The Narrow Road Between Desires — Patrick Rothfuss
+- The Dragonbone Chair — Tad Williams
+- Stone of Farewell — Tad Williams
+- To Green Angel Tower — Tad Williams
+- Shadow of the Giant — Orson Scott Card
+- Shadows in Flight — Orson Scott Card
+- The Last Shadow — Orson Scott Card
+- The Shadow of What Was Lost — James Islington
+- An Echo of Things to Come — James Islington
+- The Light of All That Falls — James Islington
+- The Final Empire — Brandon Sanderson
+- Secret History — Brandon Sanderson
+- The Blade Itself — Joe Abercrombie
+- Before They Are Hanged — Joe Abercrombie
+- Last Argument of Kings — Joe Abercrombie
+- Best Served Cold — Joe Abercrombie
+- The Heroes — Joe Abercrombie
+- Red Country — Joe Abercrombie
+- A Little Hatred — Joe Abercrombie
+- The Trouble with Peace — Joe Abercrombie
+- The Wisdom of Crowds — Joe Abercrombie
+- Leviathan Wakes — James S. A. Corey
+- Caliban's War — James S. A. Corey
+- Abaddon's Gate — James S. A. Corey
+- Cibola Burn — James S. A. Corey
+- Nemesis Games — James S. A. Corey
+- Babylon's Ashes — James S. A. Corey
+- Persepolis Rising — James S. A. Corey
+- Tiamat's Wrath — James S. A. Corey
+- Leviathan Falls — James S. A. Corey
+- Assassin's Apprentice — Robin Hobb
+- Royal Assassin — Robin Hobb
+- Assassin's Quest — Robin Hobb
+- Ship of Magic — Robin Hobb
+- The Mad Ship — Robin Hobb
+- Ship of Destiny — Robin Hobb
+- Fool's Errand — Robin Hobb
+- Golden Fool — Robin Hobb
+- Fool's Fate — Robin Hobb
+- The Lies of Locke Lamora — Scott Lynch
+- Red Seas Under Red Skies — Scott Lynch
+- The Republic of Thieves — Scott Lynch
+- The Black Prism — Brent Weeks
+- The Blinding Knife — Brent Weeks
+- The Broken Eye — Brent Weeks
+- The Blood Mirror — Brent Weeks
+- The Burning White — Brent Weeks
+- The Way of Shadows — Brent Weeks
+- Shadow's Edge — Brent Weeks
+- Beyond the Shadows — Brent Weeks
+- The Color of Magic — Terry Pratchett
+- The Light Fantastic — Terry Pratchett
+- Equal Rites — Terry Pratchett
+- Mort — Terry Pratchett
+- Guards! Guards! — Terry Pratchett
+- Small Gods — Terry Pratchett
+- Wyrd Sisters — Terry Pratchett
+- Reaper Man — Terry Pratchett
+## Popular fantasy in genres you already own
+- The Once and Future King — T. H. White
+- Tigana — Guy Gavriel Kay
+- The Lions of Al-Rassan — Guy Gavriel Kay
+- Under Heaven — Guy Gavriel Kay
+- The Last Light of the Sun — Guy Gavriel Kay
+- A Brightness Long Ago — Guy Gavriel Kay
+- The Sarantine Mosaic — Guy Gavriel Kay
+- The Name of All Things — Jenn Lyons
+- The Ruin of Kings — Jenn Lyons
+- The Memory of Souls — Jenn Lyons
+- The Black Company — Glen Cook
+- Shadows Linger — Glen Cook
+- The White Rose — Glen Cook
+- The Book of the New Sun — Gene Wolfe
+- The Shadow of the Torturer — Gene Wolfe
+- The Claw of the Conciliator — Gene Wolfe
+- The Sword of the Lictor — Gene Wolfe
+- The Citadel of the Autarch — Gene Wolfe
+- The Priory of the Orange Tree — Samantha Shannon
+- A Day of Fallen Night — Samantha Shannon
+- The Fifth Season — N. K. Jemisin
+- The Obelisk Gate — N. K. Jemisin
+- The Stone Sky — N. K. Jemisin
+- The Hundred Thousand Kingdoms — N. K. Jemisin
+- The Broken Kingdoms — N. K. Jemisin
+- The Kingdom of Gods — N. K. Jemisin
+- The Grace of Kings — Ken Liu
+- The Wall of Storms — Ken Liu
+- The Veiled Throne — Ken Liu
+- Speaking Bones — Ken Liu
+- The Bear and the Nightingale — Katherine Arden
+- The Girl in the Tower — Katherine Arden
+- The Winter of the Witch — Katherine Arden
+- The Curse of Chalion — Lois McMaster Bujold
+- Paladin of Souls — Lois McMaster Bujold
+- The Hallowed Hunt — Lois McMaster Bujold
+- The Goblin Emperor — Katherine Addison
+- The Witness for the Dead — Katherine Addison
+- The Grief of Stones — Katherine Addison
+- The Forgotten Beasts of Eld — Patricia A. McKillip
+- The Riddle-Master of Hed — Patricia A. McKillip
+- Heir of Sea and Fire — Patricia A. McKillip
+- Harpist in the Wind — Patricia A. McKillip
+- Sabriel — Garth Nix
+- Lirael — Garth Nix
+- Abhorsen — Garth Nix
+- Clariel — Garth Nix
+- Goldenhand — Garth Nix
+- The Last Wish — Andrzej Sapkowski
+- Sword of Destiny — Andrzej Sapkowski
+- Blood of Elves — Andrzej Sapkowski
+- Time of Contempt — Andrzej Sapkowski
+- Baptism of Fire — Andrzej Sapkowski
+- The Tower of the Swallow — Andrzej Sapkowski
+- Lady of the Lake — Andrzej Sapkowski
+- Season of Storms — Andrzej Sapkowski
+- The Way Home — Peter S. Beagle
+- The Innkeeper's Song — Peter S. Beagle
+- Tamsin — Peter S. Beagle
+- The Crystal Cave — Mary Stewart
+- The Hollow Hills — Mary Stewart
+- The Last Enchantment — Mary Stewart
+- The Blue Sword — Robin McKinley
+- The Hero and the Crown — Robin McKinley
+- Sunshine — Robin McKinley
+- The Witchwood Crown — Tad Williams
+- Empire of Grass — Tad Williams
+- Into the Narrowdark — Tad Williams
+- The Emperor's Blades — Brian Staveley
+- The Providence of Fire — Brian Staveley
+- The Last Mortal Bond — Brian Staveley
+- The Thousand Names — Django Wexler
+- The Shadow Campaigns — Django Wexler
+- The Price of Valor — Django Wexler
+- The Infernal Battalion — Django Wexler
+- The Wolf in the Whale — Jordanna Max Brodsky
+- The Golem and the Jinni — Helene Wecker
+- The Hidden Palace — Helene Wecker
+- The Raven Tower — Ann Leckie
+- The Spear Cuts Through Water — Simon Jimenez
+- Little, Big — John Crowley
+- Lud-in-the-Mist — Hope Mirrlees
+- The King of Elfland's Daughter — Lord Dunsany
+## Popular sci-fi in genres you already own
+- Hyperion — Dan Simmons
+- The Fall of Hyperion — Dan Simmons
+- Endymion — Dan Simmons
+- The Rise of Endymion — Dan Simmons
+- Snow Crash — Neal Stephenson
+- Cryptonomicon — Neal Stephenson
+- Anathem — Neal Stephenson
+- Seveneves — Neal Stephenson
+- The Diamond Age — Neal Stephenson
+- The Forever War — Joe Haldeman
+- Forever Peace — Joe Haldeman
+- The Forever Free — Joe Haldeman
+- Old Man's War — John Scalzi
+- The Ghost Brigades — John Scalzi
+- The Last Colony — John Scalzi
+- Zoe's Tale — John Scalzi
+- The Human Division — John Scalzi
+- The End of All Things — John Scalzi
+- The Three-Body Problem — Liu Cixin
+- The Dark Forest — Liu Cixin
+- Death's End — Liu Cixin
+- Ball Lightning — Liu Cixin
+- Childhood's End — Arthur C. Clarke
+- Rendezvous with Rama — Arthur C. Clarke
+- The Fountains of Paradise — Arthur C. Clarke
+- 2001: A Space Odyssey — Arthur C. Clarke
+- 2010: Odyssey Two — Arthur C. Clarke
+- 2061: Odyssey Three — Arthur C. Clarke
+- 3001: The Final Odyssey — Arthur C. Clarke
+- Solaris — Stanislaw Lem
+- His Master's Voice — Stanislaw Lem
+- The Cyberiad — Stanislaw Lem
+- Fiasco — Stanislaw Lem
+- A Fire Upon the Deep — Vernor Vinge
+- A Deepness in the Sky — Vernor Vinge
+- Children of the Sky — Vernor Vinge
+- The Mote in God's Eye — Larry Niven and Jerry Pournelle
+- Ringworld — Larry Niven
+- The Integral Trees — Larry Niven
+- Gateway — Frederik Pohl
+- Man Plus — Frederik Pohl
+- The Space Merchants — Frederik Pohl and C. M. Kornbluth
+- Stranger in a Strange Land — Robert A. Heinlein
+- The Moon Is a Harsh Mistress — Robert A. Heinlein
+- Starship Troopers — Robert A. Heinlein
+- Double Star — Robert A. Heinlein
+- The Stars My Destination — Alfred Bester
+- The Demolished Man — Alfred Bester
+- Dhalgren — Samuel R. Delany
+- Nova — Samuel R. Delany
+- Babel-17 — Samuel R. Delany
+- The Book of Strange New Things — Michel Faber
+- Children of Time — Adrian Tchaikovsky
+- Children of Ruin — Adrian Tchaikovsky
+- Children of Memory — Adrian Tchaikovsky
+- A Canticle for Leibowitz — Walter M. Miller Jr.
+- The Sparrow — Mary Doria Russell
+- Children of God — Mary Doria Russell
+- The Fifth Head of Cerberus — Gene Wolfe
+- A Memory Called Empire — Arkady Martine
+- A Desolation Called Peace — Arkady Martine
+- The Long Way to a Small, Angry Planet — Becky Chambers
+- A Closed and Common Orbit — Becky Chambers
+- Record of a Spaceborn Few — Becky Chambers
+- The Galaxy, and the Ground Within — Becky Chambers
+- Ancillary Justice — Ann Leckie
+- Ancillary Sword — Ann Leckie
+- Ancillary Mercy — Ann Leckie
+- The City & the City — China Mieville
+- Embassytown — China Mieville
+- Perdido Street Station — China Mieville
+- Parable of the Sower — Octavia E. Butler
+- Parable of the Talents — Octavia E. Butler
+- Kindred — Octavia E. Butler
+- Dawn — Octavia E. Butler
+- Wild Seed — Octavia E. Butler
+- The Player of Games — Iain M. Banks
+- Use of Weapons — Iain M. Banks
+- Consider Phlebas — Iain M. Banks
+- Excession — Iain M. Banks
+- A Wrinkle in Time — Madeleine L'Engle
+- A Wind in the Door — Madeleine L'Engle
+- A Swiftly Tilting Planet — Madeleine L'Engle
+- The Island of Doctor Moreau — H. G. Wells
+- The First Men in the Moon — H. G. Wells
+## Mystery, thriller, and adventure adjacent to books you own
+- And Then There Were None — Agatha Christie
+- Death on the Nile — Agatha Christie
+- The ABC Murders — Agatha Christie
+- The Murder of Roger Ackroyd — Agatha Christie
+- Five Little Pigs — Agatha Christie
+- Evil Under the Sun — Agatha Christie
+- Peril at End House — Agatha Christie
+- Cards on the Table — Agatha Christie
+- Crooked House — Agatha Christie
+- Curtain — Agatha Christie
+- The Sign of Four — Arthur Conan Doyle
+- The Valley of Fear — Arthur Conan Doyle
+- The Case-Book of Sherlock Holmes — Arthur Conan Doyle
+- The Silence of the Lambs — Thomas Harris
+- Red Dragon — Thomas Harris
+- Hannibal — Thomas Harris
+- The Spy Who Came in from the Cold — John le Carre
+- Tinker Tailor Soldier Spy — John le Carre
+- Smiley's People — John le Carre
+- The Honourable Schoolboy — John le Carre
+- A Perfect Spy — John le Carre
+- The Constant Gardener — John le Carre
+- The Hunt for Red October — Tom Clancy
+- Patriot Games — Tom Clancy
+- Clear and Present Danger — Tom Clancy
+- The Cardinal of the Kremlin — Tom Clancy
+- The Sum of All Fears — Tom Clancy
+- Without Remorse — Tom Clancy
+- The Name of the Rose — Umberto Eco
+- Foucault's Pendulum — Umberto Eco
+- The Prague Cemetery — Umberto Eco
+- The Talented Mr. Ripley — Patricia Highsmith
+- Strangers on a Train — Patricia Highsmith
+- Ripley Under Ground — Patricia Highsmith
+- Rebecca — Daphne du Maurier
+- My Cousin Rachel — Daphne du Maurier
+- Jamaica Inn — Daphne du Maurier
+- The Moonstone — Wilkie Collins
+- The Woman in White — Wilkie Collins
+- No Name — Wilkie Collins
+- Brat Farrar — Josephine Tey
+- The Franchise Affair — Josephine Tey
+- The Big Sleep — Raymond Chandler
+- Farewell, My Lovely — Raymond Chandler
+- The Long Goodbye — Raymond Chandler
+- The Maltese Falcon — Dashiell Hammett
+- The Thin Man — Dashiell Hammett
+- Red Harvest — Dashiell Hammett
+- In the Woods — Tana French
+- The Likeness — Tana French
+- Broken Harbor — Tana French
+- The Secret History — Donna Tartt
+- The Goldfinch — Donna Tartt
+- The Alienist — Caleb Carr
+- The Black Dahlia — James Ellroy
+- L.A. Confidential — James Ellroy
+- The Club Dumas — Arturo Perez-Reverte
+- The Flanders Panel — Arturo Perez-Reverte
+- Kidnapped — Robert Louis Stevenson
+- The Black Arrow — Robert Louis Stevenson
+- King Solomon's Mines — H. Rider Haggard
+- She — H. Rider Haggard
+- The Prisoner of Zenda — Anthony Hope
+- The Thirty-Nine Steps — John Buchan
+- Greenmantle — John Buchan
+- The Riddle of the Sands — Erskine Childers
+- The Lost World — Arthur Conan Doyle
+- King Kong — Delos W. Lovelace
+- The Call of the Wild — Jack London
+- White Fang — Jack London
+## Must-own classics and literary canon
+- Middlemarch — George Eliot
+- Silas Marner — George Eliot
+- Daniel Deronda — George Eliot
+- The Mill on the Floss — George Eliot
+- Adam Bede — George Eliot
+- Madame Bovary — Gustave Flaubert
+- Sentimental Education — Gustave Flaubert
+- Three Tales — Gustave Flaubert
+- The Man in the Iron Mask — Alexandre Dumas
+- Twenty Years After — Alexandre Dumas
+- The Black Tulip — Alexandre Dumas
+- Exemplary Novels — Miguel de Cervantes
+- Ulysses — James Joyce
+- Dubliners — James Joyce
+- A Portrait of the Artist as a Young Man — James Joyce
+- Finnegans Wake — James Joyce
+- The Sun Also Rises — Ernest Hemingway
+- For Whom the Bell Tolls — Ernest Hemingway
+- A Farewell to Arms — Ernest Hemingway
+- The Snows of Kilimanjaro and Other Stories — Ernest Hemingway
+- The Garden of Eden — Ernest Hemingway
+- The Moveable Feast — Ernest Hemingway
+- Moby-Dick — Herman Melville
+- Billy Budd, Sailor — Herman Melville
+- Bartleby, the Scrivener — Herman Melville
+- Typee — Herman Melville
+- Bleak House — Charles Dickens
+- David Copperfield — Charles Dickens
+- Little Dorrit — Charles Dickens
+- Hard Times — Charles Dickens
+- Our Mutual Friend — Charles Dickens
+- Nicholas Nickleby — Charles Dickens
+- Barnaby Rudge — Charles Dickens
+- The Pickwick Papers — Charles Dickens
+- A Christmas Carol — Charles Dickens
+- The Toilers of the Sea — Victor Hugo
+- Ninety-Three — Victor Hugo
+- Persuasion — Jane Austen
+- Mansfield Park — Jane Austen
+- Northanger Abbey — Jane Austen
+- Lady Susan — Jane Austen
+- Jane Eyre — Charlotte Bronte
+- Villette — Charlotte Bronte
+- Shirley — Charlotte Bronte
+- The Professor — Charlotte Bronte
+- Agnes Grey — Anne Bronte
+- The Tenant of Wildfell Hall — Anne Bronte
+- The Scarlet Letter — Nathaniel Hawthorne
+- The House of the Seven Gables — Nathaniel Hawthorne
+- Twice-Told Tales — Nathaniel Hawthorne
+- The Importance of Being Earnest — Oscar Wilde
+- De Profundis — Oscar Wilde
+- The Odyssey — Homer
+- The Aeneid — Virgil
+- The Divine Comedy — Dante Alighieri
+- Paradise Lost — John Milton
+- Paradise Regained — John Milton
+- A Modest Proposal and Other Satirical Works — Jonathan Swift
+- The Decameron — Giovanni Boccaccio
+- The Red and the Black — Stendhal
+- The Charterhouse of Parma — Stendhal
+- Dead Souls — Nikolai Gogol
+- Taras Bulba — Nikolai Gogol
+- The Overcoat and Other Tales — Nikolai Gogol
+- Fathers and Sons — Ivan Turgenev
+- Rudin — Ivan Turgenev
+- A Sportsman's Sketches — Ivan Turgenev
+- The Master and Margarita — Mikhail Bulgakov
+- Heart of a Dog — Mikhail Bulgakov
+- One Hundred Years of Solitude — Gabriel Garcia Marquez
+- Love in the Time of Cholera — Gabriel Garcia Marquez
+- Chronicle of a Death Foretold — Gabriel Garcia Marquez
+- The Trial — Franz Kafka
+- The Castle — Franz Kafka
+- Amerika — Franz Kafka
+- The Metamorphosis — Franz Kafka
+- Nostromo — Joseph Conrad
+- Heart of Darkness — Joseph Conrad
+- Lord Jim — Joseph Conrad
+- The Secret Agent — Joseph Conrad
+- Vanity Fair — William Makepeace Thackeray
+- Pendennis — William Makepeace Thackeray
+- North and South — Elizabeth Gaskell
+- Cranford — Elizabeth Gaskell
+- Mary Barton — Elizabeth Gaskell
+- Tess of the d'Urbervilles — Thomas Hardy
+- Far from the Madding Crowd — Thomas Hardy
+- The Mayor of Casterbridge — Thomas Hardy
+- Jude the Obscure — Thomas Hardy
+- Return of the Native — Thomas Hardy
+- The Age of Innocence — Edith Wharton
+- The House of Mirth — Edith Wharton
+- Ethan Frome — Edith Wharton
+- The Custom of the Country — Edith Wharton
+- The Portrait of a Lady — Henry James
+- The Turn of the Screw — Henry James
+- Washington Square — Henry James
+- The Wings of the Dove — Henry James
+- The Ambassadors — Henry James
+- To the Lighthouse — Virginia Woolf
+- Mrs Dalloway — Virginia Woolf
+- Orlando — Virginia Woolf
+- A Room of One's Own — Virginia Woolf
+- Beloved — Toni Morrison
+- Song of Solomon — Toni Morrison
+- Sula — Toni Morrison
+- The Bluest Eye — Toni Morrison
+- Jazz — Toni Morrison
+- Invisible Man — Ralph Ellison
+- Go Tell It on the Mountain — James Baldwin
+- Another Country — James Baldwin
+- Giovanni's Room — James Baldwin
+- Their Eyes Were Watching God — Zora Neale Hurston
+- Native Son — Richard Wright
+- Black Boy — Richard Wright
+## Must-own philosophy, religion, and spiritual works
+- Beyond Good and Evil — Friedrich Nietzsche
+- Thus Spoke Zarathustra — Friedrich Nietzsche
+- On the Genealogy of Morals — Friedrich Nietzsche
+- The Gay Science — Friedrich Nietzsche
+- Twilight of the Idols — Friedrich Nietzsche
+- The Birth of Tragedy — Friedrich Nietzsche
+- Ecce Homo — Friedrich Nietzsche
+- The Republic — Plato
+- Apology — Plato
+- Crito — Plato
+- Phaedo — Plato
+- Symposium — Plato
+- Phaedrus — Plato
+- Meno — Plato
+- Gorgias — Plato
+- Timaeus — Plato
+- Nicomachean Ethics — Aristotle
+- Politics — Aristotle
+- Poetics — Aristotle
+- Metaphysics — Aristotle
+- On the Soul — Aristotle
+- Rhetoric — Aristotle
+- Meditations on First Philosophy — Rene Descartes
+- Discourse on Method — Rene Descartes
+- Leviathan — Thomas Hobbes
+- Second Treatise of Government — John Locke
+- An Essay Concerning Human Understanding — John Locke
+- A Treatise of Human Nature — David Hume
+- An Enquiry Concerning Human Understanding — David Hume
+- Dialogues Concerning Natural Religion — David Hume
+- The Social Contract — Jean-Jacques Rousseau
+- Discourse on Inequality — Jean-Jacques Rousseau
+- Emile — Jean-Jacques Rousseau
+- Groundwork of the Metaphysics of Morals — Immanuel Kant
+- Critique of Pure Reason — Immanuel Kant
+- Critique of Practical Reason — Immanuel Kant
+- Perpetual Peace — Immanuel Kant
+- Phenomenology of Spirit — G. W. F. Hegel
+- Philosophy of Right — G. W. F. Hegel
+- The World as Will and Representation — Arthur Schopenhauer
+- Parerga and Paralipomena — Arthur Schopenhauer
+- Fear and Trembling — Soren Kierkegaard
+- Either/Or — Soren Kierkegaard
+- The Sickness Unto Death — Soren Kierkegaard
+- Being and Nothingness — Jean-Paul Sartre
+- Existentialism Is a Humanism — Jean-Paul Sartre
+- The Myth of Sisyphus — Albert Camus
+- The Rebel — Albert Camus
+- Tractatus Logico-Philosophicus — Ludwig Wittgenstein
+- Philosophical Investigations — Ludwig Wittgenstein
+- The Ethics — Baruch Spinoza
+- Theologico-Political Treatise — Baruch Spinoza
+- The Prince — Niccolo Machiavelli
+- Discourses on Livy — Niccolo Machiavelli
+- Confessions — Saint Augustine
+- The City of God — Saint Augustine
+- Summa Theologica — Thomas Aquinas
+- On Being and Essence — Thomas Aquinas
+- The Imitation of Christ — Thomas a Kempis
+- Dark Night of the Soul — St. John of the Cross
+- The Interior Castle — Teresa of Avila
+- The Cloud of Unknowing — Anonymous
+- The Way of a Pilgrim — Anonymous
+- The Bhagavad Gita — Vyasa
+- The Upanishads — Anonymous
+- The Dhammapada — Anonymous
+- The Heart of the Buddha's Teaching — Thich Nhat Hanh
+- The Tao Te Ching — Laozi
+- Zhuangzi — Zhuangzi
+- The Analects — Confucius
+- Mencius — Mencius
+- The Brothers Karamazov — Fyodor Dostoevsky
+- Mere Christianity — C. S. Lewis
+- The Problem of Pain — C. S. Lewis
+- Miracles — C. S. Lewis
+- The Great Divorce — C. S. Lewis
+- Surprised by Joy — C. S. Lewis
+- The Abolition of Man — C. S. Lewis
+- Till We Have Faces — C. S. Lewis
+- Orthodoxy — G. K. Chesterton
+- The Everlasting Man — G. K. Chesterton
+- Heretics — G. K. Chesterton
+- The Denial of Death — Ernest Becker
+- Zen and the Art of Motorcycle Maintenance — Robert M. Pirsig
+- Walden — Henry David Thoreau
+- Civil Disobedience — Henry David Thoreau
+- Self-Reliance and Other Essays — Ralph Waldo Emerson
+- Nature — Ralph Waldo Emerson
+- The Souls of Black Folk — W. E. B. Du Bois
+- The Varieties of Religious Experience — William James
+- Pragmatism — William James
+- The Protestant Ethic and the Spirit of Capitalism — Max Weber
+## Modern and popular literary fiction worth owning
+- Stoner — John Williams
+- Butcher's Crossing — John Williams
+- Augustus — John Williams
+- Gilead — Marilynne Robinson
+- Home — Marilynne Robinson
+- Lila — Marilynne Robinson
+- Jack — Marilynne Robinson
+- The Remains of the Day — Kazuo Ishiguro
+- Never Let Me Go — Kazuo Ishiguro
+- Klara and the Sun — Kazuo Ishiguro
+- An Artist of the Floating World — Kazuo Ishiguro
+- A Pale View of Hills — Kazuo Ishiguro
+- When We Were Orphans — Kazuo Ishiguro
+- The Buried Giant — Kazuo Ishiguro
+- Homegoing — Yaa Gyasi
+- Transcendent Kingdom — Yaa Gyasi
+- Pachinko — Min Jin Lee
+- Free Food for Millionaires — Min Jin Lee
+- The Vanishing Half — Brit Bennett
+- The Mothers — Brit Bennett
+- A Gentleman in Moscow — Amor Towles
+- Rules of Civility — Amor Towles
+- The Lincoln Highway — Amor Towles
+- Table for Two — Amor Towles
+- The Starless Sea — Erin Morgenstern
+- The Little Friend — Donna Tartt
+- All the Light We Cannot See — Anthony Doerr
+- Cloud Cuckoo Land — Anthony Doerr
+- The Overstory — Richard Powers
+- Bewilderment — Richard Powers
+- The Echo Maker — Richard Powers
+- Station Eleven — Emily St. John Mandel
+- The Glass Hotel — Emily St. John Mandel
+- Sea of Tranquility — Emily St. John Mandel
+- Normal People — Sally Rooney
+- Conversations with Friends — Sally Rooney
+- Beautiful World, Where Are You — Sally Rooney
+- Intermezzo — Sally Rooney
+- The Book of Form and Emptiness — Ruth Ozeki
+- A Tale for the Time Being — Ruth Ozeki
+- My Year of Meats — Ruth Ozeki
+- Atonement — Ian McEwan
+- Saturday — Ian McEwan
+- On Chesil Beach — Ian McEwan
+- Amsterdam — Ian McEwan
+- Machines Like Me — Ian McEwan
+- The Road — Cormac McCarthy
+- No Country for Old Men — Cormac McCarthy
+- All the Pretty Horses — Cormac McCarthy
+- The Crossing — Cormac McCarthy
+- Cities of the Plain — Cormac McCarthy
+- Suttree — Cormac McCarthy
+- The Border Trilogy — Cormac McCarthy
+- A Thousand Splendid Suns — Khaled Hosseini
+- And the Mountains Echoed — Khaled Hosseini
+- The Poisonwood Bible — Barbara Kingsolver
+- Demon Copperhead — Barbara Kingsolver
+- The Bean Trees — Barbara Kingsolver
+- The Handmaid's Tale — Margaret Atwood
+- The Blind Assassin — Margaret Atwood
+- Alias Grace — Margaret Atwood
+- Oryx and Crake — Margaret Atwood
+- The High Mountains of Portugal — Yann Martel
+- The Amazing Adventures of Kavalier & Clay — Michael Chabon
+- The Yiddish Policemen's Union — Michael Chabon
+- Moonglow — Michael Chabon
+- Wolf Hall — Hilary Mantel
+- Bring Up the Bodies — Hilary Mantel
+- The Mirror & the Light — Hilary Mantel
+- Lincoln in the Bardo — George Saunders
+- Tenth of December — George Saunders
+- White Teeth — Zadie Smith
+- On Beauty — Zadie Smith
+- Swing Time — Zadie Smith
+- The Sympathizer — Viet Thanh Nguyen
+- The Committed — Viet Thanh Nguyen
+- The Underground Railroad — Colson Whitehead
+- The Nickel Boys — Colson Whitehead
+- Harlem Shuffle — Colson Whitehead
+- Crook Manifesto — Colson Whitehead
+- Shuggie Bain — Douglas Stuart
+- Young Mungo — Douglas Stuart
+- A Fine Balance — Rohinton Mistry
+- Family Matters — Rohinton Mistry
+- The God of Small Things — Arundhati Roy
+- The Ministry of Utmost Happiness — Arundhati Roy
+- Half of a Yellow Sun — Chimamanda Ngozi Adichie
+- Americanah — Chimamanda Ngozi Adichie
+- Purple Hibiscus — Chimamanda Ngozi Adichie
+- Exit West — Mohsin Hamid
+- The Reluctant Fundamentalist — Mohsin Hamid
+- The House of the Spirits — Isabel Allende
+- Eva Luna — Isabel Allende
+- My Name Is Red — Orhan Pamuk
+- Snow — Orhan Pamuk
+- The Museum of Innocence — Orhan Pamuk
+- The Wind-Up Bird Chronicle — Haruki Murakami
+- Kafka on the Shore — Haruki Murakami
+- Norwegian Wood — Haruki Murakami
+- 1Q84 — Haruki Murakami
+- Hard-Boiled Wonderland and the End of the World — Haruki Murakami
+- Stones for Ibarra — Harriet Doerr
+- The Shipping News — Annie Proulx
+- Barkskins — Annie Proulx
+- Crossing to Safety — Wallace Stegner
+- Angle of Repose — Wallace Stegner
+- The Spectator Bird — Wallace Stegner
+- A Visit from the Goon Squad — Jennifer Egan
+- The Candy House — Jennifer Egan
+## General must-read nonfiction, history, biography, and essays
+- The Autobiography of Benjamin Franklin — Benjamin Franklin
+- Narrative of the Life of Frederick Douglass — Frederick Douglass
+- Up from Slavery — Booker T. Washington
+- The Diary of a Young Girl — Anne Frank
+- Night — Elie Wiesel
+- The Gulag Archipelago — Aleksandr Solzhenitsyn
+- One Day in the Life of Ivan Denisovich — Aleksandr Solzhenitsyn
+- The Federalist Papers — Alexander Hamilton, James Madison, and John Jay
+- Democracy in America — Alexis de Tocqueville
+- The Histories — Herodotus
+- The Peloponnesian War — Thucydides
+- Parallel Lives — Plutarch
+- The Twelve Caesars — Suetonius
+- The History of the Decline and Fall of the Roman Empire — Edward Gibbon
+- The Second World War — Winston Churchill
+- The Guns of August — Barbara W. Tuchman
+- A Distant Mirror — Barbara W. Tuchman
+- The Proud Tower — Barbara W. Tuchman
+- The Rise and Fall of the Third Reich — William L. Shirer
+- The Diary of Samuel Pepys — Samuel Pepys
+- Team of Rivals — Doris Kearns Goodwin
+- No Ordinary Time — Doris Kearns Goodwin
+- Leadership: In Turbulent Times — Doris Kearns Goodwin
+- John Adams — David McCullough
+- 1776 — David McCullough
+- Truman — David McCullough
+- The Wright Brothers — David McCullough
+- Mornings on Horseback — David McCullough
+- Churchill — Andrew Roberts
+- Napoleon — Andrew Roberts
+- Alexander Hamilton — Ron Chernow
+- Washington: A Life — Ron Chernow
+- Titan — Ron Chernow
+- Grant — Ron Chernow
+- The Power Broker — Robert A. Caro
+- The Path to Power — Robert A. Caro
+- Means of Ascent — Robert A. Caro
+- Master of the Senate — Robert A. Caro
+- The Passage of Power — Robert A. Caro
+- Into Thin Air — Jon Krakauer
+- Under the Banner of Heaven — Jon Krakauer
+- Unbroken — Laura Hillenbrand
+- Seabiscuit — Laura Hillenbrand
+- The Right Stuff — Tom Wolfe
+- The Electric Kool-Aid Acid Test — Tom Wolfe
+- On Writing — Stephen King
+- Bird by Bird — Anne Lamott
+- The Elements of Style — William Strunk Jr. and E. B. White
+- Consider the Lobster — David Foster Wallace
+- A Supposedly Fun Thing I'll Never Do Again — David Foster Wallace
+- The White Album — Joan Didion
+- Slouching Towards Bethlehem — Joan Didion
+- The Year of Magical Thinking — Joan Didion
+- The Immortal Life of Henrietta Lacks — Rebecca Skloot
+- The Glass Castle — Jeannette Walls
+- Thinking, Fast and Slow — Daniel Kahneman
+- Influence — Robert B. Cialdini
+- The Righteous Mind — Jonathan Haidt
+- The Hero with a Thousand Faces — Joseph Campbell
+- The Structure of Scientific Revolutions — Thomas S. Kuhn
+- The Selfish Gene — Richard Dawkins
+- Sapiens — Yuval Noah Harari
+- Guns, Germs, and Steel — Jared Diamond
+- Collapse — Jared Diamond
+- The Emperor of All Maladies — Siddhartha Mukherjee
+- The Gene — Siddhartha Mukherjee
+- The Warmth of Other Suns — Isabel Wilkerson
+- Caste — Isabel Wilkerson
+- The Devil in the White City — Erik Larson
+- Isaac's Storm — Erik Larson
+- Dead Wake — Erik Larson
+- In the Garden of Beasts — Erik Larson
+- The Wager — David Grann
+- Killers of the Flower Moon — David Grann
+- The Lost City of Z — David Grann
+- Meditations — Marcus Aurelius
+- Letters from a Stoic — Seneca
+- Discourses — Epictetus
+- The Enchiridion — Epictetus
+- The Art of War — Sun Tzu
+- The Book of Five Rings — Miyamoto Musashi
+- The Liberation Trilogy — Rick Atkinson
+- An Army at Dawn — Rick Atkinson
+- The Day of Battle — Rick Atkinson
+- The Guns at Last Light — Rick Atkinson
+## World literature, drama, poetry, and major gaps to fill
+- Things Fall Apart — Chinua Achebe
+- No Longer at Ease — Chinua Achebe
+- Arrow of God — Chinua Achebe
+- The Cairo Trilogy — Naguib Mahfouz
+- Palace Walk — Naguib Mahfouz
+- Palace of Desire — Naguib Mahfouz
+- Sugar Street — Naguib Mahfouz
+- Season of Migration to the North — Tayeb Salih
+- The Tin Drum — Gunter Grass
+- Blindness — Jose Saramago
+- The Gospel According to Jesus Christ — Jose Saramago
+- The Double — Jose Saramago
+- Journey to the West — Wu Cheng'en
+- Dream of the Red Chamber — Cao Xueqin
+- Water Margin — Shi Nai'an
+- Romance of the Three Kingdoms — Luo Guanzhong
+- The Tale of Genji — Murasaki Shikibu
+- The Pillow Book — Sei Shonagon
+- The Makioka Sisters — Junichiro Tanizaki
+- The Sound of the Mountain — Yasunari Kawabata
+- Snow Country — Yasunari Kawabata
+- Kokoro — Natsume Soseki
+- The Woman in the Dunes — Kobo Abe
+- The Vegetarian — Han Kang
+- Human Acts — Han Kang
+- Pedro Paramo — Juan Rulfo
+- Hopscotch — Julio Cortazar
+- Ficciones — Jorge Luis Borges
+- Labyrinths — Jorge Luis Borges
+- The Aleph and Other Stories — Jorge Luis Borges
+- The Death of Artemio Cruz — Carlos Fuentes
+- The Savage Detectives — Roberto Bolano
+- 2666 — Roberto Bolano
+- Like Water for Chocolate — Laura Esquivel
+- A Bend in the River — V. S. Naipaul
+- A House for Mr Biswas — V. S. Naipaul
+- In a Free State — V. S. Naipaul
+- Midnight's Children — Salman Rushdie
+- The Satanic Verses — Salman Rushdie
+- Shame — Salman Rushdie
+- Victory City — Salman Rushdie
+- The Guide — R. K. Narayan
+- Swami and Friends — R. K. Narayan
+- A Suitable Boy — Vikram Seth
+- Train to Pakistan — Khushwant Singh
+- The White Tiger — Aravind Adiga
+- The Complete Plays — William Shakespeare
+- Hamlet — William Shakespeare
+- Macbeth — William Shakespeare
+- King Lear — William Shakespeare
+- Othello — William Shakespeare
+- The Tempest — William Shakespeare
+- Julius Caesar — William Shakespeare
+- A Midsummer Night's Dream — William Shakespeare
+- Twelfth Night — William Shakespeare
+- Much Ado About Nothing — William Shakespeare
+- Leaves of Grass — Walt Whitman
+- Selected Poems — Emily Dickinson
+- The Waste Land and Other Poems — T. S. Eliot
+- Four Quartets — T. S. Eliot
+- The Collected Poems — W. B. Yeats
+- The Prelude — William Wordsworth
+- Lyrical Ballads — William Wordsworth and Samuel Taylor Coleridge
+- Selected Poems — Rainer Maria Rilke
+- The Faerie Queene — Edmund Spenser
+- Beowulf — Unknown
+- Sir Gawain and the Green Knight — Unknown
+- The Song of Roland — Unknown
+- Njal's Saga — Anonymous
+## Popular fantasy, YA, and speculative staples you are likely to enjoy
+- Gathering Blue — Lois Lowry
+- Messenger — Lois Lowry
+- Son — Lois Lowry
+- The Book Thief — Markus Zusak
+- I Am the Messenger — Markus Zusak
+- Catching Fire — Suzanne Collins
+- The Ballad of Songbirds and Snakes — Suzanne Collins
+- Renegades — Marissa Meyer
+- Supernova — Marissa Meyer
+- The Arctic Incident — Eoin Colfer
+- The Eternity Code — Eoin Colfer
+- The Opal Deception — Eoin Colfer
+- The Lost Colony — Eoin Colfer
+- Inkspell — Cornelia Funke
+- Inkdeath — Cornelia Funke
+- Eragon — Christopher Paolini
+- Eldest — Christopher Paolini
+- Brisingr — Christopher Paolini
+- Inheritance — Christopher Paolini
+- Murtagh — Christopher Paolini
+- The Lost Hero — Rick Riordan
+- The Son of Neptune — Rick Riordan
+- The Mark of Athena — Rick Riordan
+- The House of Hades — Rick Riordan
+- The Blood of Olympus — Rick Riordan
+- The Chalice of the Gods — Rick Riordan
+## More high-upside additions across your tastes
+- The Last Unicorn — Peter S. Beagle
+- Bridge of Birds — Barry Hughart
+- Watership Down — Richard Adams
+- The Once and Future Witches — Alix E. Harrow
+- Nettle & Bone — T. Kingfisher
+- A Wizard's Guide to Defensive Baking — T. Kingfisher
+- The Lions of Little Rock — Kristin Levine
+- Jonathan Livingston Seagull — Richard Bach
+- The Grey King — Susan Cooper
+- The Dark Is Rising — Susan Cooper
+- Over Sea, Under Stone — Susan Cooper
+- Silver on the Tree — Susan Cooper
+- The Last Policeman — Ben H. Winters
+- Countdown City — Ben H. Winters
+- World of Trouble — Ben H. Winters
+- The Gone World — Tom Sweterlitsch
+- Version Control — Dexter Palmer
+- This Is How You Lose the Time War — Amal El-Mohtar and Max Gladstone
+- The First Fifteen Lives of Harry August — Claire North<!-
+- Total books: 1000 -->
+
