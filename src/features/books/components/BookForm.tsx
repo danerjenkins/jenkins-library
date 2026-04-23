@@ -209,6 +209,9 @@ export function BookForm({
 }: BookFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const titleFieldRef = useRef<HTMLDivElement>(null);
+  const coreSectionRef = useRef<HTMLElement>(null);
+  const readingSectionRef = useRef<HTMLElement>(null);
+  const metaSectionRef = useRef<HTMLElement>(null);
   const requestIdRef = useRef(0);
   const authorGuessRequestIdRef = useRef(0);
   const titleSuggestRequestIdRef = useRef(0);
@@ -260,6 +263,8 @@ export function BookForm({
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [titleWasEdited, setTitleWasEdited] = useState(false);
+  const [pendingSectionFocus, setPendingSectionFocus] =
+    useState<BookFormSection | null>(null);
 
   const currentSnapshot = useMemo(
     () =>
@@ -399,6 +404,47 @@ export function BookForm({
   useEffect(() => {
     setSelectedCoverUrl(coverUrl.trim() || null);
   }, [coverUrl]);
+
+  useEffect(() => {
+    if (!pendingSectionFocus) {
+      return;
+    }
+
+    const sectionElements: Record<
+      BookFormSection,
+      {
+        panel: HTMLElement | null;
+      }
+    > = {
+      core: {
+        panel: coreSectionRef.current,
+      },
+      reading: {
+        panel: readingSectionRef.current,
+      },
+      meta: {
+        panel: metaSectionRef.current,
+      },
+    };
+
+    const nextSection = sectionElements[pendingSectionFocus];
+    if (!nextSection.panel) {
+      return;
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      nextSection.panel?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      nextSection.panel?.focus({ preventScroll: true });
+      setPendingSectionFocus(null);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [pendingSectionFocus]);
 
   const performSearch = useCallback(
     async (searchTitle: string, searchAuthor: string) => {
@@ -648,6 +694,7 @@ export function BookForm({
 
   const handleSectionChange = (section: BookFormSection) => {
     setActiveSection(section);
+    setPendingSectionFocus(section);
   };
 
   const handleCancel = () => {
@@ -699,20 +746,20 @@ export function BookForm({
       onSubmit={handleFormSubmit}
     >
       {children && (
-        <div className="mb-2 font-sans text-sm font-medium text-stone-600">
+        <div className="mb-1 hidden font-sans text-sm font-medium text-stone-600 sm:block">
           {children}
         </div>
       )}
 
       <div
-        className="rounded-xl border border-warm-gray bg-parchment/80 p-4"
+        className="rounded-lg border border-warm-gray bg-parchment/80 p-3 sm:rounded-xl sm:p-4"
         aria-labelledby="book-form-summary"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2
               id="book-form-summary"
-              className="text-balance font-display text-2xl font-semibold text-stone-900"
+              className="text-balance font-display text-xl font-semibold text-stone-900 sm:text-2xl"
             >
               {isEditing ? "Edit Book" : "Add Book"}
             </h2>
@@ -722,7 +769,7 @@ export function BookForm({
                 : "Start with title, author, ownership, and a cover. Add more details only if you need them."}
             </p>
           </div>
-          <div className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-xs font-medium text-stone-600">
+          <div className="self-start rounded-full border border-warm-gray bg-cream px-3 py-1 text-xs font-medium text-stone-600">
             {coverSourceLabel}
           </div>
         </div>
@@ -770,7 +817,11 @@ export function BookForm({
         </div>
       )}
 
-      <section className="rounded-lg border border-warm-gray bg-parchment/75">
+      <section
+        ref={coreSectionRef}
+        tabIndex={-1}
+        className="rounded-lg border border-warm-gray bg-parchment/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/20"
+      >
         <MobileSectionToggle
           activeSection={activeSection}
           section="core"
@@ -946,7 +997,7 @@ export function BookForm({
                 </div>
               </div>
 
-              <aside className="space-y-3 rounded-lg border border-warm-gray bg-cream/70 p-3">
+              <aside className="space-y-3 rounded-lg bg-cream/70 p-3 sm:border sm:border-warm-gray">
                 <h3 className="text-sm font-semibold text-stone-700">Cover Preview</h3>
                 <div className="flex items-start gap-3">
                   {hasLocalPhoto ? (
@@ -1003,7 +1054,7 @@ export function BookForm({
               </aside>
             </div>
 
-            <div className="rounded-lg border border-warm-gray bg-cream/70 p-3">
+            <div className="rounded-lg bg-cream/70 p-3 sm:border sm:border-warm-gray">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-sm font-semibold text-stone-700">
@@ -1208,7 +1259,9 @@ export function BookForm({
                     onClick={() => {
                       setShowAdvancedFields((currentValue) => {
                         const nextValue = !currentValue;
-                        setActiveSection(nextValue ? "reading" : "core");
+                        const nextSection = nextValue ? "reading" : "core";
+                        setActiveSection(nextSection);
+                        setPendingSectionFocus(nextSection);
                         return nextValue;
                       });
                     }}
@@ -1230,7 +1283,11 @@ export function BookForm({
       </section>
 
       {shouldShowAdvancedSections && (
-        <section className="rounded-lg border border-warm-gray bg-parchment/75">
+        <section
+          ref={readingSectionRef}
+          tabIndex={-1}
+          className="rounded-lg border border-warm-gray bg-parchment/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/20"
+        >
           <MobileSectionToggle
             activeSection={activeSection}
             section="reading"
@@ -1243,7 +1300,9 @@ export function BookForm({
             className={`${activeSection === "reading" ? "block" : "hidden"} px-4 pb-4 pt-4`}
           >
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-stone-700">
+              <h3
+                className="hidden text-sm font-semibold text-stone-700 sm:block"
+              >
                 Reading Status
               </h3>
 
@@ -1298,7 +1357,11 @@ export function BookForm({
       )}
 
       {shouldShowAdvancedSections && (
-        <section className="rounded-lg border border-warm-gray bg-parchment/75">
+        <section
+          ref={metaSectionRef}
+          tabIndex={-1}
+          className="rounded-lg border border-warm-gray bg-parchment/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/20"
+        >
           <MobileSectionToggle
             activeSection={activeSection}
             section="meta"
@@ -1311,7 +1374,9 @@ export function BookForm({
             className={`${activeSection === "meta" ? "block" : "hidden"} px-4 pb-4 pt-4`}
           >
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-stone-700">
+              <h3
+                className="hidden text-sm font-semibold text-stone-700 sm:block"
+              >
                 Description & Metadata
               </h3>
 

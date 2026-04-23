@@ -8,35 +8,43 @@ import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import "./BookCard.css";
 import type { CardSize } from "../shelfViewPreferences";
 
-function getGenreColor(genre: string): string {
+function getGenreTone(genre: string): string {
   const genreLower = genre.toLowerCase();
 
-  if (genreLower.includes("fantasy"))
-    return "bg-purple-100 text-purple-800 border-purple-200";
+  if (genreLower.includes("fantasy")) return "fantasy";
   if (genreLower.includes("science") || genreLower.includes("sci-fi"))
-    return "bg-blue-100 text-blue-800 border-blue-200";
+    return "science-fiction";
   if (genreLower.includes("mystery") || genreLower.includes("thriller"))
-    return "bg-red-100 text-red-800 border-red-200";
-  if (genreLower.includes("romance"))
-    return "bg-pink-100 text-pink-800 border-pink-200";
-  if (genreLower.includes("horror"))
-    return "bg-gray-900 text-white border-gray-800";
-  if (genreLower.includes("historical"))
-    return "bg-amber-100 text-amber-800 border-amber-200";
+    return "mystery";
+  if (genreLower.includes("romance")) return "romance";
+  if (genreLower.includes("horror")) return "horror";
+  if (genreLower.includes("historical")) return "historical";
   if (
     genreLower.includes("non-fiction") ||
     genreLower.includes("biography") ||
     genreLower.includes("memoir")
   )
-    return "bg-teal-100 text-teal-800 border-teal-200";
+    return "nonfiction";
   if (genreLower.includes("young adult") || genreLower.includes("ya"))
-    return "bg-indigo-100 text-indigo-800 border-indigo-200";
-  if (genreLower.includes("children"))
-    return "bg-yellow-100 text-yellow-800 border-yellow-200";
-  if (genreLower.includes("classic"))
-    return "bg-warm-gray-light text-stone-800 border-warm-gray";
+    return "young-adult";
+  if (genreLower.includes("children")) return "children";
+  if (genreLower.includes("classic")) return "classic";
 
-  return "bg-emerald-100 text-emerald-800 border-emerald-200";
+  return "general";
+}
+
+function getFallbackMonogram(title: string): string {
+  const words = title
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length >= 2) {
+    return `${words[0]?.[0] ?? ""}${words[1]?.[0] ?? ""}`.toUpperCase();
+  }
+
+  return title.slice(0, 2).toUpperCase();
 }
 
 interface BookCardProps {
@@ -54,10 +62,10 @@ interface BookCardProps {
 }
 
 const coverHeightBySize: Record<CardSize, string> = {
-  xsmall: "h-32 sm:h-36",
-  small: "h-40 sm:h-44",
-  medium: "h-52 sm:h-56",
-  large: "h-60 sm:h-64",
+  xsmall: "h-24 sm:h-32",
+  small: "h-32 sm:h-40",
+  medium: "h-44 sm:h-52",
+  large: "h-56 sm:h-64",
 };
 
 const titleLineClampByCardSize: Record<CardSize, string> = {
@@ -69,11 +77,11 @@ const titleLineClampByCardSize: Record<CardSize, string> = {
 
 const gridClassesByCardSize: Record<CardSize, string> = {
   xsmall:
-    "grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8",
+    "grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8",
   small:
-    "grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+    "grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7",
   medium:
-    "grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4",
+    "grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5",
   large: "grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
 };
 
@@ -95,18 +103,29 @@ function BookCover({
         height={448}
         loading="lazy"
         decoding="async"
-        className={`w-full ${coverHeight} bg-warm-gray-light object-cover`}
+        className={`book-card__cover-image w-full ${coverHeight} bg-warm-gray-light object-cover`}
       />
     );
   }
 
+  const monogram = getFallbackMonogram(book.title);
+
   return (
     <div
-      className={`flex w-full ${coverHeight} items-center justify-center bg-warm-gray-light text-stone-400`}
+      className={`book-card__cover-fallback flex w-full ${coverHeight} items-center justify-center`}
       aria-label={`No cover available for ${book.title}`}
       role="img"
     >
-      <BookOpen className="h-9 w-9" aria-hidden="true" />
+      <div className="book-card__cover-fallback-inner">
+        <div className="book-card__cover-fallback-monogram" aria-hidden="true">
+          {monogram}
+        </div>
+        <BookOpen className="book-card__cover-fallback-icon" aria-hidden="true" />
+        <div className="book-card__cover-fallback-copy">
+          <span className="book-card__cover-fallback-label">{book.title}</span>
+          <span className="book-card__cover-fallback-meta">{book.author}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -194,12 +213,16 @@ export function BookCard({
       : book.seriesName
     : null;
   const coverUrl = localCoverUrl ?? book.coverUrl ?? null;
-  const genreClasses = useMemo(
-    () => (book.genre ? getGenreColor(book.genre) : ""),
+  const genreTone = useMemo(
+    () => (book.genre ? getGenreTone(book.genre) : "general"),
     [book.genre],
   );
   const cover = (
-    <BookCover book={book} coverUrl={coverUrl} coverHeight={coverHeight} />
+    <BookCover
+      book={book}
+      coverUrl={coverUrl}
+      coverHeight={coverHeight}
+    />
   );
   const cardChrome =
     "book-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm [contain-intrinsic-size:320px_520px] [content-visibility:auto]";
@@ -211,11 +234,12 @@ export function BookCard({
       <article
         className={`${cardChrome}${clickableCardClasses}`}
         data-card-size={cardSize}
+        data-genre-tone={genreTone}
       >
         {clickable ? (
           <Link
             to={detailPath}
-            className="book-card__cover-link block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+            className="book-card__cover-link block rounded-t-lg focus-visible:outline-none"
             aria-label={`View ${book.title}`}
           >
             {cover}
@@ -228,7 +252,7 @@ export function BookCard({
             {clickable ? (
               <Link
                 to={detailPath}
-                className="book-card__title-link group/title block min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                className="book-card__title-link group/title block min-w-0 rounded-sm focus-visible:outline-none"
               >
                 <h3
                   className={`book-card__title font-display break-words font-bold text-stone-900 transition-colors duration-150 group-hover/title:text-stone-700 ${titleClamp}`}
@@ -257,7 +281,7 @@ export function BookCard({
           {clickable && (
             <Link
               to={detailPath}
-              className="book-card__detail-link inline-flex items-center gap-1.5 self-start rounded-sm text-stone-600 no-underline transition-colors duration-150 hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+              className="book-card__detail-link inline-flex min-h-10 items-center gap-1.5 self-start rounded-md border border-transparent px-2.5 text-stone-600 no-underline transition-[background-color,border-color,color,box-shadow] duration-150 hover:border-sage/20 hover:bg-white/80 hover:text-sage-dark focus-visible:outline-none"
             >
               <span className="book-card__meta font-semibold uppercase tracking-[0.14em]">
                 View Details
@@ -269,7 +293,7 @@ export function BookCard({
           {showGenreTag && book.genre && (
             <div className="min-w-0">
               <span
-                className={`book-card__tag inline-block max-w-full rounded border font-medium break-words ${genreClasses}`}
+                className={`book-card__tag book-card__tag--${genreTone} inline-block max-w-full rounded border font-medium break-words`}
               >
                 {book.genre}
               </span>
@@ -323,7 +347,11 @@ export function BookCard({
   }
 
   return (
-    <article className={cardChrome} data-card-size={cardSize}>
+    <article
+      className={cardChrome}
+      data-card-size={cardSize}
+      data-genre-tone={genreTone}
+    >
       {cover}
       <div className="book-card__body flex min-w-0 flex-1 flex-col">
         <div className="min-w-0">

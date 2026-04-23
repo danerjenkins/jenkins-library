@@ -96,9 +96,13 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Include title and “This cannot be undone.”
   - Make destructive action visually distinct.
 
-- [ ] Make Manage edit actions jump to the form
+- [x] Make Manage edit actions jump to the form
   - Scroll to the edit form after opening it.
   - Focus the first field so the user can keep moving immediately.
+
+- [x] Decide whether Manage rows should open detail pages
+  - Consider letting users open book details directly from Manage rows.
+  - Avoid making Manage feel redundant with Library if that path stays edit-first.
 
 ## Add/Edit Book Flow
 
@@ -126,24 +130,33 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Consider allowing cover edits from the detail page later.
   - Make it easier to clear or replace an existing cover URL.
 
+- [x] Refocus to the top of the section when edit form panels open
+  - When opening a different section, scroll it into view.
+  - Focus the top of the opened section so context changes are obvious.
+
+- [x] Simplify the edit form layout on mobile
+  - Remove repeated headings like `Editing Book` followed by `Edit Book`.
+  - Keep the cover URL control inside the most relevant primary section.
+  - Reduce stacked container layers so the mobile form feels less cluttered.
+
 ## Detail Page
 
-- [ ] Make action sections visually clearer
+- [x] Make action sections visually clearer
   - Read Status
   - Ownership
   - Metadata
   - Edit Details
 
-- [ ] Add ownership action
+- [x] Add ownership action
   - For Wishlist books: `Add To Library`.
   - For Owned books: `Move To Wishlist`.
   - Update immediately with optimistic UI and rollback on failure.
 
-- [ ] Improve back navigation
+- [x] Improve back navigation
   - Return to the page the user came from when possible.
   - Example: Wishlist detail should go back to Wishlist, not always Library.
 
-- [ ] Add a compact metadata summary
+- [x] Add a compact metadata summary
   - Format
   - Pages
   - Genre
@@ -152,21 +165,21 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Mobile UX
 
-- [ ] Add bottom navigation for phone layouts
+- [x] Add bottom navigation for phone layouts
   - Keep tap targets at least 44px.
   - Avoid overlap with the floating add button.
   - Remove the top navigation bar on mobile if the bottom nav fully covers primary navigation.
 
-- [ ] Audit mobile filter layout
+- [x] Audit mobile filter layout
   - Make filter panels compact but not cramped.
   - Consider collapsible filters on small screens.
   - Keep the card-size control visible even if other filters collapse.
 
-- [ ] Improve touch targets on cards
+- [x] Improve touch targets on cards
   - Ensure card click area is large.
   - Keep action buttons separated enough to avoid accidental taps.
 
-- [ ] Fix mobile card actions and sizing
+- [x] Fix mobile card actions and sizing
   - Reduce the `Add To Library` button size on Wishlist cards for `XS` on mobile.
   - Make mobile card-size steps meaningfully different:
     - `Large` = 1 per row
@@ -179,6 +192,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Move a wishlist book to library.
   - Mark a book read by Dane/Emma.
   - Edit title/author/cover.
+
+- [x] Keep key Manage controls sticky on mobile
+  - Keep the Owned/Wishlist toggle visible while scrolling.
+  - Consider keeping active search/filter/sort controls visible when they are driving the current list.
 
 ## Search And Discovery
 
@@ -203,29 +220,29 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Visual Polish
 
-- [ ] Continue refining the warm palette
+- [x] Continue refining the warm palette
   - Keep parchment, cream, sage, brass, and warm-gray consistent.
   - Avoid cool gray/white surfaces that clash with the tan background.
 
-- [ ] Standardize filter panels
+- [x] Standardize filter panels
   - Library, Wishlist, and Manage should use the same compact rhythm.
   - Keep labels visible and accessible.
 
-- [ ] Refine book cards after real use
+- [x] Refine book cards after real use
   - Confirm XS/Small/Medium/Large are all useful.
   - Remove a size option if the control feels too busy.
   - Reduce wasted whitespace in grids.
   - Let cards align to a shared row height instead of forcing one height across the entire list.
 
-- [ ] Add stronger focus states to cards
+- [x] Add stronger focus states to cards
   - Make keyboard navigation obvious.
   - Ensure focus rings are not clipped by card overflow.
 
-- [ ] Improve thumbnail fallback art
+- [x] Improve thumbnail fallback art
   - Replace text-only fallback with a simple book icon or styled placeholder.
   - Keep it lightweight and consistent.
 
-- [ ] Use genre-aware tag styling
+- [x] Use genre-aware tag styling
   - Make genre tag colors correlate to genre while keeping contrast accessible.
 
 ## Data And Sync
@@ -269,12 +286,11 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Only for empty library state.
   - Avoid a marketing-style landing page.
 
-- [ ] Update all cosmere books to mass market paper back and update the cover images
-- [ ] opening/closing a different section of the editing form should refocus to the top of the section that was just opened
-- [ ] Clean up the organization of the edit form to be more mobile friendly
-  - it sais editing book then edit book in a different component directly underneath
-  - it asks for a cover url outside of the core info section (in the first section where it says update the essentials first then adjust)
-  - there are a lot of components stacked on top of eachother which makes it feel cluttered on mobile. for example:
-    - the cover url input is inside the cover url component inside the cover sources component inside the core info component inside the editing book component inside the manage books component inside the main body.that creates like 6 or 7 different layers when editing just that one variable.
-- [ ] I feel like some things should be sticky, specifically in mobile, for ecample, on the manage page, the owned/wishlist toggle should probably always be visble. I'm considering making any filter/sort field that is edited be sticky so that if you search for something and scroll down to look at it you can still see your search query at the top of the screen.
-- [ ] you should be ablle to click on the book cards in the magage page in order to see more details?? or would that be redundant functionality from the library page
+- [ ] Update Cosmere books to mass market paperback and refresh cover images
+  - Treat this as a catalog/content cleanup task rather than a UI feature.
+- [ ] Replace low-definition remote cover URLs with higher quality cover photos
+  - Prefer higher resolution sources where remote URLs are still being used.
+  - Treat this as catalog/content cleanup, not a layout task.
+
+- [ ] revamp the stats page to make it more interesting
+

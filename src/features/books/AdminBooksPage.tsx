@@ -32,6 +32,18 @@ import { BookForm, type BookFormSaveState } from "./components/BookForm";
 import { ManageBookRow } from "./components/ManageBookRow";
 import { ManageDeleteDialog } from "./components/ManageDeleteDialog";
 
+const filterPanelClasses =
+  "sticky top-2 z-20 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/95 p-3 shadow-sm ring-1 ring-white/40 backdrop-blur-sm sm:top-3 sm:p-4 lg:static";
+const filterPanelHeaderClasses =
+  "flex flex-col gap-3 rounded-xl border border-warm-gray/70 bg-cream/90 p-3 sm:flex-row sm:items-start sm:justify-between";
+const filterFieldGridClasses = "grid gap-3 sm:grid-cols-2 lg:grid-cols-5";
+const filterMetaRowClasses =
+  "flex flex-col items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 sm:flex-row sm:items-center";
+const segmentedControlClasses =
+  "grid grid-cols-2 rounded-lg border border-warm-gray bg-cream p-1 shadow-inner shadow-white/50";
+const segmentedButtonClasses =
+  "min-h-10 rounded-md px-3 text-xs font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+
 function resolveErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   if (typeof error === "string") return error;
@@ -76,6 +88,8 @@ export function AdminBooksPage() {
   const [formSessionKey, setFormSessionKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formCloseTimeoutRef = useRef<number | null>(null);
+  const formRegionRef = useRef<HTMLDivElement>(null);
+  const pendingFormFocusRef = useRef(false);
 
   const clearPendingFormClose = useCallback(() => {
     if (formCloseTimeoutRef.current !== null) {
@@ -112,6 +126,9 @@ export function AdminBooksPage() {
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
   const deferredSearchQuery = useDeferredValue(searchQuery);
+  const formInstanceKey = editingId
+    ? `edit-${editingId}-${formSessionKey}`
+    : `add-${formSessionKey}`;
 
   const loadBooks = useCallback(async (status: "owned" | "wishlist") => {
     try {
@@ -299,6 +316,7 @@ export function AdminBooksPage() {
     );
     setEditingId(book.id);
     handleLoadCoverPhoto(book.id);
+    pendingFormFocusRef.current = true;
     setShowForm(true);
   }, [handleLoadCoverPhoto, resetFormFeedback]);
 
@@ -307,6 +325,21 @@ export function AdminBooksPage() {
       clearPendingFormClose();
     };
   }, [clearPendingFormClose]);
+
+  useEffect(() => {
+    if (!showForm || !pendingFormFocusRef.current) return;
+
+    const focusTarget = formRegionRef.current?.querySelector<HTMLElement>(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])',
+    );
+
+    formRegionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    focusTarget?.focus({ preventScroll: true });
+    pendingFormFocusRef.current = false;
+  }, [showForm, editingId, formInstanceKey]);
 
   // Load books on mount and when ownership tab changes.
   useEffect(() => {
@@ -601,10 +634,6 @@ export function AdminBooksPage() {
     }
   }
 
-  const formInstanceKey = editingId
-    ? `edit-${editingId}-${formSessionKey}`
-    : `add-${formSessionKey}`;
-
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-warm-gray bg-cream/95 p-4 shadow-soft sm:p-6">
@@ -646,54 +675,79 @@ export function AdminBooksPage() {
             </div>
           )}
           {!showForm && (
-            <div className="rounded-xl border border-warm-gray bg-parchment/75 p-3 shadow-sm space-y-3">
-              <div
-                className="grid grid-cols-2 rounded-lg border border-warm-gray bg-cream p-1"
-                role="tablist"
-                aria-label="Manage ownership"
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={filterOwnership === "owned"}
-                  onClick={() => handleOwnershipTabChange("owned")}
-                  className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 ${
-                    filterOwnership === "owned"
-                      ? "bg-sage text-white"
-                      : "text-charcoal/70 hover:bg-warm-gray-light"
-                  }`}
-                >
-                  Owned
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={filterOwnership === "wishlist"}
-                  onClick={() => handleOwnershipTabChange("wishlist")}
-                  className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 ${
-                    filterOwnership === "wishlist"
-                      ? "bg-sage text-white"
-                      : "text-charcoal/70 hover:bg-warm-gray-light"
-                  }`}
-                >
-                  Wishlist
-                </button>
+            <div
+              className={filterPanelClasses}
+              role="region"
+              aria-labelledby="manage-filters-heading"
+              aria-describedby="manage-filters-summary"
+            >
+              <div className={filterPanelHeaderClasses}>
+                <div className="space-y-1">
+                  <div
+                    id="manage-filters-heading"
+                    className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500"
+                  >
+                    Manage Filters
+                  </div>
+                  <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
+                    Switch between owned and wishlist inventory, then narrow the list
+                    before editing.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+                    Shelf
+                  </div>
+                  <div
+                    className={segmentedControlClasses}
+                    role="tablist"
+                    aria-label="Manage ownership"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={filterOwnership === "owned"}
+                      onClick={() => handleOwnershipTabChange("owned")}
+                      className={`${segmentedButtonClasses} ${
+                        filterOwnership === "owned"
+                          ? "bg-sage text-white shadow-sm"
+                          : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                      }`}
+                    >
+                      Owned
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={filterOwnership === "wishlist"}
+                      onClick={() => handleOwnershipTabChange("wishlist")}
+                      className={`${segmentedButtonClasses} ${
+                        filterOwnership === "wishlist"
+                          ? "bg-sage text-white shadow-sm"
+                          : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                      }`}
+                    >
+                      Wishlist
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              <div className={filterFieldGridClasses}>
                 <div className="relative">
                   <Input
                     id="admin-search"
                     name="adminSearch"
                     label="Search"
-                    type="text"
+                    type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Title or author…"
                     autoComplete="off"
+                    className="pl-11 pr-10"
                   />
                   <Search
-                    className="absolute right-2.5 top-8 h-4 w-4 text-stone-400"
+                    className="pointer-events-none absolute left-3 top-8 h-4 w-4 text-stone-400"
                     aria-hidden="true"
                   />
                 </div>
@@ -762,28 +816,41 @@ export function AdminBooksPage() {
                 />
               </div>
 
-              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="text-xs text-stone-600">
+              <div className={filterMetaRowClasses}>
+                <div
+                  id="manage-filters-summary"
+                  className="text-xs text-stone-600"
+                  aria-live="polite"
+                >
                   {filteredBooks.length}{" "}
                   {filteredBooks.length === 1 ? "book" : "books"}
                 </div>
-                {hasActiveFilters && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={handleClearFilters}
-                    className="min-h-8 px-3 text-xs"
-                  >
-                    Clear Filters
-                  </Button>
-                )}
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                  <div className="text-xs text-stone-500">
+                    Keep the queue compact so edit actions stay quick and predictable.
+                  </div>
+                  {hasActiveFilters && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleClearFilters}
+                      className="min-h-10 px-3 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {showForm && (
-          <div className="mt-5 space-y-4">
+          <div
+            ref={formRegionRef}
+            className="mt-5 space-y-4 scroll-mt-24"
+            aria-label={editingId ? "Edit book form" : "Add book form"}
+          >
             <BookForm
               isEditing={!!editingId}
               title={title}

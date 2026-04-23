@@ -3,15 +3,19 @@
 @theme {
   --color-parchment: #f3ecdf;
   --color-cream: #fbf7ef;
+  --color-parchment-deep: #e8dcc8;
+  --color-cream-strong: #f7f0e4;
   --color-sage: #6f8463;
   --color-sage-light: #a4b598;
   --color-sage-dark: #4f6547;
   --color-brass: #b88a45;
   --color-clay: #9d5c45;
   --color-charcoal: #242424;
-  --color-ink: #1f2937;
+  --color-ink: #3c3328;
   --color-warm-gray: #d8cdbb;
   --color-warm-gray-light: #eee4d5;
+  --color-warm-shadow: rgba(60, 51, 40, 0.12);
+  --color-warm-shadow-strong: rgba(60, 51, 40, 0.18);
 
   --font-display: Fraunces, ui-serif, Georgia, serif;
   --font-body: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -19,9 +23,9 @@
   --line-height-normal: 1.6;
   --line-height-relaxed: 1.75;
 
-  --shadow-soft: 0 4px 12px rgba(44, 44, 44, 0.06);
-  --shadow-soft-md: 0 8px 16px rgba(44, 44, 44, 0.08);
-  --shadow-soft-lg: 0 12px 24px rgba(44, 44, 44, 0.1);
+  --shadow-soft: 0 4px 12px rgba(60, 51, 40, 0.07);
+  --shadow-soft-md: 0 10px 22px rgba(60, 51, 40, 0.1);
+  --shadow-soft-lg: 0 16px 32px rgba(60, 51, 40, 0.14);
 
   --border-warm: 1px solid #d8cdbb;
   --border-warm-light: 1px solid #eee4d5;
@@ -38,6 +42,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-color: #b7a489 #efe5d6;
 }
 
 html {
@@ -52,7 +57,9 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: #f3ecdf;
+  background:
+    radial-gradient(circle at top, rgba(184, 138, 69, 0.08), transparent 34%),
+    linear-gradient(180deg, #fbf7ef 0%, #f3ecdf 48%, #ece1cf 100%);
   -webkit-tap-highlight-color: rgba(122, 139, 111, 0.18);
 }
 
@@ -99,10 +106,16 @@ p {
 a {
   @apply text-sage hover:text-sage-dark;
   text-underline-offset: 4px;
+  text-decoration-color: rgba(111, 132, 99, 0.34);
   transition:
     color 160ms ease,
     background-color 160ms ease,
-    border-color 160ms ease;
+    border-color 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+a:hover {
+  text-decoration-color: rgba(79, 101, 71, 0.7);
 }
 
 a:focus-visible,
@@ -111,8 +124,9 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid rgba(122, 139, 111, 0.55);
+  outline: 3px solid rgba(111, 132, 99, 0.62);
   outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(184, 138, 69, 0.16);
 }
 
 input[type="text"],
@@ -126,22 +140,26 @@ textarea,
 select {
   @apply w-full rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-charcoal shadow-soft;
   font-family: inherit;
+  color: var(--color-charcoal);
   transition:
     border-color 160ms ease,
     background-color 160ms ease,
-    box-shadow 160ms ease;
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 input:hover,
 textarea:hover,
 select:hover {
   @apply border-sage-light shadow-soft-md;
+  background-color: var(--color-cream-strong);
 }
 
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  @apply border-sage bg-cream shadow-soft-md ring-2 ring-sage/20;
+  @apply border-sage shadow-soft-md ring-2 ring-sage/20;
+  background-color: var(--color-cream-strong);
 }
 
 input[type="checkbox"],
@@ -151,6 +169,7 @@ input[type="radio"] {
 
 button {
   @apply rounded-md px-4 py-2 font-medium;
+  border: 1px solid transparent;
   line-height: 1.5;
   touch-action: manipulation;
   transition:
@@ -163,11 +182,19 @@ button {
 
 button:not([class*="text"]) {
   @apply bg-sage text-white shadow-soft hover:bg-sage-dark hover:shadow-soft-md active:shadow-soft;
+  border-color: rgba(79, 101, 71, 0.28);
 }
 
 button.text,
 button[class*="secondary"] {
-  @apply bg-transparent text-sage hover:bg-warm-gray-light hover:text-sage-dark;
+  @apply bg-transparent text-sage hover:text-sage-dark;
+  border-color: rgba(164, 181, 152, 0.35);
+  background-color: rgba(251, 247, 239, 0.5);
+}
+
+button.text:hover,
+button[class*="secondary"]:hover {
+  background-color: rgba(238, 228, 213, 0.88);
 }
 
 button[disabled],
@@ -183,6 +210,25 @@ hr {
 .surface {
   @apply bg-cream rounded-md border border-warm-gray shadow-soft;
   min-width: 0;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.card:hover,
+.surface:hover {
+  border-color: rgba(164, 181, 152, 0.58);
+  background-color: var(--color-cream-strong);
+  box-shadow: var(--shadow-soft-md);
+}
+
+.card:focus-within,
+.surface:focus-within {
+  border-color: rgba(111, 132, 99, 0.68);
+  box-shadow:
+    0 0 0 3px rgba(184, 138, 69, 0.16),
+    var(--shadow-soft-md);
 }
 
 .text-charcoal {

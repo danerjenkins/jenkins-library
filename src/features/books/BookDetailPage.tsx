@@ -1,15 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Edit } from "lucide-react";
 import { getBookById, updateBook } from "../../data/bookRepo";
 import { getCoverPhotoUrl } from "../../data/db";
 import type { Book } from "./bookTypes";
-import { Badge } from "../../ui/components/Badge";
 import { BOOK_FORMAT_LABELS } from "./bookTypes";
+import { Badge } from "../../ui/components/Badge";
 import { Button } from "../../ui/components/Button";
+
+type MetadataSummaryItem = {
+  label: string;
+  value: string;
+};
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,14 +38,15 @@ export function BookDetailPage() {
       try {
         setLoading(true);
         setErrorMessage(null);
+
         const bookData = await getBookById(id);
         if (!bookData) {
           navigate("/view");
           return;
         }
+
         setBook(bookData);
 
-        // Load cover photo
         const coverUrl = await getCoverPhotoUrl(id);
         objectUrl = coverUrl;
         setLocalCoverUrl(coverUrl);
@@ -53,9 +60,8 @@ export function BookDetailPage() {
       }
     };
 
-    loadBook();
+    void loadBook();
 
-    // Cleanup
     return () => {
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
@@ -72,6 +78,61 @@ export function BookDetailPage() {
       }),
     [],
   );
+
+  const isWishlistBook = (book?.ownershipStatus ?? "owned") === "wishlist";
+  const backPath = isWishlistBook ? "/wishlist" : "/view";
+  const backLabel = isWishlistBook ? "Back to Wishlist" : "Back to Library";
+
+  const metadataSummary = useMemo<MetadataSummaryItem[]>(() => {
+    if (!book) {
+      return [];
+    }
+
+    const items: MetadataSummaryItem[] = [];
+
+    if (book.format) {
+      items.push({
+        label: "Format",
+        value: BOOK_FORMAT_LABELS[book.format],
+      });
+    }
+
+    if (book.pages) {
+      items.push({
+        label: "Pages",
+        value: String(book.pages),
+      });
+    }
+
+    if (book.genre) {
+      items.push({
+        label: "Genre",
+        value: book.genre,
+      });
+    }
+
+    return items;
+  }, [book]);
+
+  const handleBackNavigation = () => {
+    const historyState = window.history.state as { idx?: number } | null;
+    if (typeof historyState?.idx === "number" && historyState.idx > 0) {
+      navigate(-1);
+      return;
+    }
+
+    if (
+      typeof location.state === "object" &&
+      location.state !== null &&
+      "from" in location.state &&
+      typeof location.state.from === "string"
+    ) {
+      navigate(location.state.from);
+      return;
+    }
+
+    navigate(backPath);
+  };
 
   const handleReadStatusChange = async (
     field: "readByDane" | "readByEmma",
@@ -133,7 +194,7 @@ export function BookDetailPage() {
           className="rounded-xl border border-warm-gray bg-cream/90 px-4 py-3 text-sm text-stone-500 shadow-sm"
           aria-live="polite"
         >
-          Loading book details…
+          Loading book details...
         </div>
       </div>
     );
@@ -142,13 +203,14 @@ export function BookDetailPage() {
   if (errorMessage || !book) {
     return (
       <div className="space-y-4">
-        <Link
-          to="/view"
+        <button
+          type="button"
+          onClick={handleBackNavigation}
           className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to Library
-        </Link>
+          Back
+        </button>
         <div
           className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
           role="alert"
@@ -160,82 +222,111 @@ export function BookDetailPage() {
     );
   }
 
-  const isWishlistBook = (book.ownershipStatus ?? "owned") === "wishlist";
-  const backPath = isWishlistBook ? "/wishlist" : "/view";
-  const backLabel = isWishlistBook ? "Back to Wishlist" : "Back to Library";
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link
-          to={backPath}
+        <button
+          type="button"
+          onClick={handleBackNavigation}
           className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {backLabel}
-        </Link>
+        </button>
       </div>
 
-      <div className="rounded-2xl border border-warm-gray bg-cream/95 shadow-soft overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-warm-gray bg-cream/95 shadow-soft">
         <div className="grid gap-6 p-6 md:grid-cols-3">
-          {/* Cover Image */}
           <div className="md:col-span-1">
             {localCoverUrl || book.coverUrl ? (
               <img
-                src={localCoverUrl || book.coverUrl!}
+                src={localCoverUrl ?? book.coverUrl ?? undefined}
                 alt={`Cover of ${book.title}`}
                 className="aspect-[2/3] w-full rounded-lg object-cover shadow-md"
               />
             ) : (
-              <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-400 shadow-md">
-                <span className="text-6xl">📚</span>
+              <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
+                <span
+                  className="rounded-full border border-warm-gray bg-cream px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em]"
+                  aria-hidden="true"
+                >
+                  No Cover
+                </span>
               </div>
             )}
           </div>
 
-          {/* Book Details */}
-          <div className="md:col-span-2 space-y-4">
+          <div className="space-y-4 md:col-span-2">
             <div>
               <h1 className="font-display text-3xl font-bold text-stone-900">
                 {book.title}
               </h1>
-              <p className="font-sans mt-2 text-lg text-stone-600">
+              <p className="mt-2 font-sans text-lg text-stone-600">
                 {book.author}
               </p>
-              {book.description && (
-                <p className="font-sans mt-4 text-stone-700 leading-relaxed">
+              {book.description ? (
+                <p className="mt-4 font-sans leading-relaxed text-stone-700">
                   {book.description}
                 </p>
-              )}
+              ) : null}
             </div>
 
             <div className="flex flex-wrap gap-2">
               <Badge variant={isWishlistBook ? "amber" : "default"}>
                 {isWishlistBook ? "Wishlist" : "Owned"}
               </Badge>
-              {book.finished && <Badge variant="success">Finished</Badge>}
-              {book.readByDane && <Badge variant="amber">Read by Dane</Badge>}
-              {book.readByEmma && <Badge variant="amber">Read by Emma</Badge>}
-              {!book.readByDane && !book.readByEmma && (
+              {book.finished ? <Badge variant="success">Finished</Badge> : null}
+              {book.readByDane ? (
+                <Badge variant="amber">Read by Dane</Badge>
+              ) : null}
+              {book.readByEmma ? (
+                <Badge variant="amber">Read by Emma</Badge>
+              ) : null}
+              {!book.readByDane && !book.readByEmma ? (
                 <Badge variant="amber">To Read</Badge>
-              )}
+              ) : null}
             </div>
 
-            <section className="rounded-xl border border-warm-gray bg-parchment/75 p-4">
+            {metadataSummary.length > 0 ? (
+              <section className="rounded-xl border border-warm-gray/80 bg-stone-50/70 p-4">
+                <div>
+                  <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
+                    Metadata
+                  </h2>
+                  <p className="mt-1 text-xs text-stone-500">
+                    Quick facts for scanning this book at a glance.
+                  </p>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {metadataSummary.map((item) => (
+                    <div
+                      key={item.label}
+                      className="min-w-28 rounded-lg border border-warm-gray bg-cream px-3 py-2"
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-stone-900">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <section className="rounded-xl border border-warm-gray/80 bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-sans text-sm font-semibold text-stone-800">
+                  <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Read Status
                   </h2>
-                  <p className="text-xs text-stone-500">
+                  <p className="mt-1 text-xs text-stone-500">
                     Mark who has read this book.
                   </p>
                 </div>
-                <div
-                  className="text-xs text-stone-500"
-                  aria-live="polite"
-                >
-                  {savingReadStatus ? "Saving…" : "Saved"}
+                <div className="text-xs text-stone-500" aria-live="polite">
+                  {savingReadStatus ? "Saving..." : "Saved"}
                 </div>
               </div>
 
@@ -283,29 +374,37 @@ export function BookDetailPage() {
                 </label>
               </div>
 
-              {readStatusError && (
+              {readStatusError ? (
                 <p className="mt-2 text-xs text-rose-700" role="alert">
                   {readStatusError}
                 </p>
-              )}
+              ) : null}
             </section>
 
-            <section className="rounded-xl border border-warm-gray bg-parchment/75 p-4">
+            <section className="rounded-xl border border-warm-gray/80 bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-sans text-sm font-semibold text-stone-800">
+                  <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Ownership
                   </h2>
-                  <p className="text-xs text-stone-500">
-                    Move this book between your library and wishlist.
+                  <p className="mt-1 text-xs text-stone-500">
+                    {isWishlistBook
+                      ? "Move this book into the library when you own it."
+                      : "Move this book to the wishlist when you no longer own it."}
                   </p>
                 </div>
                 <div className="text-xs text-stone-500" aria-live="polite">
-                  {savingOwnership ? "Saving…" : "Saved"}
+                  {savingOwnership ? "Saving..." : "Saved"}
                 </div>
               </div>
 
-              <div className="mt-3">
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-stone-600">
+                  Current shelf:{" "}
+                  <span className="font-semibold text-stone-900">
+                    {isWishlistBook ? "Wishlist" : "Library"}
+                  </span>
+                </p>
                 <Button
                   type="button"
                   variant={isWishlistBook ? "success" : "secondary"}
@@ -320,59 +419,84 @@ export function BookDetailPage() {
                 </Button>
               </div>
 
-              {ownershipError && (
+              {ownershipError ? (
                 <p className="mt-2 text-xs text-rose-700" role="alert">
                   {ownershipError}
                 </p>
-              )}
+              ) : null}
             </section>
 
-            <div className="space-y-3 pt-4 border-t border-warm-gray">
-              {book.genre && (
+            <section className="rounded-xl border border-warm-gray/80 bg-stone-50/70 p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
+                    Edit Details
+                  </h2>
+                  <p className="mt-1 text-xs text-stone-500">
+                    Open the admin form to update metadata, notes, or cover info.
+                  </p>
+                </div>
+                <Link
+                  to={`/admin?edit=${book.id}&ownership=${
+                    isWishlistBook ? "wishlist" : "owned"
+                  }`}
+                >
+                  <Button variant="secondary">
+                    <span className="flex items-center gap-2">
+                      <Edit className="h-4 w-4" aria-hidden="true" />
+                      Edit Book
+                    </span>
+                  </Button>
+                </Link>
+              </div>
+            </section>
+
+            <div className="space-y-3 border-t border-warm-gray pt-4">
+              {book.genre ? (
                 <div>
                   <span className="text-sm font-semibold text-stone-500">
                     Genre:
                   </span>
-                  <p className="text-stone-900 mt-1">{book.genre}</p>
+                  <p className="mt-1 text-stone-900">{book.genre}</p>
                 </div>
-              )}
+              ) : null}
 
-              {book.isbn && (
+              {book.isbn ? (
                 <div>
                   <span className="text-sm font-semibold text-stone-500">
                     ISBN:
                   </span>
-                  <p className="text-stone-900 mt-1 font-mono text-sm">
+                  <p className="mt-1 font-mono text-sm text-stone-900">
                     {book.isbn}
                   </p>
                 </div>
-              )}
+              ) : null}
 
-              {book.format && (
+              {book.format ? (
                 <div>
                   <span className="text-sm font-semibold text-stone-500">
                     Format:
                   </span>
-                  <p className="text-stone-900 mt-1">
+                  <p className="mt-1 text-stone-900">
                     {BOOK_FORMAT_LABELS[book.format]}
                   </p>
                 </div>
-              )}
+              ) : null}
 
-              {book.pages && (
+              {book.pages ? (
                 <div>
                   <span className="text-sm font-semibold text-stone-500">
                     Pages:
                   </span>
-                  <p className="text-stone-900 mt-1">{book.pages}</p>
+                  <p className="mt-1 text-stone-900">{book.pages}</p>
                 </div>
-              )}
+              ) : null}
 
               <div>
                 <span className="text-sm font-semibold text-stone-500">
                   Added:
                 </span>
-                <p className="text-stone-900 mt-1">
+                <p className="mt-1 text-stone-900">
                   {dateFormatter.format(new Date(book.createdAt))}
                 </p>
               </div>
@@ -381,25 +505,10 @@ export function BookDetailPage() {
                 <span className="text-sm font-semibold text-stone-500">
                   Last Updated:
                 </span>
-                <p className="text-stone-900 mt-1">
+                <p className="mt-1 text-stone-900">
                   {dateFormatter.format(new Date(book.updatedAt))}
                 </p>
               </div>
-            </div>
-
-            <div className="pt-4">
-              <Link
-                to={`/admin?edit=${book.id}&ownership=${
-                  isWishlistBook ? "wishlist" : "owned"
-                }`}
-              >
-                <Button variant="secondary">
-                  <span className="flex items-center gap-2">
-                    <Edit className="h-4 w-4" aria-hidden="true" />
-                    Edit Book
-                  </span>
-                </Button>
-              </Link>
             </div>
           </div>
         </div>

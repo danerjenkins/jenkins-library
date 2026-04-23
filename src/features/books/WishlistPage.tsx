@@ -44,6 +44,17 @@ const readFilterValues = new Set<ReadFilter>([
 ]);
 const actionLinkClasses =
   "inline-flex min-h-10 items-center justify-center rounded-md border border-sage bg-sage px-4 py-2 text-sm font-semibold text-white no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage-dark hover:bg-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+const filterPanelClasses =
+  "mt-4 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/85 p-3 shadow-sm ring-1 ring-white/40 sm:p-4";
+const filterPanelHeaderClasses =
+  "flex flex-col gap-3 rounded-xl border border-warm-gray/70 bg-cream/90 p-3 sm:flex-row sm:items-start sm:justify-between";
+const filterFieldGridClasses = "grid gap-3 sm:grid-cols-2 lg:grid-cols-5";
+const filterMetaRowClasses =
+  "flex flex-col items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 sm:flex-row sm:items-center";
+const densityGroupClasses =
+  "grid grid-cols-4 rounded-lg border border-warm-gray bg-cream p-0.5 shadow-inner shadow-white/50";
+const densityButtonClasses =
+  "min-h-11 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
 
 interface StoredWishlistViewPreferences {
   filterGenre: string;
@@ -351,7 +362,7 @@ export function WishlistPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-5 sm:px-6 sm:py-10">
         <section className="rounded-lg border border-warm-gray bg-cream/95 p-5 shadow-soft backdrop-blur-sm sm:p-7">
           <div className="space-y-2">
             <h2 className="font-display text-3xl font-bold tracking-tight text-pretty text-stone-900 sm:text-4xl">
@@ -367,8 +378,61 @@ export function WishlistPage() {
           </div>
 
           {books.length > 0 && (
-            <div className="mt-4 space-y-3 rounded-lg border border-warm-gray bg-parchment/80 p-3 shadow-sm">
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div
+              className={filterPanelClasses}
+              role="region"
+              aria-labelledby="wishlist-filters-heading"
+              aria-describedby="wishlist-filters-summary"
+            >
+              <div className={filterPanelHeaderClasses}>
+                <div className="space-y-1">
+                  <div
+                    id="wishlist-filters-heading"
+                    className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500"
+                  >
+                    Wishlist Filters
+                  </div>
+                  <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
+                    Keep browsing focused while leaving room for quick add-to-library
+                    actions.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div
+                    className={densityGroupClasses}
+                    role="group"
+                    aria-label="Shelf density"
+                  >
+                    {CARD_SIZE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setCardSize(option.value)}
+                        className={`${densityButtonClasses} ${
+                          cardSize === option.value
+                            ? "bg-sage text-white shadow-sm"
+                            : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                        }`}
+                        aria-pressed={cardSize === option.value}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  {hasActiveFilters && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleClearFilters}
+                      className="min-h-11 px-3 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className={filterFieldGridClasses}>
                 <div className="relative sm:col-span-2 lg:col-span-1">
                   <Input
                     id="wishlist-search"
@@ -379,10 +443,10 @@ export function WishlistPage() {
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Title or author…"
                     autoComplete="off"
-                    className="pr-8"
+                    className="pl-11 pr-10"
                   />
                   <Search
-                    className="pointer-events-none absolute right-2.5 top-8 h-4 w-4 text-stone-400"
+                    className="pointer-events-none absolute left-3 top-8 h-4 w-4 text-stone-400"
                     aria-hidden="true"
                   />
                 </div>
@@ -447,42 +511,16 @@ export function WishlistPage() {
                 />
               </div>
 
-              <div className="flex flex-col items-stretch justify-between gap-2 sm:flex-row sm:items-center">
-                <div className="text-xs text-stone-600" aria-live="polite">
+              <div className={filterMetaRowClasses}>
+                <div
+                  id="wishlist-filters-summary"
+                  className="text-xs text-stone-600"
+                  aria-live="polite"
+                >
                   Showing {filteredBooks.length} of {books.length}
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <div
-                    className="grid grid-cols-4 rounded-lg border border-warm-gray bg-cream p-1"
-                    role="group"
-                    aria-label="Card size"
-                  >
-                  {CARD_SIZE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setCardSize(option.value)}
-                        className={`min-h-8 rounded-md px-2.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 ${
-                          cardSize === option.value
-                            ? "bg-sage text-white"
-                            : "text-charcoal/70 hover:bg-warm-gray-light"
-                        }`}
-                        aria-pressed={cardSize === option.value}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                  {hasActiveFilters && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleClearFilters}
-                      className="min-h-8 px-3 text-xs"
-                    >
-                      Clear Filters
-                    </Button>
-                  )}
+                <div className="text-xs text-stone-500">
+                  Keep wishlist browsing fast while leaving room for quick add actions.
                 </div>
               </div>
             </div>
@@ -533,7 +571,11 @@ export function WishlistPage() {
                     <Button
                       type="button"
                       variant="success"
-                      className="min-h-9 w-full gap-2 text-xs sm:w-auto"
+                      className={`gap-2 text-xs ${
+                        cardSize === "xsmall"
+                          ? "min-h-8 w-auto px-2.5 text-[11px] sm:min-h-9 sm:px-3"
+                          : "min-h-10 w-full px-3 sm:w-auto"
+                      }`}
                       disabled={movingBookIds.has(book.id)}
                       onClick={() => void handleMoveToLibrary(book.id)}
                       aria-label={`Move ${book.title} to library`}
@@ -541,7 +583,9 @@ export function WishlistPage() {
                       <Check className="h-4 w-4" aria-hidden="true" />
                       {movingBookIds.has(book.id)
                         ? "Adding To Library…"
-                        : "Add To Library"}
+                        : cardSize === "xsmall"
+                          ? "Add"
+                          : "Add To Library"}
                     </Button>
                   }
                 />

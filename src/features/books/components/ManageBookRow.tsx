@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Pencil, RefreshCcw, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Book } from "../bookTypes";
 import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../bookTypes";
 import { Button } from "../../../ui/components/Button";
@@ -61,6 +62,7 @@ export function ManageBookRow({
   const ownershipStatus = book.ownershipStatus ?? "owned";
   const ownershipActionLabel =
     ownershipStatus === "wishlist" ? "Add to Library" : "Move to Wishlist";
+  const detailPath = `/book/${book.id}`;
 
   return (
     <article className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-xl border border-warm-gray bg-cream/95 px-3 py-3 shadow-soft sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
@@ -70,9 +72,20 @@ export function ManageBookRow({
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="break-words text-sm font-semibold leading-5 text-stone-900">
-              {book.title}
+              <Link
+                to={detailPath}
+                className="rounded-sm text-stone-900 no-underline transition-colors hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+              >
+                {book.title}
+              </Link>
             </h3>
             <p className="mt-0.5 break-words text-sm text-stone-600">{book.author}</p>
+            <Link
+              to={detailPath}
+              className="mt-1 inline-flex rounded-sm text-xs font-medium text-stone-500 no-underline transition-colors hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+            >
+              View details
+            </Link>
           </div>
         </div>
 
