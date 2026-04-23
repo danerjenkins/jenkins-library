@@ -77,49 +77,54 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Manage Page
 
-- [ ] Keep Manage compact and operational
+- [x] Keep Manage compact and operational
   - Continue using rows instead of large cards.
   - Keep small cover thumbnails.
   - Keep icon-only edit/delete buttons with accessible labels.
 
-- [ ] Add bulk-friendly scanability
+- [x] Add bulk-friendly scanability
   - Align row metadata consistently.
   - Consider showing ownership, format, genre, and read status as compact badges.
 
-- [ ] Add quick edit affordances for common fields
+- [x] Add quick edit affordances for common fields
   - Consider inline ownership toggle.
   - Consider inline read-status summary only, not full editing.
   - Keep deeper edits in the form.
 
-- [ ] Improve delete safety
+- [x] Improve delete safety
   - Replace browser `confirm()` with a small confirmation dialog.
   - Include title and “This cannot be undone.”
   - Make destructive action visually distinct.
 
+- [ ] Make Manage edit actions jump to the form
+  - Scroll to the edit form after opening it.
+  - Focus the first field so the user can keep moving immediately.
+
 ## Add/Edit Book Flow
 
-- [ ] Make Add Book route state explicit
+- [x] Make Add Book route state explicit
   - Support `/admin?add=1&ownership=wishlist`.
   - Support `/admin?add=1&ownership=owned`.
   - Use this for context-aware add actions.
 
-- [ ] Shorten the initial add form
+- [x] Shorten the initial add form
   - Prioritize Title, Author, Ownership, and optional cover lookup.
   - Keep advanced metadata collapsed until needed.
 
-- [ ] Improve Save feedback
+- [x] Improve Save feedback
   - Show `Saving…` while submitting.
   - Show a success message after add/update.
   - Return users to the relevant page or stay in Manage depending on context.
 
-- [ ] Add unsaved-change protection
+- [x] Add unsaved-change protection
   - Warn before leaving an edited form with unsaved changes.
   - Keep the warning scoped to meaningful changes.
 
-- [ ] Improve cover handling
+- [x] Improve cover handling
   - Make cover source clearer: URL, Open Library suggestion, or local photo.
   - Show when a local cover is saved.
   - Consider allowing cover edits from the detail page later.
+  - Make it easier to clear or replace an existing cover URL.
 
 ## Detail Page
 
@@ -252,6 +257,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [ ] Add reading priority for Wishlist
   - High / Medium / Low
   - Useful for shopping or gift planning.
+
+- [ ] Add a reading list page
+  - Let each reader prioritize books from Library and Wishlist separately.
+  - Keep it lightweight and focused on next-up reading, not a full planning dashboard.
 
 - [ ] Add export/import affordance in Manage
   - Keep advanced data actions away from daily browsing.

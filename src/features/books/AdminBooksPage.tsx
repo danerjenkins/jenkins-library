@@ -1,6 +1,13 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
-import { Pencil, Trash2, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import {
   getAllBooks,
   getWishlistBooks,
@@ -21,37 +28,14 @@ import { getReadStatus, BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Button } from "../../ui/components/Button";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
-import { Badge } from "../../ui/components/Badge";
-import { BookForm } from "./components/BookForm";
+import { BookForm, type BookFormSaveState } from "./components/BookForm";
+import { ManageBookRow } from "./components/ManageBookRow";
+import { ManageDeleteDialog } from "./components/ManageDeleteDialog";
 
 function resolveErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   if (typeof error === "string") return error;
   return "Something went wrong. Please try again.";
-}
-
-function AdminBookCover({ book }: { book: Book }) {
-  return (
-    <div className="flex h-16 w-11 flex-none overflow-hidden rounded-md border border-warm-gray bg-warm-gray-light shadow-sm">
-      {book.coverUrl ? (
-        <img
-          src={book.coverUrl}
-          alt=""
-          width={44}
-          height={64}
-          loading="lazy"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div
-          className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-stone-400"
-          aria-hidden="true"
-        >
-          No Cover
-        </div>
-      )}
-    </div>
-  );
 }
 
 export function AdminBooksPage() {
@@ -79,7 +63,42 @@ export function AdminBooksPage() {
   const [seriesLabel, setSeriesLabel] = useState("");
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
   const [showCoverSaved, setShowCoverSaved] = useState(false);
+  const [ownershipActionBookId, setOwnershipActionBookId] = useState<string | null>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] = useState<Book | null>(null);
+  const [deletePending, setDeletePending] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [formSaveState, setFormSaveState] = useState<BookFormSaveState>("idle");
+  const [formSaveMessage, setFormSaveMessage] = useState<string | null>(null);
+  const [formSaveSignal, setFormSaveSignal] = useState(0);
+  const [formIsDirty, setFormIsDirty] = useState(false);
+  const [formSessionKey, setFormSessionKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formCloseTimeoutRef = useRef<number | null>(null);
+
+  const clearPendingFormClose = useCallback(() => {
+    if (formCloseTimeoutRef.current !== null) {
+      window.clearTimeout(formCloseTimeoutRef.current);
+      formCloseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetFormFeedback = useCallback(() => {
+    clearPendingFormClose();
+    setFormSaveState("idle");
+    setFormSaveMessage(null);
+    setFormIsDirty(false);
+  }, [clearPendingFormClose]);
+
+  const publishFormSaveState = useCallback(
+    (nextState: BookFormSaveState, message: string | null) => {
+      setFormSaveState(nextState);
+      setFormSaveMessage(message);
+      setFormSaveSignal((currentSignal) => currentSignal + 1);
+    },
+    [],
+  );
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,6 +111,7 @@ export function AdminBooksPage() {
   );
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const loadBooks = useCallback(async (status: "owned" | "wishlist") => {
     try {
@@ -152,11 +172,11 @@ export function AdminBooksPage() {
     filterSeries !== "ALL";
 
   const filteredBooks = useMemo(() => {
-    const trimmedSearch = searchQuery.trim().toLowerCase();
+    const trimmedSearch = deferredSearchQuery.trim().toLowerCase();
 
     return books
       .filter((book) => {
-      if (searchQuery.trim()) {
+      if (trimmedSearch) {
         const matchesSearch =
           book.title.toLowerCase().includes(trimmedSearch) ||
           book.author.toLowerCase().includes(trimmedSearch);
@@ -217,7 +237,7 @@ export function AdminBooksPage() {
     filterOwnership,
     filterReadStatus,
     filterSeries,
-    searchQuery,
+    deferredSearchQuery,
   ]);
 
   const handleLoadCoverPhoto = useCallback(async (bookId: string) => {
@@ -242,15 +262,22 @@ export function AdminBooksPage() {
     setSeriesLabel("");
     setCoverPhotoUrl(null);
     setEditingId(null);
+    setShowCoverSaved(false);
   }, []);
 
   const handleStartAddBook = useCallback((defaultOwnership = filterOwnership) => {
+    resetFormFeedback();
+    setStatusMessage(null);
     resetFormFields();
+    setFormSessionKey((currentKey) => currentKey + 1);
     setOwnershipStatus(defaultOwnership);
     setShowForm(true);
-  }, [filterOwnership, resetFormFields]);
+  }, [filterOwnership, resetFormFeedback, resetFormFields]);
 
   const handleEditBook = useCallback((book: Book) => {
+    resetFormFeedback();
+    setStatusMessage(null);
+    setFormSessionKey((currentKey) => currentKey + 1);
     setTitle(book.title);
     setAuthor(book.author);
     setGenre(book.genre || "");
@@ -273,7 +300,13 @@ export function AdminBooksPage() {
     setEditingId(book.id);
     handleLoadCoverPhoto(book.id);
     setShowForm(true);
-  }, [handleLoadCoverPhoto]);
+  }, [handleLoadCoverPhoto, resetFormFeedback]);
+
+  useEffect(() => {
+    return () => {
+      clearPendingFormClose();
+    };
+  }, [clearPendingFormClose]);
 
   // Load books on mount and when ownership tab changes.
   useEffect(() => {
@@ -327,6 +360,44 @@ export function AdminBooksPage() {
     setSearchParams({ ownership: nextOwnership });
   };
 
+  const handleQuickOwnershipToggle = useCallback(
+    async (book: Book) => {
+      const currentOwnership = book.ownershipStatus ?? "owned";
+      const nextOwnership = currentOwnership === "owned" ? "wishlist" : "owned";
+
+      setOwnershipActionBookId(book.id);
+      setErrorMessage(null);
+      setStatusMessage(null);
+      setBooks((prevBooks) =>
+        prevBooks.map((entry) =>
+          entry.id === book.id ? { ...entry, ownershipStatus: nextOwnership } : entry,
+        ),
+      );
+
+      try {
+        await updateBook(book.id, { ownershipStatus: nextOwnership });
+        setStatusMessage(
+          nextOwnership === "wishlist"
+            ? `Moved ${book.title} to Wishlist.`
+            : `Added ${book.title} to Library.`,
+        );
+      } catch (error) {
+        console.error("Failed to update ownership:", error);
+        setErrorMessage(resolveErrorMessage(error));
+        setBooks((prevBooks) =>
+          prevBooks.map((entry) =>
+            entry.id === book.id
+              ? { ...entry, ownershipStatus: currentOwnership }
+              : entry,
+          ),
+        );
+      } finally {
+        setOwnershipActionBookId(null);
+      }
+    },
+    [],
+  );
+
   const resolveSeriesId = async (name: string) => {
     const existing = await findSeriesByName(name);
     if (existing) return existing.id;
@@ -358,12 +429,21 @@ export function AdminBooksPage() {
     e.preventDefault();
     if (!title.trim() || !author.trim()) return;
 
+    const normalizedTitle = title.trim();
+    const successMessage = editingId
+      ? `Saved changes to ${normalizedTitle}.`
+      : ownershipStatus === "wishlist"
+        ? `Added ${normalizedTitle} to Wishlist.`
+        : `Added ${normalizedTitle} to Library.`;
+
     try {
       setErrorMessage(null);
+      setStatusMessage(null);
+      publishFormSaveState("saving", editingId ? "Saving changes…" : "Saving new book…");
       if (editingId) {
         // Update existing book
         const updated = await updateBook(editingId, {
-          title: title.trim(),
+          title: normalizedTitle,
           author: author.trim(),
           genre: genre.trim() || null,
           description: description.trim() || null,
@@ -380,7 +460,7 @@ export function AdminBooksPage() {
       } else {
         // Add new book
         const created = await addBook({
-          title: title.trim(),
+          title: normalizedTitle,
           author: author.trim(),
           genre: genre.trim() || null,
           description: description.trim() || null,
@@ -395,16 +475,26 @@ export function AdminBooksPage() {
         });
         await syncBookSeries(created.id);
       }
-      resetFormFields();
-      setShowForm(false);
+
+      publishFormSaveState("success", successMessage);
+      setStatusMessage(successMessage);
       await loadBooks(filterOwnership);
+      clearPendingFormClose();
+      formCloseTimeoutRef.current = window.setTimeout(() => {
+        resetFormFields();
+        resetFormFeedback();
+        setShowForm(false);
+      }, 700);
     } catch (error) {
       console.error("Failed to save book:", error);
-      setErrorMessage(resolveErrorMessage(error));
+      const message = resolveErrorMessage(error);
+      setErrorMessage(message);
+      publishFormSaveState("error", message);
     }
   }
 
   function handleCancelEdit() {
+    resetFormFeedback();
     resetFormFields();
     setShowForm(false);
   }
@@ -423,8 +513,10 @@ export function AdminBooksPage() {
       setCoverPhotoUrl(url);
       setShowCoverSaved(true);
       setTimeout(() => setShowCoverSaved(false), 2000);
+      setStatusMessage("Saved a local cover photo.");
     } catch (error) {
       console.error("Failed to save cover photo:", error);
+      setErrorMessage(resolveErrorMessage(error));
     }
 
     // Reset input
@@ -441,8 +533,10 @@ export function AdminBooksPage() {
         URL.revokeObjectURL(coverPhotoUrl);
       }
       setCoverPhotoUrl(null);
+      setStatusMessage("Removed the local cover photo.");
     } catch (error) {
       console.error("Failed to remove cover photo:", error);
+      setErrorMessage(resolveErrorMessage(error));
     }
   };
 
@@ -456,15 +550,21 @@ export function AdminBooksPage() {
           URL.revokeObjectURL(coverPhotoUrl);
         }
         setCoverPhotoUrl(null);
+        setStatusMessage("Switched cover source to a URL.");
       } catch (error) {
         console.error("Failed to clear local cover photo:", error);
+        setErrorMessage(resolveErrorMessage(error));
       }
     }
   };
 
-  async function handleDeleteBook(id: string, bookTitle: string) {
-    if (!confirm(`Delete "${bookTitle}"? This cannot be undone.`)) return;
+  function handleRequestDeleteBook(book: Book) {
+    setDeleteTarget(book);
+  }
 
+  async function handleConfirmDeleteBook() {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
     const removed = (() => {
       const index = books.findIndex((book) => book.id === id);
       if (index < 0) return null;
@@ -472,11 +572,19 @@ export function AdminBooksPage() {
     })();
 
     try {
+      setDeletePending(true);
       setErrorMessage(null);
+      setDeleteTarget(null);
       setBooks((prevBooks) => {
         return prevBooks.filter((book) => book.id !== id);
       });
       await deleteBook(id);
+      setStatusMessage(`Deleted ${deleteTarget.title}.`);
+      if (editingId === id) {
+        resetFormFeedback();
+        resetFormFields();
+        setShowForm(false);
+      }
     } catch (error) {
       console.error("Failed to delete book:", error);
       setErrorMessage(resolveErrorMessage(error));
@@ -487,8 +595,15 @@ export function AdminBooksPage() {
           return next;
         });
       }
+      setDeleteTarget(removed?.book ?? deleteTarget);
+    } finally {
+      setDeletePending(false);
     }
   }
+
+  const formInstanceKey = editingId
+    ? `edit-${editingId}-${formSessionKey}`
+    : `add-${formSessionKey}`;
 
   return (
     <div className="space-y-6">
@@ -519,6 +634,15 @@ export function AdminBooksPage() {
               role="alert"
             >
               {errorMessage}
+            </div>
+          )}
+          {statusMessage && (
+            <div
+              className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+              role="status"
+              aria-live="polite"
+            >
+              {statusMessage}
             </div>
           )}
           {!showForm && (
@@ -680,6 +804,11 @@ export function AdminBooksPage() {
               showCoverSaved={showCoverSaved}
               showCoverPhotoControls={!!editingId}
               coverPhotoInputRef={fileInputRef}
+              saveState={formSaveState}
+              saveMessage={formSaveMessage}
+              saveSignal={formSaveSignal}
+              formInstanceKey={formInstanceKey}
+              onDirtyChange={setFormIsDirty}
               onCoverPhotoFileChange={handleCoverPhotoCapture}
               onCoverPhotoPick={() => fileInputRef.current?.click()}
               onRemoveCoverPhoto={handleRemoveCoverPhoto}
@@ -702,11 +831,38 @@ export function AdminBooksPage() {
               onCancel={handleCancelEdit}
               onDelete={
                 editingId
-                  ? () => handleDeleteBook(editingId, title || "Untitled")
+                  ? () =>
+                      handleRequestDeleteBook({
+                        id: editingId,
+                        title: title || "Untitled",
+                        author,
+                        genre: genre || null,
+                        description: description || null,
+                        isbn: isbn || null,
+                        finished,
+                        coverUrl: coverUrl || null,
+                        readByDane,
+                        readByEmma,
+                        format: format ? (format as BookFormat) : undefined,
+                        pages: pages ? parseInt(pages, 10) : undefined,
+                        seriesName: seriesName || null,
+                        seriesLabel: seriesLabel || null,
+                        ownershipStatus,
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                      })
                   : undefined
               }
             >
-              {editingId && <span>Editing Book</span>}
+              {editingId ? (
+                <span>
+                  {formIsDirty ? "Editing Book - Unsaved Changes" : "Editing Book"}
+                </span>
+              ) : (
+                <span>
+                  {formIsDirty ? "Adding Book - Unsaved Changes" : "Add A Book"}
+                </span>
+              )}
             </BookForm>
           </div>
         )}
@@ -754,65 +910,33 @@ export function AdminBooksPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="space-y-2" role="list" aria-label="Manage books">
             {filteredBooks.map((book) => (
-              <article
+              <div
                 key={book.id}
-                className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-xl border border-warm-gray bg-cream/95 px-3 py-3 shadow-soft sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+                role="listitem"
               >
-                <AdminBookCover book={book} />
-                <div className="min-w-0">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <h3 className="min-w-0 break-words text-base font-semibold leading-6 text-stone-900">
-                      {book.title}
-                    </h3>
-                    {(book.ownershipStatus ?? "owned") === "wishlist" && (
-                      <Badge variant="amber">Wishlist</Badge>
-                    )}
-                    {book.finished && <Badge variant="success">Finished</Badge>}
-                  </div>
-                  <p className="mt-1 break-words text-sm text-stone-600">
-                    {book.author}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-stone-500">
-                    {book.genre && <span>{book.genre}</span>}
-                    {book.format && <span>{BOOK_FORMAT_LABELS[book.format]}</span>}
-                    {book.seriesName && <span>{book.seriesName}</span>}
-                  </div>
-                </div>
-                <div className="col-span-2 flex flex-wrap gap-1.5 sm:col-span-1 sm:justify-end">
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleEditBook(book)}
-                    className="h-8 min-h-8 w-8 shrink-0 !p-0"
-                    aria-label={`Edit ${book.title}`}
-                    title="Edit"
-                  >
-                    <Pencil
-                      className="h-4 w-4 shrink-0 text-current"
-                      aria-hidden="true"
-                      strokeWidth={2.25}
-                    />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleDeleteBook(book.id, book.title)}
-                    className="h-8 min-h-8 w-8 shrink-0 !p-0"
-                    aria-label={`Delete ${book.title}`}
-                    title="Delete"
-                  >
-                    <Trash2
-                      className="h-4 w-4 shrink-0 text-current"
-                      aria-hidden="true"
-                      strokeWidth={2.25}
-                    />
-                  </Button>
-                </div>
-              </article>
+                <ManageBookRow
+                  book={book}
+                  ownershipBusy={ownershipActionBookId === book.id}
+                  onEdit={handleEditBook}
+                  onDelete={handleRequestDeleteBook}
+                  onToggleOwnership={handleQuickOwnershipToggle}
+                />
+              </div>
             ))}
           </div>
         )}
       </section>
+      <ManageDeleteDialog
+        open={deleteTarget !== null}
+        title={deleteTarget?.title ?? "Untitled"}
+        busy={deletePending}
+        onCancel={() => {
+          if (!deletePending) setDeleteTarget(null);
+        }}
+        onConfirm={handleConfirmDeleteBook}
+      />
     </div>
   );
 }

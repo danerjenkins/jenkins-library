@@ -1,0 +1,156 @@
+import type { ReactNode } from "react";
+import { Pencil, RefreshCcw, Trash2 } from "lucide-react";
+import type { Book } from "../bookTypes";
+import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../bookTypes";
+import { Button } from "../../../ui/components/Button";
+import { Badge } from "../../../ui/components/Badge";
+
+interface ManageBookRowProps {
+  book: Book;
+  ownershipBusy: boolean;
+  onEdit: (book: Book) => void;
+  onDelete: (book: Book) => void;
+  onToggleOwnership: (book: Book) => void;
+}
+
+function ManageMetaBadge({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Badge variant="default" className={className}>
+      {children}
+    </Badge>
+  );
+}
+
+function AdminBookCover({ book }: { book: Book }) {
+  return (
+    <div className="flex h-16 w-11 flex-none overflow-hidden rounded-md border border-warm-gray bg-warm-gray-light shadow-sm">
+      {book.coverUrl ? (
+        <img
+          src={book.coverUrl}
+          alt=""
+          width={44}
+          height={64}
+          loading="lazy"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-stone-400"
+          aria-hidden="true"
+        >
+          No Cover
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ManageBookRow({
+  book,
+  ownershipBusy,
+  onEdit,
+  onDelete,
+  onToggleOwnership,
+}: ManageBookRowProps) {
+  const ownershipStatus = book.ownershipStatus ?? "owned";
+  const ownershipActionLabel =
+    ownershipStatus === "wishlist" ? "Add to Library" : "Move to Wishlist";
+
+  return (
+    <article className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-xl border border-warm-gray bg-cream/95 px-3 py-3 shadow-soft sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+      <AdminBookCover book={book} />
+
+      <div className="min-w-0">
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="break-words text-sm font-semibold leading-5 text-stone-900">
+              {book.title}
+            </h3>
+            <p className="mt-0.5 break-words text-sm text-stone-600">{book.author}</p>
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <ManageMetaBadge
+            className={
+              ownershipStatus === "wishlist"
+                ? "border-brass/30 bg-brass/15 text-wood"
+                : "border-sage/20 bg-sage/10 text-sage-dark"
+            }
+          >
+            {ownershipStatus === "wishlist" ? "Wishlist" : "Owned"}
+          </ManageMetaBadge>
+          <ManageMetaBadge
+            className={
+              book.readByDane || book.readByEmma
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : undefined
+            }
+          >
+            {getReadStatusLabel(book)}
+          </ManageMetaBadge>
+          {book.format && <ManageMetaBadge>{BOOK_FORMAT_LABELS[book.format]}</ManageMetaBadge>}
+          {book.genre && (
+            <ManageMetaBadge className="max-w-full truncate">{book.genre}</ManageMetaBadge>
+          )}
+          {book.seriesName && (
+            <ManageMetaBadge className="max-w-full truncate">{book.seriesName}</ManageMetaBadge>
+          )}
+        </div>
+      </div>
+
+      <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 border-t border-warm-gray/70 pt-2 sm:col-span-1 sm:min-w-[13rem] sm:justify-end sm:border-t-0 sm:pt-0">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => onToggleOwnership(book)}
+          disabled={ownershipBusy}
+          className="min-h-8 px-3 py-1.5 text-xs"
+          aria-label={`${ownershipActionLabel} for ${book.title}`}
+        >
+          <span className="flex items-center gap-1.5">
+            <RefreshCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            {ownershipBusy ? "Saving…" : ownershipActionLabel}
+          </span>
+        </Button>
+
+        <div className="flex items-center gap-1.5">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => onEdit(book)}
+            className="h-8 min-h-8 w-8 shrink-0 !p-0"
+            aria-label={`Edit ${book.title}`}
+            title="Edit"
+          >
+            <Pencil
+              className="h-4 w-4 shrink-0 text-current"
+              aria-hidden="true"
+              strokeWidth={2.25}
+            />
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={() => onDelete(book)}
+            className="h-8 min-h-8 w-8 shrink-0 !p-0"
+            aria-label={`Delete ${book.title}`}
+            title="Delete"
+          >
+            <Trash2
+              className="h-4 w-4 shrink-0 text-current"
+              aria-hidden="true"
+              strokeWidth={2.25}
+            />
+          </Button>
+        </div>
+      </div>
+    </article>
+  );
+}
