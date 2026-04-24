@@ -72,7 +72,11 @@ export function useSeriesBrowse() {
 
     return Array.from(seriesMap.values())
       .map((group) => ({ ...group, books: sortBooksBySeriesOrder(group.books) }))
-      .sort((left, right) => collator.compare(left.name, right.name));
+      .sort((left, right) => {
+        const countDelta = right.books.length - left.books.length;
+        if (countDelta !== 0) return countDelta;
+        return collator.compare(left.name, right.name);
+      });
   }, [visibleBooks]);
 
   const filteredSeries = useMemo(() => {

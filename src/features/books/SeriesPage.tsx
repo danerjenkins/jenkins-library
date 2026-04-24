@@ -1,8 +1,9 @@
 import { PageLayout } from "../../ui/components/PageLayout";
 import {
+  FeaturedSeriesSection,
   SeriesHeroSection,
+  SeriesFiltersSection,
   SeriesResultsSection,
-  StandaloneSummarySection,
 } from "./components/SeriesPageSections";
 import { useSeriesBrowse } from "./hooks/useSeriesBrowse";
 
@@ -12,10 +13,9 @@ export function SeriesPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
       <PageLayout>
-        <SeriesHeroSection
-          groupedSeriesCount={state.groupedSeries.length}
-          seriesBookCount={state.seriesBookCount}
-          standaloneCount={state.standaloneBooks.length}
+        <SeriesHeroSection />
+        <FeaturedSeriesSection featuredSeries={state.filteredSeries} />
+        <SeriesFiltersSection
           searchQuery={state.searchQuery}
           ownershipFilter={state.ownershipFilter}
           cardSize={state.cardSize}
@@ -28,7 +28,6 @@ export function SeriesPage() {
           onCloseFilters={() => actions.setIsFilterDrawerOpen(false)}
           onClearFilters={actions.handleClearFilters}
         />
-        <StandaloneSummarySection standaloneCount={state.standaloneBooks.length} />
         <SeriesResultsSection
           loading={state.loading}
           groupedSeries={state.groupedSeries}

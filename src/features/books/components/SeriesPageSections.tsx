@@ -1,8 +1,7 @@
-import { ArrowLeft, ArrowRight, Layers3 } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
-import { PageHero } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
@@ -16,13 +15,22 @@ import { CARD_SIZE_OPTIONS, type CardSize } from "../shelfViewPreferences";
 import { getSeriesCarouselCardWidthClass } from "../hooks/discoveryBrowseShared";
 import type { SeriesGroup } from "../hooks/useSeriesBrowse";
 
+const sectionSurfaceClasses =
+  "rounded-[1.5rem] border border-warm-gray/85 bg-parchment/85 shadow-sm ring-1 ring-white/40";
 const carouselButtonClasses =
   "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-warm-gray/85 bg-cream/95 text-charcoal shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 
-export function SeriesHeroSection({
-  groupedSeriesCount,
-  seriesBookCount,
-  standaloneCount,
+export function SeriesHeroSection() {
+  return (
+    <header className={`${sectionSurfaceClasses} px-5 py-6 sm:px-6 sm:py-7`}>
+      <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-4xl">
+        Series page
+      </h1>
+    </header>
+  );
+}
+
+export function SeriesFiltersSection({
   searchQuery,
   ownershipFilter,
   cardSize,
@@ -35,9 +43,6 @@ export function SeriesHeroSection({
   onCloseFilters,
   onClearFilters,
 }: {
-  groupedSeriesCount: number;
-  seriesBookCount: number;
-  standaloneCount: number;
   searchQuery: string;
   ownershipFilter: "all" | "owned" | "wishlist";
   cardSize: CardSize;
@@ -51,111 +56,92 @@ export function SeriesHeroSection({
   onClearFilters: () => void;
 }) {
   return (
-    <PageHero
-      title="Series Browser"
-      description={
+    <FilterDrawer
+      title="Series Filters"
+      description="Search by series, title, author, or genre and keep density adjustable for longer reading-order scans."
+      isOpen={isFilterDrawerOpen}
+      onOpen={onOpenFilters}
+      onClose={onCloseFilters}
+      triggerLabel="Filter Series"
+      actions={
         <>
-          <div className="inline-flex items-center gap-2 rounded-full border border-warm-gray/80 bg-parchment/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600">
-            <Layers3 className="h-3.5 w-3.5" aria-hidden="true" />
-            Search And Discovery
-          </div>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-stone-600">
-            Browse the catalog by series, keep the reading order visible, and jump straight into
-            each book from a grouped shelf view.
-          </p>
+          <ShelfDensitySelector options={CARD_SIZE_OPTIONS} value={cardSize} onChange={onCardSizeChange} />
+          {hasActiveFilters ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClearFilters}
+              className="min-h-11 px-3 text-xs"
+            >
+              Clear Filters
+            </Button>
+          ) : null}
         </>
       }
-      actions={
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {[
-            { label: "Series", value: groupedSeriesCount },
-            { label: "In Series", value: seriesBookCount },
-            { label: "Standalone", value: standaloneCount, className: "col-span-2 sm:col-span-1" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className={`${item.className ?? ""} rounded-xl border border-warm-gray/75 bg-parchment/85 px-4 py-3`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                {item.label}
-              </div>
-              <div className="mt-1 font-display text-2xl font-semibold text-stone-900">
-                {item.value}
-              </div>
-            </div>
-          ))}
+      footer={
+        <div className="text-sm text-stone-600">
+          Books without a series stay out of the grouped shelf and are summarized separately.
         </div>
       }
     >
-      <FilterDrawer
-        title="Series Filters"
-        description="Search by series, title, author, or genre and keep density adjustable for longer reading-order scans."
-        isOpen={isFilterDrawerOpen}
-        onOpen={onOpenFilters}
-        onClose={onCloseFilters}
-        triggerLabel="Filter Series"
-        actions={
-          <>
-            <ShelfDensitySelector options={CARD_SIZE_OPTIONS} value={cardSize} onChange={onCardSizeChange} />
-            {hasActiveFilters ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClearFilters}
-                className="min-h-11 px-3 text-xs"
-              >
-                Clear Filters
-              </Button>
-            ) : null}
-          </>
-        }
-        footer={
-          <div className="text-sm text-stone-600">
-            Books without a series stay out of the grouped shelf and are summarized separately.
-          </div>
-        }
-      >
-        <div className={filterFieldGridClasses}>
-          <ShelfSearchField
-            id="series-search"
-            name="series-search"
-            label="Search"
-            value={searchQuery}
-            onChange={onSearchQueryChange}
-            placeholder="Series, title, author, or genre..."
-          />
-          <Select
-            id="series-ownership"
-            label="Shelf"
-            value={ownershipFilter}
-            onChange={(event) => onOwnershipFilterChange(event.target.value as "all" | "owned" | "wishlist")}
-            options={[
-              { value: "all", label: "Owned + Wishlist" },
-              { value: "owned", label: "Owned Only" },
-              { value: "wishlist", label: "Wishlist Only" },
-            ]}
-          />
-        </div>
-      </FilterDrawer>
-    </PageHero>
+      <div className={filterFieldGridClasses}>
+        <ShelfSearchField
+          id="series-search"
+          name="series-search"
+          label="Search"
+          value={searchQuery}
+          onChange={onSearchQueryChange}
+          placeholder="Series, title, author, or genre..."
+        />
+        <Select
+          id="series-ownership"
+          label="Shelf"
+          value={ownershipFilter}
+          onChange={(event) => onOwnershipFilterChange(event.target.value as "all" | "owned" | "wishlist")}
+          options={[
+            { value: "all", label: "Owned + Wishlist" },
+            { value: "owned", label: "Owned Only" },
+            { value: "wishlist", label: "Wishlist Only" },
+          ]}
+        />
+      </div>
+    </FilterDrawer>
   );
 }
 
-export function StandaloneSummarySection({ standaloneCount }: { standaloneCount: number }) {
-  if (standaloneCount === 0) return null;
+export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: SeriesGroup[] }) {
+  if (featuredSeries.length === 0) return null;
+
   return (
-    <section className="rounded-2xl border border-warm-gray/80 bg-parchment/80 p-4 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h3 className="font-display text-xl font-semibold text-stone-900">Standalone Summary</h3>
-          <p className="text-sm leading-relaxed text-stone-600">
-            {standaloneCount} {standaloneCount === 1 ? "book is" : "books are"} not attached to a
-            series and therefore excluded from the grouped results.
+    <section className={`${sectionSurfaceClasses} p-4 sm:p-5`}>
+      <div className="flex flex-col gap-4 rounded-2xl border border-warm-gray/70 bg-cream/90 p-4 sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+              Featured Series
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold text-stone-900">
+              Start with the biggest series
+            </h2>
+          </div>
+          <p className="text-sm text-stone-600">
+            Quick links for the series with the most books right now.
           </p>
         </div>
-        <Link to="/view?series=NONE" className={actionLinkClasses}>
-          View Standalones
-        </Link>
+        <nav className="flex flex-wrap gap-2" aria-label="Featured series jumps">
+          {featuredSeries.map((group) => (
+            <a
+              key={group.key}
+              href={`#${group.key}`}
+              className="inline-flex min-h-10 items-center rounded-full border border-warm-gray bg-parchment px-4 py-2 text-sm font-semibold text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+            >
+              {group.name}
+              <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-stone-500">
+                {group.books.length}
+              </span>
+            </a>
+          ))}
+        </nav>
       </div>
     </section>
   );
@@ -219,30 +205,31 @@ export function SeriesResultsSection({
         filteredSeries.map((group) => (
           <section
             key={group.key}
-            className="rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-4 shadow-soft sm:p-5"
+            id={group.key}
+            className="scroll-mt-24 rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-4 shadow-soft sm:p-5"
             style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}
           >
-            <div className="flex flex-col gap-4 border-b border-warm-gray/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div className="min-w-0 space-y-2">
-                <div className="inline-flex items-center rounded-full border border-warm-gray/70 bg-parchment/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                  Reading Order Carousel
+            <div className="flex flex-col gap-4 border-b border-warm-gray/70 pb-4">
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0 space-y-2">
+                  <div className="inline-flex items-center rounded-full border border-warm-gray/70 bg-parchment/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+                    Reading Order Carousel
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-display text-2xl font-semibold text-pretty text-stone-900 sm:text-[2rem]">
+                      {group.name}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-stone-600">
+                      {getSeriesProgressLabel(group.books)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-stone-600">
+                    <span className="rounded-full border border-warm-gray/75 bg-parchment/80 px-3 py-1">
+                      {group.books.length} {group.books.length === 1 ? "entry" : "entries"}
+                    </span>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="font-display text-2xl font-semibold text-pretty text-stone-900 sm:text-[2rem]">
-                    {group.name}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-stone-600">
-                    {getSeriesProgressLabel(group.books)}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs text-stone-600">
-                  <span className="rounded-full border border-warm-gray/75 bg-parchment/80 px-3 py-1">
-                    {group.books.length} {group.books.length === 1 ? "entry" : "entries"}
-                  </span>
-                </div>
-              </div>
 
-              <div className="flex flex-col items-start gap-3 sm:items-end">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
