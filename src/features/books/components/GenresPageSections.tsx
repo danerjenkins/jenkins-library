@@ -1,5 +1,4 @@
-import { ArrowLeft, ArrowRight, Compass, Library, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Library, Sparkles } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
@@ -19,75 +18,17 @@ export function GenresPageFrame({ children }: { children: React.ReactNode }) {
   return <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">{children}</div>;
 }
 
-export function GenresHeroSection({
-  loading,
-  resultsLabel,
-  shelfCount,
-  ownedCount,
-  wishlistCount,
-}: {
-  loading: boolean;
-  resultsLabel: string;
-  shelfCount: number;
-  ownedCount: number;
-  wishlistCount: number;
-}) {
+export function GenresHeroSection() {
   return (
-    <header className={`${sectionSurfaceClasses} overflow-hidden`}>
-      <div className="relative px-5 py-5 sm:px-6 sm:py-6">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(184,138,69,0.18),_transparent_36%),radial-gradient(circle_at_78%_22%,_rgba(111,132,99,0.14),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.3),_rgba(255,255,255,0))]"
-          aria-hidden="true"
-        />
-        <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(20rem,0.95fr)] lg:items-stretch">
-          <div className="rounded-[1.9rem] border border-white/60 bg-cream/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] sm:p-6">
-            <span className={`${pillClasses} border-brass/40 bg-brass/10 text-brass shadow-sm`}>
-              <Compass className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              Browse by Genre
-            </span>
-            <div className="mt-4 max-w-3xl space-y-3">
-              <h1 className="max-w-2xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.03em] text-stone-900 sm:text-5xl">
-                Genre shelves for quick discovery
-              </h1>
-              <p className="max-w-2xl text-base leading-8 text-stone-700">
-                Scan the collection by mood, lane, and reading intent without replacing the main library view.
-              </p>
-            </div>
-            <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-stone-600">
-              <span className="inline-flex min-h-10 items-center rounded-full border border-warm-gray/80 bg-parchment/85 px-4 font-semibold text-stone-800 shadow-sm">
-                {resultsLabel}
-              </span>
-              <span className="max-w-xl">Jump into the busiest genres first, then refine the shelves below.</span>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {[
-              { label: "Total Shelves", value: loading ? "..." : String(shelfCount), tone: "" },
-              { label: "Library", value: loading ? "..." : String(ownedCount), tone: "border-sage/20 bg-[linear-gradient(180deg,rgba(111,132,99,0.12),rgba(111,132,99,0.04))]" },
-              { label: "Wishlist", value: loading ? "..." : String(wishlistCount), tone: "border-brass/30 bg-[linear-gradient(180deg,rgba(184,138,69,0.12),rgba(184,138,69,0.04))]" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className={`rounded-[1.6rem] border border-warm-gray/75 bg-cream/92 px-4 py-4 shadow-sm ${item.tone}`}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                  {item.label}
-                </p>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <p className="font-display text-4xl font-semibold leading-none text-stone-900">{item.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <header className={`${sectionSurfaceClasses} px-5 py-6 sm:px-6 sm:py-7`}>
+      <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-4xl">
+        Genres page
+      </h1>
     </header>
   );
 }
 
 export function GenresFiltersSection({
-  resultsLabel,
   searchQuery,
   ownershipFilter,
   cardSize,
@@ -114,26 +55,6 @@ export function GenresFiltersSection({
   onClearFilters: () => void;
 }) {
   return (
-    <section className={`${sectionSurfaceClasses} p-4 sm:p-5`}>
-      <div className="flex flex-col gap-4 rounded-2xl border border-warm-gray/70 bg-cream/90 p-4 sm:p-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
-              Search And Filter
-            </p>
-            <h2 className="mt-1 font-display text-xl font-semibold text-stone-900">
-              Narrow the shelves
-            </h2>
-            <p className="mt-1 text-sm text-stone-600">{resultsLabel}</p>
-          </div>
-          <Link
-            to="/view"
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-warm-gray bg-parchment px-3.5 py-2 text-sm font-semibold text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow] duration-150 hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-          >
-            Back to Library
-          </Link>
-        </div>
-
         <FilterDrawer
           title="Genre Filters"
           description="Search across titles, authors, genres, and series without pushing the shelves out of view."
@@ -197,8 +118,6 @@ export function GenresFiltersSection({
             </div>
           </div>
         </FilterDrawer>
-      </div>
-    </section>
   );
 }
 

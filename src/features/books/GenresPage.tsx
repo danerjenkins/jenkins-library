@@ -12,13 +12,7 @@ export function GenresPage() {
 
   return (
     <GenresPageFrame>
-      <GenresHeroSection
-        loading={state.loading}
-        resultsLabel={state.resultsLabel}
-        shelfCount={state.genreShelves.length}
-        ownedCount={state.ownershipTotals.owned}
-        wishlistCount={state.ownershipTotals.wishlist}
-      />
+      <GenresHeroSection />
       <GenresFiltersSection
         resultsLabel={state.resultsLabel}
         searchQuery={state.searchQuery}
