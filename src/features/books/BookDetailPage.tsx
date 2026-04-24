@@ -8,6 +8,11 @@ import type { Book } from "./bookTypes";
 import { BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Badge } from "../../ui/components/Badge";
 import { Button } from "../../ui/components/Button";
+import type { ReaderId } from "./readingListPreferences";
+import {
+  addBookToReadingList,
+  getReadingListQueues,
+} from "../../repos/readingListRepo";
 
 type MetadataSummaryItem = {
   label: string;
@@ -26,6 +31,10 @@ export function BookDetailPage() {
   const [readStatusError, setReadStatusError] = useState<string | null>(null);
   const [savingOwnership, setSavingOwnership] = useState(false);
   const [ownershipError, setOwnershipError] = useState<string | null>(null);
+  const [readingListQueues, setReadingListQueues] = useState<Record<ReaderId, string[]>>({
+    dane: [],
+    emma: [],
+  });
 
   useEffect(() => {
     if (!id) {
@@ -34,19 +43,28 @@ export function BookDetailPage() {
     }
 
     let objectUrl: string | null = null;
+    let ignore = false;
 
     const loadBook = async () => {
       try {
         setLoading(true);
         setErrorMessage(null);
 
-        const bookData = await getBookById(id);
+        const [bookData, queues] = await Promise.all([
+          getBookById(id),
+          getReadingListQueues(),
+        ]);
         if (!bookData) {
           navigate("/view");
           return;
         }
 
+        if (ignore) {
+          return;
+        }
+
         setBook(bookData);
+        setReadingListQueues(queues);
 
         const coverUrl = await getCoverPhotoUrl(id);
         objectUrl = coverUrl;
@@ -64,6 +82,7 @@ export function BookDetailPage() {
     void loadBook();
 
     return () => {
+      ignore = true;
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
@@ -114,6 +133,17 @@ export function BookDetailPage() {
 
     return items;
   }, [book]);
+
+  const queuedReaders = useMemo(() => {
+    if (!book) {
+      return { dane: false, emma: false };
+    }
+
+    return {
+      dane: readingListQueues.dane.includes(book.id),
+      emma: readingListQueues.emma.includes(book.id),
+    };
+  }, [book, readingListQueues]);
 
   const handleBackNavigation = () => {
     const historyState = window.history.state as { idx?: number } | null;
@@ -186,6 +216,21 @@ export function BookDetailPage() {
     } finally {
       setSavingOwnership(false);
     }
+  };
+
+  const handleAddToReadingList = (readerId: ReaderId) => {
+    if (!book) return;
+
+    void addBookToReadingList(readerId, book.id)
+      .then((nextQueueIds) => {
+        setReadingListQueues((current) => ({
+          ...current,
+          [readerId]: nextQueueIds,
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to update reading list:", error);
+      });
   };
 
   if (loading) {
@@ -320,66 +365,112 @@ export function BookDetailPage() {
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
-                    Read Status
+                    Reading
                   </h2>
                   <p className="mt-1 text-xs text-stone-500">
-                    Mark who has read this book.
+                    Mark who has read this book and add it to a reader's next-up list.
                   </p>
                 </div>
                 <div className="text-xs text-stone-500" aria-live="polite">
-                  {savingReadStatus ? "Saving..." : "Saved"}
+                  {savingReadStatus
+                    ? "Saving read status..."
+                    : queuedReaders.dane || queuedReaders.emma
+                      ? "Queued"
+                      : "Saved"}
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <label
-                  htmlFor="detail-read-dane"
-                  className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
-                >
-                  <input
-                    id="detail-read-dane"
-                    name="detailReadByDane"
-                    type="checkbox"
-                    checked={book.readByDane}
-                    disabled={savingReadStatus}
-                    onChange={(event) =>
-                      void handleReadStatusChange(
-                        "readByDane",
-                        event.target.checked,
-                      )
-                    }
-                    className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
-                  />
-                  Dane
-                </label>
+              <div className="mt-3 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-lg border border-warm-gray bg-cream p-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-600">
+                    Read status
+                  </h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <label
+                      htmlFor="detail-read-dane"
+                      className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                    >
+                      <input
+                        id="detail-read-dane"
+                        name="detailReadByDane"
+                        type="checkbox"
+                        checked={book.readByDane}
+                        disabled={savingReadStatus}
+                        onChange={(event) =>
+                          void handleReadStatusChange(
+                            "readByDane",
+                            event.target.checked,
+                          )
+                        }
+                        className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                      />
+                      Dane
+                    </label>
 
-                <label
-                  htmlFor="detail-read-emma"
-                  className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
-                >
-                  <input
-                    id="detail-read-emma"
-                    name="detailReadByEmma"
-                    type="checkbox"
-                    checked={book.readByEmma}
-                    disabled={savingReadStatus}
-                    onChange={(event) =>
-                      void handleReadStatusChange(
-                        "readByEmma",
-                        event.target.checked,
-                      )
-                    }
-                    className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
-                  />
-                  Emma
-                </label>
+                    <label
+                      htmlFor="detail-read-emma"
+                      className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                    >
+                      <input
+                        id="detail-read-emma"
+                        name="detailReadByEmma"
+                        type="checkbox"
+                        checked={book.readByEmma}
+                        disabled={savingReadStatus}
+                        onChange={(event) =>
+                          void handleReadStatusChange(
+                            "readByEmma",
+                            event.target.checked,
+                          )
+                        }
+                        className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                      />
+                      Emma
+                    </label>
+                  </div>
+
+                  {readStatusError ? (
+                    <p className="mt-2 text-xs text-rose-700" role="alert">
+                      {readStatusError}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="rounded-lg border border-warm-gray bg-cream p-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-600">
+                    To read
+                  </h3>
+                  <p className="mt-1 text-xs text-stone-500">
+                    Add this book to a reader's next-up list.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[
+                      { readerId: "dane" as const, label: "Dane" },
+                      { readerId: "emma" as const, label: "Emma" },
+                    ].map(({ readerId, label }) => {
+                      const queued = queuedReaders[readerId];
+                      return (
+                        <Button
+                          key={readerId}
+                          type="button"
+                          variant={queued ? "secondary" : "primary"}
+                          onClick={() => handleAddToReadingList(readerId)}
+                        >
+                          {queued ? "Move to top for " : "Add to "}{label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge variant={isWishlistBook ? "amber" : "default"}>
+                      {isWishlistBook ? "Wishlist book" : "Library book"}
+                    </Badge>
+                    {queuedReaders.dane ? <Badge variant="success">Queued for Dane</Badge> : null}
+                    {queuedReaders.emma ? <Badge variant="success">Queued for Emma</Badge> : null}
+                  </div>
+                </div>
               </div>
-
-              {readStatusError ? (
-                <p className="mt-2 text-xs text-rose-700" role="alert">
-                  {readStatusError}
-                </p>
-              ) : null}
             </section>
 
             <section className="rounded-xl border border-warm-gray/80 bg-parchment/75 p-4">

@@ -35,11 +35,11 @@ export function LibraryDiscoveryPanel({
         <div className="text-xs font-medium text-stone-500" aria-live="polite">
           {loading
             ? "Loading discovery views..."
-            : `${seriesCount} series groups • ${genreCount} genres`}
+            : `${seriesCount} series groups • ${genreCount} genres • 2 reader queues`}
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
+      <div className="mt-3 grid gap-3 lg:grid-cols-3">
         <DiscoveryLinkCard
           to="/series"
           badge="Series View"
@@ -60,6 +60,16 @@ export function LibraryDiscoveryPanel({
             loading ? "Preparing genres..." : `${genreCount} genres • ${noSeriesCount} standalones`
           }
           cta="Open Genres"
+          ctaClassName="text-clay"
+        />
+        <DiscoveryLinkCard
+          to="/reading-list"
+          badge="Reading List"
+          badgeClassName="inline-flex w-fit rounded-full border border-brass/30 bg-brass/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-clay"
+          title="Keep Next Up Small"
+          description="Give Dane and Emma separate owned and wishlist queues so the next few reads stay focused."
+          summary={loading ? "Preparing reading list..." : "2 reader queues"}
+          cta="Open Reading List"
           ctaClassName="text-clay"
         />
       </div>

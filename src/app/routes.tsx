@@ -7,6 +7,7 @@ import { BookDetailPage } from "../features/books/BookDetailPage";
 import { WishlistPage } from "../features/books/WishlistPage";
 import { SeriesPage } from "../features/books/SeriesPage";
 import { GenresPage } from "../features/books/GenresPage";
+import { ReadingListPage } from "../features/books/ReadingListPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 
 export const routes: RouteObject[] = [
@@ -48,6 +49,11 @@ export const routes: RouteObject[] = [
   {
     path: "/genres",
     element: <GenresPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/reading-list",
+    element: <ReadingListPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ];
