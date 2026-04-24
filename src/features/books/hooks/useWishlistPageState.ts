@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback } from "react";
 import type { SetURLSearchParams } from "react-router-dom";
 import {
   getDefaultCardSize,
@@ -113,60 +113,48 @@ export function useWishlistPageState(
   searchParams: URLSearchParams,
   setSearchParams: SetURLSearchParams,
 ) {
-  const [state, setState] = useState<WishlistPageState>(defaultWishlistState);
-  const [hasHydratedViewState, setHasHydratedViewState] = useState(false);
   const searchParamsKey = searchParams.toString();
 
-  useEffect(() => {
-    setState(getHydratedState(searchParams));
-    setHasHydratedViewState(true);
-  }, [searchParams, searchParamsKey]);
+  const state = getHydratedState(searchParams);
 
-  useEffect(() => {
-    if (!hasHydratedViewState) {
-      return;
-    }
+  const updateState = useCallback((patch: Partial<WishlistPageState>) => {
+    const nextState = {
+      ...state,
+      ...patch,
+    };
 
     writeStorageValue(WISHLIST_VIEW_STORAGE_KEY, {
-      filterGenre: state.filterGenre,
-      filterReadStatus: state.filterReadStatus,
-      filterFormat: state.filterFormat,
-      filterSeries: state.filterSeries,
+      filterGenre: nextState.filterGenre,
+      filterReadStatus: nextState.filterReadStatus,
+      filterFormat: nextState.filterFormat,
+      filterSeries: nextState.filterSeries,
     } satisfies StoredWishlistViewPreferences);
-    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, state.cardSize);
+    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, nextState.cardSize);
 
-    const nextSearchParams = toSearchParams(state);
+    const nextSearchParams = toSearchParams(nextState);
     if (nextSearchParams.toString() !== searchParamsKey) {
       startTransition(() => {
         setSearchParams(nextSearchParams, { replace: true });
       });
     }
-  }, [hasHydratedViewState, searchParamsKey, setSearchParams, state]);
-
-  const updateState = useCallback((patch: Partial<WishlistPageState>) => {
-    setState((current) => ({ ...current, ...patch }));
-  }, []);
+  }, [searchParamsKey, setSearchParams, state]);
 
   const clearFilters = useCallback(() => {
-    setState((current) => ({
-      ...current,
+    updateState({
       searchQuery: defaultWishlistState.searchQuery,
       filterGenre: defaultWishlistState.filterGenre,
       filterReadStatus: defaultWishlistState.filterReadStatus,
       filterFormat: defaultWishlistState.filterFormat,
       filterSeries: defaultWishlistState.filterSeries,
-    }));
-  }, []);
+    });
+  }, [updateState]);
 
-  const hasActiveFilters = useMemo(
-    () =>
-      Boolean(state.searchQuery.trim()) ||
-      state.filterGenre !== defaultWishlistState.filterGenre ||
-      state.filterReadStatus !== defaultWishlistState.filterReadStatus ||
-      state.filterFormat !== defaultWishlistState.filterFormat ||
-      state.filterSeries !== defaultWishlistState.filterSeries,
-    [state],
-  );
+  const hasActiveFilters =
+    Boolean(state.searchQuery.trim()) ||
+    state.filterGenre !== defaultWishlistState.filterGenre ||
+    state.filterReadStatus !== defaultWishlistState.filterReadStatus ||
+    state.filterFormat !== defaultWishlistState.filterFormat ||
+    state.filterSeries !== defaultWishlistState.filterSeries;
 
   return {
     state,

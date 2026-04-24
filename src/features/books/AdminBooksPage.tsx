@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "../../ui/components/Button";
 import { BookForm } from "./components/BookForm";
@@ -7,7 +8,12 @@ import { ManageDeleteDialog } from "./components/ManageDeleteDialog";
 import { useAdminBooksManager } from "./hooks/useAdminBooksManager";
 
 export function AdminBooksPage() {
-  const { page, filters, form, modal, list, actions } = useAdminBooksManager();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRegionRef = useRef<HTMLDivElement>(null);
+  const { page, filters, form, modal, list, actions } = useAdminBooksManager({
+    fileInputRef,
+    formRegionRef,
+  });
 
   return (
     <div className="space-y-6">
@@ -77,7 +83,7 @@ export function AdminBooksPage() {
 
         {page.showForm ? (
           <div
-            ref={form.formRegionRef}
+            ref={formRegionRef}
             className="mt-5 space-y-4 scroll-mt-24"
             aria-label={form.editingId ? "Edit book form" : "Add book form"}
           >
@@ -100,14 +106,14 @@ export function AdminBooksPage() {
               coverPhotoUrl={form.coverPhotoUrl}
               showCoverSaved={form.showCoverSaved}
               showCoverPhotoControls={Boolean(form.editingId)}
-              coverPhotoInputRef={form.fileInputRef}
+              coverPhotoInputRef={fileInputRef}
               saveState={form.formSaveState}
               saveMessage={form.formSaveMessage}
               saveSignal={form.formSaveSignal}
               formInstanceKey={form.formInstanceKey}
               onDirtyChange={actions.setFormIsDirty}
               onCoverPhotoFileChange={actions.handleCoverPhotoCapture}
-              onCoverPhotoPick={() => form.fileInputRef.current?.click()}
+              onCoverPhotoPick={actions.handlePickCoverPhoto}
               onRemoveCoverPhoto={actions.handleRemoveCoverPhoto}
               onTitleChange={actions.setTitle}
               onAuthorChange={actions.setAuthor}

@@ -66,7 +66,13 @@ function buildEditableBook(state: {
   };
 }
 
-export function useAdminBooksManager() {
+export function useAdminBooksManager({
+  fileInputRef,
+  formRegionRef,
+}: {
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  formRegionRef: React.RefObject<HTMLDivElement | null>;
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,9 +111,7 @@ export function useAdminBooksManager() {
   const [filterOwnership, setFilterOwnership] = useState<"owned" | "wishlist">("owned");
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const formCloseTimeoutRef = useRef<number | null>(null);
-  const formRegionRef = useRef<HTMLDivElement>(null);
   const pendingFormFocusRef = useRef(false);
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const formInstanceKey = editingId ? `edit-${editingId}-${formSessionKey}` : `add-${formSessionKey}`;
@@ -536,6 +540,10 @@ export function useAdminBooksManager() {
     }
   }, [coverPhotoUrl, editingId]);
 
+  const handlePickCoverPhoto = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
   const handleConfirmDeleteBook = useCallback(async () => {
     if (!deleteTarget) return;
     const { id, title: deleteTitle } = deleteTarget;
@@ -611,8 +619,6 @@ export function useAdminBooksManager() {
       formSaveSignal,
       formIsDirty,
       formInstanceKey,
-      fileInputRef,
-      formRegionRef,
     },
     modal: { deleteTarget, deletePending },
     list: { books, ownershipActionBookId },
@@ -630,6 +636,7 @@ export function useAdminBooksManager() {
       handleQuickOwnershipToggle,
       handleSubmit,
       handleCoverPhotoCapture,
+      handlePickCoverPhoto,
       handleRemoveCoverPhoto,
       handleCoverUrlChange,
       handleConfirmDeleteBook,

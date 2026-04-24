@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback } from "react";
 import type { SetURLSearchParams } from "react-router-dom";
 import type { BookFormat, ReadStatus } from "../bookTypes";
 import {
@@ -162,45 +162,36 @@ export function useViewBooksPageState(
   searchParams: URLSearchParams,
   setSearchParams: SetURLSearchParams,
 ) {
-  const [state, setState] = useState<ViewBooksPageState>(defaultViewState);
-  const [hasHydratedViewState, setHasHydratedViewState] = useState(false);
   const searchParamsKey = searchParams.toString();
 
-  useEffect(() => {
-    setState(getHydratedState(searchParams));
-    setHasHydratedViewState(true);
-  }, [searchParams, searchParamsKey]);
+  const state = getHydratedState(searchParams);
 
-  useEffect(() => {
-    if (!hasHydratedViewState) {
-      return;
-    }
+  const updateState = useCallback((patch: Partial<ViewBooksPageState>) => {
+    const nextState = {
+      ...state,
+      ...patch,
+    };
 
     writeStorageValue(LIBRARY_VIEW_STORAGE_KEY, {
-      ownershipFilter: state.ownershipFilter,
-      filterGenre: state.filterGenre,
-      filterFinished: state.filterFinished,
-      filterFormat: state.filterFormat,
-      filterSeries: state.filterSeries,
-      sortBy: state.sortBy,
+      ownershipFilter: nextState.ownershipFilter,
+      filterGenre: nextState.filterGenre,
+      filterFinished: nextState.filterFinished,
+      filterFormat: nextState.filterFormat,
+      filterSeries: nextState.filterSeries,
+      sortBy: nextState.sortBy,
     } satisfies StoredLibraryViewPreferences);
-    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, state.cardSize);
+    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, nextState.cardSize);
 
-    const nextSearchParams = toSearchParams(state);
+    const nextSearchParams = toSearchParams(nextState);
     if (nextSearchParams.toString() !== searchParamsKey) {
       startTransition(() => {
         setSearchParams(nextSearchParams, { replace: true });
       });
     }
-  }, [hasHydratedViewState, searchParamsKey, setSearchParams, state]);
-
-  const updateState = useCallback((patch: Partial<ViewBooksPageState>) => {
-    setState((current) => ({ ...current, ...patch }));
-  }, []);
+  }, [searchParamsKey, setSearchParams, state]);
 
   const clearFilters = useCallback(() => {
-    setState((current) => ({
-      ...current,
+    updateState({
       searchQuery: defaultViewState.searchQuery,
       ownershipFilter: defaultViewState.ownershipFilter,
       filterGenre: defaultViewState.filterGenre,
@@ -208,20 +199,17 @@ export function useViewBooksPageState(
       filterFormat: defaultViewState.filterFormat,
       filterSeries: defaultViewState.filterSeries,
       sortBy: defaultViewState.sortBy,
-    }));
-  }, []);
+    });
+  }, [updateState]);
 
-  const hasActiveFilters = useMemo(
-    () =>
-      Boolean(state.searchQuery) ||
-      state.ownershipFilter !== defaultViewState.ownershipFilter ||
-      state.filterGenre !== defaultViewState.filterGenre ||
-      state.filterFinished !== defaultViewState.filterFinished ||
-      state.filterFormat !== defaultViewState.filterFormat ||
-      state.filterSeries !== defaultViewState.filterSeries ||
-      state.sortBy !== defaultViewState.sortBy,
-    [state],
-  );
+  const hasActiveFilters =
+    Boolean(state.searchQuery) ||
+    state.ownershipFilter !== defaultViewState.ownershipFilter ||
+    state.filterGenre !== defaultViewState.filterGenre ||
+    state.filterFinished !== defaultViewState.filterFinished ||
+    state.filterFormat !== defaultViewState.filterFormat ||
+    state.filterSeries !== defaultViewState.filterSeries ||
+    state.sortBy !== defaultViewState.sortBy;
 
   return {
     state,

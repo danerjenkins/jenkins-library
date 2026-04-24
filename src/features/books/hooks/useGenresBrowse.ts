@@ -33,7 +33,10 @@ export function useGenresBrowse() {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
-  const [cardSize, setCardSize] = useState<CardSize>(getDefaultCardSize);
+  const [cardSize, setCardSize] = useState<CardSize>(() => {
+    const storedCardSize = readStorageValue<string>(SHELF_CARD_SIZE_STORAGE_KEY);
+    return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
+  });
   const [shelfCardHeights, setShelfCardHeights] = useState<Record<string, number>>({});
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -54,13 +57,6 @@ export function useGenresBrowse() {
   useEffect(() => {
     void loadBooks();
   }, [loadBooks]);
-
-  useEffect(() => {
-    const storedCardSize = readStorageValue<string>(SHELF_CARD_SIZE_STORAGE_KEY);
-    if (isCardSize(storedCardSize)) {
-      setCardSize((current) => (current === storedCardSize ? current : storedCardSize));
-    }
-  }, []);
 
   useEffect(() => {
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);

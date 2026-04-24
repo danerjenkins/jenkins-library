@@ -1,8 +1,4 @@
-import {
-  type ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
@@ -35,11 +31,9 @@ export function FilterDrawer({
   footer,
   triggerLabel = "Open Filters",
 }: FilterDrawerProps) {
-  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalRoot(document.body);
-  }, []);
+  const [portalRoot] = useState<HTMLElement | null>(() =>
+    typeof document !== "undefined" ? document.body : null,
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -80,7 +74,7 @@ export function FilterDrawer({
       </button>
 
       <div
-        className={`fixed inset-0 z-[85] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed inset-0 z-85 bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden="true"
