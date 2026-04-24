@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Layers3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
+import { LoadingState } from "../../../ui/components/LoadingState";
 import { PageHero } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
 import { BookCard, BookShelfState } from "./BookCard";
@@ -184,17 +185,12 @@ export function SeriesResultsSection({
   return (
     <section className="space-y-4">
       {loading ? (
-        <div aria-live="polite" aria-label="Loading series">
-          <div className="sr-only">Loading series...</div>
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <section
-                key={index}
-                className="rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-4 shadow-soft sm:p-5"
-              />
-            ))}
-          </div>
-        </div>
+        <LoadingState
+          title="Loading Series"
+          description="Arranging series into reading-order lanes."
+          variant="shelf"
+          cardCount={3}
+        />
       ) : groupedSeries.length === 0 ? (
         <BookShelfState
           title="No Series Yet"

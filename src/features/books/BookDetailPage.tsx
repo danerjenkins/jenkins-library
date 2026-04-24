@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Edit } from "lucide-react";
 import { getBookById, updateBook } from "../../data/bookRepo";
 import { getCoverPhotoUrl } from "../../data/db";
+import { LoadingState } from "../../ui/components/LoadingState";
 import type { Book } from "./bookTypes";
 import { BOOK_FORMAT_LABELS } from "./bookTypes";
 import { Badge } from "../../ui/components/Badge";
@@ -189,13 +190,13 @@ export function BookDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div
-          className="rounded-xl border border-warm-gray bg-cream/90 px-4 py-3 text-sm text-stone-500 shadow-sm"
-          aria-live="polite"
-        >
-          Loading book details...
-        </div>
+      <div className="mx-auto flex min-h-[50vh] max-w-5xl items-center justify-center px-4">
+        <LoadingState
+          title="Loading Book Details"
+          description="Fetching the record, cover, and reading controls."
+          variant="detail"
+          className="w-full"
+        />
       </div>
     );
   }

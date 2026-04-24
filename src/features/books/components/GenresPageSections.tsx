@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Library, Sparkles } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
+import { LoadingState } from "../../../ui/components/LoadingState";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
 import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
@@ -177,10 +178,12 @@ export function GenresResultsSection({
 }) {
   if (loading) {
     return (
-      <div className="space-y-5" role="status" aria-live="polite" aria-label="Loading genre carousels">
-        <BookShelfState
-          title="Loading genre carousels"
+      <div className="space-y-5">
+        <LoadingState
+          title="Loading Genre Carousels"
           description="Pulling the latest books into browseable genre lanes."
+          variant="shelf"
+          cardCount={4}
         />
       </div>
     );

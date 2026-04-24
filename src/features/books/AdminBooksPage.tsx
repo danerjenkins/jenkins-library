@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "../../ui/components/Button";
+import { LoadingState } from "../../ui/components/LoadingState";
 import { BookForm } from "./components/BookForm";
 import { ManageBooksFilterPanel } from "./components/ManageBooksFilterPanel";
 import { ManageBooksResults } from "./components/ManageBooksResults";
@@ -145,18 +146,26 @@ export function AdminBooksPage() {
       </section>
 
       <section className="space-y-3">
-        <ManageBooksResults
-          loading={page.loading}
-          books={list.books}
-          filteredBooks={filters.filteredBooks}
-          filterOwnership={filters.filterOwnership}
-          onStartAddBook={actions.handleStartAddBook}
-          onClearFilters={actions.handleClearFilters}
-          onEdit={actions.handleEditBook}
-          onDelete={actions.setDeleteTarget}
-          onToggleOwnership={(book) => void actions.handleQuickOwnershipToggle(book)}
-          ownershipBusyId={list.ownershipActionBookId}
-        />
+        {page.loading ? (
+          <LoadingState
+            title="Loading Manage Books"
+            description="Restoring the catalog table and ownership actions."
+            variant="panel"
+          />
+        ) : (
+          <ManageBooksResults
+            loading={page.loading}
+            books={list.books}
+            filteredBooks={filters.filteredBooks}
+            filterOwnership={filters.filterOwnership}
+            onStartAddBook={actions.handleStartAddBook}
+            onClearFilters={actions.handleClearFilters}
+            onEdit={actions.handleEditBook}
+            onDelete={actions.setDeleteTarget}
+            onToggleOwnership={(book) => void actions.handleQuickOwnershipToggle(book)}
+            ownershipBusyId={list.ownershipActionBookId}
+          />
+        )}
       </section>
 
       <ManageDeleteDialog

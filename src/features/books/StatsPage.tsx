@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllBooks } from "../../data/bookRepo";
 import { PageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
+import { LoadingState } from "../../ui/components/LoadingState";
 import type { Book } from "./bookTypes";
 
 function StatCard({ label, value }: { label: string; value: number }) {
@@ -66,12 +67,11 @@ export function StatsPage() {
 
       <PageSection>
         {loading ? (
-          <div
-            className="rounded-xl border border-warm-gray bg-cream px-4 py-6 text-center text-sm text-stone-500"
-            aria-live="polite"
-          >
-            Loading stats...
-          </div>
+          <LoadingState
+            title="Loading Stats"
+            description="Summarizing the collection and reading progress."
+            variant="panel"
+          />
         ) : errorMessage ? (
           <div
             className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"

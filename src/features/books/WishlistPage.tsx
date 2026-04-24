@@ -5,6 +5,7 @@ import { updateBook } from "../../data/bookRepo";
 import { Button } from "../../ui/components/Button";
 import { PageHero, PageLayout } from "../../ui/components/PageLayout";
 import { Select } from "../../ui/components/Select";
+import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
 import type { Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
@@ -234,7 +235,12 @@ export function WishlistPage() {
 
         <section className="space-y-6">
           {loading ? (
-            <BookShelfState title="Loading Wishlist..." />
+            <LoadingState
+              title="Loading Wishlist"
+              description="Gathering wishlist books and preparing the shelf view."
+              variant="shelf"
+              cardCount={8}
+            />
           ) : books.length === 0 ? (
             <BookShelfState
               title="No Wishlist Books Yet"

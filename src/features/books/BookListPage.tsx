@@ -2,6 +2,7 @@ import type { FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import { addBook, deleteBook, getAllBooks } from "../../data/bookRepo";
+import { LoadingState } from "../../ui/components/LoadingState";
 import type { Book } from "./bookTypes";
 
 type FinishedFilter = "ALL" | "FINISHED" | "UNFINISHED";
@@ -320,7 +321,11 @@ export function BookListPage() {
 
       <section className="space-y-3">
         {loading ? (
-          <BookListState>Loading Books…</BookListState>
+          <LoadingState
+            title="Loading Books"
+            description="Reading the local catalog before opening the list view."
+            variant="panel"
+          />
         ) : books.length === 0 ? (
           <BookListState>
             <p className="font-medium text-slate-700">No Books Yet</p>

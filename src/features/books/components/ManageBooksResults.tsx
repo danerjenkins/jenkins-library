@@ -1,4 +1,5 @@
 import { Button } from "../../../ui/components/Button";
+import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book } from "../bookTypes";
 import type { ReactNode } from "react";
 import { ManageBookRow } from "./ManageBookRow";
@@ -36,12 +37,11 @@ export function ManageBooksResults({
 }) {
   if (loading) {
     return (
-      <div
-        className="rounded-xl border border-warm-gray bg-cream/90 px-4 py-8 text-center text-sm text-stone-500 shadow-sm"
-        aria-live="polite"
-      >
-        Loading books...
-      </div>
+      <LoadingState
+        title="Loading Books"
+        description="Building the management table and ownership controls."
+        variant="panel"
+      />
     );
   }
 

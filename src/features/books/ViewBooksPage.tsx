@@ -4,6 +4,7 @@ import { sortBooksBySeriesOrder } from "../../data/bookRepo";
 import { Button } from "../../ui/components/Button";
 import { PageHero, PageLayout } from "../../ui/components/PageLayout";
 import { Select } from "../../ui/components/Select";
+import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 import { FilterDrawer } from "./components/FilterDrawer";
@@ -264,7 +265,12 @@ export function ViewBooksPage() {
 
         <section className="space-y-6">
           {loading ? (
-            <BookShelfState title="Loading Library..." />
+            <LoadingState
+              title="Loading Library"
+              description="Pulling in covers, shelves, and filters for the full collection."
+              variant="shelf"
+              cardCount={8}
+            />
           ) : visibleShelfBooks.length === 0 ? (
             <BookShelfState
               title={state.ownershipFilter === "wishlist" ? "No Wishlist Books Yet" : "No Books Yet"}
