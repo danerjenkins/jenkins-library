@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllBooks } from "../../data/bookRepo";
+import { PageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
 import type { Book } from "./bookTypes";
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
+      <div className="text-xs uppercase tracking-wide text-stone-500">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-stone-900">{value}</div>
+    </div>
+  );
+}
 
 export function StatsPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -12,20 +22,15 @@ export function StatsPage() {
       try {
         setLoading(true);
         setErrorMessage(null);
-        const allBooks = await getAllBooks();
-        setBooks(allBooks);
+        setBooks(await getAllBooks());
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to load library stats.";
-        setErrorMessage(message);
+        setErrorMessage(error instanceof Error ? error.message : "Failed to load library stats.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadStats();
+    void loadStats();
   }, []);
 
   const stats = useMemo(
@@ -53,25 +58,19 @@ export function StatsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border border-warm-gray bg-cream/95 p-4 shadow-soft sm:p-6">
-        <div>
-          <h2 className="font-display text-3xl font-bold tracking-tight text-stone-900">
-            Library Statistics
-          </h2>
-          <p className="font-sans mt-2 text-sm leading-relaxed text-stone-600">
-            Overview of your collection and reading progress.
-          </p>
-        </div>
-      </section>
+    <PageLayout>
+      <PageHero
+        title="Library Statistics"
+        description="Overview of your collection and reading progress."
+      />
 
-      <section className="rounded-2xl border border-warm-gray bg-cream/90 p-4 shadow-soft sm:p-6">
+      <PageSection>
         {loading ? (
           <div
             className="rounded-xl border border-warm-gray bg-cream px-4 py-6 text-center text-sm text-stone-500"
             aria-live="polite"
           >
-            Loading stats…
+            Loading stats...
           </div>
         ) : errorMessage ? (
           <div
@@ -89,57 +88,15 @@ export function StatsPage() {
           </div>
         ) : (
           <div className="grid gap-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Total Books
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.totalBooks}
-              </div>
-            </div>
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Finished
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.finishedBooks}
-              </div>
-            </div>
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Unread
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.unreadBooks}
-              </div>
-            </div>
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Read by Dane
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.readByDane}
-              </div>
-            </div>
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Read by Emma
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.readByEmma}
-              </div>
-            </div>
-            <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-stone-500">
-                Read by Both
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-stone-900">
-                {stats.readByBoth}
-              </div>
-            </div>
+            <StatCard label="Total Books" value={stats.totalBooks} />
+            <StatCard label="Finished" value={stats.finishedBooks} />
+            <StatCard label="Unread" value={stats.unreadBooks} />
+            <StatCard label="Read by Dane" value={stats.readByDane} />
+            <StatCard label="Read by Emma" value={stats.readByEmma} />
+            <StatCard label="Read by Both" value={stats.readByBoth} />
           </div>
         )}
-      </section>
-    </div>
+      </PageSection>
+    </PageLayout>
   );
 }

@@ -1,0 +1,54 @@
+import type { ChangeEvent, ReactNode, RefObject } from "react";
+
+export type BookFormSaveState = "idle" | "saving" | "success" | "error";
+export type BookFormSection = "core" | "reading" | "meta";
+
+export interface BookFormProps {
+  isEditing: boolean;
+  title: string;
+  author: string;
+  genre: string;
+  description: string;
+  isbn: string;
+  finished: boolean;
+  coverUrl: string;
+  format: string;
+  pages: string;
+  readByDane: boolean;
+  readByEmma: boolean;
+  ownershipStatus: "owned" | "wishlist";
+  seriesName: string;
+  seriesLabel: string;
+  coverPhotoUrl: string | null;
+  showCoverSaved: boolean;
+  showCoverPhotoControls: boolean;
+  coverPhotoInputRef: RefObject<HTMLInputElement | null>;
+  saveState?: BookFormSaveState;
+  saveMessage?: string | null;
+  saveSignal?: number | string | null;
+  formInstanceKey?: string | null;
+  onDirtyChange?: (isDirty: boolean) => void;
+  unsavedChangesMessage?: string;
+  onCoverPhotoFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onCoverPhotoPick: () => void;
+  onRemoveCoverPhoto: () => void;
+  onTitleChange: (value: string) => void;
+  onAuthorChange: (value: string) => void;
+  onGenreChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onIsbnChange: (value: string) => void;
+  onFinishedChange: (checked: boolean) => void;
+  onCoverUrlChange: (value: string) => void;
+  onFormatChange: (value: string) => void;
+  onPagesChange: (value: string) => void;
+  onReadByDaneChange: (checked: boolean) => void;
+  onReadByEmmaChange: (checked: boolean) => void;
+  onOwnershipStatusChange: (value: "owned" | "wishlist") => void;
+  onSeriesNameChange: (value: string) => void;
+  onSeriesLabelChange: (value: string) => void;
+  onClearSeries: () => void;
+  onSubmit: (e: React.FormEvent) => void | Promise<void>;
+  onCancel: () => void;
+  onDelete?: () => void;
+  children?: ReactNode;
+}
