@@ -6,6 +6,7 @@ export type BookFormat =
   | "mmpb"
   | "paperback"
   | "hardcover"
+  | "trade_paperback"
   | "ebook"
   | "audiobook"
   | "other";
@@ -14,6 +15,7 @@ export const BOOK_FORMAT_LABELS: Record<BookFormat, string> = {
   mmpb: "Mass Market Paperback",
   paperback: "Paperback",
   hardcover: "Hardcover",
+  trade_paperback: "Trade Paperback",
   ebook: "E-book",
   audiobook: "Audiobook",
   other: "Other",
@@ -68,6 +70,8 @@ export interface Book {
   format?: BookFormat;
   /** Total number of pages (optional) */
   pages?: number;
+  /** Published year (optional) */
+  publishedYear?: number | null;
   /** Series id (optional) */
   seriesId?: string | null;
   /** Series name (optional) */

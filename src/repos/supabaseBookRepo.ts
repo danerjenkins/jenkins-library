@@ -1,4 +1,5 @@
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
+import * as BookTypes from "../features/books/bookTypes";
 import type { Book, BookFormat } from "../features/books/bookTypes";
 
 export type BookInput = {
@@ -27,6 +28,9 @@ type BookRow = {
   published_year: number | null;
   cover_url: string | null;
   cover_drive_file_id: string | null;
+  finished: boolean | null;
+  format: string | null;
+  pages: number | null;
   read_by_dane: boolean | null;
   read_by_emma: boolean | null;
   ownership_status: "owned" | "wishlist" | null;
@@ -52,6 +56,14 @@ function toTimestamp(value: string | null): number {
   return Number.isNaN(parsed) ? Date.now() : parsed;
 }
 
+function normalizeFormat(value: string | null): BookFormat | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  return value in BookTypes.BOOK_FORMAT_LABELS ? (value as BookFormat) : undefined;
+}
+
 function mapRowToBook(row: BookWithSeriesRow): Book {
   const createdAt = toTimestamp(row.created_at);
   const updatedAt = row.updated_at ? toTimestamp(row.updated_at) : createdAt;
@@ -63,12 +75,13 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     genre: row.genre ?? null,
     description: row.description ?? null,
     isbn: row.isbn ?? null,
-    finished: false,
+    finished: row.finished ?? false,
     coverUrl: row.cover_url ?? null,
     readByDane: row.read_by_dane ?? false,
     readByEmma: row.read_by_emma ?? false,
-    format: undefined,
-    pages: undefined,
+    format: normalizeFormat(row.format),
+    pages: row.pages ?? undefined,
+    publishedYear: row.published_year ?? null,
     seriesId: row.series_id ?? null,
     seriesName: row.series_name ?? null,
     seriesLabel: row.series_label ?? null,
@@ -139,6 +152,9 @@ export async function createBook(input: BookInput): Promise<Book> {
     isbn: input.isbn ?? null,
     cover_url: input.coverUrl ?? null,
     published_year: input.publishedYear ?? null,
+    finished: input.finished ?? false,
+    format: input.format ?? null,
+    pages: input.pages ?? null,
     read_by_dane: input.readByDane ?? false,
     read_by_emma: input.readByEmma ?? false,
     ownership_status: input.ownershipStatus ?? "owned",
@@ -189,6 +205,9 @@ export async function updateBook(
     updateRow.cover_url = patch.coverUrl ?? null;
   if (patch.publishedYear !== undefined)
     updateRow.published_year = patch.publishedYear ?? null;
+  if (patch.finished !== undefined) updateRow.finished = patch.finished;
+  if (patch.format !== undefined) updateRow.format = patch.format ?? null;
+  if (patch.pages !== undefined) updateRow.pages = patch.pages ?? null;
   if (patch.readByDane !== undefined) updateRow.read_by_dane = patch.readByDane;
   if (patch.readByEmma !== undefined) updateRow.read_by_emma = patch.readByEmma;
   if (patch.ownershipStatus !== undefined)

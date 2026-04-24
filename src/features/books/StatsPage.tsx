@@ -1,20 +1,174 @@
 import { useEffect, useMemo, useState } from "react";
-import { getAllBooks } from "../../data/bookRepo";
+import { getAllBooks, getWishlistBooks } from "../../data/bookRepo";
 import { PageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
 import { LoadingState } from "../../ui/components/LoadingState";
-import type { Book } from "./bookTypes";
+import { BOOK_FORMAT_LABELS, type Book } from "./bookTypes";
 
-function StatCard({ label, value }: { label: string; value: number }) {
+type RankedStat = {
+  label: string;
+  count: number;
+  share: number;
+};
+
+type LibraryStats = {
+  totalBooks: number;
+  ownedBooks: number;
+  wishlistBooks: number;
+  finishedBooks: number;
+  unreadBooks: number;
+  readByDane: number;
+  readByEmma: number;
+  readByBoth: number;
+  booksWithPages: number;
+  totalPages: number;
+  averagePages: number;
+  medianPages: number;
+  longestBook: Book | null;
+  booksWithYear: number;
+  earliestYear: number | null;
+  latestYear: number | null;
+  booksInSeries: number;
+  seriesCount: number;
+  topGenres: RankedStat[];
+  topAuthors: RankedStat[];
+  topFormats: RankedStat[];
+};
+
+const numberFormatter = new Intl.NumberFormat();
+const decimalFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 1,
+});
+
+function formatNumber(value: number): string {
+  return numberFormatter.format(value);
+}
+
+function formatPages(value: number): string {
+  return `${decimalFormatter.format(value)} pages`;
+}
+
+function formatPercent(value: number): string {
+  return `${Math.round(value)}%`;
+}
+
+function calculateMedian(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sortedValues = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sortedValues.length / 2);
+  if (sortedValues.length % 2 === 0) {
+    return (sortedValues[middle - 1] + sortedValues[middle]) / 2;
+  }
+
+  return sortedValues[middle];
+}
+
+function buildRankedStats(
+  values: Array<string | null | undefined>,
+  total: number,
+  limit = 5,
+): RankedStat[] {
+  const counts = new Map<string, number>();
+
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    counts.set(trimmed, (counts.get(trimmed) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([label, count]) => ({
+      label,
+      count,
+      share: total > 0 ? (count / total) * 100 : 0,
+    }));
+}
+
+function StatCard({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+}) {
   return (
-    <div className="rounded-xl border border-warm-gray bg-cream px-4 py-3 shadow-sm">
-      <div className="text-xs uppercase tracking-wide text-stone-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-stone-900">{value}</div>
+    <div className="rounded-2xl border border-warm-gray bg-gradient-to-br from-cream to-parchment/60 px-4 py-4 shadow-soft">
+      <div className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">{label}</div>
+      <div className="mt-3 text-3xl font-semibold tracking-tight text-stone-900">{value}</div>
+      {detail ? <div className="mt-2 text-sm leading-6 text-stone-600">{detail}</div> : null}
+    </div>
+  );
+}
+
+function InsightCard({
+  label,
+  title,
+  detail,
+}: {
+  label: string;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-warm-gray bg-cream px-4 py-4 shadow-soft">
+      <div className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">{label}</div>
+      <div className="mt-2 text-lg font-semibold text-stone-900">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-stone-600">{detail}</p>
+    </div>
+  );
+}
+
+function RankedList({
+  title,
+  items,
+  emptyText,
+}: {
+  title: string;
+  items: RankedStat[];
+  emptyText: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-warm-gray bg-cream px-4 py-4 shadow-soft">
+      <h3 className="text-base font-semibold text-stone-900">{title}</h3>
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm text-stone-500">{emptyText}</p>
+      ) : (
+        <ul className="mt-4 space-y-4">
+          {items.map((item) => (
+            <li key={item.label}>
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="min-w-0 truncate font-medium text-stone-800">{item.label}</span>
+                <span className="shrink-0 text-stone-500">
+                  {formatNumber(item.count)} {item.count === 1 ? "book" : "books"}
+                </span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-warm-gray-light" aria-hidden="true">
+                <div
+                  className="h-2 rounded-full bg-sage"
+                  style={{ width: `${Math.min(100, Math.max(6, item.share))}%` }}
+                />
+              </div>
+              <div className="mt-1 text-xs text-stone-500">{formatPercent(item.share)} of books</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
 export function StatsPage() {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [ownedBooks, setOwnedBooks] = useState<Book[]>([]);
+  const [wishlistBooks, setWishlistBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -23,7 +177,9 @@ export function StatsPage() {
       try {
         setLoading(true);
         setErrorMessage(null);
-        setBooks(await getAllBooks());
+        const [owned, wishlist] = await Promise.all([getAllBooks(), getWishlistBooks()]);
+        setOwnedBooks(owned);
+        setWishlistBooks(wishlist);
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Failed to load library stats.");
       } finally {
@@ -34,42 +190,105 @@ export function StatsPage() {
     void loadStats();
   }, []);
 
-  const stats = useMemo(
-    () =>
-      books.reduce(
-        (totals, book) => {
-          totals.totalBooks += 1;
-          if (book.finished) totals.finishedBooks += 1;
-          if (book.readByDane) totals.readByDane += 1;
-          if (book.readByEmma) totals.readByEmma += 1;
-          if (book.readByDane && book.readByEmma) totals.readByBoth += 1;
-          if (!book.readByDane && !book.readByEmma) totals.unreadBooks += 1;
-          return totals;
-        },
-        {
-          totalBooks: 0,
-          finishedBooks: 0,
-          readByDane: 0,
-          readByEmma: 0,
-          readByBoth: 0,
-          unreadBooks: 0,
-        },
-      ),
-    [books],
+  const books = useMemo(() => [...ownedBooks, ...wishlistBooks], [ownedBooks, wishlistBooks]);
+
+  const stats = useMemo<LibraryStats>(
+    () => {
+      const pages = books
+        .map((book) => book.pages)
+        .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+      const years = books
+        .map((book) => book.publishedYear)
+        .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+
+      let longestBook: Book | null = null;
+      let longestPages = 0;
+
+      for (const book of books) {
+        if (typeof book.pages === "number" && book.pages > longestPages) {
+          longestPages = book.pages;
+          longestBook = book;
+        }
+      }
+
+      const totalPages = pages.reduce((sum, value) => sum + value, 0);
+
+      const seriesCount = new Set(
+        books.map((book) => book.seriesName?.trim()).filter((value): value is string => Boolean(value)),
+      ).size;
+
+      return {
+        totalBooks: books.length,
+        ownedBooks: ownedBooks.length,
+        wishlistBooks: wishlistBooks.length,
+        finishedBooks: books.filter((book) => book.finished).length,
+        unreadBooks: books.filter((book) => !book.readByDane && !book.readByEmma).length,
+        readByDane: books.filter((book) => book.readByDane).length,
+        readByEmma: books.filter((book) => book.readByEmma).length,
+        readByBoth: books.filter((book) => book.readByDane && book.readByEmma).length,
+        booksWithPages: pages.length,
+        totalPages,
+        averagePages: pages.length > 0 ? totalPages / pages.length : 0,
+        medianPages: calculateMedian(pages),
+        longestBook,
+        booksWithYear: years.length,
+        earliestYear: years.length > 0 ? Math.min(...years) : null,
+        latestYear: years.length > 0 ? Math.max(...years) : null,
+        booksInSeries: books.filter((book) => Boolean(book.seriesName?.trim())).length,
+        seriesCount,
+        topGenres: buildRankedStats(
+          books.map((book) => book.genre),
+          books.length,
+        ),
+        topAuthors: buildRankedStats(
+          books.map((book) => book.author),
+          books.length,
+        ),
+        topFormats: buildRankedStats(
+          books.map((book) => (book.format ? BOOK_FORMAT_LABELS[book.format] : null)),
+          books.length,
+        ),
+      };
+    },
+    [books, ownedBooks.length, wishlistBooks.length],
   );
+
+  const spanLabel =
+    stats.earliestYear && stats.latestYear
+      ? `${stats.earliestYear} to ${stats.latestYear}`
+      : "No publication years yet";
+
+  const heroMeta =
+    stats.totalBooks > 0 ? (
+      <div className="flex flex-wrap gap-2 text-xs font-medium">
+        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+          {formatNumber(stats.ownedBooks)} owned
+        </span>
+        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+          {formatNumber(stats.wishlistBooks)} on wishlist
+        </span>
+        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+          {formatNumber(stats.seriesCount)} series
+        </span>
+        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+          {formatNumber(stats.booksWithPages)} with page counts
+        </span>
+      </div>
+    ) : null;
 
   return (
     <PageLayout>
       <PageHero
         title="Library Statistics"
-        description="Overview of your collection and reading progress."
+        description="A wider look at the collection: ownership mix, reading progress, genre and author concentration, page counts, publication years, and series coverage."
+        meta={heroMeta}
       />
 
       <PageSection>
         {loading ? (
           <LoadingState
             title="Loading Stats"
-            description="Summarizing the collection and reading progress."
+            description="Pulling together the collection, wishlist, and reading patterns."
             variant="panel"
           />
         ) : errorMessage ? (
@@ -83,17 +302,106 @@ export function StatsPage() {
           <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-10 text-center text-sm text-stone-600">
             <p className="font-medium">No stats yet</p>
             <p className="mt-1 text-xs text-stone-500">
-              Add books to see collection and reading progress.
+              Add books to see ownership, reading, and collection patterns.
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard label="Total Books" value={stats.totalBooks} />
-            <StatCard label="Finished" value={stats.finishedBooks} />
-            <StatCard label="Unread" value={stats.unreadBooks} />
-            <StatCard label="Read by Dane" value={stats.readByDane} />
-            <StatCard label="Read by Emma" value={stats.readByEmma} />
-            <StatCard label="Read by Both" value={stats.readByBoth} />
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard label="Total Books" value={formatNumber(stats.totalBooks)} />
+              <StatCard
+                label="Owned / Wishlist"
+                value={`${formatNumber(stats.ownedBooks)} / ${formatNumber(stats.wishlistBooks)}`}
+                detail="Books currently in the library versus on the wish list."
+              />
+              <StatCard
+                label="Finished"
+                value={formatNumber(stats.finishedBooks)}
+                detail={`${formatPercent((stats.finishedBooks / stats.totalBooks) * 100)} of the catalog`}
+              />
+              <StatCard
+                label="Unread"
+                value={formatNumber(stats.unreadBooks)}
+                detail={`${formatPercent((stats.unreadBooks / stats.totalBooks) * 100)} still waiting`}
+              />
+              <StatCard label="Read by Dane" value={formatNumber(stats.readByDane)} />
+              <StatCard label="Read by Emma" value={formatNumber(stats.readByEmma)} />
+              <StatCard label="Read by Both" value={formatNumber(stats.readByBoth)} />
+              <StatCard
+                label="Page Count"
+                value={formatPages(stats.averagePages)}
+                detail={`${formatNumber(stats.booksWithPages)} books with pages · ${formatNumber(stats.totalPages)} pages total`}
+              />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <InsightCard
+                label="Shelf Shape"
+                title={
+                  stats.topGenres[0]
+                    ? `${stats.topGenres[0].label} leads the shelf`
+                    : "Genre mix is still sparse"
+                }
+                detail={
+                  stats.topGenres[0]
+                    ? `${formatNumber(stats.topGenres[0].count)} books, or ${formatPercent(
+                        stats.topGenres[0].share,
+                      )} of the catalog, sit in ${stats.topGenres[0].label}.`
+                    : "Add genre tags to reveal the strongest patterns in the collection."
+                }
+              />
+              <InsightCard
+                label="Reading Span"
+                title={spanLabel}
+                detail={
+                  stats.booksWithYear > 0
+                    ? `${formatNumber(stats.booksWithYear)} books include publication years, making it easy to compare the oldest and newest entries.`
+                    : "Publication years are not populated yet."
+                }
+              />
+              <InsightCard
+                label="Page Load"
+                title={
+                  stats.longestBook && typeof stats.longestBook.pages === "number"
+                    ? `${stats.longestBook.title} is the largest book`
+                    : "No page counts yet"
+                }
+                detail={
+                  stats.longestBook && typeof stats.longestBook.pages === "number"
+                    ? `${formatNumber(stats.longestBook.pages)} pages, against a median of ${formatPages(
+                        stats.medianPages,
+                      )}.`
+                    : "Populate page counts to surface the longest and shortest books."
+                }
+              />
+              <InsightCard
+                label="Series Coverage"
+                title={`${formatNumber(stats.booksInSeries)} books in ${formatNumber(stats.seriesCount)} series`}
+                detail={
+                  stats.seriesCount > 0
+                    ? "Series data is rich enough to surface recurring arcs and multi-book reads."
+                    : "Series data is not populated yet."
+                }
+              />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              <RankedList
+                title="Top Genres"
+                items={stats.topGenres}
+                emptyText="No genre data yet."
+              />
+              <RankedList
+                title="Top Authors"
+                items={stats.topAuthors}
+                emptyText="No author data yet."
+              />
+              <RankedList
+                title="Top Formats"
+                items={stats.topFormats}
+                emptyText="No format data yet."
+              />
+            </div>
           </div>
         )}
       </PageSection>

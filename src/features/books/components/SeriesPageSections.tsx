@@ -113,8 +113,8 @@ export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: Seri
   if (featuredSeries.length === 0) return null;
 
   return (
-    <section className={`${sectionSurfaceClasses} p-4 sm:p-5`}>
-      <div className="flex flex-col gap-4 rounded-2xl border border-warm-gray/70 bg-cream/90 p-4 sm:p-5">
+    <section className={`${sectionSurfaceClasses} p-3 sm:p-4`}>
+      <div className="flex flex-col gap-3 rounded-2xl border border-warm-gray/70 bg-cream/90 p-3 sm:p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
@@ -169,7 +169,7 @@ export function SeriesResultsSection({
   getSeriesProgressLabel: (books: SeriesGroup["books"]) => string;
 }) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       {loading ? (
         <LoadingState
           title="Loading Series"
@@ -206,10 +206,9 @@ export function SeriesResultsSection({
           <section
             key={group.key}
             id={group.key}
-            className="scroll-mt-24 rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-4 shadow-soft sm:p-5"
-            style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}
+            className="scroll-mt-24 rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-3 shadow-soft sm:p-4"
           >
-            <div className="flex flex-col gap-4 border-b border-warm-gray/70 pb-4">
+            <div className="flex flex-col gap-3 border-b border-warm-gray/70 pb-3">
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0 space-y-2">
                   <div className="inline-flex items-center rounded-full border border-warm-gray/70 bg-parchment/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
@@ -253,7 +252,7 @@ export function SeriesResultsSection({
 
             <div
               ref={(node) => registerCarousel(group.key, node)}
-              className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-visible px-1 pb-3 pr-4 pt-2 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-3 flex items-start snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label={`${group.name} books`}
               role="region"
               aria-roledescription="carousel"
@@ -263,7 +262,7 @@ export function SeriesResultsSection({
               {group.books.map((book, index) => (
                 <div
                   key={book.id}
-                  className={`${getSeriesCarouselCardWidthClass(cardSize)} min-w-0 shrink-0 snap-start`}
+                  className={`${getSeriesCarouselCardWidthClass(cardSize)} min-w-0 shrink-0 snap-start self-start`}
                   style={{ scrollMarginInline: "1rem" }}
                 >
                   <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">

@@ -21,6 +21,7 @@ type BookInput = {
   isbn?: string | null;
   finished?: boolean;
   coverUrl?: string | null;
+  publishedYear?: number | null;
   readByDane?: boolean;
   readByEmma?: boolean;
   format?: string;
@@ -42,8 +43,12 @@ function toSupabaseInput(input: BookInput): SupabaseBookInput {
     description: input.description ?? null,
     isbn: input.isbn ?? null,
     coverUrl: input.coverUrl ?? null,
+    publishedYear: input.publishedYear ?? null,
+    finished: input.finished ?? false,
     readByDane: input.readByDane ?? false,
     readByEmma: input.readByEmma ?? false,
+    format: input.format as SupabaseBookInput["format"],
+    pages: input.pages,
     ownershipStatus: input.ownershipStatus,
   };
 }
@@ -60,8 +65,13 @@ function toSupabasePatch(
     result.description = patch.description ?? null;
   if (patch.isbn !== undefined) result.isbn = patch.isbn ?? null;
   if (patch.coverUrl !== undefined) result.coverUrl = patch.coverUrl ?? null;
+  if (patch.publishedYear !== undefined)
+    result.publishedYear = patch.publishedYear ?? null;
+  if (patch.finished !== undefined) result.finished = patch.finished;
   if (patch.readByDane !== undefined) result.readByDane = patch.readByDane;
   if (patch.readByEmma !== undefined) result.readByEmma = patch.readByEmma;
+  if (patch.format !== undefined) result.format = patch.format as SupabaseBookInput["format"];
+  if (patch.pages !== undefined) result.pages = patch.pages;
   if (patch.ownershipStatus !== undefined)
     result.ownershipStatus = patch.ownershipStatus;
 

@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Library } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../data/bookRepo";
@@ -273,22 +273,20 @@ export function WishlistPage() {
                   actions={
                     <Button
                       type="button"
-                      variant="success"
-                      className={`gap-2 text-xs ${
+                      variant="secondary"
+                      className={`gap-2 !border-sage/20 !bg-sage/10 !text-sage-dark hover:!border-sage/30 hover:!bg-sage/15 active:!bg-sage/20 ${
                         state.cardSize === "xsmall"
                           ? "min-h-8 w-auto px-2.5 text-[11px] sm:min-h-9 sm:px-3"
-                          : "min-h-10 w-full px-3 sm:w-auto"
+                          : "min-h-10 w-full px-3 sm:w-auto text-xs"
                       }`}
                       disabled={movingBookIds.has(book.id)}
                       onClick={() => void handleMoveToLibrary(book.id)}
                       aria-label={`Move ${book.title} to library`}
                     >
-                      <Check className="h-4 w-4" aria-hidden="true" />
+                      <Library className="h-4 w-4" aria-hidden="true" />
                       {movingBookIds.has(book.id)
-                        ? "Adding To Library..."
-                        : state.cardSize === "xsmall"
-                          ? "Add"
-                          : "Add To Library"}
+                        ? "Moving..."
+                        : "Move To Library"}
                     </Button>
                   }
                 />

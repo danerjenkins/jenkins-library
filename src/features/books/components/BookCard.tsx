@@ -1,7 +1,20 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import {
+  Atom,
+  Baby,
+  BookMarked,
+  BookOpen,
+  BookOpenText,
+  Feather,
+  Flame,
+  GraduationCap,
+  Heart,
+  Landmark,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
@@ -31,6 +44,33 @@ function getGenreTone(genre: string): string {
   if (genreLower.includes("classic")) return "classic";
 
   return "general";
+}
+
+function getGenreIcon(genreTone: string) {
+  switch (genreTone) {
+    case "fantasy":
+      return Sparkles;
+    case "science-fiction":
+      return Atom;
+    case "mystery":
+      return Search;
+    case "romance":
+      return Heart;
+    case "horror":
+      return Flame;
+    case "historical":
+      return Landmark;
+    case "nonfiction":
+      return BookOpenText;
+    case "young-adult":
+      return GraduationCap;
+    case "children":
+      return Baby;
+    case "classic":
+      return Feather;
+    default:
+      return BookMarked;
+  }
 }
 
 function getFallbackMonogram(title: string): string {
@@ -219,6 +259,7 @@ export function BookCard({
     () => (book.genre ? getGenreTone(book.genre) : "general"),
     [book.genre],
   );
+  const GenreIcon = useMemo(() => getGenreIcon(genreTone), [genreTone]);
   const cover = (
     <BookCover
       book={book}
@@ -226,11 +267,14 @@ export function BookCard({
       coverHeight={coverHeight}
     />
   );
-  const cardChrome = `book-card flex h-full w-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm${
+  const cardChrome = `book-card flex w-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm${
     deferRendering ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]" : ""
   }`;
   const detailPath = `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
+  const bodyClasses = `book-card__body flex min-w-0 flex-col${
+    actions ? " book-card__body--with-actions" : ""
+  }`;
 
   if (isView) {
     return (
@@ -250,7 +294,7 @@ export function BookCard({
         ) : (
           cover
         )}
-        <div className="book-card__body flex min-w-0 flex-1 flex-col">
+        <div className={bodyClasses}>
           <div className="min-w-0">
             {clickable ? (
               <Link
@@ -279,13 +323,14 @@ export function BookCard({
               </p>
             )}
           </div>
-          <div className="min-h-0 flex-1" aria-hidden="true" />
-
           {showGenreTag && book.genre && (
-            <div className="min-w-0">
+            <div className="min-w-0 w-full">
               <span
-                className={`book-card__tag book-card__tag--${genreTone} inline-block max-w-full rounded border font-medium break-words`}
+                className={`book-card__tag book-card__tag--${genreTone} inline-flex max-w-full items-center rounded-full border font-medium break-words`}
               >
+                <span className="book-card__tag-icon" aria-hidden="true">
+                  <GenreIcon className="book-card__tag-icon-svg" />
+                </span>
                 {book.genre}
               </span>
             </div>
@@ -344,7 +389,7 @@ export function BookCard({
       data-genre-tone={genreTone}
     >
       {cover}
-      <div className="book-card__body flex min-w-0 flex-1 flex-col">
+      <div className={bodyClasses}>
         <div className="min-w-0">
           <h3
             className={`book-card__title font-display break-words font-bold text-stone-900 ${titleClamp}`}
