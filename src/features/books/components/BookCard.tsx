@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
@@ -280,18 +280,6 @@ export function BookCard({
             )}
           </div>
           <div className="min-h-0 flex-1" aria-hidden="true" />
-
-          {clickable && (
-            <Link
-              to={detailPath}
-              className="book-card__detail-link inline-flex min-h-10 items-center gap-1.5 self-start rounded-md border border-transparent px-2.5 text-stone-600 no-underline transition-[background-color,border-color,color,box-shadow] duration-150 hover:border-sage/20 hover:bg-white/80 hover:text-sage-dark focus-visible:outline-none"
-            >
-              <span className="book-card__meta font-semibold uppercase tracking-[0.14em]">
-                View Details
-              </span>
-              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          )}
 
           {showGenreTag && book.genre && (
             <div className="min-w-0">

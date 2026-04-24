@@ -183,8 +183,7 @@
 }
 
 .book-card__cover-link:focus-visible,
-.book-card__title-link:focus-visible,
-.book-card__detail-link:focus-visible {
+.book-card__title-link:focus-visible {
   box-shadow:
     0 0 0 3px var(--book-card-accent-soft),
     0 0 0 1px rgba(var(--book-card-accent-rgb), 0.62);
@@ -309,8 +308,7 @@
   filter: saturate(1.03);
 }
 
-.book-card__title-link,
-.book-card__detail-link {
+.book-card__title-link {
   width: fit-content;
   max-width: 100%;
   touch-action: manipulation;
@@ -388,12 +386,6 @@
     padding: 0.7rem;
   }
 
-  .book-card__detail-link {
-    min-height: 2.5rem;
-    width: 100%;
-    justify-content: center;
-  }
-
   .book-card__divider {
     justify-content: stretch;
   }
@@ -408,7 +400,6 @@
   .book-card,
   .book-card__cover-link::after,
   .book-card__cover-image,
-  .book-card__detail-link,
   .book-card__title-link {
     transition-duration: 1ms;
   }
