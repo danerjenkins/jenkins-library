@@ -6,9 +6,9 @@ import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 
 const drawerSurfaceClasses =
-  "fixed inset-y-0 left-0 z-[90] flex h-dvh w-[min(24rem,100vw)] max-w-none flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none";
+  "fixed inset-y-0 left-0 z-[90] flex h-dvh w-[min(72rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:rounded-r-[1.75rem]";
 const floatingTriggerClasses =
-  "fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[80] inline-flex h-12 w-12 items-center justify-center rounded-full border border-warm-gray/80 bg-cream/96 text-stone-900 shadow-[0_16px_30px_rgba(60,51,40,0.18)] backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-sage-light hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:bottom-6 sm:left-6";
+  "fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[80] inline-flex h-12 min-w-12 items-center justify-center gap-2 rounded-full border border-warm-gray/80 bg-cream/96 px-4 text-sm font-semibold text-stone-900 shadow-[0_16px_30px_rgba(60,51,40,0.18)] backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-sage-light hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 min-[721px]:bottom-[max(1rem,env(safe-area-inset-bottom))] min-[721px]:right-[calc(max(1rem,env(safe-area-inset-right))+4.5rem)]";
 
 interface FilterDrawerProps {
   title: string;
@@ -69,9 +69,10 @@ export function FilterDrawer({
         title={triggerLabel}
       >
         <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
+        <span className="hidden min-[721px]:inline">{triggerLabel}</span>
         <span className="sr-only">{triggerLabel}</span>
       </button>
-      <div className="pointer-events-none fixed bottom-[calc(8.9rem+env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[79] hidden rounded-full border border-warm-gray/75 bg-cream/94 px-3 py-1.5 text-xs font-semibold text-stone-600 shadow-[0_10px_24px_rgba(60,51,40,0.14)] backdrop-blur-md [font-variant-numeric:tabular-nums] sm:block">
+      <div className="pointer-events-none fixed bottom-[calc(8.9rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[79] hidden rounded-full border border-warm-gray/75 bg-cream/94 px-3 py-1.5 text-xs font-semibold text-stone-600 shadow-[0_10px_24px_rgba(60,51,40,0.14)] backdrop-blur-md [font-variant-numeric:tabular-nums] min-[721px]:right-[calc(max(1rem,env(safe-area-inset-right))+4.75rem)] min-[721px]:block">
         {summary}
       </div>
 
