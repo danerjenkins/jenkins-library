@@ -130,8 +130,6 @@ export function WishlistPage() {
     [books, setBooks],
   );
 
-  const visibleSummary = `${filteredBooks.length} ${filteredBooks.length === 1 ? "book" : "books"}`;
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
       <PageLayout>
@@ -144,7 +142,6 @@ export function WishlistPage() {
             <FilterDrawer
               title="Wishlist Filters"
               description="Keep wishlist browsing focused while leaving room for quick add-to-library actions."
-              summary={visibleSummary}
               isOpen={isFilterDrawerOpen}
               onOpen={() => setIsFilterDrawerOpen(true)}
               onClose={() => setIsFilterDrawerOpen(false)}

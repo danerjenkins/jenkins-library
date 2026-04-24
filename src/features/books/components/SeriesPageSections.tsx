@@ -27,7 +27,6 @@ export function SeriesHeroSection({
   cardSize,
   isFilterDrawerOpen,
   hasActiveFilters,
-  resultsSummary,
   onSearchQueryChange,
   onOwnershipFilterChange,
   onCardSizeChange,
@@ -43,7 +42,6 @@ export function SeriesHeroSection({
   cardSize: CardSize;
   isFilterDrawerOpen: boolean;
   hasActiveFilters: boolean;
-  resultsSummary: string;
   onSearchQueryChange: (value: string) => void;
   onOwnershipFilterChange: (value: "all" | "owned" | "wishlist") => void;
   onCardSizeChange: (value: CardSize) => void;
@@ -91,7 +89,6 @@ export function SeriesHeroSection({
       <FilterDrawer
         title="Series Filters"
         description="Search by series, title, author, or genre and keep density adjustable for longer reading-order scans."
-        summary={resultsSummary}
         isOpen={isFilterDrawerOpen}
         onOpen={onOpenFilters}
         onClose={onCloseFilters}

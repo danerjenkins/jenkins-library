@@ -21,7 +21,6 @@ export function SeriesPage() {
           cardSize={state.cardSize}
           isFilterDrawerOpen={state.isFilterDrawerOpen}
           hasActiveFilters={state.hasActiveFilters}
-          resultsSummary={state.resultsSummary}
           onSearchQueryChange={actions.setSearchQuery}
           onOwnershipFilterChange={actions.setOwnershipFilter}
           onCardSizeChange={actions.setCardSize}

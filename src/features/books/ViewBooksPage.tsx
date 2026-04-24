@@ -142,8 +142,6 @@ export function ViewBooksPage() {
   }, [deferredSearchQuery, state, visibleShelfBooks]);
 
   const shelfLabel = getShelfLabel(state.ownershipFilter);
-  const visibleSummary = `${filteredBooks.length} ${filteredBooks.length === 1 ? "book" : "books"}`;
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
       <PageLayout>
@@ -154,7 +152,6 @@ export function ViewBooksPage() {
           <FilterDrawer
             title="Library Filters"
             description="Search the shelf, switch between library and wishlist views, and adjust browsing density without taking over the page."
-            summary={visibleSummary}
             isOpen={isFilterDrawerOpen}
             onOpen={() => setIsFilterDrawerOpen(true)}
             onClose={() => setIsFilterDrawerOpen(false)}

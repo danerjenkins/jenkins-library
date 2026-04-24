@@ -137,7 +137,6 @@ export function GenresFiltersSection({
         <FilterDrawer
           title="Genre Filters"
           description="Search across titles, authors, genres, and series without pushing the shelves out of view."
-          summary={resultsLabel}
           isOpen={isFilterDrawerOpen}
           onOpen={onOpenFilters}
           onClose={onCloseFilters}

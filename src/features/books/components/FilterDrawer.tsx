@@ -1,7 +1,9 @@
 import {
   type ReactNode,
   useEffect,
+  useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 
@@ -13,7 +15,6 @@ const floatingTriggerClasses =
 interface FilterDrawerProps {
   title: string;
   description: string;
-  summary: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -26,7 +27,6 @@ interface FilterDrawerProps {
 export function FilterDrawer({
   title,
   description,
-  summary,
   isOpen,
   onOpen,
   onClose,
@@ -35,6 +35,12 @@ export function FilterDrawer({
   footer,
   triggerLabel = "Open Filters",
 }: FilterDrawerProps) {
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalRoot(document.body);
+  }, []);
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -57,7 +63,7 @@ export function FilterDrawer({
     };
   }, [isOpen, onClose]);
 
-  return (
+  const drawerUi = (
     <>
       <button
         type="button"
@@ -72,9 +78,6 @@ export function FilterDrawer({
         <span className="hidden min-[721px]:inline">{triggerLabel}</span>
         <span className="sr-only">{triggerLabel}</span>
       </button>
-      <div className="pointer-events-none fixed bottom-[calc(8.9rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[79] hidden rounded-full border border-warm-gray/75 bg-cream/94 px-3 py-1.5 text-xs font-semibold text-stone-600 shadow-[0_10px_24px_rgba(60,51,40,0.14)] backdrop-blur-md [font-variant-numeric:tabular-nums] min-[721px]:right-[calc(max(1rem,env(safe-area-inset-right))+4.75rem)] min-[721px]:block">
-        {summary}
-      </div>
 
       <div
         className={`fixed inset-0 z-[85] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
@@ -141,4 +144,10 @@ export function FilterDrawer({
       </aside>
     </>
   );
+
+  if (!portalRoot) {
+    return null;
+  }
+
+  return createPortal(drawerUi, portalRoot);
 }
