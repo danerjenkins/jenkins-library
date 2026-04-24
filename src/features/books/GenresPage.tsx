@@ -24,6 +24,7 @@ import { Button } from "../../ui/components/Button";
 import { Input } from "../../ui/components/Input";
 import type { Book } from "./bookTypes";
 import { BookCard, BookShelfState } from "./components/BookCard";
+import { FilterDrawer } from "./components/FilterDrawer";
 import {
   CARD_SIZE_OPTIONS,
   type CardSize,
@@ -206,6 +207,7 @@ function LoadingShelfSkeleton({ index }: { index: number }) {
 export function GenresPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
   const [cardSize, setCardSize] = useState<CardSize>(getDefaultCardSize);
@@ -318,6 +320,8 @@ export function GenresPage() {
 
     return `${bookCount} ${noun} across ${genreCount} ${genreNoun}`;
   }, [filteredBooks.length, genreShelves.length, loading]);
+  const hasActiveFilters =
+    deferredSearchQuery.trim().length > 0 || ownershipFilter !== "all";
 
   const scrollShelf = useCallback((sectionId: string, direction: "backward" | "forward") => {
     const shelf = carouselRefs.current[sectionId];
@@ -538,6 +542,55 @@ export function GenresPage() {
             </Link>
           </div>
 
+          <FilterDrawer
+              title="Genre Filters"
+              description="Search across titles, authors, genres, and series without pushing the shelves out of view."
+              summary={resultsLabel}
+              isOpen={isFilterDrawerOpen}
+              onOpen={() => setIsFilterDrawerOpen(true)}
+              onClose={() => setIsFilterDrawerOpen(false)}
+              triggerLabel="Filter Genres"
+              actions={
+                <>
+                  <div className={densityGroupClasses} role="group" aria-label="Genre shelf density">
+                    {CARD_SIZE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setCardSize(option.value)}
+                        className={`${densityButtonClasses} ${
+                          cardSize === option.value
+                            ? "bg-sage text-white shadow-sm"
+                            : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                        }`}
+                        aria-pressed={cardSize === option.value}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  {hasActiveFilters ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setOwnershipFilter("all");
+                      }}
+                      className="min-h-11 px-3 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  ) : null}
+                </>
+              }
+              footer={
+                <div className="text-sm text-stone-600">
+                  Keep the same shelf density controls here and browse sideways instead of vertically.
+                </div>
+              }
+            >
+
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <div className="relative">
               <Search
@@ -582,29 +635,7 @@ export function GenresPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs text-stone-500">
-              Keep the same shelf density controls here and browse sideways instead
-              of vertically.
-            </div>
-            <div className={densityGroupClasses} role="group" aria-label="Genre shelf density">
-              {CARD_SIZE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setCardSize(option.value)}
-                  className={`${densityButtonClasses} ${
-                    cardSize === option.value
-                      ? "bg-sage text-white shadow-sm"
-                      : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
-                  }`}
-                  aria-pressed={cardSize === option.value}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          </FilterDrawer>
         </div>
       </section>
 

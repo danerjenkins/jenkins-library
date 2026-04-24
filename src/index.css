@@ -129,15 +129,15 @@ select:focus-visible,
   box-shadow: 0 0 0 5px rgba(184, 138, 69, 0.16);
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="search"],
-input[type="url"],
-input[type="tel"],
-textarea,
-select {
+input[type="text"]:not([class]),
+input[type="email"]:not([class]),
+input[type="password"]:not([class]),
+input[type="number"]:not([class]),
+input[type="search"]:not([class]),
+input[type="url"]:not([class]),
+input[type="tel"]:not([class]),
+textarea:not([class]),
+select:not([class]) {
   @apply w-full rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm text-charcoal shadow-soft;
   font-family: inherit;
   color: var(--color-charcoal);
@@ -161,16 +161,16 @@ input[type="search"]::-webkit-search-results-decoration {
   appearance: none;
 }
 
-input:hover,
-textarea:hover,
-select:hover {
+input:not([class]):hover,
+textarea:not([class]):hover,
+select:not([class]):hover {
   @apply border-sage-light shadow-soft-md;
   background-color: var(--color-cream-strong);
 }
 
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
+input:not([class]):focus-visible,
+textarea:not([class]):focus-visible,
+select:not([class]):focus-visible {
   @apply border-sage shadow-soft-md ring-2 ring-sage/20;
   background-color: var(--color-cream-strong);
 }
@@ -191,23 +191,6 @@ button {
     color 160ms ease,
     box-shadow 160ms ease,
     transform 120ms ease;
-}
-
-button:not([class*="text"]) {
-  @apply bg-sage text-white shadow-soft hover:bg-sage-dark hover:shadow-soft-md active:shadow-soft;
-  border-color: rgba(79, 101, 71, 0.28);
-}
-
-button.text,
-button[class*="secondary"] {
-  @apply bg-transparent text-sage hover:text-sage-dark;
-  border-color: rgba(164, 181, 152, 0.35);
-  background-color: rgba(251, 247, 239, 0.5);
-}
-
-button.text:hover,
-button[class*="secondary"]:hover {
-  background-color: rgba(238, 228, 213, 0.88);
 }
 
 button[disabled],

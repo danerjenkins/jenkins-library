@@ -215,9 +215,6 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Show genre-based carousels or grouped shelves.
   - Keep it secondary to Library and Wishlist, not a primary navigation destination.
 
-- [ ] Add “Recently Added” and “Recently Updated”
-  - Useful on both Library and Manage.
-
 ## Visual Polish
 
 - [x] Continue refining the warm palette

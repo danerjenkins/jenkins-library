@@ -1,0 +1,143 @@
+import {
+  type ReactNode,
+  useEffect,
+} from "react";
+import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
+import { Button } from "../../../ui/components/Button";
+
+const drawerSurfaceClasses =
+  "fixed inset-y-0 left-0 z-[90] flex h-dvh w-[min(24rem,100vw)] max-w-none flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none";
+const floatingTriggerClasses =
+  "fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[80] inline-flex h-12 w-12 items-center justify-center rounded-full border border-warm-gray/80 bg-cream/96 text-stone-900 shadow-[0_16px_30px_rgba(60,51,40,0.18)] backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-sage-light hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:bottom-6 sm:left-6";
+
+interface FilterDrawerProps {
+  title: string;
+  description: string;
+  summary: string;
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  children: ReactNode;
+  actions?: ReactNode;
+  footer?: ReactNode;
+  triggerLabel?: string;
+}
+
+export function FilterDrawer({
+  title,
+  description,
+  summary,
+  isOpen,
+  onOpen,
+  onClose,
+  children,
+  actions,
+  footer,
+  triggerLabel = "Open Filters",
+}: FilterDrawerProps) {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onOpen}
+        className={floatingTriggerClasses}
+        aria-expanded={isOpen}
+        aria-controls="filter-drawer-panel"
+        aria-label={triggerLabel}
+        title={triggerLabel}
+      >
+        <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">{triggerLabel}</span>
+      </button>
+      <div className="pointer-events-none fixed bottom-[calc(8.9rem+env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-[79] hidden rounded-full border border-warm-gray/75 bg-cream/94 px-3 py-1.5 text-xs font-semibold text-stone-600 shadow-[0_10px_24px_rgba(60,51,40,0.14)] backdrop-blur-md [font-variant-numeric:tabular-nums] sm:block">
+        {summary}
+      </div>
+
+      <div
+        className={`fixed inset-0 z-[85] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        aria-hidden="true"
+        onClick={onClose}
+      />
+
+      <aside
+        id="filter-drawer-panel"
+        className={`${drawerSurfaceClasses} ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filter-drawer-title"
+        aria-describedby="filter-drawer-description"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-warm-gray/70 px-5 py-5 sm:px-6">
+          <div className="min-w-0 space-y-2">
+            <div className="inline-flex min-h-8 items-center rounded-full border border-warm-gray/70 bg-cream/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+              <PanelLeft className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Browse Filters
+            </div>
+            <div className="space-y-1">
+              <h2
+                id="filter-drawer-title"
+                className="font-display text-2xl font-semibold text-pretty text-stone-900"
+              >
+                {title}
+              </h2>
+              <p
+                id="filter-drawer-description"
+                className="max-w-sm text-sm leading-relaxed text-stone-600"
+              >
+                {description}
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="min-h-11 min-w-11 shrink-0 px-0"
+            aria-label="Close Filters"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
+          <div className="space-y-5">
+            {actions ? (
+              <div className="flex flex-wrap items-center gap-2 border-b border-warm-gray/60 pb-4">
+                {actions}
+              </div>
+            ) : null}
+            <div className="space-y-4">{children}</div>
+          </div>
+        </div>
+
+        {footer ? (
+          <div className="border-t border-warm-gray/70 px-5 py-4 sm:px-6">{footer}</div>
+        ) : null}
+      </aside>
+    </>
+  );
+}

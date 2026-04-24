@@ -8,13 +8,18 @@ import {
 } from "react";
 import { Search } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { getAllBooks, sortBooksBySeriesOrder } from "../../data/bookRepo";
+import {
+  getAllBooks,
+  getWishlistBooks,
+  sortBooksBySeriesOrder,
+} from "../../data/bookRepo";
 import type { Book, BookFormat, ReadStatus } from "./bookTypes";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
 import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+import { FilterDrawer } from "./components/FilterDrawer";
 import {
   CARD_SIZE_OPTIONS,
   type CardSize,
@@ -28,6 +33,7 @@ import {
 
 type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
 type ReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";
+type OwnershipFilter = "owned" | "wishlist" | "all";
 
 const readStatusByFilter: Record<Exclude<ReadFilter, "ALL">, ReadStatus> = {
   NEITHER: "neither",
@@ -50,23 +56,27 @@ const sortOptionValues = new Set<SortOption>([
   "author",
   "updated",
 ]);
+const ownershipFilterValues = new Set<OwnershipFilter>([
+  "owned",
+  "wishlist",
+  "all",
+]);
 const actionLinkClasses =
   "inline-flex min-h-10 items-center justify-center rounded-md border border-sage bg-sage px-4 py-2 text-sm font-semibold text-white no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage-dark hover:bg-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
-const filterPanelClasses =
-  "mt-3 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/85 p-3 shadow-sm ring-1 ring-white/40 sm:p-4";
-const filterPanelHeaderClasses =
-  "flex flex-col gap-3 rounded-xl border border-warm-gray/70 bg-cream/90 p-3 sm:flex-row sm:items-start sm:justify-between";
-const filterFieldGridClasses = "grid gap-3 sm:grid-cols-2 lg:grid-cols-6";
-const filterMetaRowClasses =
-  "flex flex-col items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 sm:flex-row sm:items-center";
+const filterFieldGridClasses = "grid gap-3";
 const densityGroupClasses =
   "grid grid-cols-4 rounded-lg border border-warm-gray bg-cream p-0.5 shadow-inner shadow-white/50";
 const densityButtonClasses =
   "min-h-11 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+const segmentedControlClasses =
+  "grid grid-cols-1 gap-1 rounded-lg border border-warm-gray bg-cream p-1 shadow-inner shadow-white/50 sm:grid-cols-3";
+const segmentedButtonClasses =
+  "min-h-11 rounded-md px-4 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
 const discoveryLinkClasses =
   "group flex min-h-32 flex-col justify-between rounded-2xl border border-warm-gray/80 bg-cream/95 p-4 text-left no-underline shadow-soft transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-sage/55 hover:bg-parchment/90 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:min-h-36 sm:p-5";
 
 interface StoredLibraryViewPreferences {
+  ownershipFilter: OwnershipFilter;
   filterGenre: string;
   filterFinished: ReadFilter;
   filterFormat: string;
@@ -83,6 +93,11 @@ function getStoredLibraryViewPreferences(): StoredLibraryViewPreferences | null 
   }
 
   return {
+    ownershipFilter: ownershipFilterValues.has(
+      stored.ownershipFilter as OwnershipFilter,
+    )
+      ? (stored.ownershipFilter as OwnershipFilter)
+      : "owned",
     filterGenre: stored.filterGenre ?? "ALL",
     filterFinished: readFilterValues.has(stored.filterFinished as ReadFilter)
       ? (stored.filterFinished as ReadFilter)
@@ -93,6 +108,16 @@ function getStoredLibraryViewPreferences(): StoredLibraryViewPreferences | null 
       ? (stored.sortBy as SortOption)
       : "genre-author",
   };
+}
+
+function mergeShelfBooks(ownedBooks: Book[], wishlistBooks: Book[]) {
+  const bookMap = new Map<string, Book>();
+
+  for (const book of [...ownedBooks, ...wishlistBooks]) {
+    bookMap.set(book.id, book);
+  }
+
+  return Array.from(bookMap.values());
 }
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
@@ -138,7 +163,10 @@ export function ViewBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasHydratedViewState, setHasHydratedViewState] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [ownershipFilter, setOwnershipFilter] =
+    useState<OwnershipFilter>("owned");
   const [filterGenre, setFilterGenre] = useState("ALL");
   const [filterFinished, setFilterFinished] = useState<ReadFilter>("ALL");
   const [filterFormat, setFilterFormat] = useState("ALL");
@@ -151,8 +179,11 @@ export function ViewBooksPage() {
   const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
-      const allBooks = await getAllBooks();
-      setBooks(allBooks);
+      const [ownedBooks, wishlistBooks] = await Promise.all([
+        getAllBooks(),
+        getWishlistBooks(),
+      ]);
+      setBooks(mergeShelfBooks(ownedBooks, wishlistBooks));
     } catch (error) {
       console.error("Failed to load books:", error);
     } finally {
@@ -175,6 +206,12 @@ export function ViewBooksPage() {
         : getDefaultCardSize();
 
     const nextSearchQuery = searchParams.get("q") ?? "";
+    const queryOwnership = searchParams.get("ownership");
+    const nextOwnershipFilter = ownershipFilterValues.has(
+      queryOwnership as OwnershipFilter,
+    )
+      ? (queryOwnership as OwnershipFilter)
+      : storedView?.ownershipFilter ?? "owned";
     const nextFilterGenre =
       searchParams.get("genre") ?? storedView?.filterGenre ?? "ALL";
     const queryRead = searchParams.get("read");
@@ -192,6 +229,9 @@ export function ViewBooksPage() {
 
     setSearchQuery((current) =>
       current === nextSearchQuery ? current : nextSearchQuery,
+    );
+    setOwnershipFilter((current) =>
+      current === nextOwnershipFilter ? current : nextOwnershipFilter,
     );
     setFilterGenre((current) =>
       current === nextFilterGenre ? current : nextFilterGenre,
@@ -218,6 +258,7 @@ export function ViewBooksPage() {
     }
 
     writeStorageValue(LIBRARY_VIEW_STORAGE_KEY, {
+      ownershipFilter,
       filterGenre,
       filterFinished,
       filterFormat,
@@ -229,6 +270,9 @@ export function ViewBooksPage() {
     const nextSearchParams = new URLSearchParams();
     if (searchQuery.trim()) {
       nextSearchParams.set("q", searchQuery);
+    }
+    if (ownershipFilter !== "owned") {
+      nextSearchParams.set("ownership", ownershipFilter);
     }
     if (filterGenre !== "ALL") {
       nextSearchParams.set("genre", filterGenre);
@@ -261,55 +305,66 @@ export function ViewBooksPage() {
     filterGenre,
     filterSeries,
     hasHydratedViewState,
+    ownershipFilter,
     searchParamsKey,
     searchQuery,
     setSearchParams,
     sortBy,
   ]);
 
+  const visibleShelfBooks = useMemo(() => {
+    if (ownershipFilter === "all") {
+      return books;
+    }
+
+    return books.filter(
+      (book) => (book.ownershipStatus ?? "owned") === ownershipFilter,
+    );
+  }, [books, ownershipFilter]);
+
   const availableGenres = useMemo(
     () =>
       Array.from(
         new Set(
-          books
+          visibleShelfBooks
             .map((book) => book.genre)
             .filter((genre): genre is string => Boolean(genre)),
         ),
       ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
-    [books],
+    [visibleShelfBooks],
   );
 
   const availableFormats = useMemo(
     () =>
       Array.from(
         new Set(
-          books
+          visibleShelfBooks
             .map((book) => book.format)
             .filter((format): format is BookFormat => Boolean(format)),
         ),
       ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
-    [books],
+    [visibleShelfBooks],
   );
 
   const availableSeries = useMemo(
     () =>
       Array.from(
         new Set(
-          books
+          visibleShelfBooks
             .map((book) => book.seriesName)
             .filter((series): series is string => Boolean(series)),
         ),
       ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
-    [books],
+    [visibleShelfBooks],
   );
   const noSeriesCount = useMemo(
-    () => books.filter((book) => !book.seriesName).length,
-    [books],
+    () => visibleShelfBooks.filter((book) => !book.seriesName).length,
+    [visibleShelfBooks],
   );
 
   const filteredBooks = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
-    const visible = books.filter((book) => {
+    const visible = visibleShelfBooks.filter((book) => {
       if (
         query &&
         !book.title.toLowerCase().includes(query) &&
@@ -346,17 +401,18 @@ export function ViewBooksPage() {
 
     return sortVisibleBooks(visible, sortBy);
   }, [
-    books,
     deferredSearchQuery,
     filterFinished,
     filterFormat,
     filterGenre,
     filterSeries,
     sortBy,
+    visibleShelfBooks,
   ]);
 
   const hasActiveFilters =
     searchQuery ||
+    ownershipFilter !== "owned" ||
     filterGenre !== "ALL" ||
     filterFinished !== "ALL" ||
     filterFormat !== "ALL" ||
@@ -365,12 +421,23 @@ export function ViewBooksPage() {
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
+    setOwnershipFilter("owned");
     setFilterGenre("ALL");
     setFilterFinished("ALL");
     setFilterFormat("ALL");
     setFilterSeries("ALL");
     setSortBy("genre-author");
   }, []);
+
+  const shelfLabel =
+    ownershipFilter === "wishlist"
+      ? "Wishlist"
+      : ownershipFilter === "all"
+        ? "Library + Wishlist"
+        : "Library";
+  const visibleSummary = `${filteredBooks.length} ${
+    filteredBooks.length === 1 ? "book" : "books"
+  }`;
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
@@ -381,63 +448,61 @@ export function ViewBooksPage() {
               My Library
             </h2>
             <p className="font-sans max-w-3xl text-base leading-relaxed text-stone-600">
-              Browse and search your personal book collection.
+              Browse and search your personal collection, wishlist, or both from
+              one shelf.
             </p>
           </div>
 
-          <div
-            className={filterPanelClasses}
-            role="region"
-            aria-labelledby="library-filters-heading"
-            aria-describedby="library-filters-summary"
-          >
-            <div className={filterPanelHeaderClasses}>
-              <div className="space-y-1">
-                <div
-                  id="library-filters-heading"
-                  className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500"
-                >
-                  Shelf Filters
-                </div>
-                <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
-                  Search the shelf, narrow the catalog, and adjust card density in
-                  one place.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div
-                  className={densityGroupClasses}
-                  role="group"
-                  aria-label="Shelf density"
-                >
-                  {CARD_SIZE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setCardSize(option.value)}
-                      className={`${densityButtonClasses} ${
-                        cardSize === option.value
-                          ? "bg-sage text-white shadow-sm"
-                          : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
-                      }`}
-                      aria-pressed={cardSize === option.value}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-                {hasActiveFilters && (
-                  <Button
-                    variant="secondary"
-                    onClick={handleClearFilters}
-                    className="min-h-11 px-3 text-xs"
+          <FilterDrawer
+              title="Library Filters"
+              description="Search the shelf, switch between library and wishlist views, and adjust browsing density without taking over the page."
+              summary={visibleSummary}
+              isOpen={isFilterDrawerOpen}
+              onOpen={() => setIsFilterDrawerOpen(true)}
+              onClose={() => setIsFilterDrawerOpen(false)}
+              triggerLabel="Filter Shelf"
+              actions={
+                <>
+                  <div
+                    className={densityGroupClasses}
+                    role="group"
+                    aria-label="Shelf density"
                   >
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            </div>
-
+                    {CARD_SIZE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setCardSize(option.value)}
+                        className={`${densityButtonClasses} ${
+                          cardSize === option.value
+                            ? "bg-sage text-white shadow-sm"
+                            : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                        }`}
+                        aria-pressed={cardSize === option.value}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  {hasActiveFilters ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleClearFilters}
+                      className="min-h-11 px-3 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  ) : null}
+                </>
+              }
+              footer={
+                <div className="text-sm text-stone-600">
+                  Search, filter, and resize the {shelfLabel.toLowerCase()} shelf
+                  without leaving the page.
+                </div>
+              }
+            >
             <div className={filterFieldGridClasses}>
               <div className="relative sm:col-span-2 lg:col-span-2">
                 <Input
@@ -456,6 +521,38 @@ export function ViewBooksPage() {
                   aria-hidden="true"
                 />
               </div>
+
+              <fieldset className="flex min-w-0 flex-col gap-1 sm:col-span-2 lg:col-span-5">
+                <legend className="font-sans text-xs font-semibold leading-4 text-stone-700">
+                  Shelf
+                </legend>
+                <div
+                  className={segmentedControlClasses}
+                  role="group"
+                  aria-label="Shelf filter"
+                >
+                  {[
+                    { value: "owned" as const, label: "Library Only" },
+                    { value: "wishlist" as const, label: "Wishlist Only" },
+                    { value: "all" as const, label: "Library + Wishlist" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      id={`filter-ownership-${option.value}`}
+                      type="button"
+                      onClick={() => setOwnershipFilter(option.value)}
+                      className={`${segmentedButtonClasses} ${
+                        ownershipFilter === option.value
+                          ? "border border-sage bg-sage text-white shadow-sm"
+                          : "border border-transparent bg-transparent text-charcoal/75 hover:bg-warm-gray-light hover:text-charcoal"
+                      }`}
+                      aria-pressed={ownershipFilter === option.value}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
 
               <Select
                 id="filter-genre"
@@ -531,20 +628,7 @@ export function ViewBooksPage() {
               />
             </div>
 
-            <div className={filterMetaRowClasses}>
-              <div
-                id="library-filters-summary"
-                className="text-xs text-stone-600"
-                aria-live="polite"
-              >
-                {filteredBooks.length}{" "}
-                {filteredBooks.length === 1 ? "book" : "books"}
-              </div>
-              <div className="text-xs text-stone-500">
-                Search, filter, and resize your shelf without leaving the page.
-              </div>
-            </div>
-          </div>
+          </FilterDrawer>
 
           <div
             className="mt-4 space-y-3 rounded-2xl border border-warm-gray/75 bg-parchment/80 p-3 shadow-sm ring-1 ring-white/35 sm:p-4"
@@ -635,16 +719,32 @@ export function ViewBooksPage() {
         <section className="space-y-6">
           {loading ? (
             <BookShelfState title="Loading Library…" />
-          ) : books.length === 0 ? (
+          ) : visibleShelfBooks.length === 0 ? (
             <BookShelfState
-              title="No Books Yet"
-              description="Start building your library by adding your first owned book."
+              title={
+                ownershipFilter === "wishlist"
+                  ? "No Wishlist Books Yet"
+                  : "No Books Yet"
+              }
+              description={
+                ownershipFilter === "wishlist"
+                  ? "Add the first wishlist book to start tracking what you want to read next."
+                  : ownershipFilter === "all"
+                    ? "Start building your shelves by adding books to the library or wishlist."
+                    : "Start building your library by adding your first owned book."
+              }
               action={
                 <Link
-                  to="/admin?add=1&ownership=owned"
+                  to={
+                    ownershipFilter === "wishlist"
+                      ? "/admin?add=1&ownership=wishlist"
+                      : "/admin?add=1&ownership=owned"
+                  }
                   className={actionLinkClasses}
                 >
-                  Add Book
+                  {ownershipFilter === "wishlist"
+                    ? "Add Wishlist Book"
+                    : "Add Book"}
                 </Link>
               }
             />

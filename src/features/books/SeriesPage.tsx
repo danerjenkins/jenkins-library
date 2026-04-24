@@ -19,6 +19,7 @@ import { Input } from "../../ui/components/Input";
 import { Select } from "../../ui/components/Select";
 import { Button } from "../../ui/components/Button";
 import { BookCard, BookShelfState } from "./components/BookCard";
+import { FilterDrawer } from "./components/FilterDrawer";
 import {
   CARD_SIZE_OPTIONS,
   type CardSize,
@@ -40,13 +41,7 @@ const collator = new Intl.Collator(undefined, {
 
 const actionLinkClasses =
   "inline-flex min-h-10 items-center justify-center rounded-md border border-sage bg-sage px-4 py-2 text-sm font-semibold text-white no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage-dark hover:bg-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
-const filterPanelClasses =
-  "mt-4 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/85 p-3 shadow-sm ring-1 ring-white/40 sm:p-4";
-const filterPanelHeaderClasses =
-  "flex flex-col gap-3 rounded-xl border border-warm-gray/70 bg-cream/90 p-3 sm:flex-row sm:items-start sm:justify-between";
-const filterFieldGridClasses = "grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_1fr]";
-const filterMetaRowClasses =
-  "flex flex-col items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 sm:flex-row sm:items-center";
+const filterFieldGridClasses = "grid gap-3";
 const densityGroupClasses =
   "grid grid-cols-4 rounded-lg border border-warm-gray bg-cream p-0.5 shadow-inner shadow-white/50";
 const densityButtonClasses =
@@ -298,6 +293,7 @@ function SeriesCarouselSection({
 export function SeriesPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [ownershipFilter, setOwnershipFilter] =
     useState<OwnershipFilter>("all");
@@ -411,6 +407,7 @@ export function SeriesPage() {
 
   const hasActiveFilters =
     searchQuery.trim().length > 0 || ownershipFilter !== "all";
+  const resultsSummary = `${filteredSeries.length} series shown`;
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
@@ -486,59 +483,55 @@ export function SeriesPage() {
             </div>
           </div>
 
-          <div
-            className={filterPanelClasses}
-            role="region"
-            aria-labelledby="series-browser-filters-heading"
-            aria-describedby="series-browser-filters-summary"
-          >
-            <div className={filterPanelHeaderClasses}>
-              <div className="space-y-1">
-                <div
-                  id="series-browser-filters-heading"
-                  className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500"
-                >
-                  Browse Series
-                </div>
-                <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
-                  Search by series, title, author, or genre and keep density
-                  adjustable for longer reading-order scans.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div
-                  className={densityGroupClasses}
-                  role="group"
-                  aria-label="Series shelf density"
-                >
-                  {CARD_SIZE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setCardSize(option.value)}
-                      className={`${densityButtonClasses} ${
-                        cardSize === option.value
-                          ? "bg-sage text-white shadow-sm"
-                          : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
-                      }`}
-                      aria-pressed={cardSize === option.value}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-                {hasActiveFilters && (
-                  <Button
-                    variant="secondary"
-                    onClick={handleClearFilters}
-                    className="min-h-11 px-3 text-xs"
+          <FilterDrawer
+              title="Series Filters"
+              description="Search by series, title, author, or genre and keep density adjustable for longer reading-order scans."
+              summary={resultsSummary}
+              isOpen={isFilterDrawerOpen}
+              onOpen={() => setIsFilterDrawerOpen(true)}
+              onClose={() => setIsFilterDrawerOpen(false)}
+              triggerLabel="Filter Series"
+              actions={
+                <>
+                  <div
+                    className={densityGroupClasses}
+                    role="group"
+                    aria-label="Series shelf density"
                   >
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            </div>
-
+                    {CARD_SIZE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setCardSize(option.value)}
+                        className={`${densityButtonClasses} ${
+                          cardSize === option.value
+                            ? "bg-sage text-white shadow-sm"
+                            : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                        }`}
+                        aria-pressed={cardSize === option.value}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  {hasActiveFilters ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleClearFilters}
+                      className="min-h-11 px-3 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  ) : null}
+                </>
+              }
+              footer={
+                <div className="text-sm text-stone-600">
+                  Books without a series stay out of the grouped shelf and are summarized separately.
+                </div>
+              }
+            >
             <div className={filterFieldGridClasses}>
               <div className="relative">
                 <Input
@@ -573,20 +566,7 @@ export function SeriesPage() {
               />
             </div>
 
-            <div className={filterMetaRowClasses}>
-              <div
-                id="series-browser-filters-summary"
-                className="text-xs text-stone-600"
-                aria-live="polite"
-              >
-                {filteredSeries.length} series shown
-              </div>
-              <div className="text-xs text-stone-500">
-                Books without a series stay out of the grouped shelf and are
-                summarized separately.
-              </div>
-            </div>
-          </div>
+          </FilterDrawer>
         </section>
 
         {standaloneBooks.length > 0 && (
