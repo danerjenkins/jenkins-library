@@ -88,6 +88,7 @@ interface BookCardProps {
   clickable?: boolean;
   showGenreTag?: boolean;
   showOwnershipTag?: boolean;
+  detailMeta?: string | null;
   deferRendering?: boolean;
 }
 
@@ -205,6 +206,7 @@ export function BookCard({
   clickable = false,
   showGenreTag = true,
   showOwnershipTag = false,
+  detailMeta = null,
   deferRendering = true,
 }: BookCardProps) {
   const isView = variant === "view";
@@ -309,6 +311,11 @@ export function BookCard({
                 {seriesText}
               </p>
             )}
+            {detailMeta ? (
+              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
+                {detailMeta}
+              </p>
+            ) : null}
           </div>
           {showOwnershipTag && (
             <div className="min-w-0 w-full">

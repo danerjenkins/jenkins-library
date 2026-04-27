@@ -87,6 +87,7 @@ export function SeriesFiltersSection({
           label="Search"
           value={searchQuery}
           onChange={onSearchQueryChange}
+          onEnterPress={onCloseFilters}
           placeholder="Series, title, author, or genre..."
         />
         <Select
@@ -264,7 +265,13 @@ export function SeriesResultsSection({
                   <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
                     <span>{book.seriesLabel?.trim() || `Book ${index + 1}`}</span>
                   </div>
-                  <BookCard book={book} variant="view" cardSize={cardSize} clickable={true} />
+                  <BookCard
+                    book={book}
+                    variant="view"
+                    cardSize={cardSize}
+                    clickable={true}
+                    showOwnershipTag={true}
+                  />
                 </div>
               ))}
             </div>

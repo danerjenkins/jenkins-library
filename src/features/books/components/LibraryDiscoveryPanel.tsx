@@ -39,7 +39,17 @@ export function LibraryDiscoveryPanel({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 lg:grid-cols-3">
+      <div className="mt-3 grid gap-3 lg:grid-cols-4">
+        <DiscoveryLinkCard
+          to="/search"
+          badge="Global Search"
+          badgeClassName="inline-flex w-fit rounded-full border border-sage/20 bg-sage/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-dark"
+          title="Search Everything"
+          description="Look across Library and Wishlist at once, including ISBNs, authors, genres, and series."
+          summary="ISBN-aware results"
+          cta="Open Search"
+          ctaClassName="text-sage-dark"
+        />
         <DiscoveryLinkCard
           to="/series"
           badge="Series View"

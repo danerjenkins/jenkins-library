@@ -16,6 +16,7 @@ export function ShelfSearchField({
   label,
   value,
   onChange,
+  onEnterPress,
   placeholder = "Title or author...",
   className,
 }: {
@@ -24,6 +25,7 @@ export function ShelfSearchField({
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onEnterPress?: () => void;
   placeholder?: string;
   className?: string;
 }) {
@@ -33,11 +35,23 @@ export function ShelfSearchField({
         id={id}
         name={name}
         label={label}
-        type="search"
+        type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter") return;
+
+          event.preventDefault();
+          onEnterPress?.();
+          event.currentTarget.blur();
+        }}
         placeholder={placeholder}
         autoComplete="off"
+        autoCorrect="on"
+        autoCapitalize="none"
+        spellCheck={true}
+        inputMode="search"
+        enterKeyHint="search"
         className="!pl-11 pr-10"
       />
       <Search

@@ -4,6 +4,7 @@ import { Plus, Trash2, X } from "lucide-react";
 import { addBook, deleteBook, getAllBooks } from "../../data/bookRepo";
 import { LoadingState } from "../../ui/components/LoadingState";
 import type { Book } from "./bookTypes";
+import { matchesBookSearchQuery } from "./hooks/discoveryBrowseShared";
 
 type FinishedFilter = "ALL" | "FINISHED" | "UNFINISHED";
 
@@ -103,11 +104,7 @@ export function BookListPage() {
     const query = searchQuery.trim().toLowerCase();
 
     return books.filter((book) => {
-      if (
-        query &&
-        !book.title.toLowerCase().includes(query) &&
-        !book.author.toLowerCase().includes(query)
-      ) {
+      if (query && !matchesBookSearchQuery(book, query)) {
         return false;
       }
 

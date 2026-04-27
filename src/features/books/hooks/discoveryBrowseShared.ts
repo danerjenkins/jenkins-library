@@ -59,13 +59,7 @@ export function normalizeSeriesName(value: string) {
 
 export function matchesSeriesBookQuery(book: Book, query: string) {
   if (!query) return true;
-  return (
-    book.title.toLocaleLowerCase().includes(query) ||
-    book.author.toLocaleLowerCase().includes(query) ||
-    (book.genre ?? "").toLocaleLowerCase().includes(query) ||
-    (book.seriesName ?? "").toLocaleLowerCase().includes(query) ||
-    (book.seriesLabel ?? "").toLocaleLowerCase().includes(query)
-  );
+  return matchesBookSearchQuery(book, query);
 }
 
 export function getSeriesProgressLabel(books: Book[]) {
@@ -97,8 +91,21 @@ export function toGenreSectionId(genre: string) {
 
 export function matchesGenreBookQuery(book: Book, query: string) {
   if (!query) return true;
+  return matchesBookSearchQuery(book, query);
+}
 
-  return [book.title, book.author, book.genre, book.seriesName, book.seriesLabel, book.description]
+export function matchesBookSearchQuery(book: Book, query: string) {
+  if (!query) return true;
+
+  return [
+    book.title,
+    book.author,
+    book.genre,
+    book.description,
+    book.isbn,
+    book.seriesName,
+    book.seriesLabel,
+  ]
     .filter(Boolean)
     .join(" ")
     .toLowerCase()

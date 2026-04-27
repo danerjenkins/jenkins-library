@@ -7,6 +7,7 @@ import {
   Heart,
   Plus,
   Settings,
+  Search,
   Sparkles,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -24,6 +25,7 @@ const primaryNavItems = [
 ] as const;
 
 const secondaryNavItems = [
+  { to: "/search", label: "Search", Icon: Search },
   { to: "/series", label: "Series", Icon: BookOpenText },
   { to: "/genres", label: "Genres", Icon: Sparkles },
   { to: "/reading-list", label: "TBR", Icon: BookMarked },

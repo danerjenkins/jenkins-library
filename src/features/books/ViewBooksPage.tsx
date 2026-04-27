@@ -21,6 +21,7 @@ import {
   type OwnershipFilter,
   type SortOption,
 } from "./hooks/useViewBooksPageState";
+import { matchesBookSearchQuery } from "./hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
@@ -98,7 +99,7 @@ export function ViewBooksPage() {
   const filteredBooks = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
     const visible = visibleShelfBooks.filter((book) => {
-      if (query && !book.title.toLowerCase().includes(query) && !book.author.toLowerCase().includes(query)) {
+      if (query && !matchesBookSearchQuery(book, query)) {
         return false;
       }
 

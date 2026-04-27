@@ -1,0 +1,311 @@
+import { ScanLine, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { PageHero, PageLayout } from "../../ui/components/PageLayout";
+import { Button } from "../../ui/components/Button";
+import { LoadingState } from "../../ui/components/LoadingState";
+import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+import { ShelfSearchField, SegmentedControl } from "./components/ShelfBrowseControls";
+import { ownershipSegmentOptions, actionLinkClasses } from "./components/shelfBrowseControlStyles";
+import { useGlobalSearchPage, type SearchOwnershipFilter } from "./hooks/useGlobalSearchPage";
+
+type BarcodeDetectorLike = {
+  detect(source: HTMLVideoElement): Promise<Array<{ rawValue?: string }>>;
+};
+
+type BarcodeDetectorConstructor = new (
+  options?: { formats?: string[] },
+) => BarcodeDetectorLike;
+
+function IsbnScannerModal({
+  open,
+  onClose,
+  onDetected,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onDetected: (value: string) => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    let active = true;
+
+    const stopStream = () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+    };
+
+    const detectWithCamera = async () => {
+      setErrorMessage(null);
+      setIsStarting(true);
+
+      const detectorCtor = (window as Window & {
+        BarcodeDetector?: BarcodeDetectorConstructor;
+      }).BarcodeDetector;
+
+      if (!detectorCtor) {
+        setErrorMessage("Barcode scanning is not supported in this browser.");
+        setIsStarting(false);
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: { facingMode: { ideal: "environment" } },
+        });
+        if (!active) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if (!video) {
+          throw new Error("Scanner video element is unavailable.");
+        }
+
+        video.srcObject = stream;
+        await video.play();
+
+        const detector = new detectorCtor({
+          formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"],
+        });
+
+        const scan = async () => {
+          if (!active || !videoRef.current) {
+            return;
+          }
+
+          try {
+            const codes = await detector.detect(videoRef.current);
+            const detected = codes.find((code) => Boolean(code.rawValue?.trim()));
+            if (detected?.rawValue) {
+              onDetected(detected.rawValue.trim());
+              onClose();
+              return;
+            }
+          } catch (error) {
+            console.warn("Barcode scan attempt failed:", error);
+          }
+
+          frameRef.current = window.requestAnimationFrame(scan);
+        };
+
+        frameRef.current = window.requestAnimationFrame(scan);
+      } catch (error) {
+        console.error("Failed to open barcode scanner:", error);
+        setErrorMessage(
+          error instanceof Error ? error.message : "Could not open the camera scanner.",
+        );
+      } finally {
+        setIsStarting(false);
+      }
+    };
+
+    void detectWithCamera();
+
+    return () => {
+      active = false;
+      stopStream();
+    };
+  }, [onClose, onDetected, open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-xl rounded-3xl border border-warm-gray bg-cream p-4 shadow-2xl sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-stone-900">Scan ISBN</h2>
+            <p className="mt-1 text-sm leading-relaxed text-stone-600">
+              Point the camera at a barcode or ISBN label. If scanning is unsupported, type the
+              number manually instead.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-warm-gray bg-cream text-stone-600 transition-colors hover:bg-warm-gray-light hover:text-stone-900"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-warm-gray bg-stone-950">
+          <video
+            ref={videoRef}
+            className="aspect-[4/3] w-full object-cover"
+            muted
+            autoPlay
+            playsInline
+          />
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {errorMessage ? (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {errorMessage}
+            </div>
+          ) : null}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-stone-500">
+              {isStarting ? "Starting camera..." : "Hold steady until the ISBN is recognized."}
+            </div>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Close Scanner
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ownershipLabel(value: SearchOwnershipFilter) {
+  if (value === "owned") return "Library only";
+  if (value === "wishlist") return "Wishlist only";
+  return "Library + Wishlist";
+}
+
+export function SearchPage() {
+  const { state, actions } = useGlobalSearchPage();
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const isBarcodeSupported =
+    typeof window !== "undefined" &&
+    typeof navigator !== "undefined" &&
+    "BarcodeDetector" in window &&
+    "mediaDevices" in navigator &&
+    Boolean(navigator.mediaDevices.getUserMedia);
+
+  const resultsMeta = useMemo(
+    () =>
+      state.loading
+        ? "Loading search results..."
+        : `${state.filteredBooks.length} ${state.filteredBooks.length === 1 ? "book" : "books"} matched · ${state.ownershipTotals.owned} owned · ${state.ownershipTotals.wishlist} wishlist`,
+    [state.filteredBooks.length, state.loading, state.ownershipTotals.owned, state.ownershipTotals.wishlist],
+  );
+
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <PageLayout>
+        <PageHero
+          title="Search"
+          description="Search the whole catalog by title, author, genre, series, description, or ISBN."
+          meta={resultsMeta}
+        >
+          <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-4 shadow-sm">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <ShelfSearchField
+                id="global-search"
+                name="global-search"
+                label="Search"
+                value={state.searchQuery}
+                onChange={actions.setSearchQuery}
+                placeholder="Try ISBN, title, author, or series..."
+              />
+
+              <div className="flex min-w-0 flex-col gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-600">
+                  Scope
+                </span>
+                <SegmentedControl
+                  label="Ownership"
+                  options={ownershipSegmentOptions}
+                  value={state.ownershipFilter}
+                  onChange={actions.setOwnershipFilter}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {isBarcodeSupported ? (
+                  <Button type="button" variant="secondary" onClick={() => setIsScannerOpen(true)}>
+                    <span className="flex items-center gap-2">
+                      <ScanLine className="h-4 w-4" aria-hidden="true" />
+                      Scan ISBN
+                    </span>
+                  </Button>
+                ) : null}
+                {state.hasActiveFilters ? (
+                  <Button type="button" variant="secondary" onClick={actions.clearFilters}>
+                    Clear Search
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="text-sm text-stone-600">
+                Showing {ownershipLabel(state.ownershipFilter).toLowerCase()} results.
+              </div>
+            </div>
+          </div>
+        </PageHero>
+
+        {state.loading ? (
+          <LoadingState
+            title="Loading Search"
+            description="Gathering books from both shelves for one search result list."
+            variant="shelf"
+            cardCount={8}
+          />
+        ) : state.filteredBooks.length === 0 ? (
+          <BookShelfState
+            title="No matches found"
+            description="Try a different ISBN, title, author, genre, or series."
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link to="/view" className={actionLinkClasses}>
+                  Browse Library
+                </Link>
+                <Link to="/wishlist" className={actionLinkClasses}>
+                  Browse Wishlist
+                </Link>
+              </div>
+            }
+          />
+        ) : (
+          <BookGrid cardSize="medium">
+            {state.filteredBooks.map((book) => (
+              <BookCard
+                key={book.id}
+                book={book}
+                variant="view"
+                cardSize="medium"
+                clickable={true}
+                showOwnershipTag={true}
+                detailMeta={book.isbn ? `ISBN: ${book.isbn}` : null}
+              />
+            ))}
+          </BookGrid>
+        )}
+      </PageLayout>
+
+      <IsbnScannerModal
+        open={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onDetected={(value) => {
+          const normalized = value.replace(/[^\dXx]/g, "");
+          actions.setSearchQuery(normalized || value);
+          setIsScannerOpen(false);
+        }}
+      />
+    </div>
+  );
+}

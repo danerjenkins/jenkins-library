@@ -91,6 +91,7 @@ export function GenresFiltersSection({
               label="Search titles, authors, genres, or series"
               value={searchQuery}
               onChange={onSearchQueryChange}
+              onEnterPress={onCloseFilters}
               placeholder="Try fantasy, Sanderson, murder mystery, or novella..."
             />
             <div className="flex min-w-0 flex-col gap-1">
@@ -283,7 +284,14 @@ export function GenresResultsSection({
                     scrollMarginInline: "1rem",
                   }}
                 >
-                  <BookCard book={book} variant="view" cardSize={cardSize} clickable={true} deferRendering={false} />
+                  <BookCard
+                    book={book}
+                    variant="view"
+                    cardSize={cardSize}
+                    clickable={true}
+                    showOwnershipTag={true}
+                    deferRendering={false}
+                  />
                 </div>
               ))}
             </div>

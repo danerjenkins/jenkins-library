@@ -85,11 +85,11 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Search And Discovery
 
-- [ ] Search function not working with autocorrect (when you click the suggested word on mobile it doesn't replace the word in the search, it adds it and keeps the original word)
+- [x] Search function not working with autocorrect (when you click the suggested word on mobile it doesn't replace the word in the search, it adds it and keeps the original word)
 
-- [ ] When searching, the enter button should close the shelf (especially on mobile)
+- [x] When searching, the enter button should close the shelf (especially on mobile)
 
-- [ ] Add series link to book description for books in that series. this link should take you to the series page
+- [x] Add series link to book description for books in that series. this link should take you to the series page
 
 ## Catalog Cleanup
 
@@ -219,11 +219,11 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Search And Discovery
 
-- [ ] Add ISBN/barcode support later
+- [x] Add ISBN/barcode support later
   - Allow searching by ISBN.
   - Consider camera barcode scan for phones.
 
-- [ ] Add better global search later
+- [x] Add better global search later
   - Search across Library and Wishlist.
   - Show ownership status in results.
 

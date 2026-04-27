@@ -14,6 +14,7 @@ import { actionLinkClasses, filterFieldGridClasses } from "./components/shelfBro
 import { ShelfDensitySelector, ShelfSearchField } from "./components/ShelfBrowseControls";
 import { useWishlistShelfBooks } from "./hooks/useShelfBooks";
 import { getSortedFormats, getSortedStrings } from "./hooks/useViewBooksPageState";
+import { matchesBookSearchQuery } from "./hooks/discoveryBrowseShared";
 import {
   useWishlistPageState,
   wishlistReadFilterOptions,
@@ -70,7 +71,7 @@ export function WishlistPage() {
   const filteredBooks = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
     const visibleBooks = books.filter((book) => {
-      if (query && !book.title.toLowerCase().includes(query) && !book.author.toLowerCase().includes(query)) {
+      if (query && !matchesBookSearchQuery(book, query)) {
         return false;
       }
 

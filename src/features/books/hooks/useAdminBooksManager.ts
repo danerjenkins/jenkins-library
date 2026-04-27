@@ -14,6 +14,7 @@ import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
 import { getReadStatus } from "../bookTypes";
 import type { Book, BookFormat, ReadStatus } from "../bookTypes";
 import type { BookFormSaveState } from "../components/BookForm";
+import { matchesBookSearchQuery } from "./discoveryBrowseShared";
 
 function resolveErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
@@ -192,11 +193,7 @@ export function useAdminBooksManager() {
     const trimmedSearch = deferredSearchQuery.trim().toLowerCase();
     return books
       .filter((book) => {
-        if (
-          trimmedSearch &&
-          !book.title.toLowerCase().includes(trimmedSearch) &&
-          !book.author.toLowerCase().includes(trimmedSearch)
-        ) {
+        if (trimmedSearch && !matchesBookSearchQuery(book, trimmedSearch)) {
           return false;
         }
         if (filterGenre !== "ALL" && book.genre !== filterGenre) return false;

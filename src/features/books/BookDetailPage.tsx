@@ -13,6 +13,7 @@ import {
   addBookToReadingList,
   getReadingListQueues,
 } from "../../repos/readingListRepo";
+import { normalizeSeriesName } from "./hooks/discoveryBrowseShared";
 
 type MetadataSummaryItem = {
   label: string;
@@ -311,9 +312,23 @@ export function BookDetailPage() {
                 {book.author}
               </p>
               {book.description ? (
-                <p className="mt-4 font-sans leading-relaxed text-stone-700">
-                  {book.description}
-                </p>
+                <div className="mt-4 space-y-2">
+                  <p className="font-sans leading-relaxed text-stone-700">
+                    {book.description}
+                  </p>
+                  {book.seriesName ? (
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-stone-600">
+                      <span className="font-medium text-stone-700">Series:</span>
+                      <Link
+                        to={`/series#${normalizeSeriesName(book.seriesName)}`}
+                        className="inline-flex items-center rounded-full border border-sage/25 bg-sage/10 px-3 py-1 font-medium text-sage-dark no-underline transition-colors hover:border-sage/35 hover:bg-sage/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
+                      >
+                        {book.seriesName}
+                        {book.seriesLabel ? ` #${book.seriesLabel}` : ""}
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
             </div>
 
