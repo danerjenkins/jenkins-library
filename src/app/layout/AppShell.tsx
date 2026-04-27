@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { AppNavigation } from "./AppNavigation";
+import { AppNavigation, MobileAppNavigation } from "./AppNavigation";
 import "./AppShell.css";
 
 interface AppShellProps {
@@ -42,13 +42,15 @@ export function AppShell({ children }: AppShellProps) {
               <span className="app-brand__title">Jenkins Library</span>
             </Link>
           </div>
-          <AppNavigation addBookPath={addBookPath} />
+          <AppNavigation />
         </div>
       </header>
 
       <main id="main-content" className="app-main" tabIndex={-1}>
         {children}
       </main>
+
+      <MobileAppNavigation addBookPath={addBookPath} />
 
       <Link
         to={addBookPath}
