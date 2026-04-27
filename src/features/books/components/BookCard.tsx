@@ -263,7 +263,7 @@ export function BookCard({
   }${className ? ` ${className}` : ""}`;
   const detailPath = `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
-  const bodyClasses = `book-card__body flex min-w-0 flex-col${
+  const bodyClasses = `book-card__body flex min-w-0 flex-1 flex-col${
     actions ? " book-card__body--with-actions" : ""
   }`;
 
@@ -319,26 +319,30 @@ export function BookCard({
               </p>
             ) : null}
           </div>
-          {showOwnershipTag && (
-            <div className="min-w-0 w-full">
-              <Badge
-                variant={book.ownershipStatus === "wishlist" ? "amber" : "default"}
-                className="w-fit max-w-full text-[0.68rem] uppercase tracking-[0.12em]"
-              >
-                {book.ownershipStatus === "wishlist" ? "Wishlist" : "Library"}
-              </Badge>
-            </div>
-          )}
-          {showGenreTag && book.genre && (
-            <div className="min-w-0 w-full">
-              <span
-                className={`book-card__tag book-card__tag--${genreTone} inline-flex max-w-full items-center rounded-full border font-medium break-words`}
-              >
-                <span className="book-card__tag-icon" aria-hidden="true">
-                  <GenreIcon className="book-card__tag-icon-svg" />
-                </span>
-                {book.genre}
-              </span>
+          {(showOwnershipTag || (showGenreTag && book.genre)) && (
+            <div className="mt-auto flex min-w-0 w-full flex-col">
+              {showOwnershipTag && (
+                <div className="min-w-0 w-full">
+                  <Badge
+                    variant={book.ownershipStatus === "wishlist" ? "amber" : "default"}
+                    className="w-fit max-w-full text-[0.68rem] uppercase tracking-[0.12em]"
+                  >
+                    {book.ownershipStatus === "wishlist" ? "Wishlist" : "Library"}
+                  </Badge>
+                </div>
+              )}
+              {showGenreTag && book.genre && (
+                <div className="min-w-0 w-full">
+                  <span
+                    className={`book-card__tag book-card__tag--${genreTone} inline-flex max-w-full items-center rounded-full border font-medium break-words`}
+                  >
+                    <span className="book-card__tag-icon" aria-hidden="true">
+                      <GenreIcon className="book-card__tag-icon-svg" />
+                    </span>
+                    {book.genre}
+                  </span>
+                </div>
+              )}
             </div>
           )}
           {onReadStatusChange && (
