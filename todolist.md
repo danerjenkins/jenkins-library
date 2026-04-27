@@ -261,9 +261,9 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Documentation
 
-- [x] Keep the design-system review checklist current
+- [x] Keep the design-system map current
   - Review remaining UI, hook, and state files against `DESIGN_SYSTEM.md`.
-  - Keep `ai/design-checklist.md` updated as files are reviewed.
+  - Keep `DESIGN_SYSTEM.md` updated as shared patterns evolve.
 
 - [x] Use genre-aware tag styling
   - Make genre tag colors correlate to genre while keeping contrast accessible.
