@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { PageLayout } from "../../ui/components/PageLayout";
 import {
   FeaturedSeriesSection,
@@ -5,10 +7,48 @@ import {
   SeriesFiltersSection,
   SeriesResultsSection,
 } from "./components/SeriesPageSections";
+import { getScrollBehavior } from "./hooks/discoveryBrowseShared";
 import { useSeriesBrowse } from "./hooks/useSeriesBrowse";
 
 export function SeriesPage() {
   const { state, actions, helpers } = useSeriesBrowse();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (state.loading || !location.hash) {
+      return;
+    }
+
+    const targetId = decodeURIComponent(location.hash.slice(1));
+    if (!targetId) {
+      return;
+    }
+
+    const scrollToTarget = () => {
+      const target = document.getElementById(targetId);
+      if (!target) {
+        return false;
+      }
+
+      target.scrollIntoView({
+        behavior: getScrollBehavior(),
+        block: "start",
+      });
+      return true;
+    };
+
+    if (scrollToTarget()) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      scrollToTarget();
+    }, 50);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [location.hash, state.loading, state.filteredSeries.length]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
