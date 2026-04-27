@@ -46,6 +46,14 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Library And Wishlist
 
+- [x] Tapping the library button from the library page clears filters for some reason. it shouldn't do that
+
+- [x] Move genre series and tbr lists to nav bar and clean up the library page. you should immediately see all of the books with no fluff at the top
+
+- [x] Library page: if library and wishlist selected, add tags
+
+- [x] Library page take away see details tag 
+
 - [x] Strengthen card click affordance
   - Make cards clearly clickable with hover/focus styling.
   - Consider a subtle “View Details” affordance on focus/hover.
@@ -74,6 +82,18 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [x] Add a compact/comfortable view toggle later if needed
   - Keep current card-size control for now.
   - Revisit if too many size choices become noisy.
+
+## Search And Discovery
+
+- [ ] Search function not working with autocorrect (when you click the suggested word on mobile it doesn't replace the word in the search, it adds it and keeps the original word)
+
+- [ ] When searching, the enter button should close the shelf (especially on mobile)
+
+- [ ] Add series link to book description for books in that series. this link should take you to the series page
+
+## Catalog Cleanup
+
+- [ ] Add all of the chronicles of Narnia to series (check all books to see if they should be in a series) (db change not code change)
 
 ## Manage Page
 
@@ -244,6 +264,8 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 ## Data And Sync
 
+- [ ] reevaluate which information should be stored in the url and which should be saved in the local host.
+
 - [ ] Confirm ownership changes sync correctly
   - Wishlist to Library
   - Library to Wishlist
@@ -272,7 +294,7 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - High / Medium / Low
   - Useful for shopping or gift planning.
 
-- [ ] Add a reading list page
+- [x] Add a reading list page
   - Let each reader prioritize books from Library and Wishlist separately.
   - Keep it lightweight and focused on next-up reading, not a full planning dashboard.
 

@@ -10,12 +10,8 @@ import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
 import type { Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 import { FilterDrawer } from "./components/FilterDrawer";
-import {
-  actionLinkClasses,
-  filterFieldGridClasses,
-  ShelfDensitySelector,
-  ShelfSearchField,
-} from "./components/ShelfBrowseControls";
+import { actionLinkClasses, filterFieldGridClasses } from "./components/shelfBrowseControlStyles";
+import { ShelfDensitySelector, ShelfSearchField } from "./components/ShelfBrowseControls";
 import { useWishlistShelfBooks } from "./hooks/useShelfBooks";
 import { getSortedFormats, getSortedStrings } from "./hooks/useViewBooksPageState";
 import {

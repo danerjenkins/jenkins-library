@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "../../ui/components/Button";
 import { LoadingState } from "../../ui/components/LoadingState";
@@ -10,11 +10,22 @@ import { useAdminBooksManager } from "./hooks/useAdminBooksManager";
 
 export function AdminBooksPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRegionRef = useRef<HTMLDivElement>(null);
-  const { page, filters, form, modal, list, actions } = useAdminBooksManager({
-    fileInputRef,
-    formRegionRef,
-  });
+  const [formRegionNode, setFormRegionNode] = useState<HTMLDivElement | null>(null);
+  const { page, filters, form, modal, list, actions } = useAdminBooksManager();
+
+  useEffect(() => {
+    if (!page.showForm || !formRegionNode) return;
+
+    formRegionNode.scrollIntoView({ behavior: "smooth", block: "start" });
+    const focusTarget = formRegionNode.querySelector<HTMLElement>(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])',
+    );
+    focusTarget?.focus({ preventScroll: true });
+  }, [formRegionNode, page.formFocusTick, page.showForm]);
+
+  const handlePickCoverPhoto = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="space-y-6">
@@ -84,7 +95,7 @@ export function AdminBooksPage() {
 
         {page.showForm ? (
           <div
-            ref={formRegionRef}
+            ref={setFormRegionNode}
             className="mt-5 space-y-4 scroll-mt-24"
             aria-label={form.editingId ? "Edit book form" : "Add book form"}
           >
@@ -114,7 +125,7 @@ export function AdminBooksPage() {
               formInstanceKey={form.formInstanceKey}
               onDirtyChange={actions.setFormIsDirty}
               onCoverPhotoFileChange={actions.handleCoverPhotoCapture}
-              onCoverPhotoPick={actions.handlePickCoverPhoto}
+              onCoverPhotoPick={handlePickCoverPhoto}
               onRemoveCoverPhoto={actions.handleRemoveCoverPhoto}
               onTitleChange={actions.setTitle}
               onAuthorChange={actions.setAuthor}

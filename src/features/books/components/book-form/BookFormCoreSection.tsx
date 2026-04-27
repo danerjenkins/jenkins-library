@@ -1,4 +1,4 @@
-import type { ChangeEvent, RefObject } from "react";
+import type { ChangeEvent, Ref, RefObject } from "react";
 import { Camera, Check, ChevronDown, Search } from "lucide-react";
 import { Input } from "../../../../ui/components/Input";
 import { getGoogleImageSearchUrl } from "../../bookTypes";
@@ -81,7 +81,7 @@ export function BookFormCoreSection({
   coverPhotoUrl: string | null;
   showCoverSaved: boolean;
   showCoverPhotoControls: boolean;
-  coverPhotoInputRef: RefObject<HTMLInputElement | null>;
+  coverPhotoInputRef: Ref<HTMLInputElement>;
   showAdvancedFields: boolean;
   titleSuggestions: TitleSuggestion[];
   isSuggesting: boolean;

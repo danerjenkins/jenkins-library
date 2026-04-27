@@ -8,15 +8,8 @@ import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 import { FilterDrawer } from "./components/FilterDrawer";
-import { LibraryDiscoveryPanel } from "./components/LibraryDiscoveryPanel";
-import {
-  actionLinkClasses,
-  filterFieldGridClasses,
-  ownershipSegmentOptions,
-  SegmentedControl,
-  ShelfDensitySelector,
-  ShelfSearchField,
-} from "./components/ShelfBrowseControls";
+import { actionLinkClasses, filterFieldGridClasses, ownershipSegmentOptions } from "./components/shelfBrowseControlStyles";
+import { SegmentedControl, ShelfDensitySelector, ShelfSearchField } from "./components/ShelfBrowseControls";
 import { useMergedShelfBooks } from "./hooks/useShelfBooks";
 import {
   getSortedFormats,
@@ -99,10 +92,6 @@ export function ViewBooksPage() {
   const availableFormats = useMemo(() => getSortedFormats(visibleShelfBooks), [visibleShelfBooks]);
   const availableSeries = useMemo(
     () => getSortedStrings(visibleShelfBooks.map((book) => book.seriesName)),
-    [visibleShelfBooks],
-  );
-  const noSeriesCount = useMemo(
-    () => visibleShelfBooks.filter((book) => !book.seriesName).length,
     [visibleShelfBooks],
   );
 
@@ -255,12 +244,6 @@ export function ViewBooksPage() {
             </div>
           </FilterDrawer>
 
-          <LibraryDiscoveryPanel
-            loading={loading}
-            seriesCount={availableSeries.length}
-            genreCount={availableGenres.length}
-            noSeriesCount={noSeriesCount}
-          />
         </PageHero>
 
         <section className="space-y-6">
@@ -313,6 +296,7 @@ export function ViewBooksPage() {
                   variant="view"
                   cardSize={state.cardSize}
                   clickable={true}
+                  showOwnershipTag={state.ownershipFilter === "all"}
                 />
               ))}
             </BookGrid>

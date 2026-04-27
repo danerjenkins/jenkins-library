@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Atom,
@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
+import { Badge } from "../../../ui/components/Badge";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import "./BookCard.css";
@@ -46,32 +47,19 @@ function getGenreTone(genre: string): string {
   return "general";
 }
 
-function getGenreIcon(genreTone: string) {
-  switch (genreTone) {
-    case "fantasy":
-      return Sparkles;
-    case "science-fiction":
-      return Atom;
-    case "mystery":
-      return Search;
-    case "romance":
-      return Heart;
-    case "horror":
-      return Flame;
-    case "historical":
-      return Landmark;
-    case "nonfiction":
-      return BookOpenText;
-    case "young-adult":
-      return GraduationCap;
-    case "children":
-      return Baby;
-    case "classic":
-      return Feather;
-    default:
-      return BookMarked;
-  }
-}
+const genreIconsByTone = {
+  fantasy: Sparkles,
+  "science-fiction": Atom,
+  mystery: Search,
+  romance: Heart,
+  horror: Flame,
+  historical: Landmark,
+  nonfiction: BookOpenText,
+  "young-adult": GraduationCap,
+  children: Baby,
+  classic: Feather,
+  general: BookMarked,
+} as const;
 
 function getFallbackMonogram(title: string): string {
   const words = title
@@ -99,6 +87,7 @@ interface BookCardProps {
   cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
   showGenreTag?: boolean;
+  showOwnershipTag?: boolean;
   deferRendering?: boolean;
 }
 
@@ -215,6 +204,7 @@ export function BookCard({
   cardSize = "medium",
   clickable = false,
   showGenreTag = true,
+  showOwnershipTag = false,
   deferRendering = true,
 }: BookCardProps) {
   const isView = variant === "view";
@@ -255,11 +245,8 @@ export function BookCard({
       : book.seriesName
     : null;
   const coverUrl = localCoverUrl ?? book.coverUrl ?? null;
-  const genreTone = useMemo(
-    () => (book.genre ? getGenreTone(book.genre) : "general"),
-    [book.genre],
-  );
-  const GenreIcon = useMemo(() => getGenreIcon(genreTone), [genreTone]);
+  const genreTone = book.genre ? getGenreTone(book.genre) : "general";
+  const GenreIcon = genreIconsByTone[genreTone as keyof typeof genreIconsByTone];
   const cover = (
     <BookCover
       book={book}
@@ -323,6 +310,16 @@ export function BookCard({
               </p>
             )}
           </div>
+          {showOwnershipTag && (
+            <div className="min-w-0 w-full">
+              <Badge
+                variant={book.ownershipStatus === "wishlist" ? "amber" : "default"}
+                className="w-fit max-w-full text-[0.68rem] uppercase tracking-[0.12em]"
+              >
+                {book.ownershipStatus === "wishlist" ? "Wishlist" : "Library"}
+              </Badge>
+            </div>
+          )}
           {showGenreTag && book.genre && (
             <div className="min-w-0 w-full">
               <span

@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactNode, RefObject } from "react";
+import type { ChangeEvent, ReactNode, Ref } from "react";
 
 export type BookFormSaveState = "idle" | "saving" | "success" | "error";
 export type BookFormSection = "core" | "reading" | "meta";
@@ -22,7 +22,7 @@ export interface BookFormProps {
   coverPhotoUrl: string | null;
   showCoverSaved: boolean;
   showCoverPhotoControls: boolean;
-  coverPhotoInputRef: RefObject<HTMLInputElement | null>;
+  coverPhotoInputRef: Ref<HTMLInputElement>;
   saveState?: BookFormSaveState;
   saveMessage?: string | null;
   saveSignal?: number | string | null;

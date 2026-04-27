@@ -12,10 +12,11 @@ export type { BookFormSaveState } from "./book-form/BookForm.types";
 export function BookForm(props: BookFormProps) {
   const { isEditing, saveMessage = null, saveState = "idle", children } = props;
   const { refs, state, actions } = useBookFormController(props);
+  const { formRef, coreSectionRef, titleFieldRef, readingSectionRef, metaSectionRef } = refs;
 
   return (
     <form
-      ref={refs.formRef}
+      ref={formRef}
       className="grid gap-4 rounded-xl border border-warm-gray bg-cream p-4 pb-24 shadow-sm"
       onSubmit={actions.handleFormSubmit}
     >
@@ -74,8 +75,8 @@ export function BookForm(props: BookFormProps) {
       <BookFormCoreSection
         activeSection={state.activeSection}
         onSectionChange={actions.handleSectionChange}
-        sectionRef={refs.coreSectionRef}
-        titleFieldRef={refs.titleFieldRef}
+        sectionRef={coreSectionRef}
+        titleFieldRef={titleFieldRef}
         isEditing={isEditing}
         title={props.title}
         author={props.author}
@@ -122,7 +123,7 @@ export function BookForm(props: BookFormProps) {
         <BookFormReadingSection
           activeSection={state.activeSection}
           onSectionChange={actions.handleSectionChange}
-          sectionRef={refs.readingSectionRef}
+          sectionRef={readingSectionRef}
           finished={props.finished}
           readByDane={props.readByDane}
           readByEmma={props.readByEmma}
@@ -136,7 +137,7 @@ export function BookForm(props: BookFormProps) {
         <BookFormMetaSection
           activeSection={state.activeSection}
           onSectionChange={actions.handleSectionChange}
-          sectionRef={refs.metaSectionRef}
+          sectionRef={metaSectionRef}
           seriesName={props.seriesName}
           seriesLabel={props.seriesLabel}
           genre={props.genre}

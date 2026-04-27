@@ -66,13 +66,7 @@ function buildEditableBook(state: {
   };
 }
 
-export function useAdminBooksManager({
-  fileInputRef,
-  formRegionRef,
-}: {
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
-  formRegionRef: React.RefObject<HTMLDivElement | null>;
-}) {
+export function useAdminBooksManager() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +98,7 @@ export function useAdminBooksManager({
   const [formSaveSignal, setFormSaveSignal] = useState(0);
   const [formIsDirty, setFormIsDirty] = useState(false);
   const [formSessionKey, setFormSessionKey] = useState(0);
+  const [formFocusTick, setFormFocusTick] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterGenre, setFilterGenre] = useState("ALL");
   const [filterReadStatus, setFilterReadStatus] =
@@ -112,7 +107,6 @@ export function useAdminBooksManager({
   const [filterFormat, setFilterFormat] = useState("ALL");
   const [filterSeries, setFilterSeries] = useState("ALL");
   const formCloseTimeoutRef = useRef<number | null>(null);
-  const pendingFormFocusRef = useRef(false);
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const formInstanceKey = editingId ? `edit-${editingId}-${formSessionKey}` : `add-${formSessionKey}`;
 
@@ -253,6 +247,7 @@ export function useAdminBooksManager({
       setFormSessionKey((currentKey) => currentKey + 1);
       setOwnershipStatus(defaultOwnership);
       setShowForm(true);
+      setFormFocusTick((currentTick) => currentTick + 1);
     },
     [filterOwnership, resetFormFeedback, resetFormFields],
   );
@@ -281,23 +276,13 @@ export function useAdminBooksManager({
       );
       setEditingId(book.id);
       void handleLoadCoverPhoto(book.id);
-      pendingFormFocusRef.current = true;
       setShowForm(true);
+      setFormFocusTick((currentTick) => currentTick + 1);
     },
     [handleLoadCoverPhoto, resetFormFeedback],
   );
 
   useEffect(() => () => clearPendingFormClose(), [clearPendingFormClose]);
-
-  useEffect(() => {
-    if (!showForm || !pendingFormFocusRef.current) return;
-    const focusTarget = formRegionRef.current?.querySelector<HTMLElement>(
-      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])',
-    );
-    formRegionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    focusTarget?.focus({ preventScroll: true });
-    pendingFormFocusRef.current = false;
-  }, [showForm, editingId, formInstanceKey]);
 
   useEffect(() => {
     void loadBooks(filterOwnership);
@@ -507,9 +492,7 @@ export function useAdminBooksManager({
       console.error("Failed to save cover photo:", error);
       setErrorMessage(resolveErrorMessage(error));
     }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    event.currentTarget.value = "";
   }, [editingId]);
 
   const handleRemoveCoverPhoto = useCallback(async () => {
@@ -539,10 +522,6 @@ export function useAdminBooksManager({
       }
     }
   }, [coverPhotoUrl, editingId]);
-
-  const handlePickCoverPhoto = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
 
   const handleConfirmDeleteBook = useCallback(async () => {
     if (!deleteTarget) return;
@@ -582,7 +561,7 @@ export function useAdminBooksManager({
   }, [books, deleteTarget, editingId, resetFormFeedback, resetFormFields]);
 
   return {
-    page: { loading, errorMessage, statusMessage, showForm },
+    page: { loading, errorMessage, statusMessage, showForm, formFocusTick },
     filters: {
       searchQuery,
       filterGenre,
@@ -636,7 +615,6 @@ export function useAdminBooksManager({
       handleQuickOwnershipToggle,
       handleSubmit,
       handleCoverPhotoCapture,
-      handlePickCoverPhoto,
       handleRemoveCoverPhoto,
       handleCoverUrlChange,
       handleConfirmDeleteBook,

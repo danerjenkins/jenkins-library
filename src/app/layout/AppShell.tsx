@@ -1,5 +1,14 @@
-import type { ReactNode } from "react";
-import { BarChart3, BookOpen, Heart, Plus, Settings } from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
+import {
+  BarChart3,
+  BookMarked,
+  BookOpen,
+  BookOpenText,
+  Heart,
+  Plus,
+  Settings,
+  Sparkles,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import "./AppShell.css";
 
@@ -7,11 +16,17 @@ interface AppShellProps {
   children: ReactNode;
 }
 
-const navItems = [
+const primaryNavItems = [
   { to: "/view", label: "Library", Icon: BookOpen },
   { to: "/wishlist", label: "Wishlist", Icon: Heart },
   { to: "/admin", label: "Manage", Icon: Settings },
   { to: "/stats", label: "Stats", Icon: BarChart3 },
+] as const;
+
+const secondaryNavItems = [
+  { to: "/series", label: "Series", Icon: BookOpenText },
+  { to: "/genres", label: "Genres", Icon: Sparkles },
+  { to: "/reading-list", label: "TBR", Icon: BookMarked },
 ] as const;
 
 export function AppShell({ children }: AppShellProps) {
@@ -23,6 +38,30 @@ export function AppShell({ children }: AppShellProps) {
       ? "wishlist"
       : "owned";
   const addBookPath = `/admin?add=1&ownership=${activeOwnership}`;
+  const getNavTarget = (to: string) =>
+    to === location.pathname ? `${to}${location.search}` : to;
+
+  const renderNavLink = (
+    to: string,
+    label: string,
+    Icon: ComponentType<{ className?: string; size?: number; "aria-hidden"?: boolean }>,
+    className: string,
+  ) => {
+    const isActive = location.pathname === to;
+
+    return (
+      <Link
+        key={to}
+        to={getNavTarget(to)}
+        className={className}
+        aria-current={isActive ? "page" : undefined}
+        data-active={isActive ? "true" : undefined}
+      >
+        <Icon className="app-nav__icon" aria-hidden={true} size={18} />
+        <span className="app-nav__label">{label}</span>
+      </Link>
+    );
+  };
 
   return (
     <div className="app-shell">
@@ -49,24 +88,18 @@ export function AppShell({ children }: AppShellProps) {
             </Link>
           </div>
 
-          <nav className="app-nav" aria-label="Primary navigation">
-            {navItems.map(({ to, label, Icon }) => {
-              const isActive = location.pathname === to;
-
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className="app-nav__link"
-                  aria-current={isActive ? "page" : undefined}
-                  data-active={isActive ? "true" : undefined}
-                >
-                  <Icon className="app-nav__icon" aria-hidden="true" size={18} />
-                  <span className="app-nav__label">{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="app-header__navs">
+            <nav className="app-nav" aria-label="Primary navigation">
+              {primaryNavItems.map(({ to, label, Icon }) =>
+                renderNavLink(to, label, Icon, "app-nav__link"),
+              )}
+            </nav>
+            <nav className="app-nav app-nav--secondary" aria-label="Browse navigation">
+              {secondaryNavItems.map(({ to, label, Icon }) =>
+                renderNavLink(to, label, Icon, "app-nav__link app-nav__link--secondary"),
+              )}
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -75,22 +108,9 @@ export function AppShell({ children }: AppShellProps) {
       </main>
 
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        {navItems.map(({ to, label, Icon }) => {
-          const isActive = location.pathname === to;
-
-          return (
-            <Link
-              key={to}
-              to={to}
-              className="mobile-bottom-nav__link"
-              aria-current={isActive ? "page" : undefined}
-              data-active={isActive ? "true" : undefined}
-            >
-              <Icon aria-hidden="true" size={19} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
+        {primaryNavItems.map(({ to, label, Icon }) =>
+          renderNavLink(to, label, Icon, "mobile-bottom-nav__link"),
+        )}
         <Link to={addBookPath} className="mobile-bottom-nav__add">
           <Plus aria-hidden="true" size={22} />
           <span>Add</span>

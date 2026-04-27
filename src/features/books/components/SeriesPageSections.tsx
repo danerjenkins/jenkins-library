@@ -5,12 +5,8 @@ import { LoadingState } from "../../../ui/components/LoadingState";
 import { Select } from "../../../ui/components/Select";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
-import {
-  actionLinkClasses,
-  filterFieldGridClasses,
-  ShelfDensitySelector,
-  ShelfSearchField,
-} from "./ShelfBrowseControls";
+import { actionLinkClasses, filterFieldGridClasses } from "./shelfBrowseControlStyles";
+import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../shelfViewPreferences";
 import { getSeriesCarouselCardWidthClass } from "../hooks/discoveryBrowseShared";
 import type { SeriesGroup } from "../hooks/useSeriesBrowse";
