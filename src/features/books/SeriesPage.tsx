@@ -48,13 +48,13 @@ export function SeriesPage() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [location.hash, state.loading, state.filteredSeries.length]);
+  }, [location.hash, state.loading, state.filteredParentSeries.length, state.filteredSeries.length]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
-      <PageLayout>
+      <PageLayout className="space-y-4 sm:space-y-5">
         <SeriesHeroSection />
-        <FeaturedSeriesSection featuredSeries={state.filteredSeries} />
+        <FeaturedSeriesSection featuredGroups={state.featuredGroups} />
         <SeriesFiltersSection
           searchQuery={state.searchQuery}
           ownershipFilter={state.ownershipFilter}
@@ -70,7 +70,9 @@ export function SeriesPage() {
         />
         <SeriesResultsSection
           loading={state.loading}
+          parentSeriesGroups={state.parentSeriesGroups}
           groupedSeries={state.groupedSeries}
+          filteredParentSeries={state.filteredParentSeries}
           filteredSeries={state.filteredSeries}
           standaloneCount={state.standaloneBooks.length}
           cardSize={state.cardSize}

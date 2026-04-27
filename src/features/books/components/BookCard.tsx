@@ -90,6 +90,7 @@ interface BookCardProps {
   showOwnershipTag?: boolean;
   detailMeta?: string | null;
   deferRendering?: boolean;
+  className?: string;
 }
 
 const coverHeightBySize: Record<CardSize, string> = {
@@ -208,6 +209,7 @@ export function BookCard({
   showOwnershipTag = false,
   detailMeta = null,
   deferRendering = true,
+  className,
 }: BookCardProps) {
   const isView = variant === "view";
   const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
@@ -258,7 +260,7 @@ export function BookCard({
   );
   const cardChrome = `book-card flex w-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm${
     deferRendering ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]" : ""
-  }`;
+  }${className ? ` ${className}` : ""}`;
   const detailPath = `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
   const bodyClasses = `book-card__body flex min-w-0 flex-col${

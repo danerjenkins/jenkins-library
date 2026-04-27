@@ -15,11 +15,20 @@ const sectionSurfaceClasses =
   "ds-panel-shell";
 const carouselButtonClasses =
   "ds-carousel-button min-h-11 min-w-11 border-warm-gray/85 bg-cream/95 text-charcoal hover:border-sage hover:bg-parchment active:translate-y-px disabled:opacity-50";
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
+function sortSeriesGroupsByBookCount(groups: SeriesGroup[]) {
+  return [...groups].sort((a, b) => {
+    const countDelta = b.books.length - a.books.length;
+    if (countDelta !== 0) return countDelta;
+    return collator.compare(a.name, b.name);
+  });
+}
 
 export function SeriesHeroSection() {
   return (
-    <header className={`${sectionSurfaceClasses} px-5 py-6 sm:px-6 sm:py-7`}>
-      <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-4xl">
+    <header className={`${sectionSurfaceClasses} px-4 py-4 sm:px-5 sm:py-5`}>
+      <h1 className="font-display text-2xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-3xl">
         Series page
       </h1>
     </header>
@@ -106,27 +115,27 @@ export function SeriesFiltersSection({
   );
 }
 
-export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: SeriesGroup[] }) {
-  if (featuredSeries.length === 0) return null;
+export function FeaturedSeriesSection({ featuredGroups }: { featuredGroups: SeriesGroup[] }) {
+  if (featuredGroups.length === 0) return null;
 
   return (
-    <section className={`${sectionSurfaceClasses} p-3 sm:p-4`}>
-      <div className="ds-panel-surface flex flex-col gap-3 p-3 sm:p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <section className={`${sectionSurfaceClasses} p-2 sm:p-3`}>
+      <div className="ds-panel-surface flex flex-col gap-2 p-3 sm:p-3.5">
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
               Featured Series
             </p>
-            <h2 className="mt-1 font-display text-xl font-semibold text-stone-900">
+            <h2 className="mt-0.5 font-display text-lg font-semibold text-stone-900 sm:text-xl">
               Start with the biggest series
             </h2>
           </div>
-          <p className="ds-subtle-text text-sm">
+          <p className="ds-subtle-text text-xs sm:text-sm">
             Quick links for the series with the most books right now.
           </p>
         </div>
         <nav className="flex flex-wrap gap-2" aria-label="Featured series jumps">
-          {featuredSeries.map((group) => (
+          {featuredGroups.map((group) => (
             <a
               key={group.key}
               href={`#${group.key}`}
@@ -144,9 +153,106 @@ export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: Seri
   );
 }
 
+function SeriesCarouselSection({
+  group,
+  cardSize,
+  registerCarousel,
+  onStepCarousel,
+  getSeriesProgressLabel,
+}: {
+  group: SeriesGroup;
+  cardSize: CardSize;
+  registerCarousel: (key: string, node: HTMLDivElement | null) => void;
+  onStepCarousel: (key: string, direction: "backward" | "forward") => void;
+  getSeriesProgressLabel: (books: SeriesGroup["books"]) => string;
+}) {
+  const progressLabel =
+    group.kind === "parent" || group.books.length <= 1 ? null : getSeriesProgressLabel(group.books);
+
+  return (
+    <section
+      key={group.key}
+      id={group.key}
+      className="scroll-mt-24 rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-3 shadow-soft sm:p-4"
+    >
+      <div className="flex flex-col gap-3 border-b border-warm-gray/70 pb-3">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 space-y-2">
+            <div className="space-y-1">
+              <h3 className="font-display text-2xl font-semibold text-pretty text-stone-900 sm:text-[2rem]">
+                {group.name}
+              </h3>
+              {progressLabel ? (
+                <p className="text-sm leading-relaxed text-stone-600">{progressLabel}</p>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-stone-600">
+              <span className="ds-chip border-warm-gray/75 bg-parchment/80 px-3 py-1 text-stone-600">
+                {group.books.length} {group.books.length === 1 ? "entry" : "entries"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className={carouselButtonClasses}
+              onClick={() => onStepCarousel(group.key, "backward")}
+              aria-label={`Scroll ${group.name} backward`}
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className={carouselButtonClasses}
+              onClick={() => onStepCarousel(group.key, "forward")}
+              aria-label={`Scroll ${group.name} forward`}
+            >
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        ref={(node) => registerCarousel(group.key, node)}
+        className="mt-3 flex items-stretch snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label={`${group.name} books`}
+        role="region"
+        aria-roledescription="carousel"
+        tabIndex={0}
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {group.books.map((book, index) => (
+          <div
+            key={book.id}
+            className={`${getSeriesCarouselCardWidthClass(cardSize)} flex h-full min-w-0 shrink-0 flex-col snap-start self-stretch`}
+            style={{ scrollMarginInline: "1rem" }}
+          >
+            <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+              <span>{book.seriesLabel?.trim() || `Book ${index + 1}`}</span>
+            </div>
+            <BookCard
+              book={book}
+              variant="view"
+              cardSize={cardSize}
+              clickable={true}
+              showOwnershipTag={true}
+              deferRendering={false}
+              className="h-full"
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function SeriesResultsSection({
   loading,
+  parentSeriesGroups,
   groupedSeries,
+  filteredParentSeries,
   filteredSeries,
   standaloneCount,
   cardSize,
@@ -156,7 +262,9 @@ export function SeriesResultsSection({
   getSeriesProgressLabel,
 }: {
   loading: boolean;
+  parentSeriesGroups: SeriesGroup[];
   groupedSeries: SeriesGroup[];
+  filteredParentSeries: SeriesGroup[];
   filteredSeries: SeriesGroup[];
   standaloneCount: number;
   cardSize: CardSize;
@@ -165,6 +273,10 @@ export function SeriesResultsSection({
   onClearFilters: () => void;
   getSeriesProgressLabel: (books: SeriesGroup["books"]) => string;
 }) {
+  const allGroups = sortSeriesGroupsByBookCount([...filteredParentSeries, ...filteredSeries]);
+  const allKnownGroups = [...parentSeriesGroups, ...groupedSeries];
+  const hasAnySeries = allKnownGroups.length > 0;
+
   return (
     <section className="space-y-3">
       {loading ? (
@@ -174,7 +286,7 @@ export function SeriesResultsSection({
           variant="shelf"
           cardCount={3}
         />
-      ) : groupedSeries.length === 0 ? (
+      ) : !hasAnySeries ? (
         <BookShelfState
           title="No Series Yet"
           description={
@@ -188,7 +300,7 @@ export function SeriesResultsSection({
             </Link>
           }
         />
-      ) : filteredSeries.length === 0 ? (
+      ) : allGroups.length === 0 ? (
         <BookShelfState
           title="No Matching Series"
           description="Try a different search or clear the shelf filter to return to the full series list."
@@ -199,84 +311,18 @@ export function SeriesResultsSection({
           }
         />
       ) : (
-        filteredSeries.map((group) => (
-          <section
-            key={group.key}
-            id={group.key}
-            className="scroll-mt-24 rounded-[1.75rem] border border-warm-gray/80 bg-cream/95 p-3 shadow-soft sm:p-4"
-          >
-            <div className="flex flex-col gap-3 border-b border-warm-gray/70 pb-3">
-              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div className="min-w-0 space-y-2">
-                  <div className="ds-chip border-warm-gray/70 bg-parchment/80 px-3 py-1 text-stone-500">
-                    Reading Order Carousel
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-display text-2xl font-semibold text-pretty text-stone-900 sm:text-[2rem]">
-                      {group.name}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-stone-600">
-                      {getSeriesProgressLabel(group.books)}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-stone-600">
-                    <span className="ds-chip border-warm-gray/75 bg-parchment/80 px-3 py-1 text-stone-600">
-                      {group.books.length} {group.books.length === 1 ? "entry" : "entries"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className={carouselButtonClasses}
-                    onClick={() => onStepCarousel(group.key, "backward")}
-                    aria-label={`Scroll ${group.name} backward`}
-                  >
-                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className={carouselButtonClasses}
-                    onClick={() => onStepCarousel(group.key, "forward")}
-                    aria-label={`Scroll ${group.name} forward`}
-                  >
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div
-              ref={(node) => registerCarousel(group.key, node)}
-              className="mt-3 flex items-start snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              aria-label={`${group.name} books`}
-              role="region"
-              aria-roledescription="carousel"
-              tabIndex={0}
-              style={{ WebkitOverflowScrolling: "touch" }}
-            >
-              {group.books.map((book, index) => (
-                <div
-                  key={book.id}
-                  className={`${getSeriesCarouselCardWidthClass(cardSize)} min-w-0 shrink-0 snap-start self-start`}
-                  style={{ scrollMarginInline: "1rem" }}
-                >
-                  <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
-                    <span>{book.seriesLabel?.trim() || `Book ${index + 1}`}</span>
-                  </div>
-                  <BookCard
-                    book={book}
-                    variant="view"
-                    cardSize={cardSize}
-                    clickable={true}
-                    showOwnershipTag={true}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))
+        <div className="space-y-3">
+          {allGroups.map((group) => (
+            <SeriesCarouselSection
+              key={group.key}
+              group={group}
+              cardSize={cardSize}
+              registerCarousel={registerCarousel}
+              onStepCarousel={onStepCarousel}
+              getSeriesProgressLabel={getSeriesProgressLabel}
+            />
+          ))}
+        </div>
       )}
     </section>
   );

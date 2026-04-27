@@ -1,4 +1,41 @@
 # addtowishlist.md
-
-- The Witcher
-- 
+- isles of the ember dark
+- nights of wind and truth 
+- Thursday murder club
+- -Secret of secrets
+- flowers for Algernon
+- name of the wind Patrick rothfuss
+- wrinkle in time
+- red rising series
+- the aenid
+- gone with the wind
+- dracula
+- james and the giant peach
+- charlie and the chocolate factory
+- BFG
+- matilda
+- divergent trilogy
+- the ocean at the end of the lane
+- catch 22
+- scythe
+- catcher in the rye
+- the subtle art of not giving a f*ck
+- the secret history
+- supercommunicators
+- the gulag archipelago
+- gone girl
+- how will you measure your live? (owned)
+- the anxious generation
+- bad therapy
+- the body keeps the score
+- 10 great souls I want to meet in heaven - S. Micheal Wilcox
+- casino royale
+- the color of magic - terry pratchett
+- the power of everday missionaries - clayton m christensen
+- the life of our loud - dickens
+- the bridge to terabithia
+- tuesdays with morrie
+- dungeon crawler carl
+- how to win friends and influence people
+- the diary of a young girl
+- memoirs of a geisha - arthur golden (replace the book "Geisha, A Life" which i mistakenly entered)
