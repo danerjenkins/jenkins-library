@@ -11,10 +11,7 @@
   align-items: center;
   gap: 0.25rem;
   max-width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
 }
 
 .app-nav__link {
@@ -82,6 +79,7 @@
   position: relative;
   display: flex;
   justify-content: flex-end;
+  z-index: 1;
 }
 
 .app-nav__link--more {
@@ -111,7 +109,7 @@
   position: absolute;
   top: calc(100% + 0.65rem);
   right: 0;
-  z-index: 35;
+  z-index: 60;
   width: min(18rem, calc(100vw - 2rem));
   padding: 0.8rem;
 }
