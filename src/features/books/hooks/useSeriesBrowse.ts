@@ -1,5 +1,16 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { getAllBooks, getWishlistBooks, sortBooksBySeriesOrder } from "../../../data/bookRepo";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  getAllBooks,
+  getWishlistBooks,
+  sortBooksBySeriesOrder,
+} from "../../../data/bookRepo";
 import { listSeries } from "../../../repos/seriesRepo";
 import {
   getScrollBehavior,
@@ -11,7 +22,13 @@ import {
 } from "./discoveryBrowseShared";
 import type { Book } from "../bookTypes";
 import type { CardSize } from "../shelfViewPreferences";
-import { getDefaultCardSize } from "../shelfViewPreferences";
+import {
+  SHELF_CARD_SIZE_STORAGE_KEY,
+  getDefaultCardSize,
+  isCardSize,
+  readStorageValue,
+  writeStorageValue,
+} from "../shelfViewPreferences";
 import type { Series } from "../bookTypes";
 
 export type SeriesGroup = {
@@ -22,7 +39,10 @@ export type SeriesGroup = {
   parentName?: string | null;
 };
 
-const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+const collator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
 
 function normalizeGroupKey(name: string) {
   return normalizeSeriesName(name);
@@ -30,9 +50,13 @@ function normalizeGroupKey(name: string) {
 
 function sortBooksForParentCarousel(books: Book[]): Book[] {
   return [...books].sort((a, b) => {
-    const seriesCompare = (a.seriesName ?? "").localeCompare(b.seriesName ?? "", undefined, {
-      sensitivity: "base",
-    });
+    const seriesCompare = (a.seriesName ?? "").localeCompare(
+      b.seriesName ?? "",
+      undefined,
+      {
+        sensitivity: "base",
+      },
+    );
     if (seriesCompare !== 0) return seriesCompare;
 
     const sortA = a.seriesSort ?? Number.POSITIVE_INFINITY;
@@ -78,7 +102,10 @@ function buildSeriesHierarchy(seriesList: Series[], books: Book[]) {
 
   const descendantBooksCache = new Map<string, Book[]>();
 
-  function collectDescendantBooks(seriesId: string, visiting = new Set<string>()): Book[] {
+  function collectDescendantBooks(
+    seriesId: string,
+    visiting = new Set<string>(),
+  ): Book[] {
     const cached = descendantBooksCache.get(seriesId);
     if (cached) return cached;
     if (visiting.has(seriesId)) return [];
@@ -133,7 +160,7 @@ function buildSeriesHierarchy(seriesList: Series[], books: Book[]) {
         books: sortBooksBySeriesOrder(booksForSeries),
         kind: "series" as const,
         parentName: series.parentSeriesId
-          ? seriesById.get(series.parentSeriesId)?.name ?? null
+          ? (seriesById.get(series.parentSeriesId)?.name ?? null)
           : null,
       };
     })
@@ -153,8 +180,14 @@ export function useSeriesBrowse() {
   const [loading, setLoading] = useState(true);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
-  const [cardSize, setCardSize] = useState<CardSize>(getDefaultCardSize);
+  const [ownershipFilter, setOwnershipFilter] =
+    useState<OwnershipFilter>("all");
+  const [cardSize, setCardSize] = useState<CardSize>(() => {
+    const storedCardSize = readStorageValue<string>(
+      SHELF_CARD_SIZE_STORAGE_KEY,
+    );
+    return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -179,9 +212,15 @@ export function useSeriesBrowse() {
     void loadBooks();
   }, [loadBooks]);
 
+  useEffect(() => {
+    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
+  }, [cardSize]);
+
   const visibleBooks = useMemo(() => {
     if (ownershipFilter === "all") return books;
-    return books.filter((book) => (book.ownershipStatus ?? "owned") === ownershipFilter);
+    return books.filter(
+      (book) => (book.ownershipStatus ?? "owned") === ownershipFilter,
+    );
   }, [books, ownershipFilter]);
 
   const standaloneBooks = useMemo(
@@ -198,9 +237,14 @@ export function useSeriesBrowse() {
     const query = deferredSearchQuery.trim().toLocaleLowerCase();
     return seriesGroups
       .map((group) => {
-        if (!query || group.name.toLocaleLowerCase().includes(query)) return group;
-        const matchingBooks = group.books.filter((book) => matchesSeriesBookQuery(book, query));
-        return matchingBooks.length === 0 ? null : { ...group, books: matchingBooks };
+        if (!query || group.name.toLocaleLowerCase().includes(query))
+          return group;
+        const matchingBooks = group.books.filter((book) =>
+          matchesSeriesBookQuery(book, query),
+        );
+        return matchingBooks.length === 0
+          ? null
+          : { ...group, books: matchingBooks };
       })
       .filter((group): group is SeriesGroup => group !== null);
   }, [deferredSearchQuery, seriesGroups]);
@@ -209,9 +253,14 @@ export function useSeriesBrowse() {
     const query = deferredSearchQuery.trim().toLocaleLowerCase();
     return parentGroups
       .map((group) => {
-        if (!query || group.name.toLocaleLowerCase().includes(query)) return group;
-        const matchingBooks = group.books.filter((book) => matchesSeriesBookQuery(book, query));
-        return matchingBooks.length === 0 ? null : { ...group, books: matchingBooks };
+        if (!query || group.name.toLocaleLowerCase().includes(query))
+          return group;
+        const matchingBooks = group.books.filter((book) =>
+          matchesSeriesBookQuery(book, query),
+        );
+        return matchingBooks.length === 0
+          ? null
+          : { ...group, books: matchingBooks };
       })
       .filter((group): group is SeriesGroup => group !== null);
   }, [deferredSearchQuery, parentGroups]);
@@ -223,7 +272,8 @@ export function useSeriesBrowse() {
     [parentGroups, seriesGroups],
   );
 
-  const hasActiveFilters = searchQuery.trim().length > 0 || ownershipFilter !== "all";
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 || ownershipFilter !== "all";
   const resultsSummary = `${filteredParentSeries.length + filteredSeries.length} series shown`;
 
   const featuredGroups = useMemo(() => {
@@ -242,19 +292,25 @@ export function useSeriesBrowse() {
     setOwnershipFilter("all");
   }, []);
 
-  const registerCarousel = useCallback((key: string, node: HTMLDivElement | null) => {
-    carouselRefs.current[key] = node;
-  }, []);
+  const registerCarousel = useCallback(
+    (key: string, node: HTMLDivElement | null) => {
+      carouselRefs.current[key] = node;
+    },
+    [],
+  );
 
-  const handleStepCarousel = useCallback((key: string, direction: "backward" | "forward") => {
-    const carousel = carouselRefs.current[key];
-    if (!carousel) return;
-    const distance = Math.max(carousel.clientWidth * 0.82, 240);
-    carousel.scrollBy({
-      left: direction === "forward" ? distance : -distance,
-      behavior: getScrollBehavior(),
-    });
-  }, []);
+  const handleStepCarousel = useCallback(
+    (key: string, direction: "backward" | "forward") => {
+      const carousel = carouselRefs.current[key];
+      if (!carousel) return;
+      const distance = Math.max(carousel.clientWidth * 0.82, 240);
+      carousel.scrollBy({
+        left: direction === "forward" ? distance : -distance,
+        behavior: getScrollBehavior(),
+      });
+    },
+    [],
+  );
 
   return {
     state: {

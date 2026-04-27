@@ -16,7 +16,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { getCoverPhotoUrl } from "../../../data/db";
-import { Badge } from "../../../ui/components/Badge";
 import type { Book } from "../bookTypes";
 import { BOOK_FORMAT_LABELS } from "../bookTypes";
 import "./BookCard.css";
@@ -87,7 +86,6 @@ interface BookCardProps {
   cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
   showGenreTag?: boolean;
-  showOwnershipTag?: boolean;
   detailMeta?: string | null;
   deferRendering?: boolean;
   className?: string;
@@ -152,7 +150,10 @@ function BookCover({
         <div className="book-card__cover-fallback-monogram" aria-hidden="true">
           {monogram}
         </div>
-        <BookOpen className="book-card__cover-fallback-icon" aria-hidden="true" />
+        <BookOpen
+          className="book-card__cover-fallback-icon"
+          aria-hidden="true"
+        />
         <div className="book-card__cover-fallback-copy">
           <span className="book-card__cover-fallback-label">{book.title}</span>
           <span className="book-card__cover-fallback-meta">{book.author}</span>
@@ -170,9 +171,7 @@ export function BookGrid({
   cardSize?: CardSize;
 }) {
   return (
-    <div className={`grid ${gridClassesByCardSize[cardSize]}`}>
-      {children}
-    </div>
+    <div className={`grid ${gridClassesByCardSize[cardSize]}`}>{children}</div>
   );
 }
 
@@ -206,7 +205,6 @@ export function BookCard({
   cardSize = "medium",
   clickable = false,
   showGenreTag = true,
-  showOwnershipTag = false,
   detailMeta = null,
   deferRendering = true,
   className,
@@ -250,19 +248,20 @@ export function BookCard({
     : null;
   const coverUrl = localCoverUrl ?? book.coverUrl ?? null;
   const genreTone = book.genre ? getGenreTone(book.genre) : "general";
-  const GenreIcon = genreIconsByTone[genreTone as keyof typeof genreIconsByTone];
+  const GenreIcon =
+    genreIconsByTone[genreTone as keyof typeof genreIconsByTone];
   const cover = (
-    <BookCover
-      book={book}
-      coverUrl={coverUrl}
-      coverHeight={coverHeight}
-    />
+    <BookCover book={book} coverUrl={coverUrl} coverHeight={coverHeight} />
   );
   const cardChrome = `book-card flex w-full min-w-0 flex-col overflow-hidden rounded-lg border border-warm-gray bg-cream/95 shadow-sm${
-    deferRendering ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]" : ""
+    deferRendering
+      ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]"
+      : ""
   }${className ? ` ${className}` : ""}`;
   const detailPath = `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
+  const ownershipStatus = book.ownershipStatus ?? "owned";
+  const OwnershipIcon = ownershipStatus === "wishlist" ? Heart : BookOpen;
   const bodyClasses = `book-card__body flex min-w-0 flex-1 flex-col${
     actions ? " book-card__body--with-actions" : ""
   }`;
@@ -273,17 +272,38 @@ export function BookCard({
         className={`${cardChrome}${clickableCardClasses}`}
         data-card-size={cardSize}
         data-genre-tone={genreTone}
+        data-ownership-status={ownershipStatus}
       >
         {clickable ? (
           <Link
             to={detailPath}
-            className="book-card__cover-link block rounded-t-lg focus-visible:outline-none"
+            className="book-card__cover-link block rounded-t-lg focus-visible:outline-none relative group"
             aria-label={`View ${book.title}`}
           >
             {cover}
+            <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+              <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
+                <OwnershipIcon
+                  className="h-4 w-4 text-white"
+                  aria-hidden="true"
+                  fill="currentColor"
+                />
+              </div>
+            </div>
           </Link>
         ) : (
-          cover
+          <div className="book-card__cover-wrapper relative group">
+            {cover}
+            <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+              <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
+                <OwnershipIcon
+                  className="h-4 w-4 text-white"
+                  aria-hidden="true"
+                  fill="currentColor"
+                />
+              </div>
+            </div>
+          </div>
         )}
         <div className={bodyClasses}>
           <div className="min-w-0">
@@ -319,18 +339,8 @@ export function BookCard({
               </p>
             ) : null}
           </div>
-          {(showOwnershipTag || (showGenreTag && book.genre)) && (
+          {showGenreTag && book.genre && (
             <div className="mt-auto flex min-w-0 w-full flex-col">
-              {showOwnershipTag && (
-                <div className="min-w-0 w-full">
-                  <Badge
-                    variant={book.ownershipStatus === "wishlist" ? "amber" : "default"}
-                    className="w-fit max-w-full text-[0.68rem] uppercase tracking-[0.12em]"
-                  >
-                    {book.ownershipStatus === "wishlist" ? "Wishlist" : "Library"}
-                  </Badge>
-                </div>
-              )}
               {showGenreTag && book.genre && (
                 <div className="min-w-0 w-full">
                   <span
@@ -397,8 +407,20 @@ export function BookCard({
       className={cardChrome}
       data-card-size={cardSize}
       data-genre-tone={genreTone}
+      data-ownership-status={ownershipStatus}
     >
-      {cover}
+      <div className="relative group">
+        {cover}
+        <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+          <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
+            <OwnershipIcon
+              className="h-4 w-4 text-white"
+              aria-hidden="true"
+              fill="currentColor"
+            />
+          </div>
+        </div>
+      </div>
       <div className={bodyClasses}>
         <div className="min-w-0">
           <h3

@@ -8,8 +8,16 @@ import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 import { FilterDrawer } from "./components/FilterDrawer";
-import { actionLinkClasses, filterFieldGridClasses, ownershipSegmentOptions } from "./components/shelfBrowseControlStyles";
-import { SegmentedControl, ShelfDensitySelector, ShelfSearchField } from "./components/ShelfBrowseControls";
+import {
+  actionLinkClasses,
+  filterFieldGridClasses,
+  ownershipSegmentOptions,
+} from "./components/shelfBrowseControlStyles";
+import {
+  SegmentedControl,
+  ShelfDensitySelector,
+  ShelfSearchField,
+} from "./components/ShelfBrowseControls";
 import { useMergedShelfBooks } from "./hooks/useShelfBooks";
 import {
   getSortedFormats,
@@ -32,9 +40,13 @@ function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   return [...books].sort((a, b) => {
     switch (sortBy) {
       case "genre-author": {
-        const genreCompare = (a.genre ?? "").localeCompare(b.genre ?? "", undefined, {
-          sensitivity: "base",
-        });
+        const genreCompare = (a.genre ?? "").localeCompare(
+          b.genre ?? "",
+          undefined,
+          {
+            sensitivity: "base",
+          },
+        );
         if (genreCompare !== 0) return genreCompare;
 
         const authorCompare = a.author.localeCompare(b.author, undefined, {
@@ -42,12 +54,18 @@ function sortVisibleBooks(books: Book[], sortBy: SortOption) {
         });
         if (authorCompare !== 0) return authorCompare;
 
-        return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        });
       }
       case "title":
-        return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+        return a.title.localeCompare(b.title, undefined, {
+          sensitivity: "base",
+        });
       case "author":
-        return a.author.localeCompare(b.author, undefined, { sensitivity: "base" });
+        return a.author.localeCompare(b.author, undefined, {
+          sensitivity: "base",
+        });
       case "updated":
         return b.updatedAt - a.updatedAt;
       default:
@@ -72,10 +90,8 @@ export function ViewBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const { books, loading } = useMergedShelfBooks();
-  const { state, updateState, clearFilters, hasActiveFilters } = useViewBooksPageState(
-    searchParams,
-    setSearchParams,
-  );
+  const { state, updateState, clearFilters, hasActiveFilters } =
+    useViewBooksPageState(searchParams, setSearchParams);
   const deferredSearchQuery = useDeferredValue(state.searchQuery);
 
   const visibleShelfBooks = useMemo(() => {
@@ -83,14 +99,19 @@ export function ViewBooksPage() {
       return books;
     }
 
-    return books.filter((book) => (book.ownershipStatus ?? "owned") === state.ownershipFilter);
+    return books.filter(
+      (book) => (book.ownershipStatus ?? "owned") === state.ownershipFilter,
+    );
   }, [books, state.ownershipFilter]);
 
   const availableGenres = useMemo(
     () => getSortedStrings(visibleShelfBooks.map((book) => book.genre)),
     [visibleShelfBooks],
   );
-  const availableFormats = useMemo(() => getSortedFormats(visibleShelfBooks), [visibleShelfBooks]);
+  const availableFormats = useMemo(
+    () => getSortedFormats(visibleShelfBooks),
+    [visibleShelfBooks],
+  );
   const availableSeries = useMemo(
     () => getSortedStrings(visibleShelfBooks.map((book) => book.seriesName)),
     [visibleShelfBooks],
@@ -122,7 +143,10 @@ export function ViewBooksPage() {
         return !book.seriesName;
       }
 
-      if (state.filterSeries !== "ALL" && book.seriesName !== state.filterSeries) {
+      if (
+        state.filterSeries !== "ALL" &&
+        book.seriesName !== state.filterSeries
+      ) {
         return false;
       }
 
@@ -168,8 +192,8 @@ export function ViewBooksPage() {
             }
             footer={
               <div className="text-sm text-stone-600">
-                Search, filter, and resize the {shelfLabel.toLowerCase()} shelf without leaving the
-                page.
+                Search, filter, and resize the {shelfLabel.toLowerCase()} shelf
+                without leaving the page.
               </div>
             }
           >
@@ -194,10 +218,15 @@ export function ViewBooksPage() {
                 id="filter-genre"
                 label="Genre"
                 value={state.filterGenre}
-                onChange={(event) => updateState({ filterGenre: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterGenre: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Genres" },
-                  ...availableGenres.map((genre) => ({ value: genre, label: genre })),
+                  ...availableGenres.map((genre) => ({
+                    value: genre,
+                    label: genre,
+                  })),
                 ]}
               />
 
@@ -205,7 +234,12 @@ export function ViewBooksPage() {
                 id="filter-finished"
                 label="Read Status"
                 value={state.filterFinished}
-                onChange={(event) => updateState({ filterFinished: event.target.value as typeof state.filterFinished })}
+                onChange={(event) =>
+                  updateState({
+                    filterFinished: event.target
+                      .value as typeof state.filterFinished,
+                  })
+                }
                 options={[...readFilterOptions]}
               />
 
@@ -213,7 +247,9 @@ export function ViewBooksPage() {
                 id="filter-format"
                 label="Format"
                 value={state.filterFormat}
-                onChange={(event) => updateState({ filterFormat: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterFormat: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Formats" },
                   ...availableFormats.map((format) => ({
@@ -227,11 +263,16 @@ export function ViewBooksPage() {
                 id="filter-series"
                 label="Series"
                 value={state.filterSeries}
-                onChange={(event) => updateState({ filterSeries: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterSeries: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Series" },
                   { value: "NONE", label: "No Series" },
-                  ...availableSeries.map((series) => ({ value: series, label: series })),
+                  ...availableSeries.map((series) => ({
+                    value: series,
+                    label: series,
+                  })),
                 ]}
               />
 
@@ -239,12 +280,13 @@ export function ViewBooksPage() {
                 id="sort-by"
                 label="Sort"
                 value={state.sortBy}
-                onChange={(event) => updateState({ sortBy: event.target.value as SortOption })}
+                onChange={(event) =>
+                  updateState({ sortBy: event.target.value as SortOption })
+                }
                 options={[...sortOptions]}
               />
             </div>
           </FilterDrawer>
-
         </PageHero>
 
         <section className="space-y-6">
@@ -257,7 +299,11 @@ export function ViewBooksPage() {
             />
           ) : visibleShelfBooks.length === 0 ? (
             <BookShelfState
-              title={state.ownershipFilter === "wishlist" ? "No Wishlist Books Yet" : "No Books Yet"}
+              title={
+                state.ownershipFilter === "wishlist"
+                  ? "No Wishlist Books Yet"
+                  : "No Books Yet"
+              }
               description={
                 state.ownershipFilter === "wishlist"
                   ? "Add the first wishlist book to start tracking what you want to read next."
@@ -274,7 +320,9 @@ export function ViewBooksPage() {
                   }
                   className={actionLinkClasses}
                 >
-                  {state.ownershipFilter === "wishlist" ? "Add Wishlist Book" : "Add Book"}
+                  {state.ownershipFilter === "wishlist"
+                    ? "Add Wishlist Book"
+                    : "Add Book"}
                 </Link>
               }
             />
@@ -283,7 +331,11 @@ export function ViewBooksPage() {
               title="No Matches Found"
               description="Adjust your search or clear filters to see the full shelf."
               action={
-                <Button variant="secondary" onClick={clearFilters} className="text-xs">
+                <Button
+                  variant="secondary"
+                  onClick={clearFilters}
+                  className="text-xs"
+                >
                   Clear Filters
                 </Button>
               }
@@ -297,7 +349,6 @@ export function ViewBooksPage() {
                   variant="view"
                   cardSize={state.cardSize}
                   clickable={true}
-                  showOwnershipTag={state.ownershipFilter === "all"}
                 />
               ))}
             </BookGrid>

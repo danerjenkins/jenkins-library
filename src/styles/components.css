@@ -107,3 +107,121 @@
 :where(.ds-discovery-link) {
   @apply flex min-h-32 flex-col justify-between rounded-2xl border border-warm-gray/80 bg-cream/95 p-4 text-left no-underline shadow-soft transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-sage/55 hover:bg-parchment/90 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:min-h-36 sm:p-5;
 }
+
+/* Carousel height constraints for consistent card sizing */
+:where(.ds-series-carousel) {
+  @apply flex items-stretch;
+  min-height: clamp(10rem, 30vh, 22rem);
+}
+
+:where(.ds-carousel-card) {
+  @apply flex h-full min-w-0 shrink-0 flex-col snap-start self-stretch;
+}
+
+:where(.ds-carousel-card) {
+  height: var(--book-card-carousel-height);
+}
+
+:where(.ds-carousel-card)[data-card-size="xsmall"] {
+  width: 7rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="small"] {
+  width: 9rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="medium"] {
+  width: 11rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="large"] {
+  width: 12.75rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="xsmall"] {
+  --book-card-carousel-height: 12.5rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="small"] {
+  --book-card-carousel-height: 14.75rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="medium"] {
+  --book-card-carousel-height: 17.5rem;
+}
+
+:where(.ds-carousel-card)[data-card-size="large"] {
+  --book-card-carousel-height: 20.5rem;
+}
+
+@media (min-width: 640px) {
+  :where(.ds-carousel-card)[data-card-size="xsmall"] {
+    width: 7.75rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="small"] {
+    width: 9.75rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="medium"] {
+    width: 12rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="large"] {
+    width: 14rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="xsmall"] {
+    --book-card-carousel-height: 14rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="small"] {
+    --book-card-carousel-height: 16.5rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="medium"] {
+    --book-card-carousel-height: 19.5rem;
+  }
+
+  :where(.ds-carousel-card)[data-card-size="large"] {
+    --book-card-carousel-height: 22.75rem;
+  }
+}
+
+:where(.ds-series-carousel)[data-card-size="xsmall"] {
+  min-height: clamp(8rem, 25vh, 14rem);
+}
+
+:where(.ds-series-carousel)[data-card-size="small"] {
+  min-height: clamp(10rem, 28vh, 16rem);
+}
+
+:where(.ds-series-carousel)[data-card-size="medium"] {
+  min-height: clamp(12rem, 32vh, 20rem);
+}
+
+:where(.ds-series-carousel)[data-card-size="large"] {
+  min-height: clamp(14rem, 35vh, 24rem);
+}
+
+/* Genres and discovery carousels - consistent with series */
+:where(.ds-genres-carousel) {
+  @apply flex items-stretch;
+  min-height: clamp(10rem, 30vh, 22rem);
+}
+
+:where(.ds-genres-carousel)[data-card-size="xsmall"] {
+  min-height: clamp(8rem, 25vh, 14rem);
+}
+
+:where(.ds-genres-carousel)[data-card-size="small"] {
+  min-height: clamp(10rem, 28vh, 16rem);
+}
+
+:where(.ds-genres-carousel)[data-card-size="medium"] {
+  min-height: clamp(12rem, 32vh, 20rem);
+}
+
+:where(.ds-genres-carousel)[data-card-size="large"] {
+  min-height: clamp(14rem, 35vh, 24rem);
+}

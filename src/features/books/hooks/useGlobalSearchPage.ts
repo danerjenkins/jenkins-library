@@ -1,8 +1,25 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
 import type { Book } from "../bookTypes";
-import { mergeDiscoveryBooks, matchesBookSearchQuery } from "./discoveryBrowseShared";
+import type { CardSize } from "../shelfViewPreferences";
+import {
+  SHELF_CARD_SIZE_STORAGE_KEY,
+  getDefaultCardSize,
+  isCardSize,
+  readStorageValue,
+  writeStorageValue,
+} from "../shelfViewPreferences";
+import {
+  mergeDiscoveryBooks,
+  matchesBookSearchQuery,
+} from "./discoveryBrowseShared";
 
 export type SearchOwnershipFilter = "all" | "owned" | "wishlist";
 
@@ -19,17 +36,29 @@ export function useGlobalSearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
-  const [ownershipFilter, setOwnershipFilterState] = useState<SearchOwnershipFilter>(() =>
-    hydrateOwnershipFilter(searchParams.get("ownership")),
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("q") ?? "",
   );
+  const [ownershipFilter, setOwnershipFilterState] =
+    useState<SearchOwnershipFilter>(() =>
+      hydrateOwnershipFilter(searchParams.get("ownership")),
+    );
+  const [cardSize, setCardSize] = useState<CardSize>(() => {
+    const storedCardSize = readStorageValue<string>(
+      SHELF_CARD_SIZE_STORAGE_KEY,
+    );
+    return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
     const loadBooks = async () => {
       try {
         setLoading(true);
-        const [ownedBooks, wishlistBooks] = await Promise.all([getAllBooks(), getWishlistBooks()]);
+        const [ownedBooks, wishlistBooks] = await Promise.all([
+          getAllBooks(),
+          getWishlistBooks(),
+        ]);
         setBooks(mergeDiscoveryBooks(ownedBooks, wishlistBooks));
       } catch (error) {
         console.error("Failed to load books for search:", error);
@@ -40,6 +69,10 @@ export function useGlobalSearchPage() {
 
     void loadBooks();
   }, []);
+
+  useEffect(() => {
+    writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
+  }, [cardSize]);
 
   useEffect(() => {
     const nextQuery = new URLSearchParams();
@@ -68,9 +101,12 @@ export function useGlobalSearchPage() {
 
   const ownershipTotals = useMemo(
     () => ({
-      owned: filteredBooks.filter((book) => (book.ownershipStatus ?? "owned") === "owned").length,
-      wishlist: filteredBooks.filter((book) => (book.ownershipStatus ?? "owned") === "wishlist")
-        .length,
+      owned: filteredBooks.filter(
+        (book) => (book.ownershipStatus ?? "owned") === "owned",
+      ).length,
+      wishlist: filteredBooks.filter(
+        (book) => (book.ownershipStatus ?? "owned") === "wishlist",
+      ).length,
     }),
     [filteredBooks],
   );
@@ -84,18 +120,16 @@ export function useGlobalSearchPage() {
     setSearchParams({}, { replace: true });
   }, [setSearchParams]);
 
-  const setOwnershipFilter = useCallback(
-    (value: SearchOwnershipFilter) => {
-      setOwnershipFilterState(value);
-    },
-    [],
-  );
+  const setOwnershipFilter = useCallback((value: SearchOwnershipFilter) => {
+    setOwnershipFilterState(value);
+  }, []);
 
   return {
     state: {
       loading,
       searchQuery,
       ownershipFilter,
+      cardSize,
       filteredBooks,
       ownershipTotals,
       hasActiveFilters,
@@ -103,6 +137,7 @@ export function useGlobalSearchPage() {
     actions: {
       setSearchQuery,
       setOwnershipFilter,
+      setCardSize,
       clearFilters,
     },
   };

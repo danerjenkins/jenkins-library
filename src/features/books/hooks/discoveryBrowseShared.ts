@@ -41,15 +41,15 @@ export function getSeriesCarouselCardWidthClass(cardSize: CardSize) {
 export function getGenreCarouselCardWidthClass(cardSize: CardSize) {
   switch (cardSize) {
     case "xsmall":
-      return "w-[9rem] sm:w-[9.75rem]";
+      return "w-[8.75rem] sm:w-[9.5rem]";
     case "small":
-      return "w-[11.75rem] sm:w-[12.5rem]";
+      return "w-[11.25rem] sm:w-[12rem]";
     case "medium":
-      return "w-[13.75rem] sm:w-[14.75rem]";
+      return "w-[13rem] sm:w-[14rem]";
     case "large":
-      return "w-[15.25rem] sm:w-[16.5rem]";
+      return "w-[14.5rem] sm:w-[16rem]";
     default:
-      return "w-[11.75rem] sm:w-[12.5rem]";
+      return "w-[13rem] sm:w-[14rem]";
   }
 }
 
@@ -73,7 +73,12 @@ export function getSeriesProgressLabel(books: Book[]) {
 
   const first = numberedBooks[0]?.seriesSort;
   const last = numberedBooks[numberedBooks.length - 1]?.seriesSort;
-  if (first === undefined || first === null || last === undefined || last === null) {
+  if (
+    first === undefined ||
+    first === null ||
+    last === undefined ||
+    last === null
+  ) {
     return `${books.length} ${books.length === 1 ? "book" : "books"}`;
   }
 
@@ -86,7 +91,10 @@ export function normalizeGenre(genre?: string | null) {
 }
 
 export function toGenreSectionId(genre: string) {
-  return `genre-${genre.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+  return `genre-${genre
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
 }
 
 export function matchesGenreBookQuery(book: Book, query: string) {
@@ -115,9 +123,13 @@ export function matchesBookSearchQuery(book: Book, query: string) {
 export function sortGenreShelfBooks(books: Book[]) {
   const bySeries = sortBooksBySeriesOrder([...books]);
   return bySeries.sort((a, b) => {
-    const genreCompare = normalizeGenre(a.genre).localeCompare(normalizeGenre(b.genre), undefined, {
-      sensitivity: "base",
-    });
+    const genreCompare = normalizeGenre(a.genre).localeCompare(
+      normalizeGenre(b.genre),
+      undefined,
+      {
+        sensitivity: "base",
+      },
+    );
     if (genreCompare !== 0) return genreCompare;
 
     const authorCompare = a.author.localeCompare(b.author, undefined, {
@@ -125,9 +137,13 @@ export function sortGenreShelfBooks(books: Book[]) {
     });
     if (authorCompare !== 0) return authorCompare;
 
-    const seriesCompare = (a.seriesName ?? "").localeCompare(b.seriesName ?? "", undefined, {
-      sensitivity: "base",
-    });
+    const seriesCompare = (a.seriesName ?? "").localeCompare(
+      b.seriesName ?? "",
+      undefined,
+      {
+        sensitivity: "base",
+      },
+    );
     if (seriesCompare !== 0) return seriesCompare;
 
     const seriesOrderA = a.seriesSort ?? Number.POSITIVE_INFINITY;

@@ -32,7 +32,6 @@ export function GenresPage() {
         loading={state.loading}
         genreShelves={state.genreShelves}
         cardSize={state.cardSize}
-        shelfCardHeights={state.shelfCardHeights}
         carouselRefs={refs.carouselRefs}
         onScrollShelf={actions.scrollShelf}
         onClearFilters={actions.clearFilters}

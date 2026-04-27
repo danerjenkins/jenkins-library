@@ -6,17 +6,17 @@ import { FilterDrawer } from "./FilterDrawer";
 import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../shelfViewPreferences";
 import type { GenreShelf } from "../hooks/useGenresBrowse";
-import { getGenreCarouselCardWidthClass } from "../hooks/discoveryBrowseShared";
 
-const sectionSurfaceClasses =
-  "ds-panel-shell";
-const pillClasses =
-  "ds-chip";
-const carouselButtonClasses =
-  "ds-carousel-button";
+const sectionSurfaceClasses = "ds-panel-shell";
+const pillClasses = "ds-chip";
+const carouselButtonClasses = "ds-carousel-button";
 
 export function GenresPageFrame({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">{children}</div>;
+  return (
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">
+      {children}
+    </div>
+  );
 }
 
 export function GenresHeroSection() {
@@ -56,74 +56,89 @@ export function GenresFiltersSection({
   onClearFilters: () => void;
 }) {
   return (
-        <FilterDrawer
-          title="Genre Filters"
-          description="Search across titles, authors, genres, and series without pushing the shelves out of view."
-          isOpen={isFilterDrawerOpen}
-          onOpen={onOpenFilters}
-          onClose={onCloseFilters}
-          triggerLabel="Filter Genres"
-          actions={
-            <>
-              <ShelfDensitySelector options={CARD_SIZE_OPTIONS} value={cardSize} onChange={onCardSizeChange} />
-              {hasActiveFilters ? (
+    <FilterDrawer
+      title="Genre Filters"
+      description="Search across titles, authors, genres, and series without pushing the shelves out of view."
+      isOpen={isFilterDrawerOpen}
+      onOpen={onOpenFilters}
+      onClose={onCloseFilters}
+      triggerLabel="Filter Genres"
+      actions={
+        <>
+          <ShelfDensitySelector
+            options={CARD_SIZE_OPTIONS}
+            value={cardSize}
+            onChange={onCardSizeChange}
+          />
+          {hasActiveFilters ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClearFilters}
+              className="min-h-11 px-3 text-xs"
+            >
+              Clear Filters
+            </Button>
+          ) : null}
+        </>
+      }
+      footer={
+        <div className="text-sm text-stone-600">
+          Keep the same shelf density controls here and browse sideways instead
+          of vertically.
+        </div>
+      }
+    >
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <ShelfSearchField
+          id="genres-search"
+          name="genres-search"
+          label="Search titles, authors, genres, or series"
+          value={searchQuery}
+          onChange={onSearchQueryChange}
+          onEnterPress={onCloseFilters}
+          placeholder="Try fantasy, Sanderson, murder mystery, or novella..."
+        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="text-xs font-semibold leading-4 text-stone-700">
+            Ownership
+          </span>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {[
+              { value: "all", label: "All Books" },
+              { value: "owned", label: "Library Only" },
+              { value: "wishlist", label: "Wishlist Only" },
+            ].map((option) => {
+              const isActive = ownershipFilter === option.value;
+              return (
                 <Button
+                  key={option.value}
                   type="button"
-                  variant="secondary"
-                  onClick={onClearFilters}
-                  className="min-h-11 px-3 text-xs"
+                  variant={isActive ? "primary" : "secondary"}
+                  onClick={() =>
+                    onOwnershipFilterChange(
+                      option.value as "all" | "owned" | "wishlist",
+                    )
+                  }
+                  className="w-full"
+                  aria-pressed={isActive}
                 >
-                  Clear Filters
+                  {option.label}
                 </Button>
-              ) : null}
-            </>
-          }
-          footer={
-            <div className="text-sm text-stone-600">
-              Keep the same shelf density controls here and browse sideways instead of vertically.
-            </div>
-          }
-        >
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <ShelfSearchField
-              id="genres-search"
-              name="genres-search"
-              label="Search titles, authors, genres, or series"
-              value={searchQuery}
-              onChange={onSearchQueryChange}
-              onEnterPress={onCloseFilters}
-              placeholder="Try fantasy, Sanderson, murder mystery, or novella..."
-            />
-            <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-xs font-semibold leading-4 text-stone-700">Ownership</span>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {[
-                  { value: "all", label: "All Books" },
-                  { value: "owned", label: "Library Only" },
-                  { value: "wishlist", label: "Wishlist Only" },
-                ].map((option) => {
-                  const isActive = ownershipFilter === option.value;
-                  return (
-                    <Button
-                      key={option.value}
-                      type="button"
-                      variant={isActive ? "primary" : "secondary"}
-                      onClick={() => onOwnershipFilterChange(option.value as "all" | "owned" | "wishlist")}
-                      className="w-full"
-                      aria-pressed={isActive}
-                    >
-                      {option.label}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
+              );
+            })}
           </div>
-        </FilterDrawer>
+        </div>
+      </div>
+    </FilterDrawer>
   );
 }
 
-export function FeaturedGenresSection({ featuredShelves }: { featuredShelves: GenreShelf[] }) {
+export function FeaturedGenresSection({
+  featuredShelves,
+}: {
+  featuredShelves: GenreShelf[];
+}) {
   if (featuredShelves.length === 0) return null;
   return (
     <section className={`${sectionSurfaceClasses} p-4 sm:p-5`}>
@@ -141,7 +156,10 @@ export function FeaturedGenresSection({ featuredShelves }: { featuredShelves: Ge
             Quick links for the shelves with the most books right now.
           </p>
         </div>
-        <nav className="flex flex-wrap gap-2" aria-label="Featured genre shelf jumps">
+        <nav
+          className="flex flex-wrap gap-2"
+          aria-label="Featured genre shelf jumps"
+        >
           {featuredShelves.map((shelf) => (
             <a
               key={shelf.sectionId}
@@ -164,7 +182,6 @@ export function GenresResultsSection({
   loading,
   genreShelves,
   cardSize,
-  shelfCardHeights,
   carouselRefs,
   onScrollShelf,
   onClearFilters,
@@ -172,7 +189,6 @@ export function GenresResultsSection({
   loading: boolean;
   genreShelves: GenreShelf[];
   cardSize: CardSize;
-  shelfCardHeights: Record<string, number>;
   carouselRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   onScrollShelf: (sectionId: string, direction: "backward" | "forward") => void;
   onClearFilters: () => void;
@@ -212,7 +228,7 @@ export function GenresResultsSection({
           id={shelf.sectionId}
           className={`${sectionSurfaceClasses} scroll-mt-24 p-4 sm:p-5`}
         >
-      <div className="ds-panel-surface rounded-[1.6rem] p-4 shadow-sm sm:p-5">
+          <div className="ds-panel-surface rounded-[1.6rem] p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="min-w-0 space-y-2">
                 <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
@@ -222,12 +238,16 @@ export function GenresResultsSection({
                   <h2 className="font-display text-2xl font-semibold text-stone-900 text-balance">
                     {shelf.genre}
                   </h2>
-                  <span className={`${pillClasses} border-warm-gray bg-parchment text-stone-600`}>
-                    {shelf.books.length} {shelf.books.length === 1 ? "book" : "books"}
+                  <span
+                    className={`${pillClasses} border-warm-gray bg-parchment text-stone-600`}
+                  >
+                    {shelf.books.length}{" "}
+                    {shelf.books.length === 1 ? "book" : "books"}
                   </span>
                 </div>
                 <p className="ds-subtle-text max-w-2xl text-sm leading-6">
-                  Swipe or arrow through this lane to compare ownership, scan related reads, and keep series-adjacent picks together.
+                  Swipe or arrow through this lane to compare ownership, scan
+                  related reads, and keep series-adjacent picks together.
                 </p>
               </div>
 
@@ -265,32 +285,31 @@ export function GenresResultsSection({
               ref={(node) => {
                 carouselRefs.current[shelf.sectionId] = node;
               }}
-              className="mt-4 flex items-start snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+              className="ds-genres-carousel mt-4 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+              data-card-size={cardSize}
               aria-label={`${shelf.genre} book carousel`}
               role="region"
               aria-roledescription="carousel"
               tabIndex={0}
-              style={{ contentVisibility: "auto", containIntrinsicSize: "420px", WebkitOverflowScrolling: "touch" }}
+              style={{
+                contentVisibility: "auto",
+                WebkitOverflowScrolling: "touch",
+              }}
             >
               {shelf.books.map((book) => (
                 <div
                   key={book.id}
-                  className={`${getGenreCarouselCardWidthClass(cardSize)} flex min-w-0 shrink-0 snap-start`}
-                  data-genre-card-item
-                  style={{
-                    height: shelfCardHeights[shelf.sectionId]
-                      ? `${shelfCardHeights[shelf.sectionId]}px`
-                      : undefined,
-                    scrollMarginInline: "1rem",
-                  }}
+                  className="ds-carousel-card"
+                  data-card-size={cardSize}
+                  style={{ scrollMarginInline: "1rem" }}
                 >
                   <BookCard
                     book={book}
                     variant="view"
                     cardSize={cardSize}
                     clickable={true}
-                    showOwnershipTag={true}
                     deferRendering={false}
+                    className="h-full"
                   />
                 </div>
               ))}

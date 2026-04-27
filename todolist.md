@@ -52,7 +52,7 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 - [x] Library page: if library and wishlist selected, add tags
 
-- [x] Library page take away see details tag 
+- [x] Library page take away see details tag
 
 - [x] Strengthen card click affordance
   - Make cards clearly clickable with hover/focus styling.
@@ -91,6 +91,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
 
 - [x] Add series link to book description for books in that series. this link should take you to the series page
 
+- [ ] Tighten search page header
+  - Make header compact and focused.
+  - Remove unnecessary padding/spacing.
+
 ## Catalog Cleanup
 
 - [ ] Add all of the chronicles of Narnia to series (check all books to see if they should be in a series) (db change not code change)
@@ -123,6 +127,10 @@ Make the app easy and pleasant to use from a laptop or phone to:
 - [x] Decide whether Manage rows should open detail pages
   - Consider letting users open book details directly from Manage rows.
   - Avoid making Manage feel redundant with Library if that path stays edit-first.
+
+- [ ] Make the more dropdown appear above all management components
+  - Ensure dropdown z-index is higher than other UI elements.
+  - Prevent overflow and clipping on all viewport sizes.
 
 ## Add/Edit Book Flow
 
@@ -259,6 +267,26 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Replace text-only fallback with a simple book icon or styled placeholder.
   - Keep it lightweight and consistent.
 
+- [x] Use colored card backgrounds instead of ownership tags on mobile
+  - Replace ownership tags (Wishlist/Library) with subtle colored card backgrounds on XS screens.
+  - Add a small key/legend to clarify the color coding.
+  - Ensure sufficient contrast and accessibility.
+  - Keep tags on larger screens if space allows.
+
+- [x] Make book card text responsive to card size variable
+  - Ensure all text (title, author, genre, etc.) scales appropriately with card size.
+  - Truncate or adjust typography dynamically based on available space.
+  - Test readability at all sizes (XS, Small, Medium, Large).
+
+- [x] Normalize card size variable across all pages
+  - Use consistent card size preference (Library, Wishlist, Series, Genres).
+  - Share the `shelfViewPreferences` or equivalent state across all book-browsing pages.
+  - Sync preference updates immediately across all pages.
+
+- [x] Ensure consistent card height in series view
+  - Fix cards to uniform height per row instead of variable heights.
+  - Align cards bottom-to-bottom for cleaner visual rhythm.
+
 ## Documentation
 
 - [x] Keep the design-system map current
@@ -304,6 +332,16 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Let each reader prioritize books from Library and Wishlist separately.
   - Keep it lightweight and focused on next-up reading, not a full planning dashboard.
 
+- [ ] Add active reader selector in TBR (To-Be-Read) page
+  - Let users quickly switch between readers to see personalized reading lists.
+  - Highlight the current active reader.
+  - Persist the selection across sessions.
+
+- [ ] Clean up unnecessary TBR components
+  - Remove unused UI elements or hooks from reading list implementation.
+  - Consolidate redundant state or styling.
+  - Keep only essential controls for selecting reader and managing reading order.
+
 - [ ] Add export/import affordance in Manage
   - Keep advanced data actions away from daily browsing.
 
@@ -311,9 +349,9 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Only for empty library state.
   - Avoid a marketing-style landing page.
 
-- [X] Update Cosmere books to mass market paperback and refresh cover images
+- [x] Update Cosmere books to mass market paperback and refresh cover images
   - Treat this as a catalog/content cleanup task rather than a UI feature.
-- [X] Replace low-definition remote cover URLs with higher quality cover photos
+- [x] Replace low-definition remote cover URLs with higher quality cover photos
   - Prefer higher resolution sources where remote URLs are still being used.
   - Treat this as catalog/content cleanup, not a layout task.
 

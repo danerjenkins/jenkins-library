@@ -5,17 +5,28 @@ import { PageHero, PageLayout } from "../../ui/components/PageLayout";
 import { Button } from "../../ui/components/Button";
 import { LoadingState } from "../../ui/components/LoadingState";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
-import { ShelfSearchField, SegmentedControl } from "./components/ShelfBrowseControls";
-import { ownershipSegmentOptions, actionLinkClasses } from "./components/shelfBrowseControlStyles";
-import { useGlobalSearchPage, type SearchOwnershipFilter } from "./hooks/useGlobalSearchPage";
+import {
+  ShelfSearchField,
+  ShelfDensitySelector,
+  SegmentedControl,
+} from "./components/ShelfBrowseControls";
+import {
+  ownershipSegmentOptions,
+  actionLinkClasses,
+} from "./components/shelfBrowseControlStyles";
+import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
+import {
+  useGlobalSearchPage,
+  type SearchOwnershipFilter,
+} from "./hooks/useGlobalSearchPage";
 
 type BarcodeDetectorLike = {
   detect(source: HTMLVideoElement): Promise<Array<{ rawValue?: string }>>;
 };
 
-type BarcodeDetectorConstructor = new (
-  options?: { formats?: string[] },
-) => BarcodeDetectorLike;
+type BarcodeDetectorConstructor = new (options?: {
+  formats?: string[];
+}) => BarcodeDetectorLike;
 
 function IsbnScannerModal({
   open,
@@ -54,9 +65,11 @@ function IsbnScannerModal({
       setErrorMessage(null);
       setIsStarting(true);
 
-      const detectorCtor = (window as Window & {
-        BarcodeDetector?: BarcodeDetectorConstructor;
-      }).BarcodeDetector;
+      const detectorCtor = (
+        window as Window & {
+          BarcodeDetector?: BarcodeDetectorConstructor;
+        }
+      ).BarcodeDetector;
 
       if (!detectorCtor) {
         setErrorMessage("Barcode scanning is not supported in this browser.");
@@ -94,7 +107,9 @@ function IsbnScannerModal({
 
           try {
             const codes = await detector.detect(videoRef.current);
-            const detected = codes.find((code) => Boolean(code.rawValue?.trim()));
+            const detected = codes.find((code) =>
+              Boolean(code.rawValue?.trim()),
+            );
             if (detected?.rawValue) {
               onDetected(detected.rawValue.trim());
               onClose();
@@ -111,7 +126,9 @@ function IsbnScannerModal({
       } catch (error) {
         console.error("Failed to open barcode scanner:", error);
         setErrorMessage(
-          error instanceof Error ? error.message : "Could not open the camera scanner.",
+          error instanceof Error
+            ? error.message
+            : "Could not open the camera scanner.",
         );
       } finally {
         setIsStarting(false);
@@ -133,10 +150,12 @@ function IsbnScannerModal({
       <div className="ds-panel-surface w-full max-w-xl rounded-3xl bg-cream p-4 shadow-2xl sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-stone-900">Scan ISBN</h2>
+            <h2 className="font-display text-2xl font-semibold text-stone-900">
+              Scan ISBN
+            </h2>
             <p className="ds-subtle-text mt-1 text-sm leading-relaxed">
-              Point the camera at a barcode or ISBN label. If scanning is unsupported, type the
-              number manually instead.
+              Point the camera at a barcode or ISBN label. If scanning is
+              unsupported, type the number manually instead.
             </p>
           </div>
           <button
@@ -166,7 +185,9 @@ function IsbnScannerModal({
           ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="ds-muted-meta text-xs">
-              {isStarting ? "Starting camera..." : "Hold steady until the ISBN is recognized."}
+              {isStarting
+                ? "Starting camera..."
+                : "Hold steady until the ISBN is recognized."}
             </div>
             <Button type="button" variant="secondary" onClick={onClose}>
               Close Scanner
@@ -199,7 +220,12 @@ export function SearchPage() {
       state.loading
         ? "Loading search results..."
         : `${state.filteredBooks.length} ${state.filteredBooks.length === 1 ? "book" : "books"} matched · ${state.ownershipTotals.owned} owned · ${state.ownershipTotals.wishlist} wishlist`,
-    [state.filteredBooks.length, state.loading, state.ownershipTotals.owned, state.ownershipTotals.wishlist],
+    [
+      state.filteredBooks.length,
+      state.loading,
+      state.ownershipTotals.owned,
+      state.ownershipTotals.wishlist,
+    ],
   );
 
   return (
@@ -237,7 +263,11 @@ export function SearchPage() {
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">
                 {isBarcodeSupported ? (
-                  <Button type="button" variant="secondary" onClick={() => setIsScannerOpen(true)}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setIsScannerOpen(true)}
+                  >
                     <span className="flex items-center gap-2">
                       <ScanLine className="h-4 w-4" aria-hidden="true" />
                       Scan ISBN
@@ -245,14 +275,26 @@ export function SearchPage() {
                   </Button>
                 ) : null}
                 {state.hasActiveFilters ? (
-                  <Button type="button" variant="secondary" onClick={actions.clearFilters}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={actions.clearFilters}
+                  >
                     Clear Search
                   </Button>
                 ) : null}
               </div>
 
-              <div className="ds-subtle-text text-sm">
-                Showing {ownershipLabel(state.ownershipFilter).toLowerCase()} results.
+              <div className="flex items-center gap-3">
+                <ShelfDensitySelector
+                  options={CARD_SIZE_OPTIONS}
+                  value={state.cardSize}
+                  onChange={actions.setCardSize}
+                />
+                <div className="ds-subtle-text text-sm">
+                  Showing {ownershipLabel(state.ownershipFilter).toLowerCase()}{" "}
+                  results.
+                </div>
               </div>
             </div>
           </div>
@@ -281,15 +323,14 @@ export function SearchPage() {
             }
           />
         ) : (
-          <BookGrid cardSize="medium">
+          <BookGrid cardSize={state.cardSize}>
             {state.filteredBooks.map((book) => (
               <BookCard
                 key={book.id}
                 book={book}
                 variant="view"
-                cardSize="medium"
+                cardSize={state.cardSize}
                 clickable={true}
-                showOwnershipTag={true}
                 detailMeta={book.isbn ? `ISBN: ${book.isbn}` : null}
               />
             ))}
