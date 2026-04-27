@@ -130,11 +130,11 @@ function IsbnScannerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-3xl border border-warm-gray bg-cream p-4 shadow-2xl sm:p-6">
+      <div className="ds-panel-surface w-full max-w-xl rounded-3xl bg-cream p-4 shadow-2xl sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl font-semibold text-stone-900">Scan ISBN</h2>
-            <p className="mt-1 text-sm leading-relaxed text-stone-600">
+            <p className="ds-subtle-text mt-1 text-sm leading-relaxed">
               Point the camera at a barcode or ISBN label. If scanning is unsupported, type the
               number manually instead.
             </p>
@@ -142,7 +142,7 @@ function IsbnScannerModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-warm-gray bg-cream text-stone-600 transition-colors hover:bg-warm-gray-light hover:text-stone-900"
+            className="ds-button ds-button--secondary h-10 w-10 rounded-full px-0"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -160,12 +160,12 @@ function IsbnScannerModal({
 
         <div className="mt-4 space-y-3">
           {errorMessage ? (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <div className="ds-panel-surface border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
               {errorMessage}
             </div>
           ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs text-stone-500">
+            <div className="ds-muted-meta text-xs">
               {isStarting ? "Starting camera..." : "Hold steady until the ISBN is recognized."}
             </div>
             <Button type="button" variant="secondary" onClick={onClose}>
@@ -222,7 +222,7 @@ export function SearchPage() {
               />
 
               <div className="flex min-w-0 flex-col gap-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-600">
+                <span className="ds-muted-meta text-xs font-semibold uppercase tracking-[0.14em]">
                   Scope
                 </span>
                 <SegmentedControl
@@ -251,7 +251,7 @@ export function SearchPage() {
                 ) : null}
               </div>
 
-              <div className="text-sm text-stone-600">
+              <div className="ds-subtle-text text-sm">
                 Showing {ownershipLabel(state.ownershipFilter).toLowerCase()} results.
               </div>
             </div>

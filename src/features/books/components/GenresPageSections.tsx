@@ -9,11 +9,11 @@ import type { GenreShelf } from "../hooks/useGenresBrowse";
 import { getGenreCarouselCardWidthClass } from "../hooks/discoveryBrowseShared";
 
 const sectionSurfaceClasses =
-  "rounded-[1.5rem] border border-warm-gray/85 bg-parchment/85 shadow-sm ring-1 ring-white/40";
+  "ds-panel-shell";
 const pillClasses =
-  "inline-flex min-h-9 items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]";
+  "ds-chip";
 const carouselButtonClasses =
-  "inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-warm-gray/80 bg-parchment text-stone-700 shadow-sm transition-[transform,background-color,border-color,color,box-shadow] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0";
+  "ds-carousel-button";
 
 export function GenresPageFrame({ children }: { children: React.ReactNode }) {
   return <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">{children}</div>;
@@ -127,17 +127,17 @@ export function FeaturedGenresSection({ featuredShelves }: { featuredShelves: Ge
   if (featuredShelves.length === 0) return null;
   return (
     <section className={`${sectionSurfaceClasses} p-4 sm:p-5`}>
-      <div className="flex flex-col gap-4 rounded-2xl border border-warm-gray/70 bg-cream/90 p-4 sm:p-5">
+      <div className="ds-panel-surface flex flex-col gap-4 p-4 sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
               Featured Shelves
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-stone-900">
               Start with the busiest genres
             </h2>
           </div>
-          <p className="text-sm text-stone-600">
+          <p className="ds-subtle-text text-sm">
             Quick links for the shelves with the most books right now.
           </p>
         </div>
@@ -146,7 +146,7 @@ export function FeaturedGenresSection({ featuredShelves }: { featuredShelves: Ge
             <a
               key={shelf.sectionId}
               href={`#${shelf.sectionId}`}
-              className="inline-flex min-h-10 items-center rounded-full border border-warm-gray bg-parchment px-4 py-2 text-sm font-semibold text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              className="ds-chip min-h-10 border-warm-gray bg-parchment px-4 py-2 text-sm text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
             >
               {shelf.genre}
               <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-stone-500">
@@ -212,10 +212,10 @@ export function GenresResultsSection({
           id={shelf.sectionId}
           className={`${sectionSurfaceClasses} scroll-mt-24 p-4 sm:p-5`}
         >
-          <div className="rounded-[1.6rem] border border-warm-gray/70 bg-cream/90 p-4 shadow-sm sm:p-5">
+      <div className="ds-panel-surface rounded-[1.6rem] p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="min-w-0 space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
                   Genre Lane
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
@@ -226,24 +226,24 @@ export function GenresResultsSection({
                     {shelf.books.length} {shelf.books.length === 1 ? "book" : "books"}
                   </span>
                 </div>
-                <p className="max-w-2xl text-sm leading-6 text-stone-600">
+                <p className="ds-subtle-text max-w-2xl text-sm leading-6">
                   Swipe or arrow through this lane to compare ownership, scan related reads, and keep series-adjacent picks together.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                <span className="inline-flex min-h-9 items-center rounded-full border border-sage/25 bg-sage/10 px-3 text-xs font-semibold uppercase tracking-[0.14em] text-sage-dark">
+                <span className="ds-chip min-h-9 border-sage/25 bg-sage/10 px-3 text-sage-dark">
                   <Library className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
                   {shelf.ownedCount} in library
                 </span>
-                <span className="inline-flex min-h-9 items-center rounded-full border border-brass/30 bg-brass/10 px-3 text-xs font-semibold uppercase tracking-[0.14em] text-clay">
+                <span className="ds-chip min-h-9 border-brass/30 bg-brass/10 px-3 text-clay">
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
                   {shelf.wishlistCount} on wishlist
                 </span>
                 <div className="ml-auto flex items-center gap-2 md:ml-2">
                   <button
                     type="button"
-                    className={`${carouselButtonClasses} touch-manipulation`}
+                    className={`${carouselButtonClasses} min-h-10 min-w-10 touch-manipulation`}
                     onClick={() => onScrollShelf(shelf.sectionId, "backward")}
                     aria-label={`Scroll ${shelf.genre} books backward`}
                   >
@@ -251,7 +251,7 @@ export function GenresResultsSection({
                   </button>
                   <button
                     type="button"
-                    className={`${carouselButtonClasses} touch-manipulation`}
+                    className={`${carouselButtonClasses} min-h-10 min-w-10 touch-manipulation`}
                     onClick={() => onScrollShelf(shelf.sectionId, "forward")}
                     aria-label={`Scroll ${shelf.genre} books forward`}
                   >

@@ -9,13 +9,11 @@ const filterPanelClasses =
   "sticky top-2 z-20 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/95 p-3 shadow-sm ring-1 ring-white/40 backdrop-blur-sm sm:top-3 sm:p-4 lg:static";
 const filterPanelHeaderClasses =
   "flex flex-col gap-3 rounded-xl border border-warm-gray/70 bg-cream/90 p-3 sm:flex-row sm:items-start sm:justify-between";
-const filterFieldGridClasses = "grid gap-3 sm:grid-cols-2 lg:grid-cols-5";
+const filterFieldGridClasses = "ds-filter-grid sm:grid-cols-2 lg:grid-cols-5";
 const filterMetaRowClasses =
   "flex flex-col items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 sm:flex-row sm:items-center";
-const segmentedControlClasses =
-  "grid grid-cols-2 rounded-lg border border-warm-gray bg-cream p-1 shadow-inner shadow-white/50";
-const segmentedButtonClasses =
-  "min-h-10 rounded-md px-3 text-xs font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px";
+const segmentedControlClasses = "ds-segmented-control ds-segmented-control--two";
+const segmentedButtonClasses = "min-h-10 px-3 text-xs";
 
 export function ManageBooksFilterPanel({
   searchQuery,
@@ -87,10 +85,10 @@ export function ManageBooksFilterPanel({
                 role="tab"
                 aria-selected={filterOwnership === value}
                 onClick={() => onFilterOwnershipChange(value)}
-                className={`${segmentedButtonClasses} ${
+                className={`ds-segmented-button ${segmentedButtonClasses} ${
                   filterOwnership === value
-                    ? "bg-sage text-white shadow-sm"
-                    : "text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
+                    ? "border border-sage bg-sage text-white shadow-sm"
+                    : "border border-transparent bg-transparent text-charcoal/70 hover:bg-warm-gray-light hover:text-charcoal"
                 }`}
               >
                 {value === "owned" ? "Owned" : "Wishlist"}

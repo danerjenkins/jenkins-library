@@ -1,0 +1,31 @@
+@theme {
+  --color-parchment: #f3ecdf;
+  --color-cream: #fbf7ef;
+  --color-parchment-deep: #e8dcc8;
+  --color-cream-strong: #f7f0e4;
+  --color-sage: #6f8463;
+  --color-sage-light: #a4b598;
+  --color-sage-dark: #4f6547;
+  --color-brass: #b88a45;
+  --color-clay: #9d5c45;
+  --color-wood: #8b7355;
+  --color-charcoal: #242424;
+  --color-ink: #3c3328;
+  --color-warm-gray: #d8cdbb;
+  --color-warm-gray-light: #eee4d5;
+  --color-warm-shadow: rgba(60, 51, 40, 0.12);
+  --color-warm-shadow-strong: rgba(60, 51, 40, 0.18);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: Fraunces, ui-serif, Georgia, serif;
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+
+  --shadow-soft: 0 4px 12px rgba(60, 51, 40, 0.07);
+  --shadow-soft-md: 0 10px 22px rgba(60, 51, 40, 0.1);
+  --shadow-soft-lg: 0 16px 32px rgba(60, 51, 40, 0.14);
+
+  --border-warm: 1px solid #d8cdbb;
+  --border-warm-light: 1px solid #eee4d5;
+}

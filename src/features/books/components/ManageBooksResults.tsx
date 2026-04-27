@@ -6,7 +6,7 @@ import { ManageBookRow } from "./ManageBookRow";
 
 function ManageBooksState({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
+    <div className="ds-panel-surface border-dashed border-warm-gray bg-parchment/75 px-4 py-12 text-center text-sm text-stone-600">
       {children}
     </div>
   );

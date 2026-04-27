@@ -3,9 +3,6 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: Array<{ value: string; label: string }>;
 }
 
-const selectClasses =
-  "w-full appearance-none rounded-md border border-warm-gray bg-cream py-1.5 pl-2.5 pr-8 font-sans text-sm leading-5 text-stone-900 shadow-sm transition-[border-color,box-shadow,background-color] duration-150 ease-out hover:border-sage-light focus:border-sage focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/25 disabled:cursor-not-allowed disabled:bg-warm-gray-light disabled:text-stone-500 disabled:shadow-none";
-
 export function Select({
   label,
   id,
@@ -14,21 +11,17 @@ export function Select({
   ...props
 }: SelectProps) {
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className="ds-field">
       {label && (
         <label
           htmlFor={id}
-          className="font-sans text-xs font-semibold leading-4 text-stone-700"
+          className="ds-field__label"
         >
           {label}
         </label>
       )}
       <div className="relative">
-        <select
-          id={id}
-          className={`${selectClasses} ${className ?? ""}`}
-          {...props}
-        >
+        <select id={id} className={`ds-select ${className ?? ""}`} {...props}>
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}

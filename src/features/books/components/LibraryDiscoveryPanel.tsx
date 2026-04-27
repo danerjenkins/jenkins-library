@@ -15,7 +15,7 @@ export function LibraryDiscoveryPanel({
 }: LibraryDiscoveryPanelProps) {
   return (
     <div
-      className="rounded-2xl border border-warm-gray/75 bg-parchment/80 p-3 shadow-sm ring-1 ring-white/35 sm:p-4"
+      className="ds-panel-shell border-warm-gray/75 bg-parchment/80 p-3 shadow-sm ring-white/35 sm:p-4"
       role="navigation"
       aria-labelledby="library-discovery-heading"
     >
@@ -27,12 +27,12 @@ export function LibraryDiscoveryPanel({
           >
             Browse Beyond the Shelf
           </h3>
-          <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
+          <p className="ds-subtle-text max-w-2xl text-sm leading-relaxed">
             Jump into grouped browsing when you want to scan series order or explore the
             collection by genre.
           </p>
         </div>
-        <div className="text-xs font-medium text-stone-500" aria-live="polite">
+        <div className="ds-muted-meta text-xs font-medium" aria-live="polite">
           {loading
             ? "Loading discovery views..."
             : `${seriesCount} series groups • ${genreCount} genres • 2 reader queues`}
@@ -43,7 +43,7 @@ export function LibraryDiscoveryPanel({
         <DiscoveryLinkCard
           to="/search"
           badge="Global Search"
-          badgeClassName="inline-flex w-fit rounded-full border border-sage/20 bg-sage/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-dark"
+          badgeClassName="ds-chip w-fit border-sage/20 bg-sage/10 px-2.5 py-1 text-sage-dark"
           title="Search Everything"
           description="Look across Library and Wishlist at once, including ISBNs, authors, genres, and series."
           summary="ISBN-aware results"
@@ -53,7 +53,7 @@ export function LibraryDiscoveryPanel({
         <DiscoveryLinkCard
           to="/series"
           badge="Series View"
-          badgeClassName="inline-flex w-fit rounded-full border border-sage/20 bg-sage/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-dark"
+          badgeClassName="ds-chip w-fit border-sage/20 bg-sage/10 px-2.5 py-1 text-sage-dark"
           title="Read in Order"
           description="Browse complete series stacks, spot gaps quickly, and keep long-running reads in sequence."
           summary={loading ? "Preparing series..." : `${seriesCount} series groups`}
@@ -63,7 +63,7 @@ export function LibraryDiscoveryPanel({
         <DiscoveryLinkCard
           to="/genres"
           badge="Genre View"
-          badgeClassName="inline-flex w-fit rounded-full border border-clay/20 bg-clay/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-clay"
+          badgeClassName="ds-chip w-fit border-clay/20 bg-clay/10 px-2.5 py-1 text-clay"
           title="Explore by Mood"
           description="Move through genre shelves, compare categories, and surface titles that fit the kind of read you want next."
           summary={
@@ -75,7 +75,7 @@ export function LibraryDiscoveryPanel({
         <DiscoveryLinkCard
           to="/reading-list"
           badge="Reading List"
-          badgeClassName="inline-flex w-fit rounded-full border border-brass/30 bg-brass/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-clay"
+          badgeClassName="ds-chip w-fit border-brass/30 bg-brass/10 px-2.5 py-1 text-clay"
           title="Keep Next Up Small"
           description="Give Dane and Emma separate owned and wishlist queues so the next few reads stay focused."
           summary={loading ? "Preparing reading list..." : "2 reader queues"}

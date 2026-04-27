@@ -10,7 +10,7 @@ import type { Book } from "../bookTypes";
 import type { ReaderId } from "../readingListPreferences";
 
 const sectionSurfaceClasses =
-  "rounded-[1.5rem] border border-warm-gray/85 bg-parchment/85 shadow-sm ring-1 ring-white/40";
+  "ds-panel-shell";
 
 function getOwnerBadge(book: Book) {
   return (book.ownershipStatus ?? "owned") === "wishlist" ? (
@@ -68,7 +68,7 @@ function QueueRow({
             {getBookMeta(book).map((meta) => (
               <span
                 key={meta}
-                className="inline-flex rounded-full border border-warm-gray bg-parchment px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-600"
+                className="ds-chip border-warm-gray bg-parchment px-2.5 py-1 text-stone-600"
               >
                 {meta}
               </span>
@@ -139,7 +139,7 @@ function SuggestionRow({
             {getBookMeta(book).map((meta) => (
               <span
                 key={meta}
-                className="inline-flex rounded-full border border-warm-gray bg-cream px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-600"
+                className="ds-chip border-warm-gray bg-cream px-2.5 py-1 text-stone-600"
               >
                 {meta}
               </span>
@@ -218,13 +218,13 @@ export function ReadingListQueueSection({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
-            <div className="inline-flex items-center rounded-full border border-warm-gray/70 bg-cream px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            <div className="ds-chip border-warm-gray/70 bg-cream px-3 py-1 text-stone-500">
               <Library className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="ml-1.5">Next up</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-display text-2xl font-semibold text-stone-900">Queue</h3>
-              <span className="rounded-full border border-warm-gray bg-parchment px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-stone-600">
+              <span className="ds-chip border-warm-gray bg-parchment px-2.5 py-1 text-stone-600">
                 {queueBooks.length} {queueBooks.length === 1 ? "book" : "books"}
               </span>
             </div>
@@ -286,13 +286,13 @@ export function ReadingListSuggestionsSection({
   onAddNext: (readerId: ReaderId, bookId: string) => void;
 }) {
   const renderGroup = (title: string, books: Book[], icon: ReactNode) => (
-    <div className="rounded-2xl border border-warm-gray/70 bg-cream/90 p-4">
+    <div className="ds-panel-surface p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {icon}
           <h4 className="font-display text-xl font-semibold text-stone-900">{title}</h4>
         </div>
-        <span className="text-xs font-medium text-stone-500">
+        <span className="ds-muted-meta text-xs font-medium">
           {books.length} {books.length === 1 ? "book" : "books"}
         </span>
       </div>
@@ -319,7 +319,7 @@ export function ReadingListSuggestionsSection({
             Pull from either shelf
           </h3>
         </div>
-        <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
+        <p className="ds-subtle-text max-w-2xl text-sm leading-relaxed">
           Use this area to seed the queue from the Library or Wishlist without splitting the
           reading list itself.
         </p>

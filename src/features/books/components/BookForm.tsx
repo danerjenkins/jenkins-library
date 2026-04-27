@@ -17,7 +17,7 @@ export function BookForm(props: BookFormProps) {
   return (
     <form
       ref={formRef}
-      className="grid gap-4 rounded-xl border border-warm-gray bg-cream p-4 pb-24 shadow-sm"
+      className="ds-panel-surface grid gap-4 p-4 pb-24 shadow-sm"
       onSubmit={actions.handleFormSubmit}
     >
       {children ? (
@@ -27,7 +27,7 @@ export function BookForm(props: BookFormProps) {
       ) : null}
 
       <div
-        className="rounded-lg border border-warm-gray bg-parchment/80 p-3 sm:rounded-xl sm:p-4"
+        className="ds-panel-surface rounded-lg bg-parchment/80 p-3 sm:rounded-xl sm:p-4"
         aria-labelledby="book-form-summary"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -44,7 +44,7 @@ export function BookForm(props: BookFormProps) {
                 : "Start with title, author, ownership, and a cover. Add more details only if you need them."}
             </p>
           </div>
-          <div className="self-start rounded-full border border-warm-gray bg-cream px-3 py-1 text-xs font-medium text-stone-600">
+          <div className="ds-chip self-start border-warm-gray bg-cream px-3 py-1 text-stone-600">
             {state.coverSourceLabel}
           </div>
         </div>

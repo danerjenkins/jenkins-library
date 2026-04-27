@@ -259,7 +259,7 @@ export function BookDetailPage() {
           Back
         </button>
         <div
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+          className="ds-panel-surface border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
           role="alert"
         >
           {errorMessage ??
@@ -282,7 +282,7 @@ export function BookDetailPage() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-warm-gray bg-cream/95 shadow-soft">
+      <div className="ds-panel-surface overflow-hidden rounded-2xl bg-cream/95 shadow-soft">
         <div className="grid gap-6 p-6 md:grid-cols-3">
           <div className="md:col-span-1">
             {localCoverUrl || book.coverUrl ? (
@@ -294,7 +294,7 @@ export function BookDetailPage() {
             ) : (
               <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
                 <span
-                  className="rounded-full border border-warm-gray bg-cream px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em]"
+                  className="ds-chip border-warm-gray bg-cream px-4 py-2 text-stone-600"
                   aria-hidden="true"
                 >
                   No Cover
@@ -349,12 +349,12 @@ export function BookDetailPage() {
             </div>
 
             {metadataSummary.length > 0 ? (
-              <section className="rounded-xl border border-warm-gray/80 bg-stone-50/70 p-4">
+              <section className="ds-panel-surface bg-stone-50/70 p-4">
                 <div>
                   <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Metadata
                   </h2>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="ds-muted-meta mt-1 text-xs">
                     Quick facts for scanning this book at a glance.
                   </p>
                 </div>
@@ -362,9 +362,9 @@ export function BookDetailPage() {
                   {metadataSummary.map((item) => (
                     <div
                       key={item.label}
-                      className="min-w-28 rounded-lg border border-warm-gray bg-cream px-3 py-2"
+                      className="ds-panel-surface min-w-28 bg-cream px-3 py-2"
                     >
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                      <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
                         {item.label}
                       </p>
                       <p className="mt-1 text-sm font-medium text-stone-900">
@@ -376,17 +376,17 @@ export function BookDetailPage() {
               </section>
             ) : null}
 
-            <section className="rounded-xl border border-warm-gray/80 bg-parchment/75 p-4">
+            <section className="ds-panel-surface bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Reading
                   </h2>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="ds-muted-meta mt-1 text-xs">
                     Mark who has read this book and add it to a reader's next-up list.
                   </p>
                 </div>
-                <div className="text-xs text-stone-500" aria-live="polite">
+                <div className="ds-muted-meta text-xs" aria-live="polite">
                   {savingReadStatus
                     ? "Saving read status..."
                     : queuedReaders.dane || queuedReaders.emma
@@ -396,8 +396,8 @@ export function BookDetailPage() {
               </div>
 
               <div className="mt-3 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-lg border border-warm-gray bg-cream p-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-600">
+                <div className="ds-panel-surface p-3">
+                  <h3 className="ds-muted-meta text-xs font-semibold uppercase tracking-[0.16em]">
                     Read status
                   </h3>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -451,11 +451,11 @@ export function BookDetailPage() {
                   ) : null}
                 </div>
 
-                <div className="rounded-lg border border-warm-gray bg-cream p-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-600">
+                <div className="ds-panel-surface p-3">
+                  <h3 className="ds-muted-meta text-xs font-semibold uppercase tracking-[0.16em]">
                     To read
                   </h3>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="ds-muted-meta mt-1 text-xs">
                     Add this book to a reader's next-up list.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -488,25 +488,25 @@ export function BookDetailPage() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-warm-gray/80 bg-parchment/75 p-4">
+            <section className="ds-panel-surface bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Ownership
                   </h2>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="ds-muted-meta mt-1 text-xs">
                     {isWishlistBook
                       ? "Move this book into the library when you own it."
                       : "Move this book to the wishlist when you no longer own it."}
                   </p>
                 </div>
-                <div className="text-xs text-stone-500" aria-live="polite">
+                <div className="ds-muted-meta text-xs" aria-live="polite">
                   {savingOwnership ? "Saving..." : "Saved"}
                 </div>
               </div>
 
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-stone-600">
+                <p className="ds-subtle-text text-sm">
                   Current shelf:{" "}
                   <span className="font-semibold text-stone-900">
                     {isWishlistBook ? "Wishlist" : "Library"}
@@ -533,13 +533,13 @@ export function BookDetailPage() {
               ) : null}
             </section>
 
-            <section className="rounded-xl border border-warm-gray/80 bg-stone-50/70 p-4">
+            <section className="ds-panel-surface bg-stone-50/70 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Edit Details
                   </h2>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="ds-muted-meta mt-1 text-xs">
                     Open the admin form to update metadata, notes, or cover info.
                   </p>
                 </div>
@@ -561,7 +561,7 @@ export function BookDetailPage() {
             <div className="space-y-3 border-t border-warm-gray pt-4">
               {book.genre ? (
                 <div>
-                  <span className="text-sm font-semibold text-stone-500">
+                  <span className="ds-muted-meta text-sm font-semibold">
                     Genre:
                   </span>
                   <p className="mt-1 text-stone-900">{book.genre}</p>
@@ -570,7 +570,7 @@ export function BookDetailPage() {
 
               {book.isbn ? (
                 <div>
-                  <span className="text-sm font-semibold text-stone-500">
+                  <span className="ds-muted-meta text-sm font-semibold">
                     ISBN:
                   </span>
                   <p className="mt-1 font-mono text-sm text-stone-900">
@@ -581,7 +581,7 @@ export function BookDetailPage() {
 
               {book.format ? (
                 <div>
-                  <span className="text-sm font-semibold text-stone-500">
+                  <span className="ds-muted-meta text-sm font-semibold">
                     Format:
                   </span>
                   <p className="mt-1 text-stone-900">
@@ -592,7 +592,7 @@ export function BookDetailPage() {
 
               {book.pages ? (
                 <div>
-                  <span className="text-sm font-semibold text-stone-500">
+                  <span className="ds-muted-meta text-sm font-semibold">
                     Pages:
                   </span>
                   <p className="mt-1 text-stone-900">{book.pages}</p>
@@ -600,7 +600,7 @@ export function BookDetailPage() {
               ) : null}
 
               <div>
-                <span className="text-sm font-semibold text-stone-500">
+                <span className="ds-muted-meta text-sm font-semibold">
                   Added:
                 </span>
                 <p className="mt-1 text-stone-900">
@@ -609,7 +609,7 @@ export function BookDetailPage() {
               </div>
 
               <div>
-                <span className="text-sm font-semibold text-stone-500">
+                <span className="ds-muted-meta text-sm font-semibold">
                   Last Updated:
                 </span>
                 <p className="mt-1 text-stone-900">

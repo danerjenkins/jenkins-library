@@ -101,10 +101,10 @@ function StatCard({
   detail?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-warm-gray bg-gradient-to-br from-cream to-parchment/60 px-4 py-4 shadow-soft">
-      <div className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">{label}</div>
+    <div className="ds-panel-surface bg-gradient-to-br from-cream to-parchment/60 px-4 py-4 shadow-soft">
+      <div className="ds-muted-meta text-[0.7rem] uppercase tracking-[0.24em]">{label}</div>
       <div className="mt-3 text-3xl font-semibold tracking-tight text-stone-900">{value}</div>
-      {detail ? <div className="mt-2 text-sm leading-6 text-stone-600">{detail}</div> : null}
+      {detail ? <div className="ds-subtle-text mt-2 text-sm leading-6">{detail}</div> : null}
     </div>
   );
 }
@@ -119,10 +119,10 @@ function InsightCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-2xl border border-warm-gray bg-cream px-4 py-4 shadow-soft">
-      <div className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">{label}</div>
+    <div className="ds-panel-surface px-4 py-4 shadow-soft">
+      <div className="ds-muted-meta text-[0.7rem] uppercase tracking-[0.24em]">{label}</div>
       <div className="mt-2 text-lg font-semibold text-stone-900">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-stone-600">{detail}</p>
+      <p className="ds-subtle-text mt-2 text-sm leading-6">{detail}</p>
     </div>
   );
 }
@@ -137,17 +137,17 @@ function RankedList({
   emptyText: string;
 }) {
   return (
-    <div className="rounded-2xl border border-warm-gray bg-cream px-4 py-4 shadow-soft">
+    <div className="ds-panel-surface px-4 py-4 shadow-soft">
       <h3 className="text-base font-semibold text-stone-900">{title}</h3>
       {items.length === 0 ? (
-        <p className="mt-3 text-sm text-stone-500">{emptyText}</p>
+        <p className="ds-muted-meta mt-3 text-sm">{emptyText}</p>
       ) : (
         <ul className="mt-4 space-y-4">
           {items.map((item) => (
             <li key={item.label}>
               <div className="flex items-center justify-between gap-3 text-sm">
                 <span className="min-w-0 truncate font-medium text-stone-800">{item.label}</span>
-                <span className="shrink-0 text-stone-500">
+                <span className="ds-muted-meta shrink-0">
                   {formatNumber(item.count)} {item.count === 1 ? "book" : "books"}
                 </span>
               </div>
@@ -157,7 +157,7 @@ function RankedList({
                   style={{ width: `${Math.min(100, Math.max(6, item.share))}%` }}
                 />
               </div>
-              <div className="mt-1 text-xs text-stone-500">{formatPercent(item.share)} of books</div>
+              <div className="ds-muted-meta mt-1 text-xs">{formatPercent(item.share)} of books</div>
             </li>
           ))}
         </ul>
@@ -261,16 +261,16 @@ export function StatsPage() {
   const heroMeta =
     stats.totalBooks > 0 ? (
       <div className="flex flex-wrap gap-2 text-xs font-medium">
-        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
           {formatNumber(stats.ownedBooks)} owned
         </span>
-        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
           {formatNumber(stats.wishlistBooks)} on wishlist
         </span>
-        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
           {formatNumber(stats.seriesCount)} series
         </span>
-        <span className="rounded-full border border-warm-gray bg-cream px-3 py-1 text-stone-700">
+        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
           {formatNumber(stats.booksWithPages)} with page counts
         </span>
       </div>
@@ -293,15 +293,15 @@ export function StatsPage() {
           />
         ) : errorMessage ? (
           <div
-            className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+            className="ds-panel-surface border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
             role="alert"
           >
             {errorMessage}
           </div>
         ) : stats.totalBooks === 0 ? (
-          <div className="rounded-xl border border-dashed border-warm-gray bg-parchment/75 px-4 py-10 text-center text-sm text-stone-600">
+          <div className="ds-panel-surface border-dashed border-warm-gray bg-parchment/75 px-4 py-10 text-center text-sm text-stone-600">
             <p className="font-medium">No stats yet</p>
-            <p className="mt-1 text-xs text-stone-500">
+            <p className="ds-muted-meta mt-1 text-xs">
               Add books to see ownership, reading, and collection patterns.
             </p>
           </div>

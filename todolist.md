@@ -259,6 +259,12 @@ Make the app easy and pleasant to use from a laptop or phone to:
   - Replace text-only fallback with a simple book icon or styled placeholder.
   - Keep it lightweight and consistent.
 
+## Documentation
+
+- [x] Keep the design-system review checklist current
+  - Review remaining UI, hook, and state files against `DESIGN_SYSTEM.md`.
+  - Keep `ai/design-checklist.md` updated as files are reviewed.
+
 - [x] Use genre-aware tag styling
   - Make genre tag colors correlate to genre while keeping contrast accessible.
 

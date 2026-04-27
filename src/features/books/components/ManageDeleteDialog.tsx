@@ -48,7 +48,7 @@ export function ManageDeleteDialog({
         aria-modal="true"
         aria-labelledby={headingId}
         aria-describedby={descriptionId}
-        className="w-full max-w-md rounded-2xl border border-rose-200 bg-cream p-5 shadow-soft overscroll-contain"
+        className="ds-panel-surface w-full max-w-md border-rose-200 bg-cream p-5 shadow-soft overscroll-contain"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="space-y-2">
@@ -70,7 +70,7 @@ export function ManageDeleteDialog({
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-warm-gray bg-cream px-4 py-2 font-sans text-sm font-semibold leading-5 text-charcoal shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out touch-manipulation hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px active:bg-warm-gray-light disabled:cursor-not-allowed disabled:opacity-55"
+            className="ds-button ds-button--secondary"
           >
             Cancel
           </button>
@@ -78,7 +78,7 @@ export function ManageDeleteDialog({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-rose-200 bg-cream px-4 py-2 font-sans text-sm font-semibold leading-5 text-rose-700 shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out touch-manipulation hover:border-rose-300 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px active:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-55"
+            className="ds-button ds-button--danger"
           >
             {busy ? "Deleting…" : "Delete Book"}
           </button>

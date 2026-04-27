@@ -5,12 +5,18 @@ export function RouteErrorBoundary() {
   console.error("[PWA Diagnostics] Route Error:", error);
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "system-ui" }}>
-      <h1>Something went wrong</h1>
-      <p>Check the console for details.</p>
-      <pre style={{ background: "#f5f5f5", padding: "1rem", overflow: "auto" }}>
-        {JSON.stringify(error, null, 2)}
-      </pre>
+    <div className="ds-page-layout">
+      <section className="ds-page-section space-y-3">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-stone-900">
+          Something went wrong
+        </h1>
+        <p className="text-sm leading-relaxed text-stone-600">
+          Check the console for details.
+        </p>
+        <pre className="overflow-auto rounded-xl border border-warm-gray bg-cream p-4 text-sm text-stone-700">
+          {JSON.stringify(error, null, 2)}
+        </pre>
+      </section>
     </div>
   );
 }

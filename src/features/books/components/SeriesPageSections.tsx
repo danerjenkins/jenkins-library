@@ -12,9 +12,9 @@ import { getSeriesCarouselCardWidthClass } from "../hooks/discoveryBrowseShared"
 import type { SeriesGroup } from "../hooks/useSeriesBrowse";
 
 const sectionSurfaceClasses =
-  "rounded-[1.5rem] border border-warm-gray/85 bg-parchment/85 shadow-sm ring-1 ring-white/40";
+  "ds-panel-shell";
 const carouselButtonClasses =
-  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-warm-gray/85 bg-cream/95 text-charcoal shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
+  "ds-carousel-button min-h-11 min-w-11 border-warm-gray/85 bg-cream/95 text-charcoal hover:border-sage hover:bg-parchment active:translate-y-px disabled:opacity-50";
 
 export function SeriesHeroSection() {
   return (
@@ -111,17 +111,17 @@ export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: Seri
 
   return (
     <section className={`${sectionSurfaceClasses} p-3 sm:p-4`}>
-      <div className="flex flex-col gap-3 rounded-2xl border border-warm-gray/70 bg-cream/90 p-3 sm:p-4">
+      <div className="ds-panel-surface flex flex-col gap-3 p-3 sm:p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
               Featured Series
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold text-stone-900">
               Start with the biggest series
             </h2>
           </div>
-          <p className="text-sm text-stone-600">
+          <p className="ds-subtle-text text-sm">
             Quick links for the series with the most books right now.
           </p>
         </div>
@@ -130,7 +130,7 @@ export function FeaturedSeriesSection({ featuredSeries }: { featuredSeries: Seri
             <a
               key={group.key}
               href={`#${group.key}`}
-              className="inline-flex min-h-10 items-center rounded-full border border-warm-gray bg-parchment px-4 py-2 text-sm font-semibold text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              className="ds-chip min-h-10 border-warm-gray bg-parchment px-4 py-2 text-sm text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
             >
               {group.name}
               <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-stone-500">
@@ -208,7 +208,7 @@ export function SeriesResultsSection({
             <div className="flex flex-col gap-3 border-b border-warm-gray/70 pb-3">
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0 space-y-2">
-                  <div className="inline-flex items-center rounded-full border border-warm-gray/70 bg-parchment/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+                  <div className="ds-chip border-warm-gray/70 bg-parchment/80 px-3 py-1 text-stone-500">
                     Reading Order Carousel
                   </div>
                   <div className="space-y-1">
@@ -220,7 +220,7 @@ export function SeriesResultsSection({
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-stone-600">
-                    <span className="rounded-full border border-warm-gray/75 bg-parchment/80 px-3 py-1">
+                    <span className="ds-chip border-warm-gray/75 bg-parchment/80 px-3 py-1 text-stone-600">
                       {group.books.length} {group.books.length === 1 ? "entry" : "entries"}
                     </span>
                   </div>
