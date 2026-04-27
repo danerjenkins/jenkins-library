@@ -4,7 +4,7 @@ import { BOOK_FORMAT_LABELS } from "../../bookTypes";
 import type { BookFormSection } from "./BookForm.types";
 import { MobileSectionToggle } from "./BookFormTabs";
 import type { RefObject } from "react";
-import { EDIT_BOOK_GENRES } from "./BookFormCoreSection";
+import { EDIT_BOOK_GENRES } from "./BookFormCorePanels";
 
 const fieldClassName =
   "w-full rounded-lg border border-warm-gray bg-cream px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20";
