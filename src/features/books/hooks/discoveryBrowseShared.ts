@@ -1,6 +1,6 @@
 import { sortBooksBySeriesOrder } from "../../../data/bookRepo";
-import type { Book } from "../bookTypes";
-import type { CardSize } from "../shelfViewPreferences";
+import type { Book } from "../lib/bookTypes";
+import type { CardSize } from "../lib/shelfViewPreferences";
 
 export type OwnershipFilter = "all" | "owned" | "wishlist";
 

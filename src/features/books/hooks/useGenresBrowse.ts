@@ -9,7 +9,7 @@ import {
   toGenreSectionId,
   type OwnershipFilter,
 } from "./discoveryBrowseShared";
-import type { Book } from "../bookTypes";
+import type { Book } from "../lib/bookTypes";
 import {
   getDefaultCardSize,
   isCardSize,
@@ -17,7 +17,7 @@ import {
   SHELF_CARD_SIZE_STORAGE_KEY,
   type CardSize,
   writeStorageValue,
-} from "../shelfViewPreferences";
+} from "../lib/shelfViewPreferences";
 
 export type GenreShelf = {
   genre: string;

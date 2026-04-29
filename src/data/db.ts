@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import type { Book } from "../features/books/bookTypes";
+import type { Book } from "../features/books/lib/bookTypes";
 
 /**
  * Interface for stored cover photos

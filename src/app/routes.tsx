@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
-import { ViewBooksPage } from "../features/books/ViewBooksPage";
-import { AdminBooksPage } from "../features/books/AdminBooksPage";
-import { StatsPage } from "../features/books/StatsPage";
-import { BookDetailPage } from "../features/books/BookDetailPage";
-import { WishlistPage } from "../features/books/WishlistPage";
-import { SeriesPage } from "../features/books/SeriesPage";
-import { GenresPage } from "../features/books/GenresPage";
-import { SearchPage } from "../features/books/SearchPage";
-import { ReadingListPage } from "../features/books/ReadingListPage";
+import { ViewBooksPage } from "../features/books/pages/ViewBooksPage";
+import { AdminBooksPage } from "../features/books/pages/AdminBooksPage";
+import { StatsPage } from "../features/books/pages/StatsPage";
+import { BookDetailPage } from "../features/books/pages/BookDetailPage";
+import { WishlistPage } from "../features/books/pages/WishlistPage";
+import { SeriesPage } from "../features/books/pages/SeriesPage";
+import { GenresPage } from "../features/books/pages/GenresPage";
+import { SearchPage } from "../features/books/pages/SearchPage";
+import { ReadingListPage } from "../features/books/pages/ReadingListPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 
 export const routes: RouteObject[] = [

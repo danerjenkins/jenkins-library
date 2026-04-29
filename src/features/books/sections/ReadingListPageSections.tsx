@@ -8,10 +8,10 @@ import {
 import { Link } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
 import { PageSection } from "../../../ui/components/PageLayout";
-import { BookShelfState } from "./BookCard";
-import { SegmentedControl } from "./ShelfBrowseControls";
-import type { Book } from "../bookTypes";
-import type { ReaderId } from "../readingListPreferences";
+import { BookShelfState } from "../components/cards/BookCard";
+import { SegmentedControl } from "../components/browse/ShelfBrowseControls";
+import type { Book } from "../lib/bookTypes";
+import type { ReaderId } from "../lib/readingListPreferences";
 
 const sectionSurfaceClasses = "ds-panel-shell";
 

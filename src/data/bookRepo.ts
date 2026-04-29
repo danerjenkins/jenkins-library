@@ -1,4 +1,4 @@
-import type { Book } from "../features/books/bookTypes";
+import type { Book } from "../features/books/lib/bookTypes";
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import {
   createBook as createSupabaseBook,

@@ -1,26 +1,26 @@
 import { Library } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { updateBook } from "../../data/bookRepo";
-import { Button } from "../../ui/components/Button";
-import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
-import { Select } from "../../ui/components/Select";
-import { LoadingState } from "../../ui/components/LoadingState";
-import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
-import type { Book } from "./bookTypes";
-import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
-import { FilterDrawer } from "./components/FilterDrawer";
-import { actionLinkClasses, filterFieldGridClasses } from "./components/shelfBrowseControlStyles";
-import { ShelfDensitySelector, ShelfSearchField } from "./components/ShelfBrowseControls";
-import { useWishlistShelfBooks } from "./hooks/useShelfBooks";
-import { getSortedFormats, getSortedStrings } from "./hooks/useViewBooksPageState";
-import { matchesBookSearchQuery } from "./hooks/discoveryBrowseShared";
+import { updateBook } from "../../../data/bookRepo";
+import { Button } from "../../../ui/components/Button";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { Select } from "../../../ui/components/Select";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import { BOOK_FORMAT_LABELS, getReadStatus } from "../lib/bookTypes";
+import type { Book } from "../lib/bookTypes";
+import { BookCard, BookGrid, BookShelfState } from "../components/cards/BookCard";
+import { FilterDrawer } from "../components/browse/FilterDrawer";
+import { actionLinkClasses, filterFieldGridClasses } from "../components/browse/shelfBrowseControlStyles";
+import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import { useWishlistShelfBooks } from "../hooks/useShelfBooks";
+import { getSortedFormats, getSortedStrings } from "../hooks/useViewBooksPageState";
+import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import {
   useWishlistPageState,
   wishlistReadFilterOptions,
   type WishlistReadFilter,
-} from "./hooks/useWishlistPageState";
-import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
+} from "../hooks/useWishlistPageState";
+import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
 
 const readStatusByFilter = {
   NEITHER: "neither",

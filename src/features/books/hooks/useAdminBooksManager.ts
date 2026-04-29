@@ -11,9 +11,9 @@ import {
 } from "../../../data/bookRepo";
 import { deleteCoverPhoto, getCoverPhotoUrl, saveCoverPhoto } from "../../../data/db";
 import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
-import { getReadStatus } from "../bookTypes";
-import type { Book, BookFormat, ReadStatus } from "../bookTypes";
-import type { BookFormSaveState } from "../components/BookForm";
+import { getReadStatus } from "../lib/bookTypes";
+import type { Book, BookFormat, ReadStatus } from "../lib/bookTypes";
+import type { BookFormSaveState } from "../forms/BookForm";
 import { matchesBookSearchQuery } from "./discoveryBrowseShared";
 
 function resolveErrorMessage(error: unknown) {

@@ -1,5 +1,5 @@
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
-import type { Series } from "../features/books/bookTypes";
+import type { Series } from "../features/books/lib/bookTypes";
 
 const supabaseClient = getSupabaseClientWithSchema();
 

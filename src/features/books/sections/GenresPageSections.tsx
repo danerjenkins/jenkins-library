@@ -2,10 +2,10 @@ import { ArrowLeft, ArrowRight, Library, Sparkles } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { FullBleedPageHero } from "../../../ui/components/PageLayout";
-import { BookCard, BookShelfState } from "./BookCard";
-import { FilterDrawer } from "./FilterDrawer";
-import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
-import { CARD_SIZE_OPTIONS, type CardSize } from "../shelfViewPreferences";
+import { BookCard, BookShelfState } from "../components/cards/BookCard";
+import { FilterDrawer } from "../components/browse/FilterDrawer";
+import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import type { GenreShelf } from "../hooks/useGenresBrowse";
 
 const sectionSurfaceClasses = "ds-panel-shell";

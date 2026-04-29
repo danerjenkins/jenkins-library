@@ -1,5 +1,5 @@
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
-import type { ReaderId } from "../features/books/readingListPreferences";
+import type { ReaderId } from "../features/books/lib/readingListPreferences";
 
 const supabaseClient = getSupabaseClientWithSchema();
 

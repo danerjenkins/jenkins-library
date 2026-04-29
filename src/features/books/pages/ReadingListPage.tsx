@@ -1,10 +1,10 @@
-import { FullBleedPageHero, PageLayout } from "../../ui/components/PageLayout";
-import { LoadingState } from "../../ui/components/LoadingState";
+import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
+import { LoadingState } from "../../../ui/components/LoadingState";
 import {
   ReadingListIntroSection,
   ReadingListQueueSection,
-} from "./components/ReadingListPageSections";
-import { useReadingListPage } from "./hooks/useReadingListPage";
+} from "../sections/ReadingListPageSections";
+import { useReadingListPage } from "../hooks/useReadingListPage";
 
 function getReaderLabel(readerId: "dane" | "emma") {
   return readerId === "dane" ? "Dane" : "Emma";

@@ -1,6 +1,6 @@
-import { Button } from "../../../ui/components/Button";
-import { LoadingState } from "../../../ui/components/LoadingState";
-import type { Book } from "../bookTypes";
+import { Button } from "../../../../ui/components/Button";
+import { LoadingState } from "../../../../ui/components/LoadingState";
+import type { Book } from "../../lib/bookTypes";
 import type { ReactNode } from "react";
 import { ManageBookRow } from "./ManageBookRow";
 

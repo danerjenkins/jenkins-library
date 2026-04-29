@@ -1,6 +1,6 @@
 import { Input } from "../../../../ui/components/Input";
-import type { BookFormat } from "../../bookTypes";
-import { BOOK_FORMAT_LABELS } from "../../bookTypes";
+import type { BookFormat } from "../../lib/bookTypes";
+import { BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
 import type { BookFormSection } from "./BookForm.types";
 import { MobileSectionToggle } from "./BookFormTabs";
 import type { RefObject } from "react";

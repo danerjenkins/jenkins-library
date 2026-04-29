@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { getBookById, updateBook } from "../../data/bookRepo";
-import { getCoverPhotoUrl } from "../../data/db";
-import { LoadingState } from "../../ui/components/LoadingState";
-import type { Book } from "./bookTypes";
-import { BOOK_FORMAT_LABELS } from "./bookTypes";
-import type { ReaderId } from "./readingListPreferences";
+import { getBookById, updateBook } from "../../../data/bookRepo";
+import { getCoverPhotoUrl } from "../../../data/db";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import type { Book } from "../lib/bookTypes";
+import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
+import type { ReaderId } from "../lib/readingListPreferences";
 import {
   addBookToReadingList,
   getReadingListQueues,
-} from "../../repos/readingListRepo";
-import { BookDetailContent, type MetadataSummaryItem } from "./BookDetailSections";
+} from "../../../repos/readingListRepo";
+import { BookDetailContent, type MetadataSummaryItem } from "../sections/BookDetailSections";
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
-import { Button } from "../../ui/components/Button";
-import { LoadingState } from "../../ui/components/LoadingState";
-import { BookForm } from "./components/BookForm";
-import { ManageBooksFilterPanel } from "./components/ManageBooksFilterPanel";
-import { ManageBooksResults } from "./components/ManageBooksResults";
-import { ManageDeleteDialog } from "./components/ManageDeleteDialog";
-import { useAdminBooksManager } from "./hooks/useAdminBooksManager";
+import { Button } from "../../../ui/components/Button";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import { BookForm } from "../forms/BookForm";
+import { ManageBooksFilterPanel } from "../components/manage/ManageBooksFilterPanel";
+import { ManageBooksResults } from "../components/manage/ManageBooksResults";
+import { ManageDeleteDialog } from "../components/manage/ManageDeleteDialog";
+import { useAdminBooksManager } from "../hooks/useAdminBooksManager";
 
 export function AdminBooksPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);

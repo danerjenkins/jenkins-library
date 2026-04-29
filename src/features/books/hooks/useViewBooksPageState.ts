@@ -1,6 +1,6 @@
 import { startTransition, useCallback } from "react";
 import type { SetURLSearchParams } from "react-router-dom";
-import type { BookFormat, ReadStatus } from "../bookTypes";
+import type { BookFormat, ReadStatus } from "../lib/bookTypes";
 import {
   getDefaultCardSize,
   isCardSize,
@@ -9,7 +9,7 @@ import {
   SHELF_CARD_SIZE_STORAGE_KEY,
   type CardSize,
   writeStorageValue,
-} from "../shelfViewPreferences";
+} from "../lib/shelfViewPreferences";
 
 export type SortOption = "genre-author" | "series" | "title" | "author" | "updated";
 export type ReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";

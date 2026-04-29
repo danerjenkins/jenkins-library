@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
-import type { Book } from "../bookTypes";
+import type { Book } from "../lib/bookTypes";
 import {
   getReadingListPreferences,
   setReadingListPreferences,
   type ReaderId,
-} from "../readingListPreferences";
+} from "../lib/readingListPreferences";
 import {
   addBookToReadingList,
   getReadingListQueues,

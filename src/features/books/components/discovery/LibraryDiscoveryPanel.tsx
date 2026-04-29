@@ -1,4 +1,4 @@
-import { DiscoveryLinkCard } from "./ShelfBrowseControls";
+import { DiscoveryLinkCard } from "../browse/ShelfBrowseControls";
 
 interface LibraryDiscoveryPanelProps {
   loading: boolean;

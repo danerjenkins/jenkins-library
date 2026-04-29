@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Input } from "../../../ui/components/Input";
-import type { CardSize } from "../shelfViewPreferences";
+import { Input } from "../../../../ui/components/Input";
+import type { CardSize } from "../../lib/shelfViewPreferences";
 import {
   getDensityButtonClasses,
   getDensityGroupClasses,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
-import type { Book } from "../bookTypes";
+import type { Book } from "../lib/bookTypes";
 
 function mergeBooks(ownedBooks: Book[], wishlistBooks: Book[]) {
   const bookMap = new Map<string, Book>();

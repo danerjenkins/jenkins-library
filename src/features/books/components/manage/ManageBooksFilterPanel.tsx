@@ -1,9 +1,9 @@
 import { Search } from "lucide-react";
-import { Button } from "../../../ui/components/Button";
-import { Input } from "../../../ui/components/Input";
-import { Select } from "../../../ui/components/Select";
-import type { BookFormat } from "../bookTypes";
-import { BOOK_FORMAT_LABELS } from "../bookTypes";
+import { Button } from "../../../../ui/components/Button";
+import { Input } from "../../../../ui/components/Input";
+import { Select } from "../../../../ui/components/Select";
+import type { BookFormat } from "../../lib/bookTypes";
+import { BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
 
 const filterPanelClasses =
   "sticky top-2 z-20 space-y-3 rounded-2xl border border-warm-gray/85 bg-parchment/95 p-3 shadow-sm ring-1 ring-white/40 backdrop-blur-sm sm:top-3 sm:p-4 lg:static";

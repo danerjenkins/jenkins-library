@@ -4,8 +4,8 @@ import {
   GenresHeroSection,
   GenresPageFrame,
   GenresResultsSection,
-} from "./components/GenresPageSections";
-import { useGenresBrowse } from "./hooks/useGenresBrowse";
+} from "../sections/GenresPageSections";
+import { useGenresBrowse } from "../hooks/useGenresBrowse";
 
 export function GenresPage() {
   const { state, refs, actions } = useGenresBrowse();

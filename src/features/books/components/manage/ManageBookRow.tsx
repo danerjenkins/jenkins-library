@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { Pencil, RefreshCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Book } from "../bookTypes";
-import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../bookTypes";
-import { Button } from "../../../ui/components/Button";
-import { Badge } from "../../../ui/components/Badge";
+import type { Book } from "../../lib/bookTypes";
+import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
+import { Button } from "../../../../ui/components/Button";
+import { Badge } from "../../../../ui/components/Badge";
 
 interface ManageBookRowProps {
   book: Book;

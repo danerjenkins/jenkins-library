@@ -1,7 +1,7 @@
 import type { ChangeEvent, Ref } from "react";
 import { Camera, Check, Search } from "lucide-react";
 import { Input } from "../../../../ui/components/Input";
-import { getGoogleImageSearchUrl } from "../../bookTypes";
+import { getGoogleImageSearchUrl } from "../../lib/bookTypes";
 import type { OpenLibraryCandidate } from "../../../../integrations/openLibrary";
 
 export function BookFormCoverWorkspace({

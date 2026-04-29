@@ -1,6 +1,6 @@
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
-import * as BookTypes from "../features/books/bookTypes";
-import type { Book, BookFormat } from "../features/books/bookTypes";
+import * as BookTypes from "../features/books/lib/bookTypes";
+import type { Book, BookFormat } from "../features/books/lib/bookTypes";
 
 export type BookInput = {
   title: string;

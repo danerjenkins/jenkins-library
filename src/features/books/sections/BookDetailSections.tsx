@@ -1,11 +1,11 @@
 import { Edit } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Badge } from "../../ui/components/Badge";
-import { Button } from "../../ui/components/Button";
-import type { Book } from "./bookTypes";
-import { BOOK_FORMAT_LABELS } from "./bookTypes";
-import type { ReaderId } from "./readingListPreferences";
-import { normalizeSeriesName } from "./hooks/discoveryBrowseShared";
+import { Badge } from "../../../ui/components/Badge";
+import { Button } from "../../../ui/components/Button";
+import type { Book } from "../lib/bookTypes";
+import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
+import type { ReaderId } from "../lib/readingListPreferences";
+import { normalizeSeriesName } from "../hooks/discoveryBrowseShared";
 
 export type MetadataSummaryItem = {
   label: string;

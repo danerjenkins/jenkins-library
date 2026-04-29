@@ -4,14 +4,14 @@ import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { FullBleedPageHero } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
-import { BookCard, BookShelfState } from "./BookCard";
-import { FilterDrawer } from "./FilterDrawer";
+import { BookCard, BookShelfState } from "../components/cards/BookCard";
+import { FilterDrawer } from "../components/browse/FilterDrawer";
 import {
   actionLinkClasses,
   filterFieldGridClasses,
-} from "./shelfBrowseControlStyles";
-import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
-import { CARD_SIZE_OPTIONS, type CardSize } from "../shelfViewPreferences";
+} from "../components/browse/shelfBrowseControlStyles";
+import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import type { SeriesGroup } from "../hooks/useSeriesBrowse";
 
 const sectionSurfaceClasses = "ds-panel-shell";

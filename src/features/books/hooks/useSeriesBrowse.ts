@@ -20,16 +20,16 @@ import {
   normalizeSeriesName,
   type OwnershipFilter,
 } from "./discoveryBrowseShared";
-import type { Book } from "../bookTypes";
-import type { CardSize } from "../shelfViewPreferences";
+import type { Book } from "../lib/bookTypes";
+import type { CardSize } from "../lib/shelfViewPreferences";
 import {
   SHELF_CARD_SIZE_STORAGE_KEY,
   getDefaultCardSize,
   isCardSize,
   readStorageValue,
   writeStorageValue,
-} from "../shelfViewPreferences";
-import type { Series } from "../bookTypes";
+} from "../lib/shelfViewPreferences";
+import type { Series } from "../lib/bookTypes";
 
 export type SeriesGroup = {
   key: string;

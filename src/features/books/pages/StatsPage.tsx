@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { getAllBooks, getWishlistBooks } from "../../data/bookRepo";
-import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
-import { LoadingState } from "../../ui/components/LoadingState";
-import { BOOK_FORMAT_LABELS, type Book } from "./bookTypes";
+import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import { BOOK_FORMAT_LABELS, type Book } from "../lib/bookTypes";
 import {
   buildRankedStats,
   calculateMedian,
@@ -13,7 +13,7 @@ import {
   RankedList,
   StatCard,
   type RankedStat,
-} from "./StatsPageSections";
+} from "../sections/StatsPageSections";
 
 type LibraryStats = {
   totalBooks: number;

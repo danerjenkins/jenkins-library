@@ -11,7 +11,7 @@ import { debounce } from "../../../../utils/debounce";
 import {
   createBookFormSnapshot,
   serializeBookFormSnapshot,
-} from "../../bookFormState";
+} from "../../lib/bookFormState";
 import type { BookFormProps, BookFormSection } from "./BookForm.types";
 
 export const unsavedChangesDefaultMessage =

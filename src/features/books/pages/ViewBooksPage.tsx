@@ -1,26 +1,26 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { sortBooksBySeriesOrder } from "../../data/bookRepo";
-import { Button } from "../../ui/components/Button";
-import { PageLayout } from "../../ui/components/PageLayout";
-import { Select } from "../../ui/components/Select";
-import { LoadingState } from "../../ui/components/LoadingState";
-import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "./bookTypes";
-import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
-import { FilterDrawer } from "./components/FilterDrawer";
-import { LibraryHero } from "./components/LibraryHero";
-import { LIBRARY_HERO_QUOTES } from "./libraryHeroQuotes";
+import { sortBooksBySeriesOrder } from "../../../data/bookRepo";
+import { Button } from "../../../ui/components/Button";
+import { PageLayout } from "../../../ui/components/PageLayout";
+import { Select } from "../../../ui/components/Select";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "../lib/bookTypes";
+import { BookCard, BookGrid, BookShelfState } from "../components/cards/BookCard";
+import { FilterDrawer } from "../components/browse/FilterDrawer";
+import { LibraryHero } from "../components/heroes/LibraryHero";
+import { LIBRARY_HERO_QUOTES } from "../lib/libraryHeroQuotes";
 import {
   actionLinkClasses,
   filterFieldGridClasses,
   ownershipSegmentOptions,
-} from "./components/shelfBrowseControlStyles";
+} from "../components/browse/shelfBrowseControlStyles";
 import {
   SegmentedControl,
   ShelfDensitySelector,
   ShelfSearchField,
-} from "./components/ShelfBrowseControls";
-import { useMergedShelfBooks } from "./hooks/useShelfBooks";
+} from "../components/browse/ShelfBrowseControls";
+import { useMergedShelfBooks } from "../hooks/useShelfBooks";
 import {
   getSortedFormats,
   getSortedStrings,
@@ -30,9 +30,9 @@ import {
   useViewBooksPageState,
   type OwnershipFilter,
   type SortOption,
-} from "./hooks/useViewBooksPageState";
-import { matchesBookSearchQuery } from "./hooks/discoveryBrowseShared";
-import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
+} from "../hooks/useViewBooksPageState";
+import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
+import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   if (sortBy === "series") {

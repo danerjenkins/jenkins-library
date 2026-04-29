@@ -8,7 +8,7 @@ import {
   type CardSize,
   WISHLIST_VIEW_STORAGE_KEY,
   writeStorageValue,
-} from "../shelfViewPreferences";
+} from "../lib/shelfViewPreferences";
 
 export type WishlistReadFilter = "ALL" | "NEITHER" | "DANE" | "EMMA" | "BOTH";
 

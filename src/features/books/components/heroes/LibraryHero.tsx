@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import type { LibraryHeroQuote } from "../libraryHeroQuotes";
+import type { LibraryHeroQuote } from "../../lib/libraryHeroQuotes";
 
 interface LibraryHeroProps {
   title: string;

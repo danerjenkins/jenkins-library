@@ -1,21 +1,21 @@
 import { ScanLine, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
-import { Button } from "../../ui/components/Button";
-import { LoadingState } from "../../ui/components/LoadingState";
-import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { Button } from "../../../ui/components/Button";
+import { LoadingState } from "../../../ui/components/LoadingState";
+import { BookCard, BookGrid, BookShelfState } from "../components/cards/BookCard";
 import {
   ShelfSearchField,
   ShelfDensitySelector,
   SegmentedControl,
-} from "./components/ShelfBrowseControls";
+} from "../components/browse/ShelfBrowseControls";
 import {
   ownershipSegmentOptions,
   actionLinkClasses,
-} from "./components/shelfBrowseControlStyles";
-import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
-import { useGlobalSearchPage } from "./hooks/useGlobalSearchPage";
+} from "../components/browse/shelfBrowseControlStyles";
+import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
+import { useGlobalSearchPage } from "../hooks/useGlobalSearchPage";
 
 type BarcodeDetectorLike = {
   detect(source: HTMLVideoElement): Promise<Array<{ rawValue?: string }>>;

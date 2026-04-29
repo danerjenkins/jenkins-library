@@ -15,11 +15,11 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { getCoverPhotoUrl } from "../../../data/db";
-import type { Book } from "../bookTypes";
-import { BOOK_FORMAT_LABELS } from "../bookTypes";
+import { getCoverPhotoUrl } from "../../../../data/db";
+import type { Book } from "../../lib/bookTypes";
+import { BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
 import "./BookCard.css";
-import type { CardSize } from "../shelfViewPreferences";
+import type { CardSize } from "../../lib/shelfViewPreferences";
 
 function getGenreTone(genre: string): string {
   const genreLower = genre.toLowerCase();

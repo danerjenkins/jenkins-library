@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { PageLayout } from "../../ui/components/PageLayout";
+import { PageLayout } from "../../../ui/components/PageLayout";
 import {
   FeaturedSeriesSection,
   SeriesHeroSection,
   SeriesFiltersSection,
   SeriesResultsSection,
-} from "./components/SeriesPageSections";
-import { getScrollBehavior } from "./hooks/discoveryBrowseShared";
-import { useSeriesBrowse } from "./hooks/useSeriesBrowse";
+} from "../sections/SeriesPageSections";
+import { getScrollBehavior } from "../hooks/discoveryBrowseShared";
+import { useSeriesBrowse } from "../hooks/useSeriesBrowse";
 
 export function SeriesPage() {
   const { state, actions, helpers } = useSeriesBrowse();

@@ -7,15 +7,15 @@ import {
 } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
-import type { Book } from "../bookTypes";
-import type { CardSize } from "../shelfViewPreferences";
+import type { Book } from "../lib/bookTypes";
+import type { CardSize } from "../lib/shelfViewPreferences";
 import {
   SHELF_CARD_SIZE_STORAGE_KEY,
   getDefaultCardSize,
   isCardSize,
   readStorageValue,
   writeStorageValue,
-} from "../shelfViewPreferences";
+} from "../lib/shelfViewPreferences";
 import {
   mergeDiscoveryBooks,
   matchesBookSearchQuery,

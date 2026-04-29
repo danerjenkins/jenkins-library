@@ -4,7 +4,7 @@ import {
   getDeletedBookIds,
   clearDeletedBookIds,
 } from "./bookRepo";
-import type { Book } from "../features/books/bookTypes";
+import type { Book } from "../features/books/lib/bookTypes";
 
 export interface SyncPayload {
   schemaVersion: number;
