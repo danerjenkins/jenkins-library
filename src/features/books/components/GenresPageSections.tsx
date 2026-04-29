@@ -164,7 +164,7 @@ export function FeaturedGenresSection({
             <a
               key={shelf.sectionId}
               href={`#${shelf.sectionId}`}
-              className="ds-chip min-h-10 border-warm-gray bg-parchment px-4 py-2 text-sm text-stone-800 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sage-light hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              className="ds-chip ds-chip--interactive ds-chip--warm-gray-light"
             >
               {shelf.genre}
               <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-stone-500">
@@ -238,9 +238,7 @@ export function GenresResultsSection({
                   <h2 className="font-display text-2xl font-semibold text-stone-900 text-balance">
                     {shelf.genre}
                   </h2>
-                  <span
-                    className={`${pillClasses} border-warm-gray bg-parchment text-stone-600`}
-                  >
+                  <span className={`${pillClasses} ds-chip--warm-gray`}>
                     {shelf.books.length}{" "}
                     {shelf.books.length === 1 ? "book" : "books"}
                   </span>
@@ -252,12 +250,12 @@ export function GenresResultsSection({
               </div>
 
               <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                <span className="ds-chip min-h-9 border-sage/25 bg-sage/10 px-3 text-sage-dark">
-                  <Library className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                <span className="ds-chip ds-chip--interactive ds-chip--sage">
+                  <Library className="mr-1.5 h-4 w-4" aria-hidden="true" />
                   {shelf.ownedCount} in library
                 </span>
-                <span className="ds-chip min-h-9 border-brass/30 bg-brass/10 px-3 text-clay">
-                  <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                <span className="ds-chip ds-chip--interactive ds-chip--brass">
+                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
                   {shelf.wishlistCount} on wishlist
                 </span>
                 <div className="ml-auto flex items-center gap-2 md:ml-2">

@@ -70,6 +70,56 @@
   @apply bg-cream rounded-md border border-warm-gray shadow-soft;
 }
 
+/* Chip base class for labels, counts, and small metadata */
+:where(.ds-chip) {
+  @apply inline-flex min-h-9 items-center rounded-md px-3 py-1 font-sans text-sm font-medium leading-5 text-stone-600 border transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out;
+}
+
+/* Compact chip variant - neutral default */
+:where(.ds-chip--compact) {
+  @apply min-h-9 px-3 py-1 text-xs;
+}
+
+/* Interactive chip with hover and focus states */
+:where(.ds-chip--interactive) {
+  @apply min-h-10 px-4 py-2 no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+}
+
+/* Color variants */
+:where(.ds-chip--warm-gray) {
+  @apply border-warm-gray bg-cream text-stone-700;
+}
+
+:where(.ds-chip--warm-gray-light) {
+  @apply border-warm-gray bg-parchment text-stone-800 hover:border-sage-light hover:bg-warm-gray-light focus-visible:ring-sage/35;
+}
+
+:where(.ds-chip--sage) {
+  @apply border-sage/25 bg-sage/10 text-sage-dark hover:border-sage-light focus-visible:ring-sage/35;
+}
+
+:where(.ds-chip--brass) {
+  @apply border-brass/30 bg-brass/10 text-clay hover:border-brass/40 focus-visible:ring-brass/25;
+}
+
+:where(.ds-chip--clay) {
+  @apply border-clay/20 bg-clay/10 text-clay;
+}
+
+/* Ownership icon overlay for covers */
+:where(.ds-ownership-icon) {
+  @apply absolute top-2 right-2 pointer-events-none transition-opacity duration-200;
+}
+
+:where(.ds-ownership-badge) {
+  @apply flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:where(.ds-ownership-badge__icon) {
+  @apply h-4 w-4 text-white fill-current;
+}
+
 :where(.ds-action-link) {
   @apply inline-flex min-h-10 items-center justify-center rounded-md border border-sage bg-sage px-4 py-2 text-sm font-semibold text-white no-underline shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out hover:border-sage-dark hover:bg-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px;
 }

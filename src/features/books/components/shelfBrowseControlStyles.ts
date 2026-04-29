@@ -26,8 +26,11 @@ export function getDensityButtonClasses(selected: boolean) {
   }`;
 }
 
-export function getSegmentedControlClasses() {
-  return segmentedControlClasses;
+export function getSegmentedControlClasses(optionCount?: number) {
+  const baseClasses = segmentedControlClasses;
+  const twoColumnModifier =
+    optionCount === 2 ? " ds-segmented-control--two" : "";
+  return `${baseClasses}${twoColumnModifier}`;
 }
 
 export function getSegmentedButtonClasses(selected: boolean) {

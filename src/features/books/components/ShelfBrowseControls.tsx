@@ -72,7 +72,11 @@ export function ShelfDensitySelector({
   onChange: (value: CardSize) => void;
 }) {
   return (
-    <div className={getDensityGroupClasses()} role="group" aria-label="Shelf density">
+    <div
+      className={getDensityGroupClasses()}
+      role="group"
+      aria-label="Shelf density"
+    >
       {options.map((option) => (
         <button
           key={option.value}
@@ -104,7 +108,11 @@ export function SegmentedControl<T extends string>({
       <legend className="font-sans text-xs font-semibold leading-4 text-stone-700">
         {label}
       </legend>
-      <div className={getSegmentedControlClasses()} role="group" aria-label={label}>
+      <div
+        className={getSegmentedControlClasses(options.length)}
+        role="group"
+        aria-label={label}
+      >
         {options.map((option) => (
           <button
             key={option.value}
@@ -148,7 +156,9 @@ export function DiscoveryLinkCard({
           <div className="font-display text-2xl font-semibold tracking-tight text-pretty text-stone-900">
             {title}
           </div>
-          <p className="max-w-md text-sm leading-relaxed text-stone-600">{description}</p>
+          <p className="max-w-md text-sm leading-relaxed text-stone-600">
+            {description}
+          </p>
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 text-sm">
