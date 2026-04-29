@@ -93,7 +93,9 @@ export function ManageBookRow({
                 {book.title}
               </Link>
             </h3>
-            <p className="mt-0.5 wrap-break-word text-sm text-stone-600">{book.author}</p>
+            <p className="mt-0.5 wrap-break-word text-sm text-stone-600">
+              {book.author}
+            </p>
             <Link
               to={detailPath}
               className="mt-1 inline-flex rounded-sm text-xs font-medium text-stone-500 no-underline transition-colors hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
@@ -113,12 +115,18 @@ export function ManageBookRow({
           >
             {getReadStatusLabel(book)}
           </ManageMetaBadge>
-          {book.format && <ManageMetaBadge>{BOOK_FORMAT_LABELS[book.format]}</ManageMetaBadge>}
+          {book.format && (
+            <ManageMetaBadge>{BOOK_FORMAT_LABELS[book.format]}</ManageMetaBadge>
+          )}
           {book.genre && (
-            <ManageMetaBadge className="max-w-full truncate">{book.genre}</ManageMetaBadge>
+            <ManageMetaBadge className="max-w-full truncate">
+              {book.genre}
+            </ManageMetaBadge>
           )}
           {book.seriesName && (
-            <ManageMetaBadge className="max-w-full truncate">{book.seriesName}</ManageMetaBadge>
+            <ManageMetaBadge className="max-w-full truncate">
+              {book.seriesName}
+            </ManageMetaBadge>
           )}
         </div>
       </div>
