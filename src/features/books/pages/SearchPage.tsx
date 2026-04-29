@@ -1,7 +1,7 @@
 import { ScanLine, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { BookCard, BookGrid, BookShelfState } from "../components/cards/BookCard";
@@ -228,68 +228,66 @@ export function SearchPage() {
       />
 
       <PageLayout>
-        <PageSection>
-          <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-3 shadow-sm sm:p-4">
-            <div className="grid gap-3">
-              <ShelfSearchField
-                id="global-search"
-                name="global-search"
-                label="Search"
-                value={state.searchQuery}
-                onChange={actions.setSearchQuery}
-                placeholder="Try ISBN, title, author, or series..."
-                className="lg:max-w-3xl"
+        <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-3 shadow-sm sm:p-4">
+          <div className="grid gap-3">
+            <ShelfSearchField
+              id="global-search"
+              name="global-search"
+              label="Search"
+              value={state.searchQuery}
+              onChange={actions.setSearchQuery}
+              placeholder="Try ISBN, title, author, or series..."
+              className="lg:max-w-3xl"
+            />
+
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <SegmentedControl
+                label="Ownership"
+                options={ownershipSegmentOptions}
+                value={state.ownershipFilter}
+                onChange={actions.setOwnershipFilter}
               />
 
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                <SegmentedControl
-                  label="Ownership"
-                  options={ownershipSegmentOptions}
-                  value={state.ownershipFilter}
-                  onChange={actions.setOwnershipFilter}
+              <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
+                <ShelfDensitySelector
+                  options={CARD_SIZE_OPTIONS}
+                  value={state.cardSize}
+                  onChange={actions.setCardSize}
                 />
-
-                <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
-                  <ShelfDensitySelector
-                    options={CARD_SIZE_OPTIONS}
-                    value={state.cardSize}
-                    onChange={actions.setCardSize}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="ds-subtle-text mt-3 text-sm" aria-live="polite">
-              {resultsMeta}
-            </div>
-
-            <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-              <div className="flex flex-wrap gap-1.5">
-                {isBarcodeSupported ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setIsScannerOpen(true)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <ScanLine className="h-4 w-4" aria-hidden="true" />
-                      Scan ISBN
-                    </span>
-                  </Button>
-                ) : null}
-                {state.hasActiveFilters ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={actions.clearFilters}
-                  >
-                    Clear Search
-                  </Button>
-                ) : null}
               </div>
             </div>
           </div>
-        </PageSection>
+
+          <div className="ds-subtle-text mt-3 text-sm" aria-live="polite">
+            {resultsMeta}
+          </div>
+
+          <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div className="flex flex-wrap gap-1.5">
+              {isBarcodeSupported ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsScannerOpen(true)}
+                >
+                  <span className="flex items-center gap-2">
+                    <ScanLine className="h-4 w-4" aria-hidden="true" />
+                    Scan ISBN
+                  </span>
+                </Button>
+              ) : null}
+              {state.hasActiveFilters ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={actions.clearFilters}
+                >
+                  Clear Search
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </div>
 
         {state.loading ? (
           <LoadingState

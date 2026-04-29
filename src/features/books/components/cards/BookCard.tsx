@@ -393,7 +393,7 @@ export function BookCard({
             </div>
           )}
           {actions && (
-            <div className="book-card__divider mt-auto flex flex-wrap border-t border-warm-gray">
+            <div className="book-card__divider mt-auto w-full border-t border-warm-gray">
               {actions}
             </div>
           )}

@@ -14,6 +14,7 @@ export function AppShell({ children }: AppShellProps) {
   const isFullBleedPage = new Set([
     "/view",
     "/wishlist",
+    "/quick-read",
     "/series",
     "/genres",
     "/search",

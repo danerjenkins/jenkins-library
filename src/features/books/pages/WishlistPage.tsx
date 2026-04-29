@@ -3,7 +3,7 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../../data/bookRepo";
 import { Button } from "../../../ui/components/Button";
-import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "../lib/bookTypes";
@@ -138,98 +138,96 @@ export function WishlistPage() {
 
       <PageLayout>
         {books.length > 0 ? (
-          <PageSection>
-            <FilterDrawer
-              title="Wishlist Filters"
-              description="Keep wishlist browsing focused while leaving room for quick add-to-library actions."
-              isOpen={isFilterDrawerOpen}
-              onOpen={() => setIsFilterDrawerOpen(true)}
-              onClose={() => setIsFilterDrawerOpen(false)}
-              triggerLabel="Filter Wishlist"
-              actions={
-                <>
-                  <ShelfDensitySelector
-                    options={CARD_SIZE_OPTIONS}
-                    value={state.cardSize}
-                    onChange={(cardSize) => updateState({ cardSize })}
-                  />
-                  {hasActiveFilters ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={clearFilters}
-                      className="min-h-11 px-3 text-xs"
-                    >
-                      Clear Filters
-                    </Button>
-                  ) : null}
-                </>
-              }
-              footer={
-                <div className="text-sm text-stone-600">
-                  {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"} in this view.
-                </div>
-              }
-            >
-              <div className={filterFieldGridClasses}>
-                <ShelfSearchField
-                  id="wishlist-search"
-                  name="wishlistSearch"
-                  label="Search"
-                  value={state.searchQuery}
-                  onChange={(searchQuery) => updateState({ searchQuery })}
-                  className="sm:col-span-2 lg:col-span-1"
+          <FilterDrawer
+            title="Wishlist Filters"
+            description="Keep wishlist browsing focused while leaving room for quick add-to-library actions."
+            isOpen={isFilterDrawerOpen}
+            onOpen={() => setIsFilterDrawerOpen(true)}
+            onClose={() => setIsFilterDrawerOpen(false)}
+            triggerLabel="Filter Wishlist"
+            actions={
+              <>
+                <ShelfDensitySelector
+                  options={CARD_SIZE_OPTIONS}
+                  value={state.cardSize}
+                  onChange={(cardSize) => updateState({ cardSize })}
                 />
-
-                <Select
-                  id="wishlist-filter-genre"
-                  label="Genre"
-                  value={state.filterGenre}
-                  onChange={(event) => updateState({ filterGenre: event.target.value })}
-                  options={[
-                    { value: "ALL", label: "All Genres" },
-                    ...availableGenres.map((genre) => ({ value: genre, label: genre })),
-                  ]}
-                />
-
-                <Select
-                  id="wishlist-filter-read"
-                  label="Read Status"
-                  value={state.filterReadStatus}
-                  onChange={(event) =>
-                    updateState({ filterReadStatus: event.target.value as WishlistReadFilter })
-                  }
-                  options={[...wishlistReadFilterOptions]}
-                />
-
-                <Select
-                  id="wishlist-filter-format"
-                  label="Format"
-                  value={state.filterFormat}
-                  onChange={(event) => updateState({ filterFormat: event.target.value })}
-                  options={[
-                    { value: "ALL", label: "All Formats" },
-                    ...availableFormats.map((format) => ({
-                      value: format,
-                      label: BOOK_FORMAT_LABELS[format],
-                    })),
-                  ]}
-                />
-
-                <Select
-                  id="wishlist-filter-series"
-                  label="Series"
-                  value={state.filterSeries}
-                  onChange={(event) => updateState({ filterSeries: event.target.value })}
-                  options={[
-                    { value: "ALL", label: "All Series" },
-                    { value: "NONE", label: "No Series" },
-                    ...availableSeries.map((series) => ({ value: series, label: series })),
-                  ]}
-                />
+                {hasActiveFilters ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={clearFilters}
+                    className="min-h-11 px-3 text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                ) : null}
+              </>
+            }
+            footer={
+              <div className="text-sm text-stone-600">
+                {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"} in this view.
               </div>
-            </FilterDrawer>
-          </PageSection>
+            }
+          >
+            <div className={filterFieldGridClasses}>
+              <ShelfSearchField
+                id="wishlist-search"
+                name="wishlistSearch"
+                label="Search"
+                value={state.searchQuery}
+                onChange={(searchQuery) => updateState({ searchQuery })}
+                className="sm:col-span-2 lg:col-span-1"
+              />
+
+              <Select
+                id="wishlist-filter-genre"
+                label="Genre"
+                value={state.filterGenre}
+                onChange={(event) => updateState({ filterGenre: event.target.value })}
+                options={[
+                  { value: "ALL", label: "All Genres" },
+                  ...availableGenres.map((genre) => ({ value: genre, label: genre })),
+                ]}
+              />
+
+              <Select
+                id="wishlist-filter-read"
+                label="Read Status"
+                value={state.filterReadStatus}
+                onChange={(event) =>
+                  updateState({ filterReadStatus: event.target.value as WishlistReadFilter })
+                }
+                options={[...wishlistReadFilterOptions]}
+              />
+
+              <Select
+                id="wishlist-filter-format"
+                label="Format"
+                value={state.filterFormat}
+                onChange={(event) => updateState({ filterFormat: event.target.value })}
+                options={[
+                  { value: "ALL", label: "All Formats" },
+                  ...availableFormats.map((format) => ({
+                    value: format,
+                    label: BOOK_FORMAT_LABELS[format],
+                  })),
+                ]}
+              />
+
+              <Select
+                id="wishlist-filter-series"
+                label="Series"
+                value={state.filterSeries}
+                onChange={(event) => updateState({ filterSeries: event.target.value })}
+                options={[
+                  { value: "ALL", label: "All Series" },
+                  { value: "NONE", label: "No Series" },
+                  ...availableSeries.map((series) => ({ value: series, label: series })),
+                ]}
+              />
+            </div>
+          </FilterDrawer>
         ) : null}
 
         <section className="space-y-6">

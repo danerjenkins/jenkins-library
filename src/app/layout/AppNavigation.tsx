@@ -5,6 +5,7 @@ import {
   BookOpen,
   BookOpenText,
   ChevronDown,
+  CheckCheck,
   Heart,
   MoreHorizontal,
   Plus,
@@ -22,6 +23,7 @@ const primaryNavItems = [
 
 const secondaryNavItems = [
   { to: "/search", label: "Search", Icon: Search },
+  { to: "/quick-read", label: "Quick Read", Icon: CheckCheck },
   { to: "/series", label: "Series", Icon: BookOpenText },
   { to: "/genres", label: "Genres", Icon: Sparkles },
   { to: "/reading-list", label: "TBR", Icon: BookMarked },

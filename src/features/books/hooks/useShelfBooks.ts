@@ -32,7 +32,7 @@ export function useMergedShelfBooks() {
     void loadBooks();
   }, [loadBooks]);
 
-  return { books, loading, reloadBooks: loadBooks };
+  return { books, setBooks, loading, reloadBooks: loadBooks };
 }
 
 export function useWishlistShelfBooks() {

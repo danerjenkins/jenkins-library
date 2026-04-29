@@ -9,6 +9,7 @@ import { SeriesPage } from "../features/books/pages/SeriesPage";
 import { GenresPage } from "../features/books/pages/GenresPage";
 import { SearchPage } from "../features/books/pages/SearchPage";
 import { ReadingListPage } from "../features/books/pages/ReadingListPage";
+import { QuickReadPage } from "../features/books/pages/QuickReadPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 
 export const routes: RouteObject[] = [
@@ -60,6 +61,11 @@ export const routes: RouteObject[] = [
   {
     path: "/reading-list",
     element: <ReadingListPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/quick-read",
+    element: <QuickReadPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ];

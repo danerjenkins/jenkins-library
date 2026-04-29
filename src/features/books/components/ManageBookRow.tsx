@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { Pencil, RefreshCcw, Trash2, BookOpen, Heart } from "lucide-react";
+import { BookOpen, Heart, Pencil, RefreshCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Book } from "../../lib/bookTypes";
-import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
-import { Button } from "../../../../ui/components/Button";
-import { Badge } from "../../../../ui/components/Badge";
+import type { Book } from "../lib/bookTypes";
+import { getReadStatusLabel, BOOK_FORMAT_LABELS } from "../lib/bookTypes";
+import { Button } from "../../../ui/components/Button";
+import { Badge } from "../../../ui/components/Badge";
 
 interface ManageBookRowProps {
   book: Book;
@@ -33,13 +33,13 @@ function AdminBookCover({ book }: { book: Book }) {
   const OwnershipIcon = ownershipStatus === "wishlist" ? Heart : BookOpen;
 
   return (
-    <div className="relative flex flex-none overflow-hidden rounded-lg border border-warm-gray bg-warm-gray-light shadow-sm w-20 h-28 sm:w-24 sm:h-32">
+    <div className="relative flex flex-none overflow-hidden rounded-lg border border-warm-gray bg-warm-gray-light shadow-sm w-28 h-40 sm:w-36 sm:h-48">
       {book.coverUrl ? (
         <img
           src={book.coverUrl}
           alt={`Cover of ${book.title}`}
-          width={160}
-          height={224}
+          width={224}
+          height={320}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover"
@@ -104,15 +104,6 @@ export function ManageBookRow({
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <ManageMetaBadge
-            className={
-              ownershipStatus === "wishlist"
-                ? "border-brass/30 bg-brass/15 text-wood"
-                : "border-sage/20 bg-sage/10 text-sage-dark"
-            }
-          >
-            {ownershipStatus === "wishlist" ? "Wishlist" : "Owned"}
-          </ManageMetaBadge>
           <ManageMetaBadge
             className={
               book.readByDane || book.readByEmma
