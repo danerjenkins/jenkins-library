@@ -7,7 +7,7 @@
 }
 
 :where(.ds-page-section) {
-  @apply rounded-[1.5rem] border border-warm-gray/80 bg-cream/90 p-4 shadow-soft sm:p-6;
+  @apply rounded-3xl border border-warm-gray/80 bg-cream/90 p-4 shadow-soft sm:p-6;
 }
 
 :where(.ds-button) {
@@ -258,6 +258,20 @@
 :where(.ds-genres-carousel) {
   @apply flex items-stretch;
   min-height: clamp(10rem, 30vh, 22rem);
+}
+
+@keyframes library-hero-quote-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0.8rem, 0) scale(0.985);
+    filter: blur(8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
 }
 
 :where(.ds-genres-carousel)[data-card-size="xsmall"] {

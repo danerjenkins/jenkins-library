@@ -11,6 +11,7 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
+  const isLibraryPage = location.pathname === "/view";
   const activeOwnership =
     location.pathname === "/wishlist" ||
     searchParams.get("ownership") === "wishlist"
@@ -46,7 +47,11 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      <main id="main-content" className="app-main" tabIndex={-1}>
+      <main
+        id="main-content"
+        className={`app-main ${isLibraryPage ? "app-main--full-bleed" : ""}`}
+        tabIndex={-1}
+      >
         {children}
       </main>
 

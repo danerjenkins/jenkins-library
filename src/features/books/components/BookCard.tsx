@@ -313,28 +313,28 @@ export function BookCard({
                 className="book-card__title-link group/title block min-w-0 rounded-sm focus-visible:outline-none"
               >
                 <h3
-                  className={`book-card__title font-display break-words font-bold text-stone-900 transition-colors duration-150 group-hover/title:text-stone-700 ${titleClamp}`}
+                  className={`book-card__title font-display wrap-break-word font-bold text-stone-900 transition-colors duration-150 group-hover/title:text-stone-700 ${titleClamp}`}
                 >
                   {book.title}
                 </h3>
               </Link>
             ) : (
               <h3
-                className={`book-card__title font-display break-words font-bold text-stone-900 ${titleClamp}`}
+                className={`book-card__title font-display wrap-break-word font-bold text-stone-900 ${titleClamp}`}
               >
                 {book.title}
               </h3>
             )}
-            <p className="book-card__meta font-sans mt-1 line-clamp-1 break-words text-stone-600">
+            <p className="book-card__meta font-sans mt-1 line-clamp-1 wrap-break-word text-stone-600">
               {book.author}
             </p>
             {seriesText && (
-              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
+              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 wrap-break-word text-stone-500">
                 {seriesText}
               </p>
             )}
             {detailMeta ? (
-              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
+              <p className="book-card__meta font-sans mt-0.5 line-clamp-1 wrap-break-word text-stone-500">
                 {detailMeta}
               </p>
             ) : null}
@@ -344,7 +344,7 @@ export function BookCard({
               {showGenreTag && book.genre && (
                 <div className="min-w-0 w-full">
                   <span
-                    className={`book-card__tag book-card__tag--${genreTone} inline-flex max-w-full items-center rounded-full border font-medium break-words`}
+                    className={`book-card__tag book-card__tag--${genreTone} inline-flex max-w-full items-center rounded-full border font-medium wrap-break-word`}
                   >
                     <span className="book-card__tag-icon" aria-hidden="true">
                       <GenreIcon className="book-card__tag-icon-svg" />
@@ -424,15 +424,15 @@ export function BookCard({
       <div className={bodyClasses}>
         <div className="min-w-0">
           <h3
-            className={`book-card__title font-display break-words font-bold text-stone-900 ${titleClamp}`}
+            className={`book-card__title font-display wrap-break-word font-bold text-stone-900 ${titleClamp}`}
           >
             {book.title}
           </h3>
-          <p className="book-card__meta font-sans mt-1 line-clamp-1 break-words text-stone-600">
+          <p className="book-card__meta font-sans mt-1 line-clamp-1 wrap-break-word text-stone-600">
             {book.author}
           </p>
           {seriesText && (
-            <p className="book-card__meta font-sans mt-0.5 line-clamp-1 break-words text-stone-500">
+            <p className="book-card__meta font-sans mt-0.5 line-clamp-1 wrap-break-word text-stone-500">
               {seriesText}
             </p>
           )}
@@ -441,7 +441,7 @@ export function BookCard({
         {(book.genre || book.format || book.pages) && (
           <div className="book-card__meta space-y-0.5 border-t border-warm-gray pt-2 text-stone-500">
             {book.genre && (
-              <p className="line-clamp-1 break-words">Genre: {book.genre}</p>
+              <p className="line-clamp-1 wrap-break-word">Genre: {book.genre}</p>
             )}
             {book.format && (
               <p className="line-clamp-1">

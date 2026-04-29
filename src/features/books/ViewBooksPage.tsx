@@ -2,12 +2,14 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { sortBooksBySeriesOrder } from "../../data/bookRepo";
 import { Button } from "../../ui/components/Button";
-import { PageHero, PageLayout } from "../../ui/components/PageLayout";
+import { PageLayout } from "../../ui/components/PageLayout";
 import { Select } from "../../ui/components/Select";
 import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus, type Book } from "./bookTypes";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
 import { FilterDrawer } from "./components/FilterDrawer";
+import { LibraryHero } from "./components/LibraryHero";
+import { LIBRARY_HERO_QUOTES } from "./libraryHeroQuotes";
 import {
   actionLinkClasses,
   filterFieldGridClasses,
@@ -157,138 +159,154 @@ export function ViewBooksPage() {
   }, [deferredSearchQuery, state, visibleShelfBooks]);
 
   const shelfLabel = getShelfLabel(state.ownershipFilter);
+  const ownedCount = useMemo(
+    () =>
+      books.filter((book) => (book.ownershipStatus ?? "owned") === "owned")
+        .length,
+    [books],
+  );
+  const wishlistCount = useMemo(
+    () =>
+      books.filter((book) => (book.ownershipStatus ?? "owned") === "wishlist")
+        .length,
+    [books],
+  );
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
-      <PageLayout>
-        <PageHero
-          title="My Library"
-          description="Browse and search your personal collection, wishlist, or both from one shelf."
-        >
-          <FilterDrawer
-            title="Library Filters"
-            description="Search the shelf, switch between library and wishlist views, and adjust browsing density without taking over the page."
-            isOpen={isFilterDrawerOpen}
-            onOpen={() => setIsFilterDrawerOpen(true)}
-            onClose={() => setIsFilterDrawerOpen(false)}
-            triggerLabel="Filter Shelf"
-            actions={
-              <>
-                <ShelfDensitySelector
-                  options={CARD_SIZE_OPTIONS}
-                  value={state.cardSize}
-                  onChange={(cardSize) => updateState({ cardSize })}
-                />
-                {hasActiveFilters ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={clearFilters}
-                    className="min-h-11 px-3 text-xs"
-                  >
-                    Clear Filters
-                  </Button>
-                ) : null}
-              </>
-            }
-            footer={
-              <div className="text-sm text-stone-600">
-                Search, filter, and resize the {shelfLabel.toLowerCase()} shelf
-                without leaving the page.
-              </div>
-            }
-          >
-            <div className={filterFieldGridClasses}>
-              <ShelfSearchField
-                id="search"
-                name="search"
-                label="Search"
-                value={state.searchQuery}
-                onChange={(searchQuery) => updateState({ searchQuery })}
-                className="sm:col-span-2 lg:col-span-2"
+      <LibraryHero
+        title="My Library"
+        quotes={LIBRARY_HERO_QUOTES}
+        totalCount={books.length}
+        ownedCount={ownedCount}
+        wishlistCount={wishlistCount}
+      >
+        <FilterDrawer
+          title="Library Filters"
+          description="Search the shelf, switch between library and wishlist views, and adjust browsing density without taking over the page."
+          isOpen={isFilterDrawerOpen}
+          onOpen={() => setIsFilterDrawerOpen(true)}
+          onClose={() => setIsFilterDrawerOpen(false)}
+          triggerLabel="Filter Shelf"
+          actions={
+            <>
+              <ShelfDensitySelector
+                options={CARD_SIZE_OPTIONS}
+                value={state.cardSize}
+                onChange={(cardSize) => updateState({ cardSize })}
               />
-
-              <SegmentedControl
-                label="Shelf"
-                options={ownershipSegmentOptions}
-                value={state.ownershipFilter}
-                onChange={(ownershipFilter) => updateState({ ownershipFilter })}
-              />
-
-              <Select
-                id="filter-genre"
-                label="Genre"
-                value={state.filterGenre}
-                onChange={(event) =>
-                  updateState({ filterGenre: event.target.value })
-                }
-                options={[
-                  { value: "ALL", label: "All Genres" },
-                  ...availableGenres.map((genre) => ({
-                    value: genre,
-                    label: genre,
-                  })),
-                ]}
-              />
-
-              <Select
-                id="filter-finished"
-                label="Read Status"
-                value={state.filterFinished}
-                onChange={(event) =>
-                  updateState({
-                    filterFinished: event.target
-                      .value as typeof state.filterFinished,
-                  })
-                }
-                options={[...readFilterOptions]}
-              />
-
-              <Select
-                id="filter-format"
-                label="Format"
-                value={state.filterFormat}
-                onChange={(event) =>
-                  updateState({ filterFormat: event.target.value })
-                }
-                options={[
-                  { value: "ALL", label: "All Formats" },
-                  ...availableFormats.map((format) => ({
-                    value: format,
-                    label: BOOK_FORMAT_LABELS[format],
-                  })),
-                ]}
-              />
-
-              <Select
-                id="filter-series"
-                label="Series"
-                value={state.filterSeries}
-                onChange={(event) =>
-                  updateState({ filterSeries: event.target.value })
-                }
-                options={[
-                  { value: "ALL", label: "All Series" },
-                  { value: "NONE", label: "No Series" },
-                  ...availableSeries.map((series) => ({
-                    value: series,
-                    label: series,
-                  })),
-                ]}
-              />
-
-              <Select
-                id="sort-by"
-                label="Sort"
-                value={state.sortBy}
-                onChange={(event) =>
-                  updateState({ sortBy: event.target.value as SortOption })
-                }
-                options={[...sortOptions]}
-              />
+              {hasActiveFilters ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={clearFilters}
+                  className="min-h-11 px-3 text-xs"
+                >
+                  Clear Filters
+                </Button>
+              ) : null}
+            </>
+          }
+          footer={
+            <div className="text-sm text-stone-600">
+              Search, filter, and resize the {shelfLabel.toLowerCase()} shelf
+              without leaving the page.
             </div>
-          </FilterDrawer>
-        </PageHero>
+          }
+        >
+          <div className={filterFieldGridClasses}>
+            <ShelfSearchField
+              id="search"
+              name="search"
+              label="Search"
+              value={state.searchQuery}
+              onChange={(searchQuery) => updateState({ searchQuery })}
+              className="sm:col-span-2 lg:col-span-2"
+            />
 
+            <SegmentedControl
+              label="Shelf"
+              options={ownershipSegmentOptions}
+              value={state.ownershipFilter}
+              onChange={(ownershipFilter) => updateState({ ownershipFilter })}
+            />
+
+            <Select
+              id="filter-genre"
+              label="Genre"
+              value={state.filterGenre}
+              onChange={(event) =>
+                updateState({ filterGenre: event.target.value })
+              }
+              options={[
+                { value: "ALL", label: "All Genres" },
+                ...availableGenres.map((genre) => ({
+                  value: genre,
+                  label: genre,
+                })),
+              ]}
+            />
+
+            <Select
+              id="filter-finished"
+              label="Read Status"
+              value={state.filterFinished}
+              onChange={(event) =>
+                updateState({
+                  filterFinished: event.target
+                    .value as typeof state.filterFinished,
+                })
+              }
+              options={[...readFilterOptions]}
+            />
+
+            <Select
+              id="filter-format"
+              label="Format"
+              value={state.filterFormat}
+              onChange={(event) =>
+                updateState({ filterFormat: event.target.value })
+              }
+              options={[
+                { value: "ALL", label: "All Formats" },
+                ...availableFormats.map((format) => ({
+                  value: format,
+                  label: BOOK_FORMAT_LABELS[format],
+                })),
+              ]}
+            />
+
+            <Select
+              id="filter-series"
+              label="Series"
+              value={state.filterSeries}
+              onChange={(event) =>
+                updateState({ filterSeries: event.target.value })
+              }
+              options={[
+                { value: "ALL", label: "All Series" },
+                { value: "NONE", label: "No Series" },
+                ...availableSeries.map((series) => ({
+                  value: series,
+                  label: series,
+                })),
+              ]}
+            />
+
+            <Select
+              id="sort-by"
+              label="Sort"
+              value={state.sortBy}
+              onChange={(event) =>
+                updateState({ sortBy: event.target.value as SortOption })
+              }
+              options={[...sortOptions]}
+            />
+          </div>
+        </FilterDrawer>
+      </LibraryHero>
+
+      <PageLayout>
         <section className="space-y-6">
           {loading ? (
             <LoadingState

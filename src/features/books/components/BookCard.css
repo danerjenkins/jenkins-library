@@ -310,6 +310,7 @@
 }
 
 .book-card__cover-fallback-label {
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   font-family: var(--font-display);
   font-size: clamp(0.85rem, 3vw, 1rem);
@@ -319,6 +320,7 @@
 }
 
 .book-card__cover-fallback-meta {
+  line-clamp: 1;
   -webkit-line-clamp: 1;
   opacity: 0.88;
   font-size: clamp(0.68rem, 2.5vw, 0.8rem);

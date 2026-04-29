@@ -13,7 +13,7 @@
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 100;
   border-bottom: 1px solid rgba(216, 205, 187, 0.92);
   background:
     linear-gradient(180deg, rgba(251, 247, 239, 0.97), rgba(247, 240, 228, 0.94));
@@ -88,6 +88,14 @@
   min-width: 0;
 }
 
+.app-main--full-bleed {
+  width: 100%;
+  max-width: none;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .floating-add {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
@@ -131,7 +139,7 @@
   position: fixed;
   top: max(0.75rem, env(safe-area-inset-top));
   left: max(0.75rem, env(safe-area-inset-left));
-  z-index: 50;
+  z-index: 120;
   transform: translateY(-160%);
   border-radius: 0.5rem;
   background-color: var(--color-ink);

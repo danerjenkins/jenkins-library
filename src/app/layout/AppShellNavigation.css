@@ -109,7 +109,7 @@
   position: absolute;
   top: calc(100% + 0.65rem);
   right: 0;
-  z-index: 60;
+  z-index: 110;
   width: min(18rem, calc(100vw - 2rem));
   padding: 0.8rem;
 }
@@ -118,7 +118,7 @@
   position: absolute;
   left: 50%;
   bottom: calc(100% + 0.65rem);
-  z-index: 45;
+  z-index: 110;
   width: min(18rem, calc(100vw - 1rem));
   padding: 0.8rem;
   transform: translateX(-50%);

@@ -65,10 +65,10 @@ export function BookDetailContent({
               <img
                 src={localCoverUrl ?? book.coverUrl ?? undefined}
                 alt={`Cover of ${book.title}`}
-                className="aspect-[2/3] w-full rounded-lg object-cover shadow-md"
+                className="aspect-2/3 w-full rounded-lg object-cover shadow-md"
               />
             ) : (
-              <div className="flex aspect-[2/3] w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
+              <div className="flex aspect-2/3 w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
                 <span className="ds-chip border-warm-gray bg-cream px-4 py-2 text-stone-600" aria-hidden="true">
                   No Cover
                 </span>

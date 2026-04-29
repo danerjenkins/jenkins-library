@@ -150,7 +150,6 @@ function QueueRow({
           </Button>
           <Button
             type="button"
-            variant="secondary"
             variant="danger"
             className="h-8 min-h-8 w-8 shrink-0 p-0!"
             onClick={() => void onRemove(readerId, book.id)}

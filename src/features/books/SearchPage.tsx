@@ -15,10 +15,7 @@ import {
   actionLinkClasses,
 } from "./components/shelfBrowseControlStyles";
 import { CARD_SIZE_OPTIONS } from "./shelfViewPreferences";
-import {
-  useGlobalSearchPage,
-  type SearchOwnershipFilter,
-} from "./hooks/useGlobalSearchPage";
+import { useGlobalSearchPage } from "./hooks/useGlobalSearchPage";
 
 type BarcodeDetectorLike = {
   detect(source: HTMLVideoElement): Promise<Array<{ rawValue?: string }>>;
@@ -170,7 +167,7 @@ function IsbnScannerModal({
         <div className="mt-4 overflow-hidden rounded-2xl border border-warm-gray bg-stone-950">
           <video
             ref={videoRef}
-            className="aspect-[4/3] w-full object-cover"
+            className="aspect-4/3 w-full object-cover"
             muted
             autoPlay
             playsInline
@@ -197,12 +194,6 @@ function IsbnScannerModal({
       </div>
     </div>
   );
-}
-
-function ownershipLabel(value: SearchOwnershipFilter) {
-  if (value === "owned") return "Library only";
-  if (value === "wishlist") return "Wishlist only";
-  return "Library + Wishlist";
 }
 
 export function SearchPage() {
@@ -233,11 +224,10 @@ export function SearchPage() {
       <PageLayout>
         <PageHero
           title="Search"
-          description="Search the whole catalog by title, author, genre, series, description, or ISBN."
-          meta={resultsMeta}
+          className="[&>div:last-child]:mt-4 p-4! sm:p-6!"
         >
-          <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-4 shadow-sm">
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-3 shadow-sm sm:p-4">
+            <div className="grid gap-3">
               <ShelfSearchField
                 id="global-search"
                 name="global-search"
@@ -245,23 +235,33 @@ export function SearchPage() {
                 value={state.searchQuery}
                 onChange={actions.setSearchQuery}
                 placeholder="Try ISBN, title, author, or series..."
+                className="lg:max-w-3xl"
               />
 
-              <div className="flex min-w-0 flex-col gap-2">
-                <span className="ds-muted-meta text-xs font-semibold uppercase tracking-[0.14em]">
-                  Scope
-                </span>
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <SegmentedControl
                   label="Ownership"
                   options={ownershipSegmentOptions}
                   value={state.ownershipFilter}
                   onChange={actions.setOwnershipFilter}
                 />
+
+                <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
+                  <ShelfDensitySelector
+                    options={CARD_SIZE_OPTIONS}
+                    value={state.cardSize}
+                    onChange={actions.setCardSize}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap gap-2">
+            <div className="ds-subtle-text mt-3 text-sm" aria-live="polite">
+              {resultsMeta}
+            </div>
+
+            <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="flex flex-wrap gap-1.5">
                 {isBarcodeSupported ? (
                   <Button
                     type="button"
@@ -283,18 +283,6 @@ export function SearchPage() {
                     Clear Search
                   </Button>
                 ) : null}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <ShelfDensitySelector
-                  options={CARD_SIZE_OPTIONS}
-                  value={state.cardSize}
-                  onChange={actions.setCardSize}
-                />
-                <div className="ds-subtle-text text-sm">
-                  Showing {ownershipLabel(state.ownershipFilter).toLowerCase()}{" "}
-                  results.
-                </div>
               </div>
             </div>
           </div>

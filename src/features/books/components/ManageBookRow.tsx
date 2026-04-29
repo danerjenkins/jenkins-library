@@ -71,7 +71,7 @@ export function ManageBookRow({
       <div className="min-w-0">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="break-words text-sm font-semibold leading-5 text-stone-900">
+            <h3 className="wrap-break-word text-sm font-semibold leading-5 text-stone-900">
               <Link
                 to={detailPath}
                 className="rounded-sm text-stone-900 no-underline transition-colors hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
@@ -79,7 +79,7 @@ export function ManageBookRow({
                 {book.title}
               </Link>
             </h3>
-            <p className="mt-0.5 break-words text-sm text-stone-600">{book.author}</p>
+            <p className="mt-0.5 wrap-break-word text-sm text-stone-600">{book.author}</p>
             <Link
               to={detailPath}
               className="mt-1 inline-flex rounded-sm text-xs font-medium text-stone-500 no-underline transition-colors hover:text-sage-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
@@ -118,7 +118,7 @@ export function ManageBookRow({
         </div>
       </div>
 
-      <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 border-t border-warm-gray/70 pt-2 sm:col-span-1 sm:min-w-[13rem] sm:justify-end sm:border-t-0 sm:pt-0">
+      <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 border-t border-warm-gray/70 pt-2 sm:col-span-1 sm:min-w-52 sm:justify-end sm:border-t-0 sm:pt-0">
         <Button
           type="button"
           variant="secondary"
@@ -138,7 +138,7 @@ export function ManageBookRow({
             type="button"
             variant="secondary"
             onClick={() => onEdit(book)}
-            className="h-8 min-h-8 w-8 shrink-0 !p-0"
+            className="h-8 min-h-8 w-8 shrink-0 p-0!"
             aria-label={`Edit ${book.title}`}
             title="Edit"
           >
@@ -152,7 +152,7 @@ export function ManageBookRow({
             type="button"
             variant="danger"
             onClick={() => onDelete(book)}
-            className="h-8 min-h-8 w-8 shrink-0 !p-0"
+            className="h-8 min-h-8 w-8 shrink-0 p-0!"
             aria-label={`Delete ${book.title}`}
             title="Delete"
           >

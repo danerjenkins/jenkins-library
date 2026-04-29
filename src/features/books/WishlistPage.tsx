@@ -271,7 +271,7 @@ export function WishlistPage() {
                     <Button
                       type="button"
                       variant="secondary"
-                      className={`gap-2 !border-sage/20 !bg-sage/10 !text-sage-dark hover:!border-sage/30 hover:!bg-sage/15 active:!bg-sage/20 ${
+                      className={`gap-2 border-sage/20! bg-sage/10! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
                         state.cardSize === "xsmall"
                           ? "min-h-8 w-auto px-2.5 text-[11px] sm:min-h-9 sm:px-3"
                           : "min-h-10 w-full px-3 sm:w-auto text-xs"
