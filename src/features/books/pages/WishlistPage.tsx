@@ -1,4 +1,4 @@
-import { Library } from "lucide-react";
+import { ArrowRight, Library } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../../data/bookRepo";
@@ -271,19 +271,20 @@ export function WishlistPage() {
                     <Button
                       type="button"
                       variant="secondary"
-                      className={`gap-2 border-sage/20! bg-sage/10! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
+                      className={`justify-center border-sage/20! bg-sage/10! px-2! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
                         state.cardSize === "xsmall"
-                          ? "min-h-8 w-auto px-2.5 text-[11px] sm:min-h-9 sm:px-3"
-                          : "min-h-10 w-full px-3 sm:w-auto text-xs"
+                          ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
+                          : "min-h-10 w-10 sm:w-10"
                       }`}
                       disabled={movingBookIds.has(book.id)}
                       onClick={() => void handleMoveToLibrary(book.id)}
                       aria-label={`Move ${book.title} to library`}
+                      title={movingBookIds.has(book.id) ? "Moving..." : "Move to library"}
                     >
-                      <Library className="h-4 w-4" aria-hidden="true" />
-                      {movingBookIds.has(book.id)
-                        ? "Moving..."
-                        : "Move To Library"}
+                      <span className="relative flex h-4 w-7 shrink-0 items-center justify-center" aria-hidden="true">
+                        <ArrowRight className="absolute left-0 h-3.5 w-3.5" />
+                        <Library className="absolute right-0 h-4 w-4" />
+                      </span>
                     </Button>
                   }
                 />
