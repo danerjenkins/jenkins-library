@@ -3,17 +3,33 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../../data/bookRepo";
 import { Button } from "../../../ui/components/Button";
-import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
+import {
+  FullBleedPageHero,
+  PageLayout,
+} from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "../lib/bookTypes";
 import type { Book } from "../lib/bookTypes";
-import { BookCard, BookGrid, BookShelfState } from "../components/cards/BookCard";
+import {
+  BookCard,
+  BookGrid,
+  BookShelfState,
+} from "../components/cards/BookCard";
 import { FilterDrawer } from "../components/browse/FilterDrawer";
-import { actionLinkClasses, filterFieldGridClasses } from "../components/browse/shelfBrowseControlStyles";
-import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import {
+  actionLinkClasses,
+  filterFieldGridClasses,
+} from "../components/browse/shelfBrowseControlStyles";
+import {
+  ShelfDensitySelector,
+  ShelfSearchField,
+} from "../components/browse/ShelfBrowseControls";
 import { useWishlistShelfBooks } from "../hooks/useShelfBooks";
-import { getSortedFormats, getSortedStrings } from "../hooks/useViewBooksPageState";
+import {
+  getSortedFormats,
+  getSortedStrings,
+} from "../hooks/useViewBooksPageState";
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import {
   useWishlistPageState,
@@ -31,9 +47,13 @@ const readStatusByFilter = {
 
 function sortWishlistBooks(books: Book[]) {
   return [...books].sort((a, b) => {
-    const genreCompare = (a.genre ?? "").localeCompare(b.genre ?? "", undefined, {
-      sensitivity: "base",
-    });
+    const genreCompare = (a.genre ?? "").localeCompare(
+      b.genre ?? "",
+      undefined,
+      {
+        sensitivity: "base",
+      },
+    );
     if (genreCompare !== 0) return genreCompare;
 
     const authorCompare = a.author.localeCompare(b.author, undefined, {
@@ -41,9 +61,13 @@ function sortWishlistBooks(books: Book[]) {
     });
     if (authorCompare !== 0) return authorCompare;
 
-    const seriesCompare = (a.seriesName ?? "").localeCompare(b.seriesName ?? "", undefined, {
-      sensitivity: "base",
-    });
+    const seriesCompare = (a.seriesName ?? "").localeCompare(
+      b.seriesName ?? "",
+      undefined,
+      {
+        sensitivity: "base",
+      },
+    );
     if (seriesCompare !== 0) return seriesCompare;
 
     return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
@@ -55,13 +79,14 @@ export function WishlistPage() {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [movingBookIds, setMovingBookIds] = useState<Set<string>>(new Set());
   const { books, setBooks, loading } = useWishlistShelfBooks();
-  const { state, updateState, clearFilters, hasActiveFilters } = useWishlistPageState(
-    searchParams,
-    setSearchParams,
-  );
+  const { state, updateState, clearFilters, hasActiveFilters } =
+    useWishlistPageState(searchParams, setSearchParams);
   const deferredSearchQuery = useDeferredValue(state.searchQuery);
 
-  const availableGenres = useMemo(() => getSortedStrings(books.map((book) => book.genre)), [books]);
+  const availableGenres = useMemo(
+    () => getSortedStrings(books.map((book) => book.genre)),
+    [books],
+  );
   const availableFormats = useMemo(() => getSortedFormats(books), [books]);
   const availableSeries = useMemo(
     () => getSortedStrings(books.map((book) => book.seriesName)),
@@ -81,7 +106,10 @@ export function WishlistPage() {
 
       if (
         state.filterReadStatus !== "ALL" &&
-        getReadStatus(book) !== readStatusByFilter[state.filterReadStatus as Exclude<WishlistReadFilter, "ALL">]
+        getReadStatus(book) !==
+          readStatusByFilter[
+            state.filterReadStatus as Exclude<WishlistReadFilter, "ALL">
+          ]
       ) {
         return false;
       }
@@ -94,7 +122,10 @@ export function WishlistPage() {
         return !book.seriesName;
       }
 
-      if (state.filterSeries !== "ALL" && book.seriesName !== state.filterSeries) {
+      if (
+        state.filterSeries !== "ALL" &&
+        book.seriesName !== state.filterSeries
+      ) {
         return false;
       }
 
@@ -110,13 +141,17 @@ export function WishlistPage() {
       if (!bookToMove) return;
 
       setMovingBookIds((current) => new Set(current).add(bookId));
-      setBooks((currentBooks) => currentBooks.filter((book) => book.id !== bookId));
+      setBooks((currentBooks) =>
+        currentBooks.filter((book) => book.id !== bookId),
+      );
 
       try {
         await updateBook(bookId, { ownershipStatus: "owned" });
       } catch (error) {
         console.error("Failed to move book to library:", error);
-        setBooks((currentBooks) => sortWishlistBooks([...currentBooks, bookToMove]));
+        setBooks((currentBooks) =>
+          sortWishlistBooks([...currentBooks, bookToMove]),
+        );
       } finally {
         setMovingBookIds((current) => {
           const next = new Set(current);
@@ -166,7 +201,8 @@ export function WishlistPage() {
             }
             footer={
               <div className="text-sm text-stone-600">
-                {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"} in this view.
+                {filteredBooks.length}{" "}
+                {filteredBooks.length === 1 ? "book" : "books"} in this view.
               </div>
             }
           >
@@ -184,10 +220,15 @@ export function WishlistPage() {
                 id="wishlist-filter-genre"
                 label="Genre"
                 value={state.filterGenre}
-                onChange={(event) => updateState({ filterGenre: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterGenre: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Genres" },
-                  ...availableGenres.map((genre) => ({ value: genre, label: genre })),
+                  ...availableGenres.map((genre) => ({
+                    value: genre,
+                    label: genre,
+                  })),
                 ]}
               />
 
@@ -196,7 +237,9 @@ export function WishlistPage() {
                 label="Read Status"
                 value={state.filterReadStatus}
                 onChange={(event) =>
-                  updateState({ filterReadStatus: event.target.value as WishlistReadFilter })
+                  updateState({
+                    filterReadStatus: event.target.value as WishlistReadFilter,
+                  })
                 }
                 options={[...wishlistReadFilterOptions]}
               />
@@ -205,7 +248,9 @@ export function WishlistPage() {
                 id="wishlist-filter-format"
                 label="Format"
                 value={state.filterFormat}
-                onChange={(event) => updateState({ filterFormat: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterFormat: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Formats" },
                   ...availableFormats.map((format) => ({
@@ -219,11 +264,16 @@ export function WishlistPage() {
                 id="wishlist-filter-series"
                 label="Series"
                 value={state.filterSeries}
-                onChange={(event) => updateState({ filterSeries: event.target.value })}
+                onChange={(event) =>
+                  updateState({ filterSeries: event.target.value })
+                }
                 options={[
                   { value: "ALL", label: "All Series" },
                   { value: "NONE", label: "No Series" },
-                  ...availableSeries.map((series) => ({ value: series, label: series })),
+                  ...availableSeries.map((series) => ({
+                    value: series,
+                    label: series,
+                  })),
                 ]}
               />
             </div>
@@ -243,7 +293,10 @@ export function WishlistPage() {
               title="No Wishlist Books Yet"
               description="Add the first book you want to track so your wishlist has somewhere to start."
               action={
-                <Link to="/admin?add=1&ownership=wishlist" className={actionLinkClasses}>
+                <Link
+                  to="/admin?add=1&ownership=wishlist"
+                  className={actionLinkClasses}
+                >
                   Add Wishlist Book
                 </Link>
               }
@@ -253,7 +306,12 @@ export function WishlistPage() {
               title="No Matches Found"
               description="Adjust your search or filters to see more wishlist books."
               action={
-                <Button type="button" variant="secondary" onClick={clearFilters} className="text-xs">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={clearFilters}
+                  className="text-xs"
+                >
                   Clear Filters
                 </Button>
               }
@@ -279,9 +337,16 @@ export function WishlistPage() {
                       disabled={movingBookIds.has(book.id)}
                       onClick={() => void handleMoveToLibrary(book.id)}
                       aria-label={`Move ${book.title} to library`}
-                      title={movingBookIds.has(book.id) ? "Moving..." : "Move to library"}
+                      title={
+                        movingBookIds.has(book.id)
+                          ? "Moving..."
+                          : "Move to library"
+                      }
                     >
-                      <span className="relative flex h-4 w-7 shrink-0 items-center justify-center" aria-hidden="true">
+                      <span
+                        className="relative flex h-4 w-7 shrink-0 items-center justify-center"
+                        aria-hidden="true"
+                      >
                         <ArrowRight className="absolute left-0 h-3.5 w-3.5" />
                         <Library className="absolute right-0 h-4 w-4" />
                       </span>
