@@ -1,7 +1,7 @@
 import { ScanLine, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { PageHero, PageLayout } from "../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
 import { Button } from "../../ui/components/Button";
 import { LoadingState } from "../../ui/components/LoadingState";
 import { BookCard, BookGrid, BookShelfState } from "./components/BookCard";
@@ -221,11 +221,14 @@ export function SearchPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <FullBleedPageHero
+        title="Search"
+        subtitle="For the title on the tip of your tongue and the one hiding three shelves deep."
+        backgroundImage="/searchhero.png"
+      />
+
       <PageLayout>
-        <PageHero
-          title="Search"
-          className="[&>div:last-child]:mt-4 p-4! sm:p-6!"
-        >
+        <PageSection>
           <div className="rounded-2xl border border-warm-gray/80 bg-parchment/90 p-3 shadow-sm sm:p-4">
             <div className="grid gap-3">
               <ShelfSearchField
@@ -286,7 +289,7 @@ export function SearchPage() {
               </div>
             </div>
           </div>
-        </PageHero>
+        </PageSection>
 
         {state.loading ? (
           <LoadingState

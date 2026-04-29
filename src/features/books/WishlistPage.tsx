@@ -3,7 +3,7 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../data/bookRepo";
 import { Button } from "../../ui/components/Button";
-import { PageHero, PageLayout } from "../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
 import { Select } from "../../ui/components/Select";
 import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, getReadStatus } from "./bookTypes";
@@ -130,13 +130,15 @@ export function WishlistPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <FullBleedPageHero
+        title="Wishlist"
+        subtitle="A shelf of future favorites and books still making their case."
+        backgroundImage="/wishlisthero.png"
+      />
+
       <PageLayout>
-        <PageHero
-          title="Wishlist"
-          description="Books you want to own, ordered by genre, author, and series."
-          meta={`${filteredBooks.length} ${filteredBooks.length === 1 ? "book" : "books"}`}
-        >
-          {books.length > 0 ? (
+        {books.length > 0 ? (
+          <PageSection>
             <FilterDrawer
               title="Wishlist Filters"
               description="Keep wishlist browsing focused while leaving room for quick add-to-library actions."
@@ -165,7 +167,7 @@ export function WishlistPage() {
               }
               footer={
                 <div className="text-sm text-stone-600">
-                  Keep wishlist browsing fast while leaving room for quick add actions.
+                  {filteredBooks.length} {filteredBooks.length === 1 ? "book" : "books"} in this view.
                 </div>
               }
             >
@@ -227,8 +229,8 @@ export function WishlistPage() {
                 />
               </div>
             </FilterDrawer>
-          ) : null}
-        </PageHero>
+          </PageSection>
+        ) : null}
 
         <section className="space-y-6">
           {loading ? (

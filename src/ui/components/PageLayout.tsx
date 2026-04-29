@@ -19,6 +19,13 @@ interface PageSectionProps {
   className?: string;
 }
 
+interface FullBleedPageHeroProps {
+  title: string;
+  subtitle?: ReactNode;
+  backgroundImage: string;
+  className?: string;
+}
+
 export function PageLayout({ children, className }: PageLayoutProps) {
   return <div className={`ds-page-layout ${className ?? ""}`}>{children}</div>;
 }
@@ -58,4 +65,28 @@ export function PageHero({
 
 export function PageSection({ children, className }: PageSectionProps) {
   return <section className={`ds-page-section ${className ?? ""}`}>{children}</section>;
+}
+
+export function FullBleedPageHero({
+  title,
+  subtitle,
+  backgroundImage,
+  className,
+}: FullBleedPageHeroProps) {
+  return (
+    <section className={`ds-full-bleed-hero ${className ?? ""}`}>
+      <div
+        className="ds-full-bleed-hero__image"
+        style={{ backgroundImage: `url('${backgroundImage}')` }}
+        aria-hidden="true"
+      />
+      <div className="ds-full-bleed-hero__overlay" aria-hidden="true" />
+      <div className="ds-full-bleed-hero__content">
+        <div className="ds-full-bleed-hero__body">
+          <h1 className="ds-full-bleed-hero__title">{title}</h1>
+          {subtitle ? <p className="ds-full-bleed-hero__subtitle">{subtitle}</p> : null}
+        </div>
+      </div>
+    </section>
+  );
 }

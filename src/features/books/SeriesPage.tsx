@@ -52,8 +52,9 @@ export function SeriesPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <SeriesHeroSection />
+
       <PageLayout className="space-y-4 sm:space-y-5">
-        <SeriesHeroSection />
         <FeaturedSeriesSection featuredGroups={state.featuredGroups} />
         <SeriesFiltersSection
           searchQuery={state.searchQuery}

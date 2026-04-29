@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllBooks, getWishlistBooks } from "../../data/bookRepo";
-import { PageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../ui/components/PageLayout";
 import { LoadingState } from "../../ui/components/LoadingState";
 import { BOOK_FORMAT_LABELS, type Book } from "./bookTypes";
 import {
@@ -131,55 +131,38 @@ export function StatsPage() {
       ? `${stats.earliestYear} to ${stats.latestYear}`
       : "No publication years yet";
 
-  const heroMeta =
-    stats.totalBooks > 0 ? (
-      <div className="flex flex-wrap gap-2 text-xs font-medium">
-        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
-          {formatNumber(stats.ownedBooks)} owned
-        </span>
-        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
-          {formatNumber(stats.wishlistBooks)} on wishlist
-        </span>
-        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
-          {formatNumber(stats.seriesCount)} series
-        </span>
-        <span className="ds-chip border-warm-gray bg-cream px-3 py-1 text-stone-700">
-          {formatNumber(stats.booksWithPages)} with page counts
-        </span>
-      </div>
-    ) : null;
-
   return (
-    <PageLayout>
-      <PageHero
+    <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <FullBleedPageHero
         title="Library Statistics"
-        description="A wider look at the collection: ownership mix, reading progress, genre and author concentration, page counts, publication years, and series coverage."
-        meta={heroMeta}
+        subtitle="Patterns, proportions, and the quiet shape of a reading life."
+        backgroundImage="/statshero.png"
       />
 
-      <PageSection>
-        {loading ? (
-          <LoadingState
-            title="Loading Stats"
-            description="Pulling together the collection, wishlist, and reading patterns."
-            variant="panel"
-          />
-        ) : errorMessage ? (
-          <div
-            className="ds-panel-surface border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
-            role="alert"
-          >
-            {errorMessage}
-          </div>
-        ) : stats.totalBooks === 0 ? (
-          <div className="ds-panel-surface border-dashed border-warm-gray bg-parchment/75 px-4 py-10 text-center text-sm text-stone-600">
-            <p className="font-medium">No stats yet</p>
-            <p className="ds-muted-meta mt-1 text-xs">
-              Add books to see ownership, reading, and collection patterns.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
+      <PageLayout>
+        <PageSection>
+          {loading ? (
+            <LoadingState
+              title="Loading Stats"
+              description="Pulling together the collection, wishlist, and reading patterns."
+              variant="panel"
+            />
+          ) : errorMessage ? (
+            <div
+              className="ds-panel-surface border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+              role="alert"
+            >
+              {errorMessage}
+            </div>
+          ) : stats.totalBooks === 0 ? (
+            <div className="ds-panel-surface border-dashed border-warm-gray bg-parchment/75 px-4 py-10 text-center text-sm text-stone-600">
+              <p className="font-medium">No stats yet</p>
+              <p className="ds-muted-meta mt-1 text-xs">
+                Add books to see ownership, reading, and collection patterns.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard label="Total Books" value={formatNumber(stats.totalBooks)} />
               <StatCard
@@ -275,9 +258,10 @@ export function StatsPage() {
                 emptyText="No format data yet."
               />
             </div>
-          </div>
-        )}
-      </PageSection>
-    </PageLayout>
+            </div>
+          )}
+        </PageSection>
+      </PageLayout>
+    </div>
   );
 }

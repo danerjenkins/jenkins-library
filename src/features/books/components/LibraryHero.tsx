@@ -87,10 +87,7 @@ export function LibraryHero({
         <div className="mx-auto flex min-h-[17rem] w-full max-w-6xl flex-col justify-end px-4 pb-5 pt-16 sm:min-h-[19rem] sm:px-6 sm:pb-6 sm:pt-18">
           <div className="max-w-3xl space-y-3">
             <div className="space-y-2">
-              <h1
-                className="font-display text-3xl font-bold tracking-tight text-pretty [text-shadow:0_3px_18px_rgba(0,0,0,0.7)] sm:text-5xl"
-                style={{ color: "#fbf7ef" }}
-              >
+              <h1 className="font-display text-3xl font-bold tracking-tight text-pretty text-cream [text-shadow:0_3px_18px_rgba(0,0,0,0.7)] sm:text-5xl">
                 {title}
               </h1>
               {activeQuote ? (

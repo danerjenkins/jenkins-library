@@ -10,6 +10,88 @@
   @apply rounded-3xl border border-warm-gray/80 bg-cream/90 p-4 shadow-soft sm:p-6;
 }
 
+:where(.ds-full-bleed-hero) {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-parchment);
+  color: var(--color-cream);
+  box-shadow: var(--shadow-soft-md);
+}
+
+:where(.ds-full-bleed-hero__image) {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: scale(1.01);
+}
+
+:where(.ds-full-bleed-hero__overlay) {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--color-charcoal-rgb) / 0.54) 0%,
+      rgb(var(--color-charcoal-rgb) / 0.26) 52%,
+      rgb(var(--color-charcoal-rgb) / 0.1) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--color-cream-rgb) / 0.03) 0%,
+      rgb(var(--color-charcoal-rgb) / 0.38) 100%
+    );
+}
+
+:where(.ds-full-bleed-hero__content) {
+  position: relative;
+  min-height: 11rem;
+  display: flex;
+  align-items: flex-end;
+}
+
+:where(.ds-full-bleed-hero__body) {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: 3.25rem max(1rem, env(safe-area-inset-left)) 1.25rem
+    max(1rem, env(safe-area-inset-right));
+}
+
+:where(.ds-full-bleed-hero__title) {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--color-cream);
+  text-wrap: balance;
+  text-shadow: 0 3px 18px rgb(var(--color-charcoal-rgb) / 0.6);
+}
+
+:where(.ds-full-bleed-hero__subtitle) {
+  margin-top: 0.55rem;
+  max-width: 42rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgb(var(--color-cream-rgb) / 0.94);
+  text-wrap: pretty;
+  text-shadow: 0 2px 12px rgb(var(--color-charcoal-rgb) / 0.42);
+}
+
+@media (min-width: 640px) {
+  :where(.ds-full-bleed-hero__content) {
+    min-height: 13rem;
+  }
+
+  :where(.ds-full-bleed-hero__body) {
+    padding-top: 3.75rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
 :where(.ds-button) {
   @apply inline-flex min-h-10 items-center justify-center rounded-md px-4 py-2 font-sans text-sm font-semibold leading-5 shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55;
 }

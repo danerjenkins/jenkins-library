@@ -1,4 +1,4 @@
-import { PageLayout } from "../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout } from "../../ui/components/PageLayout";
 import { LoadingState } from "../../ui/components/LoadingState";
 import {
   ReadingListIntroSection,
@@ -19,6 +19,12 @@ export function ReadingListPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <FullBleedPageHero
+        title="Reading List"
+        subtitle="The near horizon: the books waiting closest to hand."
+        backgroundImage="/readinglisthero.png"
+      />
+
       <PageLayout>
         <ReadingListIntroSection
           activeReader={state.activeReader}

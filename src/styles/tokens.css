@@ -1,6 +1,7 @@
 @theme {
   --color-parchment: #f3ecdf;
   --color-cream: #fbf7ef;
+  --color-cream-rgb: 251 247 239;
   --color-parchment-deep: #e8dcc8;
   --color-cream-strong: #f7f0e4;
   --color-sage: #6f8463;
@@ -10,6 +11,7 @@
   --color-clay: #9d5c45;
   --color-wood: #8b7355;
   --color-charcoal: #242424;
+  --color-charcoal-rgb: 36 36 36;
   --color-ink: #3c3328;
   --color-warm-gray: #d8cdbb;
   --color-warm-gray-light: #eee4d5;

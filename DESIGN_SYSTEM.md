@@ -88,6 +88,9 @@ Use this map when deciding where a design change should go.
   - use `PageLayout`, `PageHero`, `FilterDrawer`, `ShelfBrowseControls`, `BookCard`, and `BookGrid`
   - keep shelf browsing fast and compact
   - keep filters aligned with the shared filter rhythm
+- Full-bleed browse banners:
+  - use `FullBleedPageHero` when a browse page needs edge-to-edge image framing with only a title and short subtitle
+  - keep these banners visually light and avoid placing filters, stats, or dense controls inside them
 - Manage:
   - use rows, not cards
   - keep edit actions compact and accessible
@@ -107,6 +110,7 @@ Use this map when deciding where a design change should go.
 - `Badge`
 - `PageLayout`
 - `PageHero`
+- `FullBleedPageHero`
 - `PageSection`
 - `LoadingState`
 - `BookCard`

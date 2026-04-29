@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
+import { FullBleedPageHero } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
@@ -31,11 +32,11 @@ function sortSeriesGroupsByBookCount(groups: SeriesGroup[]) {
 
 export function SeriesHeroSection() {
   return (
-    <header className={`${sectionSurfaceClasses} px-4 py-4 sm:px-5 sm:py-5`}>
-      <h1 className="font-display text-2xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-3xl">
-        Series page
-      </h1>
-    </header>
+    <FullBleedPageHero
+      title="Series"
+      subtitle="Long arcs, lingering worlds, and stories that refuse to stay contained in one volume."
+      backgroundImage="/serieshero.png"
+    />
   );
 }
 

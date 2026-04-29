@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Library, Sparkles } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
+import { FullBleedPageHero } from "../../../ui/components/PageLayout";
 import { BookCard, BookShelfState } from "./BookCard";
 import { FilterDrawer } from "./FilterDrawer";
 import { ShelfDensitySelector, ShelfSearchField } from "./ShelfBrowseControls";
@@ -21,11 +22,11 @@ export function GenresPageFrame({ children }: { children: React.ReactNode }) {
 
 export function GenresHeroSection() {
   return (
-    <header className={`${sectionSurfaceClasses} px-5 py-6 sm:px-6 sm:py-7`}>
-      <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-4xl">
-        Genres page
-      </h1>
-    </header>
+    <FullBleedPageHero
+      title="Genres"
+      subtitle="Shelves arranged by instinct, atmosphere, and the company books keep."
+      backgroundImage="/genreshero.png"
+    />
   );
 }
 

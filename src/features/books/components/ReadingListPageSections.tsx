@@ -183,12 +183,9 @@ export function ReadingListIntroSection({
     <PageSection className={sectionSurfaceClasses}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
-            Reading List
-          </p>
-          <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-4xl">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-3xl">
             TBR
-          </h1>
+          </h2>
           <p className="max-w-2xl text-sm leading-relaxed text-stone-600">
             {queuedTotal} {queuedTotal === 1 ? "book" : "books"} queued for{" "}
             {activeReaderLabel}.
