@@ -180,6 +180,8 @@ export function ViewBooksPage() {
         totalCount={books.length}
         ownedCount={ownedCount}
         wishlistCount={wishlistCount}
+        activeOwnershipFilter={state.ownershipFilter}
+        onOwnershipFilterSelect={(ownershipFilter) => updateState({ ownershipFilter })}
       >
         <FilterDrawer
           title="Library Filters"

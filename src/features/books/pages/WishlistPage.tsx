@@ -140,6 +140,13 @@ export function WishlistPage() {
       const bookToMove = books.find((book) => book.id === bookId);
       if (!bookToMove) return;
 
+      const shouldMove = window.confirm(
+        `Move "${bookToMove.title}" to your library?`,
+      );
+      if (!shouldMove) {
+        return;
+      }
+
       setMovingBookIds((current) => new Set(current).add(bookId));
       setBooks((currentBooks) =>
         currentBooks.filter((book) => book.id !== bookId),

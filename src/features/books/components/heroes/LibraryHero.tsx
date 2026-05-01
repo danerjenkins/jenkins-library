@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { LibraryHeroQuote } from "../../lib/libraryHeroQuotes";
+import type { OwnershipFilter } from "../../hooks/useViewBooksPageState";
 
 interface LibraryHeroProps {
   title: string;
@@ -7,18 +8,51 @@ interface LibraryHeroProps {
   totalCount: number;
   ownedCount: number;
   wishlistCount: number;
+  activeOwnershipFilter: OwnershipFilter;
+  onOwnershipFilterSelect: (value: OwnershipFilter) => void;
   children: ReactNode;
 }
 
 function HeroStat({
   label,
   value,
+  isActive = false,
+  onClick,
 }: {
   label: string;
   value: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }) {
+  const sharedClasses =
+    "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[#3f3125] shadow-[0_8px_18px_rgba(36,24,18,0.14)] transition duration-150";
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={isActive}
+        className={`${sharedClasses} cursor-pointer ${
+          isActive
+            ? "border-[#b88a45] bg-[linear-gradient(180deg,rgba(246,238,224,0.98),rgba(224,206,175,0.96))] shadow-[0_10px_22px_rgba(36,24,18,0.2)]"
+            : "border-[#d9c6a8] bg-[linear-gradient(180deg,rgba(246,238,224,0.9),rgba(231,219,199,0.88))] hover:border-[#c8ae87] hover:bg-[linear-gradient(180deg,rgba(248,241,229,0.96),rgba(235,223,203,0.94))]"
+        }`}
+      >
+        <span className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#7a6045]">
+          {label}
+        </span>
+        <span className="font-display text-base font-semibold text-[#3a2a1c] sm:text-lg">
+          {value}
+        </span>
+      </button>
+    );
+  }
+
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-[#d9c6a8] bg-[linear-gradient(180deg,rgba(246,238,224,0.9),rgba(231,219,199,0.88))] px-3 py-1.5 text-[#3f3125] shadow-[0_8px_18px_rgba(36,24,18,0.14)]">
+    <div
+      className={`${sharedClasses} border-[#d9c6a8] bg-[linear-gradient(180deg,rgba(246,238,224,0.9),rgba(231,219,199,0.88))]`}
+    >
       <span className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#7a6045]">
         {label}
       </span>
@@ -35,6 +69,8 @@ export function LibraryHero({
   totalCount,
   ownedCount,
   wishlistCount,
+  activeOwnershipFilter,
+  onOwnershipFilterSelect,
   children,
 }: LibraryHeroProps) {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(() => {
@@ -130,9 +166,24 @@ export function LibraryHero({
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <HeroStat label="Books Tracked" value={String(totalCount)} />
-            <HeroStat label="Owned" value={String(ownedCount)} />
-            <HeroStat label="Wishlist" value={String(wishlistCount)} />
+            <HeroStat
+              label="Books Tracked"
+              value={String(totalCount)}
+              isActive={activeOwnershipFilter === "all"}
+              onClick={() => onOwnershipFilterSelect("all")}
+            />
+            <HeroStat
+              label="Owned"
+              value={String(ownedCount)}
+              isActive={activeOwnershipFilter === "owned"}
+              onClick={() => onOwnershipFilterSelect("owned")}
+            />
+            <HeroStat
+              label="Wishlist"
+              value={String(wishlistCount)}
+              isActive={activeOwnershipFilter === "wishlist"}
+              onClick={() => onOwnershipFilterSelect("wishlist")}
+            />
           </div>
 
           <div className="mt-3 text-cream">
