@@ -3,33 +3,30 @@ alter table library.books
 
 create or replace view library.books_with_series as
 select
-  books.id,
-  books.title,
-  books.author,
-  books.genre,
-  books.description,
-  books.isbn,
-  books.published_year,
-  books.cover_url,
-  books.cover_drive_file_id,
-  books.finished,
-  books.format,
-  books.pages,
-  books.read_by_dane,
-  books.read_by_emma,
-  books.ownership_status,
-  books.created_at,
-  books.updated_at,
-  books.deleted_at,
-  book_series.series_id,
-  series.name as series_name,
-  book_series.series_label,
-  book_series.series_sort,
-  books.most_wanted
-from library.books
-left join library.book_series
-  on book_series.book_id = books.id
-left join library.series
-  on series.id = book_series.series_id;
+  b.id,
+  b.title,
+  b.author,
+  b.genre,
+  b.finished,
+  b.cover_url,
+  b.created_at,
+  b.updated_at,
+  b.isbn,
+  b.read_by_dane,
+  b.read_by_emma,
+  b.description,
+  b.format,
+  b.deleted_at,
+  b.ownership_status,
+  s.id as series_id,
+  s.name as series_name,
+  bs.series_label,
+  bs.series_sort,
+  b.most_wanted
+from library.books b
+left join library.book_series bs
+  on bs.book_id = b.id
+left join library.series s
+  on s.id = bs.series_id;
 
 grant select on library.books_with_series to anon;
