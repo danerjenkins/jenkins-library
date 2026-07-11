@@ -78,6 +78,12 @@ function sortWishlistBooks(books: Book[]) {
   });
 }
 
+function restoreScrollAfterSort(scrollX: number, scrollY: number) {
+  requestAnimationFrame(() => {
+    window.scrollTo(scrollX, scrollY);
+  });
+}
+
 export function WishlistPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -183,6 +189,8 @@ export function WishlistPage() {
       if (!bookToUpdate) return;
 
       const nextMostWanted = !bookToUpdate.mostWanted;
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
 
       setUpdatingMostWantedIds((current) => new Set(current).add(bookId));
       setBooks((currentBooks) =>
@@ -194,6 +202,7 @@ export function WishlistPage() {
           ),
         ),
       );
+      restoreScrollAfterSort(scrollX, scrollY);
 
       try {
         await updateBook(bookId, { mostWanted: nextMostWanted });
@@ -396,7 +405,10 @@ export function WishlistPage() {
                             : "min-h-10 w-10 sm:w-10"
                         }`}
                         disabled={updatingMostWantedIds.has(book.id)}
-                        onClick={() => void handleToggleMostWanted(book.id)}
+                        onClick={(event) => {
+                          event.currentTarget.blur();
+                          void handleToggleMostWanted(book.id);
+                        }}
                         aria-pressed={Boolean(book.mostWanted)}
                         aria-label={
                           book.mostWanted
