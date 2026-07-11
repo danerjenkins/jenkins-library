@@ -16,6 +16,7 @@ export type BookInput = {
   format?: BookFormat;
   pages?: number;
   ownershipStatus?: "owned" | "wishlist";
+  mostWanted?: boolean;
 };
 
 type BookRow = {
@@ -34,6 +35,7 @@ type BookRow = {
   read_by_dane: boolean | null;
   read_by_emma: boolean | null;
   ownership_status: "owned" | "wishlist" | null;
+  most_wanted: boolean | null;
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
@@ -87,6 +89,7 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     seriesLabel: row.series_label ?? null,
     seriesSort: row.series_sort ?? null,
     ownershipStatus: row.ownership_status ?? undefined,
+    mostWanted: row.most_wanted ?? false,
     createdAt,
     updatedAt,
   };
@@ -158,6 +161,7 @@ export async function createBook(input: BookInput): Promise<Book> {
     read_by_dane: input.readByDane ?? false,
     read_by_emma: input.readByEmma ?? false,
     ownership_status: input.ownershipStatus ?? "owned",
+    most_wanted: input.mostWanted ?? false,
   };
 
   const { data, error } = await supabaseClient
@@ -212,6 +216,7 @@ export async function updateBook(
   if (patch.readByEmma !== undefined) updateRow.read_by_emma = patch.readByEmma;
   if (patch.ownershipStatus !== undefined)
     updateRow.ownership_status = patch.ownershipStatus;
+  if (patch.mostWanted !== undefined) updateRow.most_wanted = patch.mostWanted;
 
   const { data, error } = await supabaseClient
     .from("books")

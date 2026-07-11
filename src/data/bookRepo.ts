@@ -27,6 +27,7 @@ type BookInput = {
   format?: string;
   pages?: number;
   ownershipStatus?: "owned" | "wishlist";
+  mostWanted?: boolean;
 };
 
 export type BookSeriesInput = {
@@ -50,6 +51,7 @@ function toSupabaseInput(input: BookInput): SupabaseBookInput {
     format: input.format as SupabaseBookInput["format"],
     pages: input.pages,
     ownershipStatus: input.ownershipStatus,
+    mostWanted: input.mostWanted,
   };
 }
 
@@ -74,6 +76,7 @@ function toSupabasePatch(
   if (patch.pages !== undefined) result.pages = patch.pages;
   if (patch.ownershipStatus !== undefined)
     result.ownershipStatus = patch.ownershipStatus;
+  if (patch.mostWanted !== undefined) result.mostWanted = patch.mostWanted;
 
   return result;
 }

@@ -82,6 +82,8 @@ export interface Book {
   seriesSort?: number | null;
   /** Ownership status (optional) */
   ownershipStatus?: "owned" | "wishlist";
+  /** Whether this wishlist book should be prioritized */
+  mostWanted?: boolean;
   /** Timestamp when the book was created */
   createdAt: number;
   /** Timestamp when the book was last updated */

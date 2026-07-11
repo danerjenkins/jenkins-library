@@ -1,4 +1,4 @@
-import { ArrowRight, Library } from "lucide-react";
+import { ArrowRight, Library, Star } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { updateBook } from "../../../data/bookRepo";
@@ -47,6 +47,10 @@ const readStatusByFilter = {
 
 function sortWishlistBooks(books: Book[]) {
   return [...books].sort((a, b) => {
+    if (a.mostWanted !== b.mostWanted) {
+      return a.mostWanted ? -1 : 1;
+    }
+
     const genreCompare = (a.genre ?? "").localeCompare(
       b.genre ?? "",
       undefined,
@@ -78,6 +82,9 @@ export function WishlistPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [movingBookIds, setMovingBookIds] = useState<Set<string>>(new Set());
+  const [updatingMostWantedIds, setUpdatingMostWantedIds] = useState<
+    Set<string>
+  >(new Set());
   const { books, setBooks, loading } = useWishlistShelfBooks();
   const { state, updateState, clearFilters, hasActiveFilters } =
     useWishlistPageState(searchParams, setSearchParams);
@@ -161,6 +168,48 @@ export function WishlistPage() {
         );
       } finally {
         setMovingBookIds((current) => {
+          const next = new Set(current);
+          next.delete(bookId);
+          return next;
+        });
+      }
+    },
+    [books, setBooks],
+  );
+
+  const handleToggleMostWanted = useCallback(
+    async (bookId: string) => {
+      const bookToUpdate = books.find((book) => book.id === bookId);
+      if (!bookToUpdate) return;
+
+      const nextMostWanted = !bookToUpdate.mostWanted;
+
+      setUpdatingMostWantedIds((current) => new Set(current).add(bookId));
+      setBooks((currentBooks) =>
+        sortWishlistBooks(
+          currentBooks.map((book) =>
+            book.id === bookId
+              ? { ...book, mostWanted: nextMostWanted }
+              : book,
+          ),
+        ),
+      );
+
+      try {
+        await updateBook(bookId, { mostWanted: nextMostWanted });
+      } catch (error) {
+        console.error("Failed to update most wanted status:", error);
+        setBooks((currentBooks) =>
+          sortWishlistBooks(
+            currentBooks.map((book) =>
+              book.id === bookId
+                ? { ...book, mostWanted: bookToUpdate.mostWanted }
+                : book,
+            ),
+          ),
+        );
+      } finally {
+        setUpdatingMostWantedIds((current) => {
           const next = new Set(current);
           next.delete(bookId);
           return next;
@@ -333,31 +382,69 @@ export function WishlistPage() {
                   cardSize={state.cardSize}
                   clickable={true}
                   actions={
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className={`justify-center border-sage/20! bg-sage/10! px-2! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
-                        state.cardSize === "xsmall"
-                          ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
-                          : "min-h-10 w-10 sm:w-10"
-                      }`}
-                      disabled={movingBookIds.has(book.id)}
-                      onClick={() => void handleMoveToLibrary(book.id)}
-                      aria-label={`Move ${book.title} to library`}
-                      title={
-                        movingBookIds.has(book.id)
-                          ? "Moving..."
-                          : "Move to library"
-                      }
-                    >
-                      <span
-                        className="relative flex h-4 w-7 shrink-0 items-center justify-center"
-                        aria-hidden="true"
+                    <>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className={`justify-center px-2! ${
+                          book.mostWanted
+                            ? "border-brass/35! bg-brass/20! text-stone-900! hover:border-brass/45! hover:bg-brass/25! active:bg-brass/30!"
+                            : "border-warm-gray! bg-cream/70! text-stone-600! hover:border-brass/30! hover:bg-brass/10! active:bg-brass/15!"
+                        } ${
+                          state.cardSize === "xsmall"
+                            ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
+                            : "min-h-10 w-10 sm:w-10"
+                        }`}
+                        disabled={updatingMostWantedIds.has(book.id)}
+                        onClick={() => void handleToggleMostWanted(book.id)}
+                        aria-pressed={Boolean(book.mostWanted)}
+                        aria-label={
+                          book.mostWanted
+                            ? `Remove ${book.title} from most wanted`
+                            : `Mark ${book.title} as most wanted`
+                        }
+                        title={
+                          updatingMostWantedIds.has(book.id)
+                            ? "Updating..."
+                            : book.mostWanted
+                              ? "Most wanted"
+                              : "Mark most wanted"
+                        }
                       >
-                        <ArrowRight className="absolute left-0 h-3.5 w-3.5" />
-                        <Library className="absolute right-0 h-4 w-4" />
-                      </span>
-                    </Button>
+                        <Star
+                          className={`h-4 w-4 ${
+                            book.mostWanted ? "fill-current" : ""
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className={`justify-center border-sage/20! bg-sage/10! px-2! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
+                          state.cardSize === "xsmall"
+                            ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
+                            : "min-h-10 w-10 sm:w-10"
+                        }`}
+                        disabled={movingBookIds.has(book.id)}
+                        onClick={() => void handleMoveToLibrary(book.id)}
+                        aria-label={`Move ${book.title} to library`}
+                        title={
+                          movingBookIds.has(book.id)
+                            ? "Moving..."
+                            : "Move to library"
+                        }
+                      >
+                        <span
+                          className="relative flex h-4 w-7 shrink-0 items-center justify-center"
+                          aria-hidden="true"
+                        >
+                          <ArrowRight className="absolute left-0 h-3.5 w-3.5" />
+                          <Library className="absolute right-0 h-4 w-4" />
+                        </span>
+                      </Button>
+                    </>
                   }
                 />
               ))}
