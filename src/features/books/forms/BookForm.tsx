@@ -1,5 +1,4 @@
-import { Trash2 } from "lucide-react";
-import { Button } from "../../../ui/components/Button";
+import { Save } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
 import { BookFormTabs } from "./book-form/BookFormTabs";
 import type { BookFormProps } from "./book-form/BookForm.types";
@@ -48,7 +47,7 @@ function ReadingToggle({
 }
 
 export function BookForm(props: BookFormProps) {
-  const { isEditing, saveMessage = null, saveState = "idle", children } = props;
+  const { saveMessage = null, saveState = "idle" } = props;
   const { refs, state, actions } = useBookFormController(props);
   const {
     formRef,
@@ -65,26 +64,6 @@ export function BookForm(props: BookFormProps) {
       className="book-editor-form ds-panel-surface shadow-sm"
       onSubmit={actions.handleFormSubmit}
     >
-      <div className="book-editor-form__header">
-        <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">
-            {children}
-          </div>
-          <h2
-            id="book-form-summary"
-            className="truncate font-display text-2xl font-semibold text-stone-900"
-          >
-            {props.title.trim() || (isEditing ? "Edit Book" : "Add Book")}
-          </h2>
-          <p className="truncate text-sm text-stone-600">
-            {props.author.trim() || "Author not set"}
-          </p>
-        </div>
-        <div className="ds-chip shrink-0 border-warm-gray bg-cream px-3 py-1 text-stone-600">
-          {state.coverSourceLabel}
-        </div>
-      </div>
-
       {saveMessage ? (
         <div
           className={`book-editor-form__message rounded-lg border px-3 py-2 text-sm ${
@@ -331,24 +310,15 @@ export function BookForm(props: BookFormProps) {
         </section>
       </div>
 
-      <div className="book-editor-form__actions border-t border-warm-gray bg-cream/95 px-4 py-3 backdrop-blur">
-        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button type="submit" variant="success" disabled={saveState === "saving"}>
-            {state.submitLabel}
-          </Button>
-          <Button type="button" variant="secondary" onClick={actions.handleCancel}>
-            Cancel
-          </Button>
-          {isEditing && props.onDelete ? (
-            <Button type="button" variant="danger" onClick={props.onDelete}>
-              <span className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-                Delete Book
-              </span>
-            </Button>
-          ) : null}
-        </div>
-      </div>
+      <button
+        type="submit"
+        className="book-editor-floating-save"
+        disabled={saveState === "saving"}
+        aria-label={state.submitLabel}
+        title={state.submitLabel}
+      >
+        <Save className="h-5 w-5" aria-hidden="true" />
+      </button>
     </form>
   );
 }

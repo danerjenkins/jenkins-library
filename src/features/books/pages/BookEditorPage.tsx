@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import {
   addBook,
   clearBookSeries,
@@ -12,7 +12,6 @@ import {
 import { deleteCoverPhoto, getCoverPhotoUrl, saveCoverPhoto } from "../../../data/db";
 import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
 import { LoadingState } from "../../../ui/components/LoadingState";
-import { Button } from "../../../ui/components/Button";
 import type { Book, BookFormat } from "../lib/bookTypes";
 import { BookForm, type BookFormSaveState } from "../forms/BookForm";
 import { ManageDeleteDialog } from "../components/manage/ManageDeleteDialog";
@@ -372,13 +371,27 @@ export function BookEditorPage() {
 
   return (
     <div className="book-editor-page">
-      <div className="book-editor-page__topbar">
-        <Button type="button" variant="secondary" onClick={handleBack} className="min-h-9 px-3 py-1.5">
-          <span className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back
-          </span>
-        </Button>
+      <div className="book-editor-page__floating-controls" aria-label="Editor actions">
+        <button
+          type="button"
+          className="book-editor-page__icon-button"
+          onClick={handleBack}
+          aria-label="Back"
+          title="Back"
+        >
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+        {isEditing ? (
+          <button
+            type="button"
+            className="book-editor-page__icon-button book-editor-page__icon-button--danger"
+            onClick={() => setDeleteDialogOpen(true)}
+            aria-label="Delete book"
+            title="Delete book"
+          >
+            <Trash2 className="h-5 w-5" aria-hidden="true" />
+          </button>
+        ) : null}
       </div>
 
       <BookForm
@@ -429,7 +442,6 @@ export function BookEditorPage() {
         }}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        onDelete={isEditing ? () => setDeleteDialogOpen(true) : undefined}
       >
         {formIsDirty
           ? isEditing

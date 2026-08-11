@@ -159,8 +159,7 @@ export function useBookFormController(props: BookFormProps) {
         ? "Open Library suggestion"
         : "Cover URL"
       : "No cover selected";
-  const submitLabel =
-    saveState === "saving" ? "Saving..." : isEditing ? "Update Book" : "Add Book";
+  const submitLabel = saveState === "saving" ? "Saving..." : "Save Book";
 
   const resetFormBaseline = useCallback(() => {
     baselineSnapshotRef.current = currentSnapshot;

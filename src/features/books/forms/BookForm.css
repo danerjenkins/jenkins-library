@@ -1,34 +1,69 @@
 .book-editor-page {
-  display: grid;
-  gap: 0.75rem;
+  display: block;
 }
 
-.book-editor-page__topbar {
-  display: flex;
+.book-editor-page__floating-controls {
+  position: fixed;
+  top: calc(6.25rem + env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 45;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.book-editor-page__icon-button,
+.book-editor-floating-save {
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  border: 1px solid rgba(79, 101, 71, 0.32);
+  border-radius: 999px;
+  background: rgba(251, 247, 239, 0.96);
+  color: var(--color-charcoal);
+  box-shadow:
+    0 12px 28px rgba(60, 51, 40, 0.16),
+    0 0 0 1px rgba(184, 138, 69, 0.12);
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 120ms ease;
+}
+
+.book-editor-page__icon-button:hover,
+.book-editor-floating-save:hover {
+  border-color: rgba(79, 101, 71, 0.5);
+  background: #ffffff;
+  color: var(--color-sage-dark);
+}
+
+.book-editor-page__icon-button:active,
+.book-editor-floating-save:active {
+  transform: translateY(1px);
+}
+
+.book-editor-page__icon-button--danger {
+  border-color: rgba(190, 18, 60, 0.28);
+  color: #be123c;
+}
+
+.book-editor-page__icon-button--danger:hover {
+  border-color: rgba(190, 18, 60, 0.5);
+  color: #9f1239;
 }
 
 .book-editor-form {
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0.75rem;
-  height: min(100%, calc(100dvh - 8.5rem));
+  height: min(100%, calc(100dvh - 6.25rem));
   min-height: 34rem;
   padding: 1rem;
   overflow: hidden;
-}
-
-.book-editor-form__header {
-  display: flex;
-  min-width: 0;
-  align-items: start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-radius: 0.85rem;
-  background: rgba(247, 240, 228, 0.72);
-  padding: 0.85rem;
 }
 
 .book-editor-form__message {
@@ -82,13 +117,30 @@
   min-height: 18rem;
 }
 
-.book-editor-form__actions {
-  margin: 0 -1rem -1rem;
+.book-editor-floating-save {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 45;
+  border-color: rgba(79, 101, 71, 0.4);
+  background-color: var(--color-sage);
+  color: #ffffff;
+}
+
+.book-editor-floating-save:hover {
+  border-color: var(--color-sage-dark);
+  background-color: var(--color-sage-dark);
+  color: #ffffff;
+}
+
+.book-editor-floating-save:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 @media (min-width: 768px) {
   .book-editor-form {
-    height: min(100%, calc(100dvh - 10rem));
+    height: min(100%, calc(100dvh - 7.5rem));
     min-height: 38rem;
     padding: 1.15rem;
   }
@@ -112,23 +164,22 @@
 }
 
 @media (max-width: 720px) {
-  .book-editor-page {
-    gap: 0.55rem;
+  .book-editor-page__floating-controls {
+    top: calc(5rem + env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+  .book-editor-page__icon-button,
+  .book-editor-floating-save {
+    width: 2.85rem;
+    height: 2.85rem;
   }
 
   .book-editor-form {
-    height: calc(100dvh - 10.5rem - env(safe-area-inset-bottom));
+    height: calc(100dvh - 8rem - env(safe-area-inset-bottom));
     min-height: 0;
     border-radius: 1rem;
     padding: 0.75rem;
-  }
-
-  .book-editor-form__header {
-    padding: 0.7rem;
-  }
-
-  .book-editor-form__header .ds-chip {
-    display: none;
   }
 
   .book-editor-form__panel {
@@ -139,23 +190,15 @@
     min-height: 18rem;
   }
 
-  .book-editor-form__actions {
-    margin: 0 -0.75rem -0.75rem;
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  .book-editor-floating-save {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: calc(5.35rem + env(safe-area-inset-bottom));
   }
 }
 
 @media (max-width: 420px) {
   .book-editor-form {
     gap: 0.55rem;
-    height: calc(100dvh - 9.65rem - env(safe-area-inset-bottom));
-  }
-
-  .book-editor-form__header {
-    padding-block: 0.55rem;
-  }
-
-  .book-editor-form__header h2 {
-    font-size: 1.25rem;
+    height: calc(100dvh - 7.25rem - env(safe-area-inset-bottom));
   }
 }
