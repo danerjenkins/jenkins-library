@@ -141,6 +141,13 @@
   color: #9f1239;
 }
 
+.book-editor-cover-camera-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
 @media (min-width: 768px) {
   .book-editor-form {
     height: auto;

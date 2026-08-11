@@ -92,7 +92,9 @@ export function useBookFormController(props: BookFormProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(coverUrl || null);
-  const [activeSection, setActiveSection] = useState<BookFormSection>("basics");
+  const [activeSection, setActiveSection] = useState<BookFormSection>(
+    props.initialSection ?? "basics",
+  );
   const [showAdvancedFields, setShowAdvancedFields] = useState(isEditing);
   const [showValidation, setShowValidation] = useState(false);
   const [authorWasAutofilled, setAuthorWasAutofilled] = useState(false);

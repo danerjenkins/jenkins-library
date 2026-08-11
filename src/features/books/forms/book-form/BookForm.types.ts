@@ -27,6 +27,7 @@ export interface BookFormProps {
   saveMessage?: string | null;
   saveSignal?: number | string | null;
   formInstanceKey?: string | null;
+  initialSection?: BookFormSection;
   onDirtyChange?: (isDirty: boolean) => void;
   unsavedChangesMessage?: string;
   onCoverPhotoFileChange: (e: ChangeEvent<HTMLInputElement>) => void;

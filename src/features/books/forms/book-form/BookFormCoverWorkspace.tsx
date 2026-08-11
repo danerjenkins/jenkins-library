@@ -57,7 +57,7 @@ export function BookFormCoverWorkspace({
               aria-label={coverPhotoUrl ? "Replace cover photo" : "Take cover photo"}
               title={coverPhotoUrl ? "Replace cover photo" : "Take cover photo"}
             >
-              <Camera className="h-8 w-8" strokeWidth={2.5} aria-hidden="true" />
+              <Camera className="book-editor-cover-camera-icon" strokeWidth={2.75} aria-hidden="true" />
             </button>
           ) : null}
 

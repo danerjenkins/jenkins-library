@@ -1,4 +1,4 @@
-import { Edit } from "lucide-react";
+import { Camera, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../../ui/components/Badge";
 import { Button } from "../../../ui/components/Button";
@@ -47,6 +47,7 @@ export function BookDetailContent({
   onAddToReadingList: (readerId: ReaderId) => void;
 }) {
   const editBookPath = `/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`;
+  const editCoverPath = `${editBookPath}&section=cover`;
 
   return (
     <div className="space-y-6">
@@ -77,6 +78,14 @@ export function BookDetailContent({
                 </span>
               </div>
             )}
+            <Link
+              to={editCoverPath}
+              className="book-detail-cover__edit-cover"
+              aria-label={`Edit cover for ${book.title}`}
+              title="Edit cover"
+            >
+              <Camera className="book-detail-cover__edit-cover-icon" strokeWidth={2.75} aria-hidden="true" />
+            </Link>
           </div>
 
           <div className="book-detail-content space-y-4 md:col-span-2">

@@ -14,6 +14,7 @@ import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book, BookFormat } from "../lib/bookTypes";
 import { BookForm, type BookFormSaveState } from "../forms/BookForm";
+import type { BookFormSection } from "../forms/book-form/BookForm.types";
 import { ManageDeleteDialog } from "../components/manage/ManageDeleteDialog";
 
 function resolveErrorMessage(error: unknown) {
@@ -30,6 +31,14 @@ function resolveReturnTo(value: string | null, fallback: string) {
   return value;
 }
 
+function resolveInitialSection(value: string | null): BookFormSection | undefined {
+  if (value === "cover" || value === "summary" || value === "metadata" || value === "basics") {
+    return value;
+  }
+
+  return undefined;
+}
+
 export function BookEditorPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -39,6 +48,7 @@ export function BookEditorPage() {
   const isEditing = Boolean(id);
   const fallbackReturnPath = isEditing && id ? `/book/${id}` : "/admin";
   const returnTo = resolveReturnTo(searchParams.get("returnTo"), fallbackReturnPath);
+  const initialSection = resolveInitialSection(searchParams.get("section"));
 
   const [loading, setLoading] = useState(isEditing);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -407,6 +417,7 @@ export function BookEditorPage() {
         saveMessage={saveMessage}
         saveSignal={saveSignal}
         formInstanceKey={formInstanceKey}
+        initialSection={initialSection}
         onDirtyChange={setFormIsDirty}
         onCoverPhotoFileChange={handleCoverPhotoCapture}
         onCoverPhotoPick={handlePickCoverPhoto}
