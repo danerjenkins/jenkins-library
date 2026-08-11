@@ -47,58 +47,58 @@ export function BookFormCoverWorkspace({
 }) {
   return (
     <div className="space-y-4">
-      <aside className="space-y-3 rounded-lg bg-cream/70 p-3 sm:border sm:border-warm-gray">
-        <h3 className="text-sm font-semibold text-stone-700">Cover Preview</h3>
-        <div className="flex items-start gap-3">
-          {hasLocalPhoto ? (
-            <img
-              src={coverPhotoUrl ?? undefined}
-              alt="Local cover preview"
-              width={72}
-              height={108}
-              className="h-[108px] w-[72px] rounded-md object-cover shadow-sm"
-            />
-          ) : hasRemoteCover ? (
-            <img
-              src={coverUrl}
-              alt="Cover preview"
-              width={72}
-              height={108}
-              loading="lazy"
-              className="h-[108px] w-[72px] rounded-md object-cover shadow-sm"
-              onError={(event) => {
-                (event.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-          ) : (
-            <div className="flex h-[108px] w-[72px] items-center justify-center rounded-md border border-dashed border-warm-gray bg-parchment text-center text-[11px] font-medium text-stone-400">
-              No cover
-            </div>
-          )}
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">Source</div>
-            <div className="text-sm font-medium text-stone-700">{coverSourceLabel}</div>
-            {hasRemoteCover ? (
-              <button
-                type="button"
-                onClick={() => onCoverUrlChange("")}
-                className="text-xs font-medium text-stone-600 underline transition-colors touch-manipulation hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
-              >
-                Clear remote cover
-              </button>
-            ) : null}
-            {!hasRemoteCover && !hasLocalPhoto ? (
-              <p className="text-xs text-stone-500">
-                Add a URL, choose a suggestion, or save first to attach a local photo.
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </aside>
+      <div className="grid gap-3 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1fr)]">
+        <section className="space-y-3 rounded-lg border border-warm-gray bg-parchment p-3">
+          <div className="flex items-start gap-3">
+            {hasLocalPhoto ? (
+              <img
+                src={coverPhotoUrl ?? undefined}
+                alt="Local cover preview"
+                width={72}
+                height={108}
+                className="h-[108px] w-[72px] rounded-md object-cover shadow-sm"
+              />
+            ) : hasRemoteCover ? (
+              <img
+                src={coverUrl}
+                alt="Cover preview"
+                width={72}
+                height={108}
+                loading="lazy"
+                className="h-[108px] w-[72px] rounded-md object-cover shadow-sm"
+                onError={(event) => {
+                  (event.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <div className="flex h-[108px] w-[72px] items-center justify-center rounded-md border border-dashed border-warm-gray bg-cream text-center text-[11px] font-medium text-stone-400">
+                No cover
+              </div>
+            )}
 
-      <div className="rounded-lg bg-cream/70 p-3 sm:border sm:border-warm-gray">
-        <div className="mt-3 grid gap-3 lg:grid-cols-3">
-          <div className="rounded-lg border border-warm-gray bg-parchment p-3">
+            <div className="min-w-0 flex-1 space-y-3">
+              <div>
+                <div className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">Cover</div>
+                <div className="mt-0.5 text-sm font-medium text-stone-700">{coverSourceLabel}</div>
+                {hasRemoteCover ? (
+                  <button
+                    type="button"
+                    onClick={() => onCoverUrlChange("")}
+                    className="mt-1 text-xs font-medium text-stone-600 underline transition-colors touch-manipulation hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300"
+                  >
+                    Clear remote cover
+                  </button>
+                ) : null}
+                {!hasRemoteCover && !hasLocalPhoto ? (
+                  <p className="mt-1 text-xs text-stone-500">
+                    Add a URL, choose a suggestion, or save first to attach a local photo.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <div>
             <Input
               id="coverUrl"
               name="coverUrl"
@@ -124,7 +124,9 @@ export function BookFormCoverWorkspace({
               </a>
             ) : null}
           </div>
+        </section>
 
+        <div className="grid gap-3">
           <div className="rounded-lg border border-warm-gray bg-parchment p-3">
             <h4 className="text-sm font-semibold text-stone-700">Open Library</h4>
             <p className="mt-1 text-xs text-stone-500">Suggestions appear after title and author are filled in.</p>
