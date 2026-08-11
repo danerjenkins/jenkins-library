@@ -20,6 +20,16 @@ export interface TitleSuggestion {
   subjects?: string[];
 }
 
+export interface IsbnLookupDetails {
+  key: string;
+  title?: string;
+  author?: string;
+  isbn?: string;
+  coverUrl?: string;
+  subjects?: string[];
+  pages?: number;
+}
+
 interface OpenLibrarySearchDoc {
   key: string;
   title: string;
@@ -31,11 +41,35 @@ interface OpenLibrarySearchDoc {
   first_publish_year?: number;
   subject?: string[];
   subject_facet?: string[];
+  number_of_pages_median?: number;
 }
 
 interface OpenLibrarySearchResponse {
   docs: OpenLibrarySearchDoc[];
   numFound: number;
+}
+
+function chooseBestIsbn(isbns?: string[]) {
+  if (!isbns || isbns.length === 0) {
+    return undefined;
+  }
+
+  const isbn13 = isbns.find((isbn) => isbn.length === 13);
+  return isbn13 || isbns[0];
+}
+
+function buildCoverUrl(doc: OpenLibrarySearchDoc, size: "S" | "M") {
+  if (doc.cover_i) {
+    return `https://covers.openlibrary.org/b/id/${doc.cover_i}-${size}.jpg`;
+  }
+  const isbn = chooseBestIsbn(doc.isbn);
+  if (isbn) {
+    return `https://covers.openlibrary.org/b/isbn/${isbn}-${size}.jpg`;
+  }
+  if (doc.cover_edition_key) {
+    return `https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-${size}.jpg`;
+  }
+  return undefined;
 }
 
 /**
@@ -125,20 +159,7 @@ export async function searchCoverCandidates(params: {
     const seenUrls = new Set<string>();
 
     for (const { doc } of scoredDocs) {
-      let coverUrl: string | null = null;
-
-      // Prefer cover_i (most reliable)
-      if (doc.cover_i) {
-        coverUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-      }
-      // Fallback to ISBN if available
-      else if (doc.isbn && doc.isbn.length > 0) {
-        coverUrl = `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-M.jpg`;
-      }
-      // Fallback to OLID if available
-      else if (doc.cover_edition_key) {
-        coverUrl = `https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-M.jpg`;
-      }
+      const coverUrl = buildCoverUrl(doc, "M");
 
       // Only include if we have a cover URL and haven't seen it before
       if (coverUrl && !seenUrls.has(coverUrl)) {
@@ -160,6 +181,56 @@ export async function searchCoverCandidates(params: {
     return candidates;
   } catch (error) {
     console.error("Failed to search Open Library:", error);
+    throw error;
+  }
+}
+
+/**
+ * Look up the most likely book details for an ISBN.
+ */
+export async function lookupBookByIsbn(isbn: string): Promise<IsbnLookupDetails | null> {
+  const normalizedIsbn = isbn.replace(/[^\dXx]/g, "");
+  if (normalizedIsbn.length < 10) {
+    return null;
+  }
+
+  try {
+    const searchParams = new URLSearchParams();
+    searchParams.set("isbn", normalizedIsbn);
+    searchParams.set("limit", "1");
+
+    const url = `https://openlibrary.org/search.json?${searchParams.toString()}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Open Library API returned ${response.status}`);
+    }
+
+    const data: OpenLibrarySearchResponse = await response.json();
+    const doc = data.docs[0];
+    if (!doc) {
+      return null;
+    }
+
+    const subjects = (doc.subject || doc.subject_facet || [])
+      .filter((subject) => typeof subject === "string")
+      .slice(0, 10);
+    const pages =
+      typeof doc.number_of_pages_median === "number" && doc.number_of_pages_median > 0
+        ? Math.round(doc.number_of_pages_median)
+        : undefined;
+
+    return {
+      key: doc.key,
+      title: doc.title,
+      author: doc.author_name?.[0],
+      isbn: chooseBestIsbn(doc.isbn) || normalizedIsbn,
+      coverUrl: buildCoverUrl(doc, "M"),
+      subjects: subjects.length > 0 ? subjects : undefined,
+      pages,
+    };
+  } catch (error) {
+    console.error("Failed to look up ISBN from Open Library:", error);
     throw error;
   }
 }
@@ -291,18 +362,8 @@ export async function searchTitleSuggestions(
       const normalizedAuthor = author ? normalize(author) : "";
       const dedupKey = `${normalizedTitle}|${normalizedAuthor}`;
 
-      // Choose best ISBN (prefer 13-digit, else first)
-      let isbn: string | undefined;
-      if (doc.isbn && doc.isbn.length > 0) {
-        const isbn13 = doc.isbn.find((i) => i.length === 13);
-        isbn = isbn13 || doc.isbn[0];
-      }
-
-      // Derive cover URL if cover_i exists
-      let coverUrl: string | undefined;
-      if (doc.cover_i) {
-        coverUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg`;
-      }
+      const isbn = chooseBestIsbn(doc.isbn);
+      const coverUrl = buildCoverUrl(doc, "S");
 
       const subjects = (doc.subject || doc.subject_facet || [])
         .filter((s) => typeof s === "string")

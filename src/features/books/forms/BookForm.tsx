@@ -1,5 +1,8 @@
-import { Save, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ScanLine, Save, Trash2 } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
+import { IsbnScannerModal } from "../components/IsbnScannerModal";
+import { canUseMobileIsbnScanner } from "../lib/isbnScanner";
 import { BookFormTabs } from "./book-form/BookFormTabs";
 import type { BookFormProps } from "./book-form/BookForm.types";
 import type { BookFormat } from "../lib/bookTypes";
@@ -49,6 +52,8 @@ function ReadingToggle({
 export function BookForm(props: BookFormProps) {
   const { saveMessage = null, saveState = "idle" } = props;
   const { refs, state, actions } = useBookFormController(props);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [canScanIsbn] = useState(canUseMobileIsbnScanner);
   const {
     formRef,
     basicsSectionRef,
@@ -268,17 +273,56 @@ export function BookForm(props: BookFormProps) {
                 ))}
               </select>
             </div>
-            <Input
-              id="isbn"
-              name="isbn"
-              label="ISBN"
-              type="text"
-              value={props.isbn}
-              onChange={(event) => props.onIsbnChange(event.target.value)}
-              placeholder="9780547928227..."
-              autoComplete="off"
-              spellCheck={false}
-            />
+            <div>
+              <label htmlFor="isbn" className="mb-1 block text-sm font-medium text-stone-700">
+                ISBN
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="isbn"
+                  name="isbn"
+                  type="text"
+                  value={props.isbn}
+                  onChange={(event) => actions.handleIsbnInput(event.target.value)}
+                  className={fieldClassName}
+                  placeholder="9780547928227..."
+                  autoComplete="off"
+                  spellCheck={false}
+                  inputMode="numeric"
+                />
+                {canScanIsbn ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsScannerOpen(true)}
+                    className="ds-button ds-button--secondary h-10 w-10 shrink-0 px-0"
+                    aria-label="Scan ISBN"
+                    title="Scan ISBN"
+                  >
+                    <ScanLine className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void actions.handleIsbnLookup()}
+                  disabled={state.isbnLookupState === "loading" || props.isbn.trim().length < 10}
+                  className="text-xs font-medium text-stone-600 underline transition-colors touch-manipulation hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 disabled:cursor-not-allowed disabled:text-stone-400 disabled:no-underline"
+                >
+                  {state.isbnLookupState === "loading" ? "Looking up..." : "Look up details"}
+                </button>
+                {state.isbnLookupMessage ? (
+                  <span
+                    className={`text-xs ${
+                      state.isbnLookupState === "error" ? "text-rose-600" : "text-stone-500"
+                    }`}
+                    aria-live="polite"
+                  >
+                    {state.isbnLookupMessage}
+                  </span>
+                ) : null}
+              </div>
+            </div>
             <div>
               <label htmlFor="pages" className="mb-1 block text-sm font-medium text-stone-700">
                 Pages
@@ -332,6 +376,12 @@ export function BookForm(props: BookFormProps) {
           <Save className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
+
+      <IsbnScannerModal
+        open={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onDetected={actions.handleIsbnScanDetected}
+      />
     </form>
   );
 }

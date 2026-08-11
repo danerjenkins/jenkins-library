@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   guessAuthorByTitle,
+  lookupBookByIsbn,
   predictGenreFromSubjects,
   searchCoverCandidates,
   searchTitleSuggestions,
@@ -46,6 +47,7 @@ export function useBookFormController(props: BookFormProps) {
     onGenreChange,
     onIsbnChange,
     onCoverUrlChange,
+    onPagesChange,
     onCancel,
     onSubmit,
   } = props;
@@ -100,6 +102,10 @@ export function useBookFormController(props: BookFormProps) {
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [titleWasEdited, setTitleWasEdited] = useState(false);
+  const [isbnLookupState, setIsbnLookupState] = useState<"idle" | "loading" | "success" | "error">(
+    "idle",
+  );
+  const [isbnLookupMessage, setIsbnLookupMessage] = useState<string | null>(null);
 
   const currentSnapshot = useMemo(
     () =>
@@ -186,6 +192,8 @@ export function useBookFormController(props: BookFormProps) {
     setAuthorWasAutofilled(false);
     setGenreWasAutofilled(false);
     setTitleWasEdited(false);
+    setIsbnLookupState("idle");
+    setIsbnLookupMessage(null);
     setUserHasEditedAuthor(Boolean(latestSessionState.author.trim()));
   }, [formInstanceKey, isEditing]);
 
@@ -362,6 +370,15 @@ export function useBookFormController(props: BookFormProps) {
     [genre, genreWasAutofilled, onGenreChange],
   );
 
+  const handleIsbnInput = useCallback(
+    (value: string) => {
+      onIsbnChange(value);
+      setIsbnLookupState("idle");
+      setIsbnLookupMessage(null);
+    },
+    [onIsbnChange],
+  );
+
   const handleClearAuthor = useCallback(() => {
     onAuthorChange("");
     setAuthorWasAutofilled(false);
@@ -445,6 +462,95 @@ export function useBookFormController(props: BookFormProps) {
       setShowSuggestions(false);
     },
     [onAuthorChange, onGenreChange, onIsbnChange, onTitleChange],
+  );
+
+  const handleIsbnLookup = useCallback(
+    async (sourceIsbn?: string) => {
+      const lookupIsbn = (sourceIsbn ?? isbn).replace(/[^\dXx]/g, "");
+      if (lookupIsbn.length < 10) {
+        setIsbnLookupState("error");
+        setIsbnLookupMessage("Enter a valid ISBN before looking up details.");
+        return;
+      }
+
+      setIsbnLookupState("loading");
+      setIsbnLookupMessage("Looking up details...");
+
+      try {
+        const details = await lookupBookByIsbn(lookupIsbn);
+        if (!details) {
+          setIsbnLookupState("error");
+          setIsbnLookupMessage("No Open Library match found for this ISBN.");
+          return;
+        }
+
+        const appliedFields: string[] = [];
+        if (!title.trim() && details.title) {
+          onTitleChange(details.title);
+          appliedFields.push("title");
+        }
+        if (!author.trim() && details.author) {
+          onAuthorChange(details.author);
+          setAuthorWasAutofilled(true);
+          setUserHasEditedAuthor(false);
+          appliedFields.push("author");
+        }
+        if (!isbn.trim() && details.isbn) {
+          onIsbnChange(details.isbn);
+        }
+        if (!genre.trim() && details.subjects) {
+          const predictedGenre = predictGenreFromSubjects(details.subjects);
+          if (predictedGenre) {
+            onGenreChange(predictedGenre);
+            setGenreWasAutofilled(true);
+            appliedFields.push("genre");
+          }
+        }
+        if (!coverUrl.trim() && details.coverUrl) {
+          onCoverUrlChange(details.coverUrl);
+          setSelectedCoverUrl(details.coverUrl);
+          appliedFields.push("cover");
+        }
+        if (!pages.trim() && details.pages) {
+          onPagesChange(String(details.pages));
+          appliedFields.push("pages");
+        }
+
+        setIsbnLookupState("success");
+        setIsbnLookupMessage(
+          appliedFields.length > 0
+            ? `Added ${appliedFields.join(", ")} from Open Library. Verify before saving.`
+            : "Found details, but your existing fields were kept.",
+        );
+      } catch {
+        setIsbnLookupState("error");
+        setIsbnLookupMessage("ISBN lookup failed. Try again in a moment.");
+      }
+    },
+    [
+      author,
+      coverUrl,
+      genre,
+      isbn,
+      onAuthorChange,
+      onCoverUrlChange,
+      onGenreChange,
+      onIsbnChange,
+      onPagesChange,
+      onTitleChange,
+      pages,
+      title,
+    ],
+  );
+
+  const handleIsbnScanDetected = useCallback(
+    (value: string) => {
+      const normalizedIsbn = value.replace(/[^\dXx]/g, "");
+      const nextIsbn = normalizedIsbn || value;
+      onIsbnChange(nextIsbn);
+      void handleIsbnLookup(nextIsbn);
+    },
+    [handleIsbnLookup, onIsbnChange],
   );
 
   useEffect(() => {
@@ -567,6 +673,8 @@ export function useBookFormController(props: BookFormProps) {
       authorError,
       authorWasAutofilled,
       genreWasAutofilled,
+      isbnLookupState,
+      isbnLookupMessage,
       isSearching,
       searchError,
       coverCandidates,
@@ -589,6 +697,9 @@ export function useBookFormController(props: BookFormProps) {
       handleAuthorBlur,
       handleClearAuthor,
       handleGenreInput,
+      handleIsbnInput,
+      handleIsbnLookup,
+      handleIsbnScanDetected,
       handleCoverSelect,
       handleSuggestionSelect,
       toggleAdvancedDetails,
