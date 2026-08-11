@@ -9,8 +9,10 @@ import {
 } from "../sections/SeriesPageSections";
 import { getScrollBehavior } from "../hooks/discoveryBrowseShared";
 import { useSeriesBrowse } from "../hooks/useSeriesBrowse";
+import { useAuth } from "../../../app/auth/useAuth";
 
 export function SeriesPage() {
+  const { canEdit } = useAuth();
   const { state, actions, helpers } = useSeriesBrowse();
   const location = useLocation();
 
@@ -81,6 +83,7 @@ export function SeriesPage() {
           onStepCarousel={actions.handleStepCarousel}
           onClearFilters={actions.handleClearFilters}
           getSeriesProgressLabel={helpers.getSeriesProgressLabel}
+          canEdit={canEdit}
         />
       </PageLayout>
     </div>

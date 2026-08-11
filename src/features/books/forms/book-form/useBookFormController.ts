@@ -158,10 +158,10 @@ export function useBookFormController(props: BookFormProps) {
     showValidation && !author.trim() ? "Add an author before you save this book." : null;
   const hasMeaningfulChanges =
     serializeBookFormSnapshot(baselineSnapshotRef.current) !== currentSnapshotKey;
-  const hasRemoteCover = Boolean(coverUrl.trim());
   const hasLocalPhoto = Boolean(coverPhotoUrl);
+  const hasRemoteCover = Boolean(coverUrl.trim()) && !hasLocalPhoto;
   const coverSourceLabel = hasLocalPhoto
-    ? "Local photo"
+    ? "Cover photo"
     : hasRemoteCover
       ? coverCandidates.some((candidate) => candidate.coverUrl === coverUrl)
         ? "Open Library suggestion"

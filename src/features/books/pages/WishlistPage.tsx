@@ -37,6 +37,7 @@ import {
   type WishlistReadFilter,
 } from "../hooks/useWishlistPageState";
 import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
+import { useAuth } from "../../../app/auth/useAuth";
 
 const readStatusByFilter = {
   NEITHER: "neither",
@@ -86,6 +87,7 @@ function restoreScrollAfterSort(scrollX: number, scrollY: number) {
 
 export function WishlistPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { canEdit } = useAuth();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [movingBookIds, setMovingBookIds] = useState<Set<string>>(new Set());
   const [updatingMostWantedIds, setUpdatingMostWantedIds] = useState<
@@ -150,6 +152,8 @@ export function WishlistPage() {
 
   const handleMoveToLibrary = useCallback(
     async (bookId: string) => {
+      if (!canEdit) return;
+
       const bookToMove = books.find((book) => book.id === bookId);
       if (!bookToMove) return;
 
@@ -180,11 +184,13 @@ export function WishlistPage() {
         });
       }
     },
-    [books, setBooks],
+    [books, canEdit, setBooks],
   );
 
   const handleToggleMostWanted = useCallback(
     async (bookId: string) => {
+      if (!canEdit) return;
+
       const bookToUpdate = books.find((book) => book.id === bookId);
       if (!bookToUpdate) return;
 
@@ -225,7 +231,7 @@ export function WishlistPage() {
         });
       }
     },
-    [books, setBooks],
+    [books, canEdit, setBooks],
   );
 
   return (
@@ -357,14 +363,14 @@ export function WishlistPage() {
             <BookShelfState
               title="No Wishlist Books Yet"
               description="Add the first book you want to track so your wishlist has somewhere to start."
-              action={
+              action={canEdit ? (
                 <Link
                   to="/book/new?ownership=wishlist&returnTo=%2Fwishlist"
                   className={actionLinkClasses}
                 >
                   Add Wishlist Book
                 </Link>
-              }
+              ) : undefined}
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState
@@ -390,7 +396,7 @@ export function WishlistPage() {
                   variant="view"
                   cardSize={state.cardSize}
                   clickable={true}
-                  actions={
+                  actions={canEdit ? (
                     <>
                       <Button
                         type="button"
@@ -457,7 +463,7 @@ export function WishlistPage() {
                         </span>
                       </Button>
                     </>
-                  }
+                  ) : undefined}
                 />
               ))}
             </BookGrid>

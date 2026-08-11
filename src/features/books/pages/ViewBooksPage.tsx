@@ -33,6 +33,7 @@ import {
 } from "../hooks/useViewBooksPageState";
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
+import { useAuth } from "../../../app/auth/useAuth";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   if (sortBy === "series") {
@@ -90,6 +91,7 @@ function getShelfLabel(ownershipFilter: OwnershipFilter) {
 
 export function ViewBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { canEdit } = useAuth();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const { books, loading } = useMergedShelfBooks();
   const { state, updateState, clearFilters, hasActiveFilters } =
@@ -331,7 +333,7 @@ export function ViewBooksPage() {
                     ? "Start building your shelves by adding books to the library or wishlist."
                     : "Start building your library by adding your first owned book."
               }
-              action={
+              action={canEdit ? (
                 <Link
                   to={
                     state.ownershipFilter === "wishlist"
@@ -344,7 +346,7 @@ export function ViewBooksPage() {
                     ? "Add Wishlist Book"
                     : "Add Book"}
                 </Link>
-              }
+              ) : undefined}
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState

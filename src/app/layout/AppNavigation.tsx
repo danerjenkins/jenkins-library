@@ -10,6 +10,8 @@ import {
   MoreHorizontal,
   Plus,
   Search,
+  LogIn,
+  LogOut,
   Settings,
   Sparkles,
 } from "lucide-react";
@@ -30,6 +32,10 @@ const secondaryNavItems = [
   { to: "/stats", label: "Stats", Icon: BarChart3 },
 ] as const;
 
+function canShowNavItem(to: string, canEdit: boolean) {
+  return canEdit || (to !== "/admin" && to !== "/reading-list");
+}
+
 type NavIcon = ComponentType<{
   className?: string;
   size?: number;
@@ -40,7 +46,15 @@ interface AppNavigationProps {
   addBookPath: string;
 }
 
-export function AppNavigation() {
+export function AppNavigation({
+  canEdit,
+  userEmail,
+  onSignOut,
+}: {
+  canEdit: boolean;
+  userEmail: string | null;
+  onSignOut: () => void;
+}) {
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
@@ -113,9 +127,11 @@ export function AppNavigation() {
   return (
     <div className="app-header__navs">
       <nav className="app-nav" aria-label="Primary navigation">
-        {primaryNavItems.map(({ to, label, Icon }) =>
-          renderNavLink(to, label, Icon, "app-nav__link"),
-        )}
+        {primaryNavItems
+          .filter(({ to }) => canShowNavItem(to, canEdit))
+          .map(({ to, label, Icon }) =>
+            renderNavLink(to, label, Icon, "app-nav__link"),
+          )}
         <div className="app-more-nav" ref={desktopMoreRef}>
           <button
             type="button"
@@ -144,25 +160,43 @@ export function AppNavigation() {
             >
               <div className="app-more-nav__title">Extra pages</div>
               <nav className="app-more-nav__links" aria-label="Extra pages">
-                {secondaryNavItems.map(({ to, label, Icon }) =>
-                  renderNavLink(
-                    to,
-                    label,
-                    Icon,
-                    "app-more-nav__link",
-                    () => setMoreOpen(false),
-                  ),
-                )}
+                {secondaryNavItems
+                  .filter(({ to }) => canShowNavItem(to, canEdit))
+                  .map(({ to, label, Icon }) =>
+                    renderNavLink(
+                      to,
+                      label,
+                      Icon,
+                      "app-more-nav__link",
+                      () => setMoreOpen(false),
+                    ),
+                  )}
               </nav>
             </div>
           ) : null}
         </div>
+        {canEdit ? (
+          <button
+            type="button"
+            className="app-nav__link app-nav__link--auth"
+            onClick={onSignOut}
+            title={userEmail ? `Sign out ${userEmail}` : "Sign out"}
+          >
+            <LogOut className="app-nav__icon" aria-hidden={true} size={18} />
+            <span className="app-nav__label">Sign Out</span>
+          </button>
+        ) : (
+          <Link to="/login" className="app-nav__link app-nav__link--auth">
+            <LogIn className="app-nav__icon" aria-hidden={true} size={18} />
+            <span className="app-nav__label">Sign In</span>
+          </Link>
+        )}
       </nav>
     </div>
   );
 }
 
-export function MobileAppNavigation({ addBookPath }: AppNavigationProps) {
+export function MobileAppNavigation({ addBookPath, canEdit }: AppNavigationProps & { canEdit: boolean }) {
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const mobileMoreRef = useRef<HTMLDivElement | null>(null);
@@ -234,7 +268,9 @@ export function MobileAppNavigation({ addBookPath }: AppNavigationProps) {
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-      {primaryNavItems.map(({ to, label, Icon }) =>
+      {primaryNavItems
+        .filter(({ to }) => canShowNavItem(to, canEdit))
+        .map(({ to, label, Icon }) =>
         renderNavLink(to, label, Icon, "mobile-bottom-nav__link"),
       )}
       <div className="mobile-bottom-nav__more-shell" ref={mobileMoreRef}>
@@ -265,23 +301,32 @@ export function MobileAppNavigation({ addBookPath }: AppNavigationProps) {
           >
             <div className="app-more-nav__title">Extra pages</div>
             <nav className="app-more-nav__links" aria-label="Extra pages">
-              {secondaryNavItems.map(({ to, label, Icon }) =>
-                renderNavLink(
-                  to,
-                  label,
-                  Icon,
-                  "app-more-nav__link",
-                  () => setMoreOpen(false),
-                ),
-              )}
+              {secondaryNavItems
+                .filter(({ to }) => canShowNavItem(to, canEdit))
+                .map(({ to, label, Icon }) =>
+                  renderNavLink(
+                    to,
+                    label,
+                    Icon,
+                    "app-more-nav__link",
+                    () => setMoreOpen(false),
+                  ),
+                )}
             </nav>
           </div>
         ) : null}
       </div>
-      <Link to={addBookPath} className="mobile-bottom-nav__add">
-        <Plus aria-hidden="true" size={22} />
-        <span className="app-nav__label">Add</span>
-      </Link>
+      {canEdit ? (
+        <Link to={addBookPath} className="mobile-bottom-nav__add">
+          <Plus aria-hidden="true" size={22} />
+          <span className="app-nav__label">Add</span>
+        </Link>
+      ) : (
+        <Link to="/login" className="mobile-bottom-nav__add">
+          <LogIn aria-hidden="true" size={22} />
+          <span className="app-nav__label">Sign In</span>
+        </Link>
+      )}
     </nav>
   );
 }

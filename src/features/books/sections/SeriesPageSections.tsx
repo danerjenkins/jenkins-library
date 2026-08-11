@@ -287,6 +287,7 @@ export function SeriesResultsSection({
   onStepCarousel,
   onClearFilters,
   getSeriesProgressLabel,
+  canEdit,
 }: {
   loading: boolean;
   parentSeriesGroups: SeriesGroup[];
@@ -299,6 +300,7 @@ export function SeriesResultsSection({
   onStepCarousel: (key: string, direction: "backward" | "forward") => void;
   onClearFilters: () => void;
   getSeriesProgressLabel: (books: SeriesGroup["books"]) => string;
+  canEdit: boolean;
 }) {
   const allGroups = sortSeriesGroupsByBookCount([
     ...filteredParentSeries,
@@ -324,11 +326,11 @@ export function SeriesResultsSection({
               ? `${standaloneCount} standalone ${standaloneCount === 1 ? "book is" : "books are"} already in the catalog, but nothing is grouped into a series yet.`
               : "Assign books to a series in Manage to start browsing by reading order."
           }
-          action={
+          action={canEdit ? (
             <Link to="/admin" className={actionLinkClasses}>
               Open Manage
             </Link>
-          }
+          ) : undefined}
         />
       ) : allGroups.length === 0 ? (
         <BookShelfState

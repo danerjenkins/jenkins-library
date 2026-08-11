@@ -9,7 +9,11 @@ import {
   setBookSeries,
   updateBook,
 } from "../../../data/bookRepo";
-import { deleteCoverPhoto, getCoverPhotoUrl, saveCoverPhoto } from "../../../data/db";
+import {
+  isBookCoverPhotoUrl,
+  removeBookCoverPhoto,
+  uploadBookCoverPhoto,
+} from "../../../repos/coverStorageRepo";
 import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book, BookFormat } from "../lib/bookTypes";
@@ -44,7 +48,6 @@ export function BookEditorPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const localCoverObjectUrlRef = useRef<string | null>(null);
   const isEditing = Boolean(id);
   const fallbackReturnPath = isEditing && id ? `/book/${id}` : "/admin";
   const returnTo = resolveReturnTo(searchParams.get("returnTo"), fallbackReturnPath);
@@ -90,10 +93,9 @@ export function BookEditorPage() {
       try {
         setLoading(true);
         setLoadError(null);
-        const [book, localCoverUrl] = await Promise.all([getBookById(id), getCoverPhotoUrl(id)]);
+        const book = await getBookById(id);
 
         if (ignore) {
-          if (localCoverUrl) URL.revokeObjectURL(localCoverUrl);
           return;
         }
 
@@ -101,11 +103,6 @@ export function BookEditorPage() {
           setLoadError("Book not found. Return to the library and choose another book.");
           return;
         }
-
-        if (localCoverObjectUrlRef.current) {
-          URL.revokeObjectURL(localCoverObjectUrlRef.current);
-        }
-        localCoverObjectUrlRef.current = localCoverUrl;
 
         setTitle(book.title);
         setAuthor(book.author);
@@ -124,7 +121,7 @@ export function BookEditorPage() {
           book.seriesLabel ??
             (book.seriesSort !== null && book.seriesSort !== undefined ? String(book.seriesSort) : ""),
         );
-        setCoverPhotoUrl(localCoverUrl);
+        setCoverPhotoUrl(isBookCoverPhotoUrl(book.coverUrl) ? (book.coverUrl ?? null) : null);
         setFormSessionKey((currentKey) => currentKey + 1);
       } catch (error) {
         console.error("Failed to load book editor:", error);
@@ -142,15 +139,6 @@ export function BookEditorPage() {
       ignore = true;
     };
   }, [id, isEditing]);
-
-  useEffect(
-    () => () => {
-      if (localCoverObjectUrlRef.current) {
-        URL.revokeObjectURL(localCoverObjectUrlRef.current);
-      }
-    },
-    [],
-  );
 
   const formInstanceKey = useMemo(
     () => `${isEditing ? `edit-${id}` : "add"}-${formSessionKey}`,
@@ -197,57 +185,60 @@ export function BookEditorPage() {
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file || !id) return;
+      let uploadedCoverUrl: string | null = null;
+      let savedUploadedCover = false;
       try {
-        await saveCoverPhoto(id, file);
-        await updateBook(id, { coverUrl: null });
-        setCoverUrl("");
-        if (localCoverObjectUrlRef.current) {
-          URL.revokeObjectURL(localCoverObjectUrlRef.current);
+        const previousCoverPhotoUrl = coverPhotoUrl;
+        const nextCoverUrl = await uploadBookCoverPhoto(id, file);
+        uploadedCoverUrl = nextCoverUrl;
+        await updateBook(id, { coverUrl: nextCoverUrl });
+        savedUploadedCover = true;
+        if (previousCoverPhotoUrl && previousCoverPhotoUrl !== nextCoverUrl) {
+          await removeBookCoverPhoto(previousCoverPhotoUrl);
         }
-        const nextCoverUrl = await getCoverPhotoUrl(id);
-        localCoverObjectUrlRef.current = nextCoverUrl;
+        setCoverUrl(nextCoverUrl);
         setCoverPhotoUrl(nextCoverUrl);
         setShowCoverSaved(true);
         window.setTimeout(() => setShowCoverSaved(false), 2000);
-        publishSaveState("success", "Local cover saved.");
+        publishSaveState("success", "Cover photo saved.");
       } catch (error) {
+        if (uploadedCoverUrl && !savedUploadedCover) {
+          await removeBookCoverPhoto(uploadedCoverUrl).catch((removeError) => {
+            console.error("Failed to roll back uploaded cover photo:", removeError);
+          });
+        }
         console.error("Failed to save cover photo:", error);
         publishSaveState("error", resolveErrorMessage(error));
       }
       event.currentTarget.value = "";
     },
-    [id, publishSaveState],
+    [coverPhotoUrl, id, publishSaveState],
   );
 
   const handleRemoveCoverPhoto = useCallback(async () => {
     if (!id) return;
     try {
-      await deleteCoverPhoto(id);
-      if (localCoverObjectUrlRef.current) {
-        URL.revokeObjectURL(localCoverObjectUrlRef.current);
-        localCoverObjectUrlRef.current = null;
-      }
+      await removeBookCoverPhoto(coverPhotoUrl);
+      await updateBook(id, { coverUrl: null });
+      setCoverUrl("");
       setCoverPhotoUrl(null);
-      publishSaveState("success", "Local cover removed.");
+      publishSaveState("success", "Cover photo removed.");
     } catch (error) {
-      console.error("Failed to remove local cover photo:", error);
+      console.error("Failed to remove cover photo:", error);
       publishSaveState("error", resolveErrorMessage(error));
     }
-  }, [id, publishSaveState]);
+  }, [coverPhotoUrl, id, publishSaveState]);
 
   const handleCoverUrlChange = useCallback(
     async (value: string) => {
+      const previousCoverPhotoUrl = coverPhotoUrl;
       setCoverUrl(value);
-      if (value.trim() && id && coverPhotoUrl) {
+      if (value.trim() && id && previousCoverPhotoUrl && value.trim() !== previousCoverPhotoUrl) {
         try {
-          await deleteCoverPhoto(id);
-          if (localCoverObjectUrlRef.current) {
-            URL.revokeObjectURL(localCoverObjectUrlRef.current);
-            localCoverObjectUrlRef.current = null;
-          }
+          await removeBookCoverPhoto(previousCoverPhotoUrl);
           setCoverPhotoUrl(null);
         } catch (error) {
-          console.error("Failed to clear local cover photo:", error);
+          console.error("Failed to clear uploaded cover photo:", error);
           publishSaveState("error", resolveErrorMessage(error));
         }
       }

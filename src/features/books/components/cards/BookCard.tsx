@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Atom,
@@ -15,7 +14,6 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { getCoverPhotoUrl } from "../../../../data/db";
 import type { Book } from "../../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
 import "./BookCard.css";
@@ -210,30 +208,6 @@ export function BookCard({
   className,
 }: BookCardProps) {
   const isView = variant === "view";
-  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    let currentUrl: string | null = null;
-    let ignore = false;
-
-    const loadCoverPhoto = async () => {
-      const url = await getCoverPhotoUrl(book.id);
-      currentUrl = url;
-      if (!ignore) {
-        setLocalCoverUrl(url);
-      }
-    };
-
-    void loadCoverPhoto();
-
-    return () => {
-      ignore = true;
-      if (currentUrl) {
-        URL.revokeObjectURL(currentUrl);
-      }
-    };
-  }, [book.id]);
-
   const coverHeight = coverHeightBySize[cardSize];
   const titleClamp = titleLineClampByCardSize[cardSize];
   const seriesNumber =
@@ -246,7 +220,7 @@ export function BookCard({
       ? `${book.seriesName} - #${seriesNumber}`
       : book.seriesName
     : null;
-  const coverUrl = localCoverUrl ?? book.coverUrl ?? null;
+  const coverUrl = book.coverUrl ?? null;
   const genreTone = book.genre ? getGenreTone(book.genre) : "general";
   const GenreIcon =
     genreIconsByTone[genreTone as keyof typeof genreIconsByTone];

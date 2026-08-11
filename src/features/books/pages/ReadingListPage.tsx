@@ -5,12 +5,14 @@ import {
   ReadingListQueueSection,
 } from "../sections/ReadingListPageSections";
 import { useReadingListPage } from "../hooks/useReadingListPage";
+import { useAuth } from "../../../app/auth/useAuth";
 
 function getReaderLabel(readerId: "dane" | "emma") {
   return readerId === "dane" ? "Dane" : "Emma";
 }
 
 export function ReadingListPage() {
+  const { canEdit } = useAuth();
   const { state, loading, errorMessage, prioritizedBooks, actions } =
     useReadingListPage();
 
@@ -50,13 +52,16 @@ export function ReadingListPage() {
           <ReadingListQueueSection
             readerId={state.activeReader}
             queueBooks={prioritizedBooks.queueBooks}
+            canEdit={canEdit}
             onMoveUp={(readerId, bookId) =>
-              actions.moveBook(readerId, bookId, "up")
+              canEdit ? actions.moveBook(readerId, bookId, "up") : undefined
             }
             onMoveDown={(readerId, bookId) =>
-              actions.moveBook(readerId, bookId, "down")
+              canEdit ? actions.moveBook(readerId, bookId, "down") : undefined
             }
-            onRemove={actions.removeFromQueue}
+            onRemove={(readerId, bookId) =>
+              canEdit ? actions.removeFromQueue(readerId, bookId) : undefined
+            }
           />
         )}
       </PageLayout>

@@ -9,7 +9,11 @@ import {
   setBookSeries,
   updateBook,
 } from "../../../data/bookRepo";
-import { deleteCoverPhoto, getCoverPhotoUrl, saveCoverPhoto } from "../../../data/db";
+import {
+  isBookCoverPhotoUrl,
+  removeBookCoverPhoto,
+  uploadBookCoverPhoto,
+} from "../../../repos/coverStorageRepo";
 import { createSeries, findSeriesByName } from "../../../repos/seriesRepo";
 import { getReadStatus } from "../lib/bookTypes";
 import type { Book, BookFormat, ReadStatus } from "../lib/bookTypes";
@@ -232,10 +236,6 @@ export function useAdminBooksManager() {
     filterFormat !== "ALL" ||
     filterSeries !== "ALL";
 
-  const handleLoadCoverPhoto = useCallback(async (bookId: string) => {
-    setCoverPhotoUrl(await getCoverPhotoUrl(bookId));
-  }, []);
-
   const handleStartAddBook = useCallback(
     (defaultOwnership = filterOwnership) => {
       resetFormFeedback();
@@ -272,11 +272,11 @@ export function useAdminBooksManager() {
           (book.seriesSort !== null && book.seriesSort !== undefined ? String(book.seriesSort) : ""),
       );
       setEditingId(book.id);
-      void handleLoadCoverPhoto(book.id);
+      setCoverPhotoUrl(isBookCoverPhotoUrl(book.coverUrl) ? (book.coverUrl ?? null) : null);
       setShowForm(true);
       setFormFocusTick((currentTick) => currentTick + 1);
     },
-    [handleLoadCoverPhoto, resetFormFeedback],
+    [resetFormFeedback],
   );
 
   useEffect(() => () => clearPendingFormClose(), [clearPendingFormClose]);
@@ -460,44 +460,60 @@ export function useAdminBooksManager() {
   const handleCoverPhotoCapture = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !editingId) return;
+    let uploadedCoverUrl: string | null = null;
+    let savedUploadedCover = false;
     try {
-      await saveCoverPhoto(editingId, file);
-      await updateBook(editingId, { coverUrl: null });
-      setCoverUrl("");
-      setCoverPhotoUrl(await getCoverPhotoUrl(editingId));
+      const previousCoverPhotoUrl = coverPhotoUrl;
+      const nextCoverUrl = await uploadBookCoverPhoto(editingId, file);
+      uploadedCoverUrl = nextCoverUrl;
+      await updateBook(editingId, { coverUrl: nextCoverUrl });
+      savedUploadedCover = true;
+      if (previousCoverPhotoUrl && previousCoverPhotoUrl !== nextCoverUrl) {
+        await removeBookCoverPhoto(previousCoverPhotoUrl);
+      }
+      setCoverUrl(nextCoverUrl);
+      setCoverPhotoUrl(nextCoverUrl);
       setShowCoverSaved(true);
       window.setTimeout(() => setShowCoverSaved(false), 2000);
-      setStatusMessage("Saved a local cover photo.");
+      setStatusMessage("Saved cover photo.");
+      await loadBooks(filterOwnership);
     } catch (error) {
+      if (uploadedCoverUrl && !savedUploadedCover) {
+        await removeBookCoverPhoto(uploadedCoverUrl).catch((removeError) => {
+          console.error("Failed to roll back uploaded cover photo:", removeError);
+        });
+      }
       console.error("Failed to save cover photo:", error);
       setErrorMessage(resolveErrorMessage(error));
     }
     event.currentTarget.value = "";
-  }, [editingId]);
+  }, [coverPhotoUrl, editingId, filterOwnership, loadBooks]);
 
   const handleRemoveCoverPhoto = useCallback(async () => {
     if (!editingId) return;
     try {
-      await deleteCoverPhoto(editingId);
-      if (coverPhotoUrl) URL.revokeObjectURL(coverPhotoUrl);
+      await removeBookCoverPhoto(coverPhotoUrl);
+      await updateBook(editingId, { coverUrl: null });
+      setCoverUrl("");
       setCoverPhotoUrl(null);
-      setStatusMessage("Removed the local cover photo.");
+      setStatusMessage("Removed cover photo.");
+      await loadBooks(filterOwnership);
     } catch (error) {
       console.error("Failed to remove cover photo:", error);
       setErrorMessage(resolveErrorMessage(error));
     }
-  }, [coverPhotoUrl, editingId]);
+  }, [coverPhotoUrl, editingId, filterOwnership, loadBooks]);
 
   const handleCoverUrlChange = useCallback(async (value: string) => {
+    const previousCoverPhotoUrl = coverPhotoUrl;
     setCoverUrl(value);
-    if (value.trim() && editingId) {
+    if (value.trim() && editingId && previousCoverPhotoUrl && value.trim() !== previousCoverPhotoUrl) {
       try {
-        await deleteCoverPhoto(editingId);
-        if (coverPhotoUrl) URL.revokeObjectURL(coverPhotoUrl);
+        await removeBookCoverPhoto(previousCoverPhotoUrl);
         setCoverPhotoUrl(null);
         setStatusMessage("Switched cover source to a URL.");
       } catch (error) {
-        console.error("Failed to clear local cover photo:", error);
+        console.error("Failed to clear uploaded cover photo:", error);
         setErrorMessage(resolveErrorMessage(error));
       }
     }

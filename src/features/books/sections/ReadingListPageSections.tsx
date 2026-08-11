@@ -42,6 +42,7 @@ function QueueRow({
   onMoveUp,
   onMoveDown,
   onRemove,
+  canEdit,
   isFirst,
   isLast,
 }: {
@@ -51,6 +52,7 @@ function QueueRow({
   onMoveUp: (readerId: ReaderId, bookId: string) => void;
   onMoveDown: (readerId: ReaderId, bookId: string) => void;
   onRemove: (readerId: ReaderId, bookId: string) => void;
+  canEdit: boolean;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -62,20 +64,22 @@ function QueueRow({
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-warm-gray/70 bg-parchment/70 text-xs font-medium text-stone-600">
               {index + 1}
             </div>
-            <Button
-              type="button"
-              variant="danger"
-              className="h-8 min-h-8 w-8 shrink-0 p-0!"
-              onClick={() => void onRemove(readerId, book.id)}
-              aria-label={`Remove ${book.title} from the queue`}
-              title="Remove"
-            >
-              <Trash2
-                className="h-4 w-4 shrink-0 text-current"
-                aria-hidden="true"
-                strokeWidth={2.25}
-              />
-            </Button>
+            {canEdit ? (
+              <Button
+                type="button"
+                variant="danger"
+                className="h-8 min-h-8 w-8 shrink-0 p-0!"
+                onClick={() => void onRemove(readerId, book.id)}
+                aria-label={`Remove ${book.title} from the queue`}
+                title="Remove"
+              >
+                <Trash2
+                  className="h-4 w-4 shrink-0 text-current"
+                  aria-hidden="true"
+                  strokeWidth={2.25}
+                />
+              </Button>
+            ) : null}
           </div>
           <div className="relative">
             {book.coverUrl ? (
@@ -131,6 +135,7 @@ function QueueRow({
           </div>
         </div>
 
+        {canEdit ? (
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
           <Button
             type="button"
@@ -163,6 +168,7 @@ function QueueRow({
             />
           </Button>
         </div>
+        ) : null}
       </div>
     </li>
   );
@@ -214,12 +220,14 @@ export function ReadingListQueueSection({
   onMoveUp,
   onMoveDown,
   onRemove,
+  canEdit,
 }: {
   readerId: ReaderId;
   queueBooks: Book[];
   onMoveUp: (readerId: ReaderId, bookId: string) => void;
   onMoveDown: (readerId: ReaderId, bookId: string) => void;
   onRemove: (readerId: ReaderId, bookId: string) => void;
+  canEdit: boolean;
 }) {
   return (
     <PageSection className={sectionSurfaceClasses}>
@@ -248,6 +256,7 @@ export function ReadingListQueueSection({
                 onMoveUp={onMoveUp}
                 onMoveDown={onMoveDown}
                 onRemove={onRemove}
+                canEdit={canEdit}
                 isFirst={index === 0}
                 isLast={index === queueBooks.length - 1}
               />

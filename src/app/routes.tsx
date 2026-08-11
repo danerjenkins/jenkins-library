@@ -12,6 +12,8 @@ import { SearchPage } from "../features/books/pages/SearchPage";
 import { ReadingListPage } from "../features/books/pages/ReadingListPage";
 import { QuickReadPage } from "../features/books/pages/QuickReadPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
+import { ProtectedEditorRoute } from "./auth/ProtectedEditorRoute";
+import { LoginPage } from "../features/auth/LoginPage";
 
 export const routes: RouteObject[] = [
   {
@@ -35,18 +37,35 @@ export const routes: RouteObject[] = [
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "/login",
+    element: <LoginPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
     path: "/book/:id/edit",
-    element: <BookEditorPage />,
+    element: (
+      <ProtectedEditorRoute>
+        <BookEditorPage />
+      </ProtectedEditorRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/book/new",
-    element: <BookEditorPage />,
+    element: (
+      <ProtectedEditorRoute>
+        <BookEditorPage />
+      </ProtectedEditorRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/admin",
-    element: <AdminBooksPage />,
+    element: (
+      <ProtectedEditorRoute>
+        <AdminBooksPage />
+      </ProtectedEditorRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
@@ -71,7 +90,11 @@ export const routes: RouteObject[] = [
   },
   {
     path: "/reading-list",
-    element: <ReadingListPage />,
+    element: (
+      <ProtectedEditorRoute>
+        <ReadingListPage />
+      </ProtectedEditorRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {

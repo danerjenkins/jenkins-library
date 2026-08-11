@@ -34,6 +34,7 @@ import {
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import { addBookToReadingList, getReadingListQueues } from "../../../repos/readingListRepo";
+import { useAuth } from "../../../app/auth/useAuth";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   return [...books].sort((a, b) => {
@@ -152,6 +153,7 @@ function TbrButton({
 
 export function QuickReadPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { canEdit } = useAuth();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
   const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({
@@ -236,6 +238,11 @@ export function QuickReadPage() {
   }, [deferredSearchQuery, state, visibleShelfBooks]);
 
   useEffect(() => {
+    if (!canEdit) {
+      setQueueIdsByReader({ dane: [], emma: [] });
+      return;
+    }
+
     void getReadingListQueues()
       .then((queues) => {
         setQueueIdsByReader(queues);
@@ -243,12 +250,14 @@ export function QuickReadPage() {
       .catch((error) => {
         console.error("Failed to load reading list queues:", error);
       });
-  }, []);
+  }, [canEdit]);
 
   const handleReadToggle = async (
     book: Book,
     reader: "dane" | "emma",
   ) => {
+    if (!canEdit) return;
+
     const nextReadByDane = reader === "dane" ? !book.readByDane : book.readByDane;
     const nextReadByEmma = reader === "emma" ? !book.readByEmma : book.readByEmma;
 
@@ -293,6 +302,8 @@ export function QuickReadPage() {
   };
 
   const handleAddToTbr = async (readerId: ReaderId, bookId: string) => {
+    if (!canEdit) return;
+
     setPendingUpdates((current) => new Set(current).add(bookId));
     setQueueIdsByReader((current) => ({
       ...current,
@@ -462,11 +473,11 @@ export function QuickReadPage() {
             <BookShelfState
               title="No Books Yet"
               description="Add books first, then come back here when you're ready to mark them as read."
-              action={
+              action={canEdit ? (
                 <Link to="/book/new?ownership=owned&returnTo=%2Fquick-read" className={actionLinkClasses}>
                   Add Book
                 </Link>
-              }
+              ) : undefined}
             />
           ) : filteredBooks.length === 0 ? (
             <BookShelfState
@@ -496,7 +507,7 @@ export function QuickReadPage() {
                     variant="view"
                     cardSize={quickReadCardSize}
                     clickable={true}
-                    actions={
+                    actions={canEdit ? (
                       <div className={actionGridClassesByCardSize[quickReadCardSize]}>
                         <div className="grid min-w-0 gap-1">
                           <ReaderToggleButton
@@ -531,7 +542,7 @@ export function QuickReadPage() {
                           />
                         </div>
                       </div>
-                    }
+                    ) : undefined}
                   />
                 );
               })}

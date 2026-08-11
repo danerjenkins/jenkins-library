@@ -65,7 +65,7 @@ export function BookFormCoverWorkspace({
             {hasLocalPhoto ? (
               <img
                 src={coverPhotoUrl ?? undefined}
-                alt="Local cover preview"
+                alt="Cover photo preview"
                 width={72}
                 height={108}
                 className="h-[108px] w-[72px] rounded-md object-cover shadow-sm"
@@ -107,7 +107,7 @@ export function BookFormCoverWorkspace({
                     onClick={onRemoveCoverPhoto}
                     className="mt-1 block text-xs font-medium text-red-600 underline transition-colors touch-manipulation hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                   >
-                    Remove local photo
+                    Remove cover photo
                   </button>
                 ) : null}
                 {showCoverSaved ? (
@@ -116,12 +116,12 @@ export function BookFormCoverWorkspace({
                     aria-live="polite"
                   >
                     <Check className="h-3 w-3" aria-hidden="true" />
-                    Local cover saved
+                    Cover photo saved
                   </div>
                 ) : null}
                 {!hasRemoteCover && !hasLocalPhoto ? (
                   <p className="mt-1 text-xs text-stone-500">
-                    Add a URL, choose a suggestion, or save first to attach a local photo.
+                    Add a URL, choose a suggestion, or save first to attach a cover photo.
                   </p>
                 ) : null}
               </div>

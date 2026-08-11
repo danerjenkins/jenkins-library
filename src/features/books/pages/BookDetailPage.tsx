@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { getBookById, updateBook } from "../../../data/bookRepo";
-import { getCoverPhotoUrl } from "../../../data/db";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
@@ -12,15 +11,16 @@ import {
   getReadingListQueues,
 } from "../../../repos/readingListRepo";
 import { BookDetailContent, type MetadataSummaryItem } from "../sections/BookDetailSections";
+import { useAuth } from "../../../app/auth/useAuth";
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { canEdit } = useAuth();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
   const [savingReadStatus, setSavingReadStatus] = useState(false);
   const [readStatusError, setReadStatusError] = useState<string | null>(null);
   const [savingOwnership, setSavingOwnership] = useState(false);
@@ -36,7 +36,6 @@ export function BookDetailPage() {
       return;
     }
 
-    let objectUrl: string | null = null;
     let ignore = false;
 
     const loadBook = async () => {
@@ -46,7 +45,7 @@ export function BookDetailPage() {
 
         const [bookData, queues] = await Promise.all([
           getBookById(id),
-          getReadingListQueues(),
+          canEdit ? getReadingListQueues() : Promise.resolve({ dane: [], emma: [] }),
         ]);
         if (!bookData) {
           navigate("/view");
@@ -59,10 +58,6 @@ export function BookDetailPage() {
 
         setBook(bookData);
         setReadingListQueues(queues);
-
-        const coverUrl = await getCoverPhotoUrl(id);
-        objectUrl = coverUrl;
-        setLocalCoverUrl(coverUrl);
       } catch (error) {
         console.error("Failed to load book:", error);
         setErrorMessage(
@@ -77,11 +72,8 @@ export function BookDetailPage() {
 
     return () => {
       ignore = true;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
     };
-  }, [id, navigate]);
+  }, [canEdit, id, navigate]);
 
   const dateFormatter = useMemo(
     () =>
@@ -164,6 +156,7 @@ export function BookDetailPage() {
     checked: boolean,
   ) => {
     if (!book) return;
+    if (!canEdit) return;
 
     const previousBook = book;
     const nextBook = { ...book, [field]: checked };
@@ -190,6 +183,7 @@ export function BookDetailPage() {
     nextOwnershipStatus: "owned" | "wishlist",
   ) => {
     if (!book) return;
+    if (!canEdit) return;
 
     const previousBook = book;
     const nextBook = { ...book, ownershipStatus: nextOwnershipStatus };
@@ -214,6 +208,7 @@ export function BookDetailPage() {
 
   const handleAddToReadingList = (readerId: ReaderId) => {
     if (!book) return;
+    if (!canEdit) return;
 
     void addBookToReadingList(readerId, book.id)
       .then((nextQueueIds) => {
@@ -265,7 +260,7 @@ export function BookDetailPage() {
   return (
     <BookDetailContent
       book={book}
-      localCoverUrl={localCoverUrl}
+      canEdit={canEdit}
       isWishlistBook={isWishlistBook}
       backLabel={backLabel}
       metadataSummary={metadataSummary}

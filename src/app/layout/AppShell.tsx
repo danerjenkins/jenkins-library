@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
 import { AppNavigation, MobileAppNavigation } from "./AppNavigation";
 import "./AppShell.css";
 
@@ -10,6 +11,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
+  const { canEdit, session, signOut } = useAuth();
   const searchParams = new URLSearchParams(location.search);
   const isFullBleedPage = new Set([
     "/view",
@@ -54,7 +56,11 @@ export function AppShell({ children }: AppShellProps) {
               <span className="app-brand__title">Jenkins Library</span>
             </Link>
           </div>
-          <AppNavigation />
+          <AppNavigation
+            canEdit={canEdit}
+            userEmail={session?.user.email ?? null}
+            onSignOut={() => void signOut()}
+          />
         </div>
       </header>
 
@@ -66,9 +72,9 @@ export function AppShell({ children }: AppShellProps) {
         {children}
       </main>
 
-      <MobileAppNavigation addBookPath={addBookPath} />
+      <MobileAppNavigation addBookPath={addBookPath} canEdit={canEdit} />
 
-      {isBookWorkflowPage ? null : (
+      {canEdit && !isBookWorkflowPage ? (
         <Link
           to={addBookPath}
           className="floating-add"
@@ -77,7 +83,7 @@ export function AppShell({ children }: AppShellProps) {
         >
           <Plus aria-hidden="true" size={24} />
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }

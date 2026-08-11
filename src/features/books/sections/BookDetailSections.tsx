@@ -1,4 +1,4 @@
-import { Camera, Edit } from "lucide-react";
+import { Camera, Edit, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../../ui/components/Badge";
 import { Button } from "../../../ui/components/Button";
@@ -15,7 +15,7 @@ export type MetadataSummaryItem = {
 
 export function BookDetailContent({
   book,
-  localCoverUrl,
+  canEdit,
   isWishlistBook,
   backLabel,
   metadataSummary,
@@ -31,7 +31,7 @@ export function BookDetailContent({
   onAddToReadingList,
 }: {
   book: Book;
-  localCoverUrl: string | null;
+  canEdit: boolean;
   isWishlistBook: boolean;
   backLabel: string;
   metadataSummary: MetadataSummaryItem[];
@@ -48,6 +48,7 @@ export function BookDetailContent({
 }) {
   const editBookPath = `/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`;
   const editCoverPath = `${editBookPath}&section=cover`;
+  const loginToEditPath = `/login?returnTo=${encodeURIComponent(`/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`)}`;
 
   return (
     <div className="space-y-6">
@@ -65,9 +66,9 @@ export function BookDetailContent({
       <div className="ds-panel-surface overflow-hidden rounded-2xl bg-cream/95 shadow-soft">
         <div className="book-detail-layout grid gap-5 p-4 sm:p-5 md:grid-cols-3 md:gap-6 md:p-6">
           <div className="book-detail-cover md:col-span-1">
-            {localCoverUrl || book.coverUrl ? (
+            {book.coverUrl ? (
               <img
-                src={localCoverUrl ?? book.coverUrl ?? undefined}
+                src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
                 className="book-detail-cover__image aspect-2/3 w-full rounded-lg object-cover shadow-md"
               />
@@ -78,14 +79,16 @@ export function BookDetailContent({
                 </span>
               </div>
             )}
-            <Link
-              to={editCoverPath}
-              className="book-detail-cover__edit-cover"
-              aria-label={`Edit cover for ${book.title}`}
-              title="Edit cover"
-            >
-              <Camera className="book-detail-cover__edit-cover-icon" strokeWidth={2.75} aria-hidden="true" />
-            </Link>
+            {canEdit ? (
+              <Link
+                to={editCoverPath}
+                className="book-detail-cover__edit-cover"
+                aria-label={`Edit cover for ${book.title}`}
+                title="Edit cover"
+              >
+                <Camera className="book-detail-cover__edit-cover-icon" strokeWidth={2.75} aria-hidden="true" />
+              </Link>
+            ) : null}
           </div>
 
           <div className="book-detail-content space-y-4 md:col-span-2">
@@ -155,6 +158,7 @@ export function BookDetailContent({
               </section>
             ) : null}
 
+            {canEdit ? (
             <section className="ds-panel-surface bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -247,7 +251,9 @@ export function BookDetailContent({
                 </div>
               </div>
             </section>
+            ) : null}
 
+            {canEdit ? (
             <section className="ds-panel-surface bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -288,6 +294,7 @@ export function BookDetailContent({
                 </p>
               ) : null}
             </section>
+            ) : null}
 
             <div className="space-y-3 border-t border-warm-gray pt-4">
               {book.genre ? (
@@ -332,14 +339,25 @@ export function BookDetailContent({
         </div>
       </div>
 
-      <Link
-        to={editBookPath}
-        className="book-detail-edit-action"
-        aria-label={`Edit ${book.title}`}
-        title="Edit book"
-      >
-        <Edit className="h-5 w-5" aria-hidden="true" />
-      </Link>
+      {canEdit ? (
+        <Link
+          to={editBookPath}
+          className="book-detail-edit-action"
+          aria-label={`Edit ${book.title}`}
+          title="Edit book"
+        >
+          <Edit className="h-5 w-5" aria-hidden="true" />
+        </Link>
+      ) : (
+        <Link
+          to={loginToEditPath}
+          className="book-detail-edit-action"
+          aria-label={`Sign in to edit ${book.title}`}
+          title="Sign in to edit"
+        >
+          <LogIn className="h-5 w-5" aria-hidden="true" />
+        </Link>
+      )}
     </div>
   );
 }
