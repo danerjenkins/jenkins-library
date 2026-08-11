@@ -79,30 +79,35 @@ export function BookDetailContent({
             )}
           </div>
 
-          <div className="space-y-4 md:col-span-2">
-            <div>
+          <div className="book-detail-content space-y-4 md:col-span-2">
+            <div className="book-detail-summary">
               <h1 className="font-display text-3xl font-bold text-stone-900">{book.title}</h1>
               <p className="mt-2 font-sans text-lg text-stone-600">{book.author}</p>
-              {book.description ? (
-                <div className="mt-4 space-y-2">
-                  <p className="font-sans leading-relaxed text-stone-700">{book.description}</p>
-                  {book.seriesName ? (
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-stone-600">
-                      <span className="font-medium text-stone-700">Series:</span>
-                      <Link
-                        to={`/series#${normalizeSeriesName(book.seriesName)}`}
-                        className="inline-flex items-center rounded-full border border-sage/25 bg-sage/10 px-3 py-1 font-medium text-sage-dark no-underline transition-colors hover:border-sage/35 hover:bg-sage/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
-                      >
-                        {book.seriesName}
-                        {book.seriesLabel ? ` #${book.seriesLabel}` : ""}
-                      </Link>
-                    </div>
-                  ) : null}
+              {book.seriesName ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-stone-600">
+                  <span className="font-medium text-stone-700">Series:</span>
+                  <Link
+                    to={`/series#${normalizeSeriesName(book.seriesName)}`}
+                    className="inline-flex items-center rounded-full border border-sage/25 bg-sage/10 px-3 py-1 font-medium text-sage-dark no-underline transition-colors hover:border-sage/35 hover:bg-sage/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
+                  >
+                    {book.seriesName}
+                    {book.seriesLabel ? ` #${book.seriesLabel}` : ""}
+                  </Link>
                 </div>
+              ) : null}
+              {metadataSummary.length > 0 ? (
+                <dl className="book-detail-summary-meta">
+                  {metadataSummary.map((item) => (
+                    <div key={item.label}>
+                      <dt>{item.label}</dt>
+                      <dd>{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               ) : null}
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="book-detail-badges flex flex-wrap gap-2">
               <Badge variant={isWishlistBook ? "amber" : "default"}>
                 {isWishlistBook ? "Wishlist" : "Owned"}
               </Badge>
@@ -111,6 +116,12 @@ export function BookDetailContent({
               {book.readByEmma ? <Badge variant="amber">Read by Emma</Badge> : null}
               {!book.readByDane && !book.readByEmma ? <Badge variant="amber">To Read</Badge> : null}
             </div>
+
+            {book.description ? (
+              <p className="book-detail-description font-sans leading-relaxed text-stone-700">
+                {book.description}
+              </p>
+            ) : null}
 
             {metadataSummary.length > 0 ? (
               <section className="ds-panel-surface bg-stone-50/70 p-4">
@@ -319,7 +330,6 @@ export function BookDetailContent({
         title="Edit book"
       >
         <Edit className="h-5 w-5" aria-hidden="true" />
-        <span>Edit Book</span>
       </Link>
     </div>
   );
