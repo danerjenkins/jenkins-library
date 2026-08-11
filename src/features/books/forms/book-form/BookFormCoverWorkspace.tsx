@@ -53,11 +53,11 @@ export function BookFormCoverWorkspace({
             <button
               type="button"
               onClick={onCoverPhotoPick}
-              className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-warm-gray bg-cream text-stone-700 shadow-sm transition-colors touch-manipulation hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30"
+              className="book-editor-cover-camera-button"
               aria-label={coverPhotoUrl ? "Replace cover photo" : "Take cover photo"}
               title={coverPhotoUrl ? "Replace cover photo" : "Take cover photo"}
             >
-              <Camera className="book-editor-cover-camera-icon" strokeWidth={2.75} aria-hidden="true" />
+              <Camera className="book-editor-cover-camera-icon" strokeWidth={2.2} aria-hidden="true" />
             </button>
           ) : null}
 

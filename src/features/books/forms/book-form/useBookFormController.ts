@@ -186,7 +186,7 @@ export function useBookFormController(props: BookFormProps) {
     const latestSessionState = latestSessionStateRef.current;
     baselineSnapshotRef.current = latestSessionState.snapshot;
     initialTitleRef.current = latestSessionState.title;
-    setActiveSection("basics");
+    setActiveSection(props.initialSection ?? "basics");
     setShowAdvancedFields(isEditing);
     setShowValidation(false);
     setSelectedCoverUrl(latestSessionState.coverUrl.trim() || null);
@@ -197,7 +197,7 @@ export function useBookFormController(props: BookFormProps) {
     setIsbnLookupState("idle");
     setIsbnLookupMessage(null);
     setUserHasEditedAuthor(Boolean(latestSessionState.author.trim()));
-  }, [formInstanceKey, isEditing]);
+  }, [formInstanceKey, isEditing, props.initialSection]);
 
   useEffect(() => {
     if (saveState === "success") {

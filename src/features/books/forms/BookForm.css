@@ -12,7 +12,8 @@
 }
 
 .book-editor-page__icon-button,
-.book-editor-floating-button {
+.book-editor-floating-button,
+.book-editor-cover-camera-button {
   display: inline-flex;
   width: 3rem;
   height: 3rem;
@@ -34,14 +35,16 @@
 }
 
 .book-editor-page__icon-button:hover,
-.book-editor-floating-button:hover {
+.book-editor-floating-button:hover,
+.book-editor-cover-camera-button:hover {
   border-color: rgba(79, 101, 71, 0.5);
   background: #ffffff;
   color: var(--color-sage-dark);
 }
 
 .book-editor-page__icon-button:active,
-.book-editor-floating-button:active {
+.book-editor-floating-button:active,
+.book-editor-cover-camera-button:active {
   transform: translateY(1px);
 }
 
@@ -142,10 +145,17 @@
 }
 
 .book-editor-cover-camera-icon {
-  width: 2rem !important;
-  height: 2rem !important;
-  min-width: 2rem;
-  min-height: 2rem;
+  width: 1.6rem !important;
+  height: 1.6rem !important;
+  min-width: 1.6rem;
+  min-height: 1.6rem;
+}
+
+.book-editor-cover-camera-button {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
@@ -179,7 +189,8 @@
   }
 
   .book-editor-page__icon-button,
-  .book-editor-floating-button {
+  .book-editor-floating-button,
+  .book-editor-cover-camera-button {
     width: 2.85rem;
     height: 2.85rem;
   }
