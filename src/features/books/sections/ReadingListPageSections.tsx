@@ -57,41 +57,55 @@ function QueueRow({
   return (
     <li className="rounded-2xl border border-warm-gray/70 bg-cream/95 p-3 shadow-sm">
       <div className="flex gap-3">
-        <div className="flex shrink-0 items-start gap-2 sm:items-center sm:flex-row">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-sage/20 bg-sage/10 text-sm font-semibold text-sage-dark">
-            {index + 1}
+        <div className="flex shrink-0 items-start gap-2 sm:items-center">
+          <div className="flex w-8 shrink-0 flex-col items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-warm-gray/70 bg-parchment/70 text-xs font-medium text-stone-600">
+              {index + 1}
+            </div>
+            <Button
+              type="button"
+              variant="danger"
+              className="h-8 min-h-8 w-8 shrink-0 p-0!"
+              onClick={() => void onRemove(readerId, book.id)}
+              aria-label={`Remove ${book.title} from the queue`}
+              title="Remove"
+            >
+              <Trash2
+                className="h-4 w-4 shrink-0 text-current"
+                aria-hidden="true"
+                strokeWidth={2.25}
+              />
+            </Button>
           </div>
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <div className="relative">
-              {book.coverUrl ? (
-                <img
-                  src={book.coverUrl}
-                  alt={`Cover of ${book.title}`}
-                  width={80}
-                  height={112}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full max-h-24 w-16 rounded border border-warm-gray/50 bg-warm-gray-light object-cover shadow-sm"
-                />
-              ) : (
-                <div className="flex h-full max-h-24 w-16 items-center justify-center rounded border border-warm-gray/50 bg-warm-gray-light text-xs font-semibold text-stone-400">
-                  {getFallbackMonogram(book.title)}
-                </div>
-              )}
-              <div className="ds-ownership-icon">
-                <div className="ds-ownership-badge">
-                  {(book.ownershipStatus ?? "owned") === "wishlist" ? (
-                    <Heart
-                      className="ds-ownership-badge__icon"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <BookOpen
-                      className="ds-ownership-badge__icon"
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
+          <div className="relative">
+            {book.coverUrl ? (
+              <img
+                src={book.coverUrl}
+                alt={`Cover of ${book.title}`}
+                width={80}
+                height={112}
+                loading="lazy"
+                decoding="async"
+                className="h-full max-h-24 w-16 rounded border border-warm-gray/50 bg-warm-gray-light object-cover shadow-sm"
+              />
+            ) : (
+              <div className="flex h-full max-h-24 w-16 items-center justify-center rounded border border-warm-gray/50 bg-warm-gray-light text-xs font-semibold text-stone-400">
+                {getFallbackMonogram(book.title)}
+              </div>
+            )}
+            <div className="ds-ownership-icon">
+              <div className="ds-ownership-badge">
+                {(book.ownershipStatus ?? "owned") === "wishlist" ? (
+                  <Heart
+                    className="ds-ownership-badge__icon"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <BookOpen
+                    className="ds-ownership-badge__icon"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -143,20 +157,6 @@ function QueueRow({
             disabled={isLast}
           >
             <ArrowDown
-              className="h-4 w-4 shrink-0 text-current"
-              aria-hidden="true"
-              strokeWidth={2.25}
-            />
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            className="h-8 min-h-8 w-8 shrink-0 p-0!"
-            onClick={() => void onRemove(readerId, book.id)}
-            aria-label={`Remove ${book.title} from the queue`}
-            title="Remove"
-          >
-            <Trash2
               className="h-4 w-4 shrink-0 text-current"
               aria-hidden="true"
               strokeWidth={2.25}
