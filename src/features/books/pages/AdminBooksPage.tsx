@@ -1,30 +1,25 @@
-import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
-import { BookForm } from "../forms/BookForm";
 import { ManageBooksFilterPanel } from "../components/manage/ManageBooksFilterPanel";
 import { ManageBooksResults } from "../components/manage/ManageBooksResults";
 import { ManageDeleteDialog } from "../components/manage/ManageDeleteDialog";
 import { useAdminBooksManager } from "../hooks/useAdminBooksManager";
+import type { Book } from "../lib/bookTypes";
 
 export function AdminBooksPage() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [formRegionNode, setFormRegionNode] = useState<HTMLDivElement | null>(null);
-  const { page, filters, form, modal, list, actions } = useAdminBooksManager();
+  const { page, filters, modal, list, actions } = useAdminBooksManager();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = encodeURIComponent(`${location.pathname}${location.search}${location.hash}`);
 
-  useEffect(() => {
-    if (!page.showForm || !formRegionNode) return;
+  const handleStartAddBook = (ownership = filters.filterOwnership) => {
+    navigate(`/book/new?ownership=${ownership}&returnTo=${returnTo}`);
+  };
 
-    formRegionNode.scrollIntoView({ behavior: "smooth", block: "start" });
-    const focusTarget = formRegionNode.querySelector<HTMLElement>(
-      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])',
-    );
-    focusTarget?.focus({ preventScroll: true });
-  }, [formRegionNode, page.formFocusTick, page.showForm]);
-
-  const handlePickCoverPhoto = () => {
-    fileInputRef.current?.click();
+  const handleEditBook = (book: Book) => {
+    navigate(`/book/${book.id}/edit?returnTo=${returnTo}`);
   };
 
   return (
@@ -41,14 +36,12 @@ export function AdminBooksPage() {
                 Library and Wishlist pages.
               </p>
             </div>
-            {!page.showForm ? (
-              <Button variant="primary" onClick={() => actions.handleStartAddBook()}>
+            <Button variant="primary" onClick={() => handleStartAddBook()}>
                 <span className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Add Book
                 </span>
               </Button>
-            ) : null}
           </div>
 
           {page.errorMessage ? (
@@ -69,91 +62,27 @@ export function AdminBooksPage() {
             </div>
           ) : null}
 
-          {!page.showForm ? (
-            <ManageBooksFilterPanel
-              searchQuery={filters.searchQuery}
-              filterGenre={filters.filterGenre}
-              filterReadStatus={filters.filterReadStatus}
-              filterOwnership={filters.filterOwnership}
-              filterFormat={filters.filterFormat}
-              filterSeries={filters.filterSeries}
-              availableGenres={filters.availableGenres}
-              availableFormats={filters.availableFormats}
-              availableSeries={filters.availableSeries}
-              filteredCount={filters.filteredBooks.length}
-              hasActiveFilters={filters.hasActiveFilters}
-              onSearchQueryChange={actions.setSearchQuery}
-              onFilterGenreChange={actions.setFilterGenre}
-              onFilterReadStatusChange={actions.setFilterReadStatus}
-              onFilterOwnershipChange={actions.handleOwnershipTabChange}
-              onFilterFormatChange={actions.setFilterFormat}
-              onFilterSeriesChange={actions.setFilterSeries}
-              onClearFilters={actions.handleClearFilters}
-            />
-          ) : null}
+          <ManageBooksFilterPanel
+            searchQuery={filters.searchQuery}
+            filterGenre={filters.filterGenre}
+            filterReadStatus={filters.filterReadStatus}
+            filterOwnership={filters.filterOwnership}
+            filterFormat={filters.filterFormat}
+            filterSeries={filters.filterSeries}
+            availableGenres={filters.availableGenres}
+            availableFormats={filters.availableFormats}
+            availableSeries={filters.availableSeries}
+            filteredCount={filters.filteredBooks.length}
+            hasActiveFilters={filters.hasActiveFilters}
+            onSearchQueryChange={actions.setSearchQuery}
+            onFilterGenreChange={actions.setFilterGenre}
+            onFilterReadStatusChange={actions.setFilterReadStatus}
+            onFilterOwnershipChange={actions.handleOwnershipTabChange}
+            onFilterFormatChange={actions.setFilterFormat}
+            onFilterSeriesChange={actions.setFilterSeries}
+            onClearFilters={actions.handleClearFilters}
+          />
         </div>
-
-        {page.showForm ? (
-          <div
-            ref={setFormRegionNode}
-            className="mt-5 space-y-4 scroll-mt-24"
-            aria-label={form.editingId ? "Edit book form" : "Add book form"}
-          >
-            <BookForm
-              isEditing={Boolean(form.editingId)}
-              title={form.title}
-              author={form.author}
-              genre={form.genre}
-              description={form.description}
-              isbn={form.isbn}
-              finished={form.finished}
-              coverUrl={form.coverUrl}
-              format={form.format}
-              pages={form.pages}
-              readByDane={form.readByDane}
-              readByEmma={form.readByEmma}
-              ownershipStatus={form.ownershipStatus}
-              seriesName={form.seriesName}
-              seriesLabel={form.seriesLabel}
-              coverPhotoUrl={form.coverPhotoUrl}
-              showCoverSaved={form.showCoverSaved}
-              showCoverPhotoControls={Boolean(form.editingId)}
-              coverPhotoInputRef={fileInputRef}
-              saveState={form.formSaveState}
-              saveMessage={form.formSaveMessage}
-              saveSignal={form.formSaveSignal}
-              formInstanceKey={form.formInstanceKey}
-              onDirtyChange={actions.setFormIsDirty}
-              onCoverPhotoFileChange={actions.handleCoverPhotoCapture}
-              onCoverPhotoPick={handlePickCoverPhoto}
-              onRemoveCoverPhoto={actions.handleRemoveCoverPhoto}
-              onTitleChange={actions.setTitle}
-              onAuthorChange={actions.setAuthor}
-              onGenreChange={actions.setGenre}
-              onDescriptionChange={actions.setDescription}
-              onIsbnChange={actions.setIsbn}
-              onFinishedChange={actions.setFinished}
-              onCoverUrlChange={actions.handleCoverUrlChange}
-              onFormatChange={actions.setFormat}
-              onPagesChange={actions.setPages}
-              onReadByDaneChange={actions.setReadByDane}
-              onReadByEmmaChange={actions.setReadByEmma}
-              onOwnershipStatusChange={actions.setOwnershipStatus}
-              onSeriesNameChange={actions.setSeriesName}
-              onSeriesLabelChange={actions.setSeriesLabel}
-              onClearSeries={actions.clearSeries}
-              onSubmit={actions.handleSubmit}
-              onCancel={actions.handleCancelEdit}
-              onDelete={form.editingId ? actions.requestDeleteFromForm : undefined}
-            >
-              {form.editingId ? (
-                <span>{form.formIsDirty ? "Editing Book - Unsaved Changes" : "Editing Book"}</span>
-              ) : (
-                <span>{form.formIsDirty ? "Adding Book - Unsaved Changes" : "Add A Book"}</span>
-              )}
-            </BookForm>
-          </div>
-        ) : null}
       </section>
 
       <section className="space-y-3">
@@ -169,9 +98,9 @@ export function AdminBooksPage() {
             books={list.books}
             filteredBooks={filters.filteredBooks}
             filterOwnership={filters.filterOwnership}
-            onStartAddBook={actions.handleStartAddBook}
+            onStartAddBook={handleStartAddBook}
             onClearFilters={actions.handleClearFilters}
-            onEdit={actions.handleEditBook}
+            onEdit={handleEditBook}
             onDelete={actions.setDeleteTarget}
             onToggleOwnership={(book) => void actions.handleQuickOwnershipToggle(book)}
             ownershipBusyId={list.ownershipActionBookId}

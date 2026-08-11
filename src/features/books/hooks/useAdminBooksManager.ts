@@ -286,28 +286,11 @@ export function useAdminBooksManager() {
   }, [filterOwnership, loadBooks]);
 
   useEffect(() => {
-    if (searchParams.get("add") === "1") {
-      const requestedOwnership = searchParams.get("ownership") === "wishlist" ? "wishlist" : "owned";
-      setFilterOwnership(requestedOwnership);
-      handleStartAddBook(requestedOwnership);
-      setSearchParams({});
-      return;
-    }
-
     const requestedOwnership = searchParams.get("ownership");
     if (requestedOwnership === "owned" || requestedOwnership === "wishlist") {
       setFilterOwnership(requestedOwnership);
     }
-
-    const editId = searchParams.get("edit");
-    if (editId && books.length > 0) {
-      const bookToEdit = books.find((book) => book.id === editId);
-      if (bookToEdit) {
-        handleEditBook(bookToEdit);
-        setSearchParams({});
-      }
-    }
-  }, [books, handleEditBook, handleStartAddBook, searchParams, setSearchParams]);
+  }, [searchParams]);
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");

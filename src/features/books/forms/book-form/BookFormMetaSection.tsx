@@ -58,14 +58,14 @@ export function BookFormMetaSection({
     >
       <MobileSectionToggle
         activeSection={activeSection}
-        section="meta"
-        label="Description & Metadata"
+        section="metadata"
+        label="Metadata"
         onClick={onSectionChange}
       />
       <div
-        id="section-meta"
+        id="section-metadata"
         role="tabpanel"
-        className={`${activeSection === "meta" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        className={`${activeSection === "metadata" ? "block" : "hidden"} px-4 pb-4 pt-4`}
       >
         <div className="space-y-4">
           <h3 className="hidden text-sm font-semibold text-stone-700 sm:block">

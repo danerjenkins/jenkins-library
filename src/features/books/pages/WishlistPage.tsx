@@ -359,7 +359,7 @@ export function WishlistPage() {
               description="Add the first book you want to track so your wishlist has somewhere to start."
               action={
                 <Link
-                  to="/admin?add=1&ownership=wishlist"
+                  to="/book/new?ownership=wishlist&returnTo=%2Fwishlist"
                   className={actionLinkClasses}
                 >
                   Add Wishlist Book

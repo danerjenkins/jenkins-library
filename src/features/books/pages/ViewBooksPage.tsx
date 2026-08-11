@@ -335,8 +335,8 @@ export function ViewBooksPage() {
                 <Link
                   to={
                     state.ownershipFilter === "wishlist"
-                      ? "/admin?add=1&ownership=wishlist"
-                      : "/admin?add=1&ownership=owned"
+                      ? "/book/new?ownership=wishlist&returnTo=%2Fview"
+                      : "/book/new?ownership=owned&returnTo=%2Fview"
                   }
                   className={actionLinkClasses}
                 >

@@ -60,14 +60,14 @@ export function BookFormReadingSection({
     >
       <MobileSectionToggle
         activeSection={activeSection}
-        section="reading"
-        label="Reading Status"
+        section="basics"
+        label="Basics"
         onClick={onSectionChange}
       />
       <div
-        id="section-reading"
+        id="section-basics"
         role="tabpanel"
-        className={`${activeSection === "reading" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        className={`${activeSection === "basics" ? "block" : "hidden"} px-4 pb-4 pt-4`}
       >
         <div className="space-y-4">
           <h3 className="hidden text-sm font-semibold text-stone-700 sm:block">Reading Status</h3>

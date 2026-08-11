@@ -4,6 +4,7 @@ import { ViewBooksPage } from "../features/books/pages/ViewBooksPage";
 import { AdminBooksPage } from "../features/books/pages/AdminBooksPage";
 import { StatsPage } from "../features/books/pages/StatsPage";
 import { BookDetailPage } from "../features/books/pages/BookDetailPage";
+import { BookEditorPage } from "../features/books/pages/BookEditorPage";
 import { WishlistPage } from "../features/books/pages/WishlistPage";
 import { SeriesPage } from "../features/books/pages/SeriesPage";
 import { GenresPage } from "../features/books/pages/GenresPage";
@@ -31,6 +32,16 @@ export const routes: RouteObject[] = [
   {
     path: "/book/:id",
     element: <BookDetailPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/book/:id/edit",
+    element: <BookEditorPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/book/new",
+    element: <BookEditorPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {

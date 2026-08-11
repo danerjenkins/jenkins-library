@@ -1,7 +1,7 @@
 import type { ChangeEvent, ReactNode, Ref } from "react";
 
 export type BookFormSaveState = "idle" | "saving" | "success" | "error";
-export type BookFormSection = "core" | "reading" | "meta";
+export type BookFormSection = "basics" | "cover" | "summary" | "metadata";
 
 export interface BookFormProps {
   isEditing: boolean;

@@ -463,7 +463,7 @@ export function QuickReadPage() {
               title="No Books Yet"
               description="Add books first, then come back here when you're ready to mark them as read."
               action={
-                <Link to="/admin?add=1&ownership=owned" className={actionLinkClasses}>
+                <Link to="/book/new?ownership=owned&returnTo=%2Fquick-read" className={actionLinkClasses}>
                   Add Book
                 </Link>
               }

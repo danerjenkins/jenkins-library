@@ -46,7 +46,7 @@ export function BookDetailContent({
   onOwnershipChange: (nextOwnershipStatus: "owned" | "wishlist") => void;
   onAddToReadingList: (readerId: ReaderId) => void;
 }) {
-  const editBookPath = `/admin?edit=${book.id}&ownership=${isWishlistBook ? "wishlist" : "owned"}`;
+  const editBookPath = `/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`;
 
   return (
     <div className="space-y-6">

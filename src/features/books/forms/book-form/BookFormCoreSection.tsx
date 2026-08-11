@@ -107,14 +107,14 @@ export function BookFormCoreSection({
     >
       <MobileSectionToggle
         activeSection={activeSection}
-        section="core"
-        label="Core Info"
+        section="basics"
+        label="Basics"
         onClick={onSectionChange}
       />
       <div
-        id="section-core"
+        id="section-basics"
         role="tabpanel"
-        className={`${activeSection === "core" ? "block" : "hidden"} px-4 pb-4 pt-4`}
+        className={`${activeSection === "basics" ? "block" : "hidden"} px-4 pb-4 pt-4`}
       >
         <div className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">

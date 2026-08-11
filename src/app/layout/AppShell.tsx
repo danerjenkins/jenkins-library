@@ -26,8 +26,9 @@ export function AppShell({ children }: AppShellProps) {
     searchParams.get("ownership") === "wishlist"
       ? "wishlist"
       : "owned";
-  const addBookPath = `/admin?add=1&ownership=${activeOwnership}`;
-  const isBookDetailPage = /^\/book\/[^/]+$/.test(location.pathname);
+  const currentRoute = `${location.pathname}${location.search}${location.hash}`;
+  const addBookPath = `/book/new?ownership=${activeOwnership}&returnTo=${encodeURIComponent(currentRoute)}`;
+  const isBookWorkflowPage = /^\/book\/([^/]+|new)(\/edit)?$/.test(location.pathname);
 
   return (
     <div className="app-shell">
@@ -67,7 +68,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <MobileAppNavigation addBookPath={addBookPath} />
 
-      {isBookDetailPage ? null : (
+      {isBookWorkflowPage ? null : (
         <Link
           to={addBookPath}
           className="floating-add"

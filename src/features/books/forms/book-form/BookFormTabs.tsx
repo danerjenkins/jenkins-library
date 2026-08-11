@@ -41,26 +41,32 @@ export function BookFormTabs({
 }) {
   return (
     <div
-      className="hidden gap-1 self-start rounded-lg border border-warm-gray p-1 sm:flex"
+      className="book-editor-tabs flex gap-1 self-start rounded-lg border border-warm-gray p-1"
       role="tablist"
       aria-label="Book form sections"
     >
       <SectionTabButton
         activeSection={activeSection}
-        section="core"
-        label="Core Info"
+        section="basics"
+        label="Basics"
         onClick={onSectionChange}
       />
       <SectionTabButton
         activeSection={activeSection}
-        section="reading"
-        label="Reading Status"
+        section="cover"
+        label="Cover"
         onClick={onSectionChange}
       />
       <SectionTabButton
         activeSection={activeSection}
-        section="meta"
-        label="Description & Metadata"
+        section="summary"
+        label="Summary"
+        onClick={onSectionChange}
+      />
+      <SectionTabButton
+        activeSection={activeSection}
+        section="metadata"
+        label="Metadata"
         onClick={onSectionChange}
       />
     </div>

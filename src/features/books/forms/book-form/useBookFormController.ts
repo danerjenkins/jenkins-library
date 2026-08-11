@@ -52,9 +52,10 @@ export function useBookFormController(props: BookFormProps) {
 
   const formRef = useRef<HTMLFormElement>(null);
   const titleFieldRef = useRef<HTMLDivElement>(null);
-  const coreSectionRef = useRef<HTMLElement>(null);
-  const readingSectionRef = useRef<HTMLElement>(null);
-  const metaSectionRef = useRef<HTMLElement>(null);
+  const basicsSectionRef = useRef<HTMLElement>(null);
+  const coverSectionRef = useRef<HTMLElement>(null);
+  const summarySectionRef = useRef<HTMLElement>(null);
+  const metadataSectionRef = useRef<HTMLElement>(null);
   const requestIdRef = useRef(0);
   const authorGuessRequestIdRef = useRef(0);
   const titleSuggestRequestIdRef = useRef(0);
@@ -89,7 +90,7 @@ export function useBookFormController(props: BookFormProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(coverUrl || null);
-  const [activeSection, setActiveSection] = useState<BookFormSection>("core");
+  const [activeSection, setActiveSection] = useState<BookFormSection>("basics");
   const [showAdvancedFields, setShowAdvancedFields] = useState(isEditing);
   const [showValidation, setShowValidation] = useState(false);
   const [authorWasAutofilled, setAuthorWasAutofilled] = useState(false);
@@ -99,7 +100,6 @@ export function useBookFormController(props: BookFormProps) {
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [titleWasEdited, setTitleWasEdited] = useState(false);
-  const [pendingSectionFocus, setPendingSectionFocus] = useState<BookFormSection | null>(null);
 
   const currentSnapshot = useMemo(
     () =>
@@ -179,7 +179,7 @@ export function useBookFormController(props: BookFormProps) {
     const latestSessionState = latestSessionStateRef.current;
     baselineSnapshotRef.current = latestSessionState.snapshot;
     initialTitleRef.current = latestSessionState.title;
-    setActiveSection("core");
+    setActiveSection("basics");
     setShowAdvancedFields(isEditing);
     setShowValidation(false);
     setSelectedCoverUrl(latestSessionState.coverUrl.trim() || null);
@@ -230,32 +230,6 @@ export function useBookFormController(props: BookFormProps) {
   useEffect(() => {
     setSelectedCoverUrl(coverUrl.trim() || null);
   }, [coverUrl]);
-
-  useEffect(() => {
-    if (!pendingSectionFocus) {
-      return;
-    }
-
-    const panelMap: Record<BookFormSection, HTMLElement | null> = {
-      core: coreSectionRef.current,
-      reading: readingSectionRef.current,
-      meta: metaSectionRef.current,
-    };
-    const nextPanel = panelMap[pendingSectionFocus];
-    if (!nextPanel) {
-      return;
-    }
-
-    const animationFrameId = window.requestAnimationFrame(() => {
-      nextPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-      nextPanel.focus({ preventScroll: true });
-      setPendingSectionFocus(null);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(animationFrameId);
-    };
-  }, [pendingSectionFocus]);
 
   const performSearch = useCallback(async (searchTitle: string, searchAuthor: string) => {
     if (!searchTitle.trim() || !searchAuthor.trim()) {
@@ -496,7 +470,6 @@ export function useBookFormController(props: BookFormProps) {
 
   const handleSectionChange = useCallback((section: BookFormSection) => {
     setActiveSection(section);
-    setPendingSectionFocus(section);
   }, []);
 
   const handleCancel = useCallback(() => {
@@ -568,11 +541,10 @@ export function useBookFormController(props: BookFormProps) {
   }, []);
 
   const toggleAdvancedDetails = useCallback(() => {
-    setShowAdvancedFields((currentValue) => {
-      const nextValue = !currentValue;
-      const nextSection = nextValue ? "reading" : "core";
+      setShowAdvancedFields((currentValue) => {
+        const nextValue = !currentValue;
+      const nextSection = nextValue ? "metadata" : "basics";
       setActiveSection(nextSection);
-      setPendingSectionFocus(nextSection);
       return nextValue;
     });
   }, []);
@@ -581,9 +553,10 @@ export function useBookFormController(props: BookFormProps) {
     refs: {
       formRef,
       titleFieldRef,
-      coreSectionRef,
-      readingSectionRef,
-      metaSectionRef,
+      basicsSectionRef,
+      coverSectionRef,
+      summarySectionRef,
+      metadataSectionRef,
     },
     state: {
       activeSection,
