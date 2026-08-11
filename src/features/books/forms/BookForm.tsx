@@ -1,4 +1,4 @@
-import { Save } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { Input } from "../../../ui/components/Input";
 import { BookFormTabs } from "./book-form/BookFormTabs";
 import type { BookFormProps } from "./book-form/BookForm.types";
@@ -61,7 +61,7 @@ export function BookForm(props: BookFormProps) {
   return (
     <form
       ref={formRef}
-      className="book-editor-form ds-panel-surface shadow-sm"
+      className="book-editor-form"
       onSubmit={actions.handleFormSubmit}
     >
       {saveMessage ? (
@@ -310,15 +310,28 @@ export function BookForm(props: BookFormProps) {
         </section>
       </div>
 
-      <button
-        type="submit"
-        className="book-editor-floating-save"
-        disabled={saveState === "saving"}
-        aria-label={state.submitLabel}
-        title={state.submitLabel}
-      >
-        <Save className="h-5 w-5" aria-hidden="true" />
-      </button>
+      <div className="book-editor-floating-actions" aria-label="Save and delete actions">
+        {props.isEditing && props.onDelete ? (
+          <button
+            type="button"
+            className="book-editor-floating-button book-editor-floating-button--danger"
+            onClick={props.onDelete}
+            aria-label="Delete book"
+            title="Delete book"
+          >
+            <Trash2 className="h-5 w-5" aria-hidden="true" />
+          </button>
+        ) : null}
+        <button
+          type="submit"
+          className="book-editor-floating-button book-editor-floating-button--save"
+          disabled={saveState === "saving"}
+          aria-label={state.submitLabel}
+          title={state.submitLabel}
+        >
+          <Save className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
     </form>
   );
 }

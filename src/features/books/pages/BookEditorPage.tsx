@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   addBook,
   clearBookSeries,
@@ -381,17 +381,6 @@ export function BookEditorPage() {
         >
           <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        {isEditing ? (
-          <button
-            type="button"
-            className="book-editor-page__icon-button book-editor-page__icon-button--danger"
-            onClick={() => setDeleteDialogOpen(true)}
-            aria-label="Delete book"
-            title="Delete book"
-          >
-            <Trash2 className="h-5 w-5" aria-hidden="true" />
-          </button>
-        ) : null}
       </div>
 
       <BookForm
@@ -442,6 +431,7 @@ export function BookEditorPage() {
         }}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
+        onDelete={isEditing ? () => setDeleteDialogOpen(true) : undefined}
       >
         {formIsDirty
           ? isEditing
