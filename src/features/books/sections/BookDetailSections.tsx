@@ -6,6 +6,7 @@ import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
 import type { ReaderId } from "../lib/readingListPreferences";
 import { normalizeSeriesName } from "../hooks/discoveryBrowseShared";
+import "./BookDetailSections.css";
 
 export type MetadataSummaryItem = {
   label: string;
@@ -45,6 +46,8 @@ export function BookDetailContent({
   onOwnershipChange: (nextOwnershipStatus: "owned" | "wishlist") => void;
   onAddToReadingList: (readerId: ReaderId) => void;
 }) {
+  const editBookPath = `/admin?edit=${book.id}&ownership=${isWishlistBook ? "wishlist" : "owned"}`;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -59,16 +62,16 @@ export function BookDetailContent({
       </div>
 
       <div className="ds-panel-surface overflow-hidden rounded-2xl bg-cream/95 shadow-soft">
-        <div className="grid gap-6 p-6 md:grid-cols-3">
-          <div className="md:col-span-1">
+        <div className="book-detail-layout grid gap-5 p-4 sm:p-5 md:grid-cols-3 md:gap-6 md:p-6">
+          <div className="book-detail-cover md:col-span-1">
             {localCoverUrl || book.coverUrl ? (
               <img
                 src={localCoverUrl ?? book.coverUrl ?? undefined}
                 alt={`Cover of ${book.title}`}
-                className="aspect-2/3 w-full rounded-lg object-cover shadow-md"
+                className="book-detail-cover__image aspect-2/3 w-full rounded-lg object-cover shadow-md"
               />
             ) : (
-              <div className="flex aspect-2/3 w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
+              <div className="book-detail-cover__image flex aspect-2/3 w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
                 <span className="ds-chip border-warm-gray bg-cream px-4 py-2 text-stone-600" aria-hidden="true">
                   No Cover
                 </span>
@@ -266,27 +269,6 @@ export function BookDetailContent({
               ) : null}
             </section>
 
-            <section className="ds-panel-surface bg-stone-50/70 p-4">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
-                    Edit Details
-                  </h2>
-                  <p className="ds-muted-meta mt-1 text-xs">
-                    Open the admin form to update metadata, notes, or cover info.
-                  </p>
-                </div>
-                <Link to={`/admin?edit=${book.id}&ownership=${isWishlistBook ? "wishlist" : "owned"}`}>
-                  <Button variant="secondary">
-                    <span className="flex items-center gap-2">
-                      <Edit className="h-4 w-4" aria-hidden="true" />
-                      Edit Book
-                    </span>
-                  </Button>
-                </Link>
-              </div>
-            </section>
-
             <div className="space-y-3 border-t border-warm-gray pt-4">
               {book.genre ? (
                 <div>
@@ -329,6 +311,16 @@ export function BookDetailContent({
           </div>
         </div>
       </div>
+
+      <Link
+        to={editBookPath}
+        className="book-detail-edit-action"
+        aria-label={`Edit ${book.title}`}
+        title="Edit book"
+      >
+        <Edit className="h-5 w-5" aria-hidden="true" />
+        <span>Edit Book</span>
+      </Link>
     </div>
   );
 }

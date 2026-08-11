@@ -27,6 +27,7 @@ export function AppShell({ children }: AppShellProps) {
       ? "wishlist"
       : "owned";
   const addBookPath = `/admin?add=1&ownership=${activeOwnership}`;
+  const isBookDetailPage = /^\/book\/[^/]+$/.test(location.pathname);
 
   return (
     <div className="app-shell">
@@ -66,14 +67,16 @@ export function AppShell({ children }: AppShellProps) {
 
       <MobileAppNavigation addBookPath={addBookPath} />
 
-      <Link
-        to={addBookPath}
-        className="floating-add"
-        aria-label="Add a book"
-        title="Add a book"
-      >
-        <Plus aria-hidden="true" size={24} />
-      </Link>
+      {isBookDetailPage ? null : (
+        <Link
+          to={addBookPath}
+          className="floating-add"
+          aria-label="Add a book"
+          title="Add a book"
+        >
+          <Plus aria-hidden="true" size={24} />
+        </Link>
+      )}
     </div>
   );
 }
