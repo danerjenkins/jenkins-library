@@ -171,7 +171,7 @@ export function ViewBooksPage() {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-transparent">
+    <div className="min-h-screen overflow-x-clip bg-transparent">
       <LibraryHero
         title="My Library"
         quotes={LIBRARY_HERO_QUOTES}

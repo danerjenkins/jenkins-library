@@ -322,7 +322,7 @@ export function WishlistPage() {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-transparent">
+    <div className="min-h-screen overflow-x-clip bg-transparent">
       <FullBleedPageHero
         title="Wishlist"
         subtitle="A shelf of future favorites and books still making their case."
