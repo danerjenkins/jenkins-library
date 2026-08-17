@@ -38,15 +38,17 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<LibraryMember[]>([]);
   const [activeLibraryId, setActiveLibraryIdState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const requestedLibrarySlug = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get("library");
+  }, [location.search]);
 
   const loadLibraries = useCallback(async () => {
     setIsLoading(true);
     try {
       const nextLibraries = await listLibraries();
-      const searchParams = new URLSearchParams(location.search);
-      const requestedSlug = searchParams.get("library");
-      const requested = requestedSlug
-        ? nextLibraries.find((library) => library.slug === requestedSlug)
+      const requested = requestedLibrarySlug
+        ? nextLibraries.find((library) => library.slug === requestedLibrarySlug)
         : null;
       const storedId = readStoredLibraryId();
       const stored = storedId
@@ -68,7 +70,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [location.search]);
+  }, [requestedLibrarySlug]);
 
   useEffect(() => {
     void loadLibraries();

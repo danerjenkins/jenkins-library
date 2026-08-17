@@ -23,7 +23,7 @@ body {
   @apply text-charcoal antialiased;
   margin: 0;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   background:
     radial-gradient(circle at top, rgba(184, 138, 69, 0.08), transparent 34%),
     linear-gradient(180deg, #fbf7ef 0%, #f3ecdf 48%, #ece1cf 100%);
