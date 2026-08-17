@@ -126,6 +126,7 @@ export function AdminBooksPage() {
       await invokeAdminUserRequest({
         action: "update-member",
         libraryId: activeLibrary.id,
+        memberId: selectedMember.id,
         email: editMemberEmail,
         displayName: editMemberName,
         role: editMemberRole,

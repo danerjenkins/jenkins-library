@@ -6,6 +6,7 @@ type LibraryRole = "admin" | "editor" | "member";
 type AdminUserRequest = {
   action: "invite-member" | "update-member";
   libraryId: string;
+  memberId?: string;
   email: string;
   displayName: string;
   role: LibraryRole;
@@ -16,6 +17,27 @@ type ExistingMemberRow = {
   id: string;
   user_id: string | null;
 };
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    const maybeError = error as { message?: unknown; error_description?: unknown; error?: unknown };
+    if (typeof maybeError.message === "string" && maybeError.message.trim()) {
+      return maybeError.message;
+    }
+    if (
+      typeof maybeError.error_description === "string" &&
+      maybeError.error_description.trim()
+    ) {
+      return maybeError.error_description;
+    }
+    if (typeof maybeError.error === "string" && maybeError.error.trim()) {
+      return maybeError.error;
+    }
+  }
+  if (typeof error === "string" && error.trim()) return error;
+  return "Admin request failed.";
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -64,6 +86,7 @@ function normalizeRequest(input: Partial<AdminUserRequest>): AdminUserRequest {
   return {
     action: input.action,
     libraryId: input.libraryId,
+    memberId: input.memberId,
     email,
     displayName,
     role,
@@ -111,43 +134,55 @@ serve(async (request) => {
       return jsonResponse({ error: "You are not an admin for this library." }, 403);
     }
 
-    const { data: existingMembers, error: memberLookupError } = await adminClient
+    let memberLookup = adminClient
       .from("library_members")
       .select("id, user_id")
-      .eq("library_id", payload.libraryId)
-      .ilike("email", payload.email)
-      .limit(1);
+      .eq("library_id", payload.libraryId);
+
+    if (payload.action === "update-member" && payload.memberId) {
+      memberLookup = memberLookup.eq("id", payload.memberId);
+    } else {
+      memberLookup = memberLookup.ilike("email", payload.email);
+    }
+
+    const { data: existingMembers, error: memberLookupError } = await memberLookup.limit(1);
     if (memberLookupError) {
       throw memberLookupError;
     }
 
     const existingMember = ((existingMembers ?? []) as ExistingMemberRow[])[0] ?? null;
+    if (payload.action === "update-member" && !existingMember) {
+      return jsonResponse({ error: "Member not found." }, 404);
+    }
+
     let linkedUserId: string | null = existingMember?.user_id ?? null;
 
-    const { data: listedUsers, error: listError } =
-      await serviceAuthClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    if (listError) {
-      throw listError;
-    }
-
-    const existingUser = listedUsers.users.find(
-      (user) => user.email?.toLowerCase() === payload.email,
-    );
-
-    if (existingUser) {
-      linkedUserId = existingUser.id;
-    } else if (payload.action === "invite-member" && !existingMember) {
-      const { data: inviteData, error: inviteError } =
-        await serviceAuthClient.auth.admin.inviteUserByEmail(payload.email, {
-          data: { display_name: payload.displayName },
-        });
-      if (inviteError) {
-        throw inviteError;
+    if (payload.action === "invite-member" && !existingMember) {
+      const { data: listedUsers, error: listError } =
+        await serviceAuthClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (listError) {
+        throw listError;
       }
-      linkedUserId = inviteData.user?.id ?? null;
+
+      const existingUser = listedUsers.users.find(
+        (user) => user.email?.toLowerCase() === payload.email,
+      );
+
+      if (existingUser) {
+        linkedUserId = existingUser.id;
+      } else {
+        const { data: inviteData, error: inviteError } =
+          await serviceAuthClient.auth.admin.inviteUserByEmail(payload.email, {
+            data: { display_name: payload.displayName },
+          });
+        if (inviteError) {
+          throw inviteError;
+        }
+        linkedUserId = inviteData.user?.id ?? null;
+      }
     }
 
-    if (linkedUserId) {
+    if (payload.action === "invite-member" && linkedUserId) {
       const { error: profileError } = await adminClient.from("profiles").upsert(
         {
           user_id: linkedUserId,
@@ -191,9 +226,6 @@ serve(async (request) => {
 
     return jsonResponse({ ok: true });
   } catch (error) {
-    return jsonResponse(
-      { error: error instanceof Error ? error.message : "Request failed." },
-      400,
-    );
+    return jsonResponse({ error: getErrorMessage(error) }, 400);
   }
 });

@@ -20,6 +20,7 @@ export interface LibraryMember {
 export interface AdminUserRequest {
   action: "invite-member" | "update-member";
   libraryId: string;
+  memberId?: string;
   email: string;
   displayName: string;
   role: LibraryRole;
