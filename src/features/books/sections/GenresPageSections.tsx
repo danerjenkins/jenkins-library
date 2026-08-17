@@ -1,4 +1,3 @@
-import { ArrowLeft, ArrowRight, Library, Sparkles } from "lucide-react";
 import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import { FullBleedPageHero } from "../../../ui/components/PageLayout";
@@ -9,8 +8,6 @@ import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import type { GenreShelf } from "../hooks/useGenresBrowse";
 
 const sectionSurfaceClasses = "ds-panel-shell";
-const pillClasses = "ds-chip";
-const carouselButtonClasses = "ds-carousel-button";
 
 export function GenresPageFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -168,9 +165,6 @@ export function FeaturedGenresSection({
               className="ds-chip ds-chip--interactive ds-chip--warm-gray-light"
             >
               {shelf.genre}
-              <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-[11px] uppercase tracking-[0.12em] text-stone-500">
-                {shelf.books.length}
-              </span>
             </a>
           ))}
         </nav>
@@ -183,15 +177,11 @@ export function GenresResultsSection({
   loading,
   genreShelves,
   cardSize,
-  carouselRefs,
-  onScrollShelf,
   onClearFilters,
 }: {
   loading: boolean;
   genreShelves: GenreShelf[];
   cardSize: CardSize;
-  carouselRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
-  onScrollShelf: (sectionId: string, direction: "backward" | "forward") => void;
   onClearFilters: () => void;
 }) {
   if (loading) {
@@ -222,97 +212,46 @@ export function GenresResultsSection({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {genreShelves.map((shelf) => (
         <section
           key={shelf.sectionId}
           id={shelf.sectionId}
-          className={`${sectionSurfaceClasses} scroll-mt-24 p-4 sm:p-5`}
+          className="ds-genre-shelf scroll-mt-24"
         >
-          <div className="ds-panel-surface rounded-[1.6rem] p-4 shadow-sm sm:p-5">
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className="min-w-0 space-y-2">
-                <p className="ds-muted-meta text-[11px] font-semibold uppercase tracking-[0.14em]">
-                  Genre Lane
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-display text-2xl font-semibold text-stone-900 text-balance">
-                    {shelf.genre}
-                  </h2>
-                  <span className={`${pillClasses} ds-chip--warm-gray`}>
-                    {shelf.books.length}{" "}
-                    {shelf.books.length === 1 ? "book" : "books"}
-                  </span>
-                </div>
-                <p className="ds-subtle-text max-w-2xl text-sm leading-6">
-                  Swipe or arrow through this lane to compare ownership, scan
-                  related reads, and keep series-adjacent picks together.
-                </p>
-              </div>
+          <div className="ds-genre-shelf__divider">
+            <h2 className="ds-genre-shelf__label">{shelf.genre}</h2>
+            <div className="ds-genre-shelf__line" aria-hidden="true" />
+          </div>
 
-              <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                <span className="ds-chip ds-chip--interactive ds-chip--sage">
-                  <Library className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                  {shelf.ownedCount} in library
-                </span>
-                <span className="ds-chip ds-chip--interactive ds-chip--brass">
-                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                  {shelf.wishlistCount} on wishlist
-                </span>
-                <div className="ml-auto flex items-center gap-2 md:ml-2">
-                  <button
-                    type="button"
-                    className={`${carouselButtonClasses} min-h-10 min-w-10 touch-manipulation`}
-                    onClick={() => onScrollShelf(shelf.sectionId, "backward")}
-                    aria-label={`Scroll ${shelf.genre} books backward`}
-                  >
-                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${carouselButtonClasses} min-h-10 min-w-10 touch-manipulation`}
-                    onClick={() => onScrollShelf(shelf.sectionId, "forward")}
-                    aria-label={`Scroll ${shelf.genre} books forward`}
-                  >
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
+          <div
+            className="ds-horizontal-book-shelf snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+            data-card-size={cardSize}
+            aria-label={`${shelf.genre} books`}
+            role="region"
+            aria-roledescription="carousel"
+            tabIndex={0}
+            style={{
+              contentVisibility: "auto",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {shelf.books.map((book) => (
+              <div
+                key={book.id}
+                className="ds-horizontal-book-shelf__item"
+                data-card-size={cardSize}
+                style={{ scrollMarginInline: "1rem" }}
+              >
+                <BookCard
+                  book={book}
+                  variant="view"
+                  cardSize={cardSize}
+                  clickable={true}
+                  deferRendering={false}
+                />
               </div>
-            </div>
-
-            <div
-              ref={(node) => {
-                carouselRefs.current[shelf.sectionId] = node;
-              }}
-              className="ds-genres-carousel mt-4 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
-              data-card-size={cardSize}
-              aria-label={`${shelf.genre} book carousel`}
-              role="region"
-              aria-roledescription="carousel"
-              tabIndex={0}
-              style={{
-                contentVisibility: "auto",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              {shelf.books.map((book) => (
-                <div
-                  key={book.id}
-                  className="ds-carousel-card"
-                  data-card-size={cardSize}
-                  style={{ scrollMarginInline: "1rem" }}
-                >
-                  <BookCard
-                    book={book}
-                    variant="view"
-                    cardSize={cardSize}
-                    clickable={true}
-                    deferRendering={false}
-                    className="h-full"
-                  />
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </section>
       ))}

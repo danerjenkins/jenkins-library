@@ -8,7 +8,7 @@ import {
 import { useGenresBrowse } from "../hooks/useGenresBrowse";
 
 export function GenresPage() {
-  const { state, refs, actions } = useGenresBrowse();
+  const { state, actions } = useGenresBrowse();
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
@@ -33,8 +33,6 @@ export function GenresPage() {
           loading={state.loading}
           genreShelves={state.genreShelves}
           cardSize={state.cardSize}
-          carouselRefs={refs.carouselRefs}
-          onScrollShelf={actions.scrollShelf}
           onClearFilters={actions.clearFilters}
         />
       </GenresPageFrame>

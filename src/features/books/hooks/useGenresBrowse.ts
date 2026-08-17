@@ -1,7 +1,6 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
 import {
-  getScrollBehavior,
   matchesGenreBookQuery,
   mergeDiscoveryBooks,
   normalizeGenre,
@@ -37,10 +36,7 @@ export function useGenresBrowse() {
     const storedCardSize = readStorageValue<string>(SHELF_CARD_SIZE_STORAGE_KEY);
     return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
   });
-  const [shelfCardHeights, setShelfCardHeights] = useState<Record<string, number>>({});
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const heightSyncFrameRef = useRef<number | null>(null);
 
   const loadBooks = useCallback(async () => {
     try {
@@ -121,100 +117,6 @@ export function useGenresBrowse() {
 
   const hasActiveFilters = deferredSearchQuery.trim().length > 0 || ownershipFilter !== "all";
 
-  const scrollShelf = useCallback((sectionId: string, direction: "backward" | "forward") => {
-    const shelf = carouselRefs.current[sectionId];
-    if (!shelf) return;
-    const delta = Math.max(shelf.clientWidth * 0.82, 240) * (direction === "forward" ? 1 : -1);
-    shelf.scrollBy({ left: delta, behavior: getScrollBehavior() });
-  }, []);
-
-  const syncShelfCardHeights = useCallback(() => {
-    const nextHeights: Record<string, number> = {};
-
-    for (const shelf of genreShelves) {
-      const carousel = carouselRefs.current[shelf.sectionId];
-      if (!carousel) continue;
-      const cardItems = carousel.querySelectorAll<HTMLElement>("[data-genre-card-item]");
-      if (cardItems.length === 0) continue;
-
-      cardItems.forEach((item) => {
-        item.style.height = "";
-      });
-
-      let maxHeight = 0;
-      cardItems.forEach((item) => {
-        const card = item.querySelector<HTMLElement>(".book-card");
-        const measuredHeight = Math.ceil((card ?? item).getBoundingClientRect().height);
-        if (measuredHeight > maxHeight) maxHeight = measuredHeight;
-      });
-      if (maxHeight > 0) nextHeights[shelf.sectionId] = maxHeight;
-    }
-
-    setShelfCardHeights((current) => {
-      const currentKeys = Object.keys(current);
-      const nextKeys = Object.keys(nextHeights);
-      if (
-        currentKeys.length === nextKeys.length &&
-        nextKeys.every((key) => current[key] === nextHeights[key])
-      ) {
-        return current;
-      }
-      return nextHeights;
-    });
-  }, [genreShelves]);
-
-  const scheduleShelfCardHeightSync = useCallback(() => {
-    if (typeof window === "undefined") {
-      syncShelfCardHeights();
-      return;
-    }
-    if (heightSyncFrameRef.current !== null) {
-      window.cancelAnimationFrame(heightSyncFrameRef.current);
-    }
-    heightSyncFrameRef.current = window.requestAnimationFrame(() => {
-      heightSyncFrameRef.current = null;
-      syncShelfCardHeights();
-    });
-  }, [syncShelfCardHeights]);
-
-  useEffect(() => {
-    scheduleShelfCardHeightSync();
-    if (typeof ResizeObserver === "undefined") {
-      return () => {
-        if (typeof window !== "undefined" && heightSyncFrameRef.current !== null) {
-          window.cancelAnimationFrame(heightSyncFrameRef.current);
-          heightSyncFrameRef.current = null;
-        }
-      };
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      scheduleShelfCardHeightSync();
-    });
-    for (const shelf of genreShelves) {
-      const carousel = carouselRefs.current[shelf.sectionId];
-      if (!carousel) continue;
-      resizeObserver.observe(carousel);
-      carousel
-        .querySelectorAll<HTMLElement>("[data-genre-card-item]")
-        .forEach((item) => resizeObserver.observe(item));
-    }
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", scheduleShelfCardHeightSync);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", scheduleShelfCardHeightSync);
-        if (heightSyncFrameRef.current !== null) {
-          window.cancelAnimationFrame(heightSyncFrameRef.current);
-          heightSyncFrameRef.current = null;
-        }
-      }
-    };
-  }, [cardSize, genreShelves, scheduleShelfCardHeightSync]);
-
   const clearFilters = useCallback(() => {
     setSearchQuery("");
     setOwnershipFilter("all");
@@ -227,20 +129,17 @@ export function useGenresBrowse() {
       searchQuery,
       ownershipFilter,
       cardSize,
-      shelfCardHeights,
       genreShelves,
       featuredShelves,
       ownershipTotals,
       resultsLabel,
       hasActiveFilters,
     },
-    refs: { carouselRefs },
     actions: {
       setIsFilterDrawerOpen,
       setSearchQuery,
       setOwnershipFilter,
       setCardSize,
-      scrollShelf,
       clearFilters,
     },
   };
