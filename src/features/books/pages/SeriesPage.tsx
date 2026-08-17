@@ -9,10 +9,10 @@ import {
 } from "../sections/SeriesPageSections";
 import { getScrollBehavior } from "../hooks/discoveryBrowseShared";
 import { useSeriesBrowse } from "../hooks/useSeriesBrowse";
-import { useAuth } from "../../../app/auth/useAuth";
+import { useLibrary } from "../../libraries/useLibrary";
 
 export function SeriesPage() {
-  const { canEdit } = useAuth();
+  const { canEdit } = useLibrary();
   const { state, actions, helpers } = useSeriesBrowse();
   const location = useLocation();
 

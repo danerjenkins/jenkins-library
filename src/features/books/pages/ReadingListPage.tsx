@@ -5,18 +5,17 @@ import {
   ReadingListQueueSection,
 } from "../sections/ReadingListPageSections";
 import { useReadingListPage } from "../hooks/useReadingListPage";
-import { useAuth } from "../../../app/auth/useAuth";
-
-function getReaderLabel(readerId: "dane" | "emma") {
-  return readerId === "dane" ? "Dane" : "Emma";
-}
+import { useLibrary } from "../../libraries/useLibrary";
 
 export function ReadingListPage() {
-  const { canEdit } = useAuth();
+  const { activeMember, canEdit, members } = useLibrary();
   const { state, loading, errorMessage, prioritizedBooks, actions } =
     useReadingListPage();
 
-  const activeReaderLabel = getReaderLabel(state.activeReader);
+  const activeReaderLabel =
+    members.find((member) => member.id === state.activeReader)?.displayName ??
+    activeMember?.displayName ??
+    "you";
   const queuedTotal = prioritizedBooks.queueBooks.length;
 
   return (
@@ -32,6 +31,7 @@ export function ReadingListPage() {
           activeReader={state.activeReader}
           queuedTotal={queuedTotal}
           activeReaderLabel={activeReaderLabel}
+          members={members}
           onActiveReaderChange={actions.setActiveReader}
         />
 

@@ -77,7 +77,7 @@ export function LibraryDiscoveryPanel({
           badge="Reading List"
           badgeClassName="ds-chip w-fit border-brass/30 bg-brass/10 px-2.5 py-1 text-clay"
           title="Keep Next Up Small"
-          description="Give Dane and Emma separate owned and wishlist queues so the next few reads stay focused."
+          description="Keep each member's wishlist and next-up queue focused without crowding the shared shelf."
           summary={loading ? "Preparing reading list..." : "2 reader queues"}
           cta="Open Reading List"
           ctaClassName="text-clay"

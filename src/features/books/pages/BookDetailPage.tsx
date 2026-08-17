@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { getBookById, updateBook } from "../../../data/bookRepo";
+import { getBookById, setCurrentUserReadStatus, updateBook } from "../../../data/bookRepo";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
@@ -11,13 +11,13 @@ import {
   getReadingListQueues,
 } from "../../../repos/readingListRepo";
 import { BookDetailContent, type MetadataSummaryItem } from "../sections/BookDetailSections";
-import { useAuth } from "../../../app/auth/useAuth";
+import { useLibrary } from "../../libraries/useLibrary";
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { canEdit } = useAuth();
+  const { activeMember, canEdit, members } = useLibrary();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,10 +25,7 @@ export function BookDetailPage() {
   const [readStatusError, setReadStatusError] = useState<string | null>(null);
   const [savingOwnership, setSavingOwnership] = useState(false);
   const [ownershipError, setOwnershipError] = useState<string | null>(null);
-  const [readingListQueues, setReadingListQueues] = useState<Record<ReaderId, string[]>>({
-    dane: [],
-    emma: [],
-  });
+  const [readingListQueues, setReadingListQueues] = useState<Record<ReaderId, string[]>>({});
 
   useEffect(() => {
     if (!id) {
@@ -43,9 +40,10 @@ export function BookDetailPage() {
         setLoading(true);
         setErrorMessage(null);
 
+        const memberIds = members.map((member) => member.id);
         const [bookData, queues] = await Promise.all([
           getBookById(id),
-          canEdit ? getReadingListQueues() : Promise.resolve({ dane: [], emma: [] }),
+          activeMember ? getReadingListQueues(memberIds) : Promise.resolve({}),
         ]);
         if (!bookData) {
           navigate("/view");
@@ -73,7 +71,7 @@ export function BookDetailPage() {
     return () => {
       ignore = true;
     };
-  }, [canEdit, id, navigate]);
+  }, [activeMember, id, members, navigate]);
 
   const dateFormatter = useMemo(
     () =>
@@ -122,14 +120,16 @@ export function BookDetailPage() {
 
   const queuedReaders = useMemo(() => {
     if (!book) {
-      return { dane: false, emma: false };
+      return {};
     }
 
-    return {
-      dane: readingListQueues.dane.includes(book.id),
-      emma: readingListQueues.emma.includes(book.id),
-    };
-  }, [book, readingListQueues]);
+    return Object.fromEntries(
+      members.map((member) => [
+        member.id,
+        (readingListQueues[member.id] ?? []).includes(book.id),
+      ]),
+    );
+  }, [book, members, readingListQueues]);
 
   const handleBackNavigation = () => {
     const historyState = window.history.state as { idx?: number } | null;
@@ -151,25 +151,36 @@ export function BookDetailPage() {
     navigate(backPath);
   };
 
-  const handleReadStatusChange = async (
-    field: "readByDane" | "readByEmma",
-    checked: boolean,
-  ) => {
+  const handleReadStatusChange = async (checked: boolean) => {
     if (!book) return;
-    if (!canEdit) return;
+    if (!activeMember) return;
 
     const previousBook = book;
-    const nextBook = { ...book, [field]: checked };
+    const nextReaders = checked
+      ? [
+          ...book.readers.filter((reader) => reader.memberId !== activeMember.id),
+          {
+            memberId: activeMember.id,
+            userId: activeMember.userId,
+            displayName: activeMember.displayName,
+            readAt: new Date().toISOString(),
+          },
+        ]
+      : book.readers.filter((reader) => reader.memberId !== activeMember.id);
+    const nextBook = {
+      ...book,
+      readers: nextReaders,
+      currentUserHasRead: checked,
+    };
 
     setBook(nextBook);
     setSavingReadStatus(true);
     setReadStatusError(null);
 
     try {
-      const updatedBook = await updateBook(book.id, {
-        [field]: checked,
-      });
-      setBook(updatedBook);
+      await setCurrentUserReadStatus(book.id, checked);
+      const updatedBook = await getBookById(book.id);
+      setBook(updatedBook ?? nextBook);
     } catch (error) {
       console.error("Failed to update read status:", error);
       setBook(previousBook);
@@ -208,7 +219,7 @@ export function BookDetailPage() {
 
   const handleAddToReadingList = (readerId: ReaderId) => {
     if (!book) return;
-    if (!canEdit) return;
+    if (!activeMember) return;
 
     void addBookToReadingList(readerId, book.id)
       .then((nextQueueIds) => {
@@ -265,6 +276,8 @@ export function BookDetailPage() {
       backLabel={backLabel}
       metadataSummary={metadataSummary}
       queuedReaders={queuedReaders}
+      members={members}
+      activeMember={activeMember}
       savingReadStatus={savingReadStatus}
       readStatusError={readStatusError}
       savingOwnership={savingOwnership}

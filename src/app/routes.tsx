@@ -14,6 +14,7 @@ import { QuickReadPage } from "../features/books/pages/QuickReadPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 import { ProtectedEditorRoute } from "./auth/ProtectedEditorRoute";
 import { LoginPage } from "../features/auth/LoginPage";
+import { ProfilePage } from "../features/profile/ProfilePage";
 
 export const routes: RouteObject[] = [
   {
@@ -39,6 +40,11 @@ export const routes: RouteObject[] = [
   {
     path: "/login",
     element: <LoginPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
     errorElement: <RouteErrorBoundary />,
   },
   {

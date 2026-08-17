@@ -1,10 +1,10 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { LoadingState } from "../../ui/components/LoadingState";
-import { useAuth } from "./useAuth";
+import { useLibrary } from "../../features/libraries/useLibrary";
 
 export function ProtectedEditorRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { canEdit, isLoading } = useAuth();
+  const { canEdit, isLoading } = useLibrary();
 
   if (isLoading) {
     return (

@@ -108,7 +108,7 @@ export function ManageBookRow({
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <ManageMetaBadge
             className={
-              book.readByDane || book.readByEmma
+              book.readers.length > 0
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : undefined
             }

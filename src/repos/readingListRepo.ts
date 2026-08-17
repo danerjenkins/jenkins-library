@@ -1,16 +1,14 @@
+import { getActiveLibraryIdForRepos } from "../features/libraries/activeLibraryState";
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import type { ReaderId } from "../features/books/lib/readingListPreferences";
 
 const supabaseClient = getSupabaseClientWithSchema();
 
-type ReadingListRow = {
-  reader_id: ReaderId;
-  book_ids: string[] | null;
-  created_at: string | null;
-  updated_at: string | null;
+type TbrItemRow = {
+  member_id: string;
+  book_id: string;
+  position: number;
 };
-
-const readerIds = new Set<ReaderId>(["dane", "emma"]);
 
 function normalizeBookIds(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -24,72 +22,82 @@ function normalizeBookIds(value: unknown): string[] {
     .filter((id, index, array) => array.indexOf(id) === index);
 }
 
-function normalizeReadingListRows(rows: ReadingListRow[]): Record<ReaderId, string[]> {
-  const result: Record<ReaderId, string[]> = {
-    dane: [],
-    emma: [],
-  };
-
-  for (const row of rows) {
-    if (!readerIds.has(row.reader_id)) {
-      continue;
-    }
-
-    result[row.reader_id] = normalizeBookIds(row.book_ids);
+async function saveReaderQueue(readerId: ReaderId, bookIds: string[]): Promise<string[]> {
+  const libraryId = getActiveLibraryIdForRepos();
+  if (!libraryId) {
+    throw new Error("Choose a library before changing a TBR list.");
   }
 
-  return result;
-}
-
-async function saveReaderQueue(readerId: ReaderId, bookIds: string[]): Promise<string[]> {
   const normalizedBookIds = normalizeBookIds(bookIds);
-  const now = new Date().toISOString();
-  const { error } = await supabaseClient
-    .from("reading_lists")
-    .upsert(
-      {
-        reader_id: readerId,
-        book_ids: normalizedBookIds,
-        updated_at: now,
-      },
-      { onConflict: "reader_id" },
-    );
+  const { error: deleteError } = await supabaseClient
+    .from("tbr_items")
+    .delete()
+    .eq("member_id", readerId)
+    .eq("library_id", libraryId);
 
-  if (error) {
-    throw new Error(error.message);
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  if (normalizedBookIds.length === 0) {
+    return [];
+  }
+
+  const rows = normalizedBookIds.map((bookId, index) => ({
+    library_id: libraryId,
+    member_id: readerId,
+    book_id: bookId,
+    position: index + 1,
+    updated_at: new Date().toISOString(),
+  }));
+
+  const { error: insertError } = await supabaseClient.from("tbr_items").insert(rows);
+
+  if (insertError) {
+    throw new Error(insertError.message);
   }
 
   return normalizedBookIds;
 }
 
-export async function getReadingListQueues(): Promise<Record<ReaderId, string[]>> {
-  const { data, error } = await supabaseClient
-    .from("reading_lists")
-    .select("reader_id, book_ids, created_at, updated_at");
+export async function getReadingListQueues(
+  readerIds: ReaderId[] = [],
+): Promise<Record<ReaderId, string[]>> {
+  const libraryId = getActiveLibraryIdForRepos();
+  if (!libraryId) {
+    return {};
+  }
 
+  let query = supabaseClient
+    .from("tbr_items")
+    .select("member_id, book_id, position")
+    .eq("library_id", libraryId)
+    .order("position", { ascending: true });
+
+  if (readerIds.length > 0) {
+    query = query.in("member_id", readerIds);
+  }
+
+  const { data, error } = await query;
   if (error) {
     throw new Error(error.message);
   }
 
-  return normalizeReadingListRows((data ?? []) as ReadingListRow[]);
+  const result: Record<ReaderId, string[]> = {};
+  for (const readerId of readerIds) {
+    result[readerId] = [];
+  }
+
+  for (const row of (data ?? []) as TbrItemRow[]) {
+    result[row.member_id] = [...(result[row.member_id] ?? []), row.book_id];
+  }
+
+  return result;
 }
 
 export async function getReaderQueueIds(readerId: ReaderId): Promise<string[]> {
-  if (!readerIds.has(readerId)) {
-    return [];
-  }
-
-  const { data, error } = await supabaseClient
-    .from("reading_lists")
-    .select("reader_id, book_ids, created_at, updated_at")
-    .eq("reader_id", readerId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return normalizeBookIds((data as ReadingListRow | null)?.book_ids ?? []);
+  const queues = await getReadingListQueues([readerId]);
+  return queues[readerId] ?? [];
 }
 
 export async function addBookToReadingList(

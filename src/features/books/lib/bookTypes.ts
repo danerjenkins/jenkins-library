@@ -48,6 +48,8 @@ export const COMMON_GENRES = [
 export interface Book {
   /** Primary key */
   id: string;
+  /** Library this record belongs to */
+  libraryId: string;
   /** Book title */
   title: string;
   /** Book author */
@@ -62,9 +64,13 @@ export interface Book {
   finished?: boolean;
   /** Cover image URL (optional) */
   coverUrl?: string | null;
-  /** Whether Dane has read this book */
+  /** Visible members who have read this book */
+  readers: BookReader[];
+  /** Whether the signed-in member has read this book */
+  currentUserHasRead: boolean;
+  /** Legacy compatibility while older UI surfaces are refactored */
   readByDane: boolean;
-  /** Whether Emma has read this book */
+  /** Legacy compatibility while older UI surfaces are refactored */
   readByEmma: boolean;
   /** Book format (optional) */
   format?: BookFormat;
@@ -90,6 +96,13 @@ export interface Book {
   updatedAt: number;
 }
 
+export interface BookReader {
+  memberId: string;
+  userId: string | null;
+  displayName: string;
+  readAt: string;
+}
+
 export interface Series {
   id: string;
   name: string;
@@ -112,14 +125,11 @@ export type ReadStatus = "neither" | "dane" | "emma" | "both";
  * Get the read status label for a book
  */
 export function getReadStatusLabel(book: Book): string {
-  if (book.readByDane && book.readByEmma) {
-    return "Read by Dane & Emma";
+  if (book.currentUserHasRead) {
+    return "Read by you";
   }
-  if (book.readByDane) {
-    return "Read by Dane";
-  }
-  if (book.readByEmma) {
-    return "Read by Emma";
+  if (book.readers.length > 0) {
+    return `Read by ${book.readers.map((reader) => reader.displayName).join(", ")}`;
   }
   return "To read";
 }
@@ -128,13 +138,13 @@ export function getReadStatusLabel(book: Book): string {
  * Get the read status type for filtering
  */
 export function getReadStatus(book: Book): ReadStatus {
-  if (book.readByDane && book.readByEmma) {
+  if (book.currentUserHasRead && book.readers.length > 1) {
     return "both";
   }
-  if (book.readByDane) {
+  if (book.currentUserHasRead) {
     return "dane";
   }
-  if (book.readByEmma) {
+  if (book.readers.length > 0) {
     return "emma";
   }
   return "neither";

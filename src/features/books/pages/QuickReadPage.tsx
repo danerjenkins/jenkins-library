@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { BookMarked, Check } from "lucide-react";
-import { updateBook } from "../../../data/bookRepo";
+import { setCurrentUserReadStatus } from "../../../data/bookRepo";
 import { Button } from "../../../ui/components/Button";
 import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
 import { Select } from "../../../ui/components/Select";
@@ -34,7 +34,7 @@ import {
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import { addBookToReadingList, getReadingListQueues } from "../../../repos/readingListRepo";
-import { useAuth } from "../../../app/auth/useAuth";
+import { useLibrary } from "../../libraries/useLibrary";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   return [...books].sort((a, b) => {
@@ -153,13 +153,10 @@ function TbrButton({
 
 export function QuickReadPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { canEdit } = useAuth();
+  const { activeMember, canEdit } = useLibrary();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState<Set<string>>(new Set());
-  const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({
-    dane: [],
-    emma: [],
-  });
+  const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({});
   const { books, setBooks, loading } = useMergedShelfBooks();
   const { state, updateState, clearFilters, hasActiveFilters } =
     useViewBooksPageState(searchParams, setSearchParams);
@@ -238,28 +235,24 @@ export function QuickReadPage() {
   }, [deferredSearchQuery, state, visibleShelfBooks]);
 
   useEffect(() => {
-    if (!canEdit) {
-      setQueueIdsByReader({ dane: [], emma: [] });
+    if (!activeMember) {
+      setQueueIdsByReader({});
       return;
     }
 
-    void getReadingListQueues()
+    void getReadingListQueues([activeMember.id])
       .then((queues) => {
         setQueueIdsByReader(queues);
       })
       .catch((error) => {
         console.error("Failed to load reading list queues:", error);
       });
-  }, [canEdit]);
+  }, [activeMember]);
 
-  const handleReadToggle = async (
-    book: Book,
-    reader: "dane" | "emma",
-  ) => {
-    if (!canEdit) return;
+  const handleReadToggle = async (book: Book) => {
+    if (!activeMember) return;
 
-    const nextReadByDane = reader === "dane" ? !book.readByDane : book.readByDane;
-    const nextReadByEmma = reader === "emma" ? !book.readByEmma : book.readByEmma;
+    const nextReadStatus = !book.currentUserHasRead;
 
     setPendingUpdates((current) => new Set(current).add(book.id));
     setBooks((currentBooks) =>
@@ -267,18 +260,25 @@ export function QuickReadPage() {
         currentBook.id === book.id
           ? {
               ...currentBook,
-              readByDane: nextReadByDane,
-              readByEmma: nextReadByEmma,
+              currentUserHasRead: nextReadStatus,
+              readers: nextReadStatus
+                ? [
+                    ...currentBook.readers.filter((reader) => reader.memberId !== activeMember.id),
+                    {
+                      memberId: activeMember.id,
+                      userId: activeMember.userId,
+                      displayName: activeMember.displayName,
+                      readAt: new Date().toISOString(),
+                    },
+                  ]
+                : currentBook.readers.filter((reader) => reader.memberId !== activeMember.id),
             }
           : currentBook,
       ),
     );
 
     try {
-      await updateBook(book.id, {
-        readByDane: nextReadByDane,
-        readByEmma: nextReadByEmma,
-      });
+      await setCurrentUserReadStatus(book.id, nextReadStatus);
     } catch (error) {
       console.error("Failed to update read status:", error);
       setBooks((currentBooks) =>
@@ -286,8 +286,8 @@ export function QuickReadPage() {
           currentBook.id === book.id
             ? {
                 ...currentBook,
-                readByDane: book.readByDane,
-                readByEmma: book.readByEmma,
+                currentUserHasRead: book.currentUserHasRead,
+                readers: book.readers,
               }
             : currentBook,
         ),
@@ -302,12 +302,12 @@ export function QuickReadPage() {
   };
 
   const handleAddToTbr = async (readerId: ReaderId, bookId: string) => {
-    if (!canEdit) return;
+    if (!activeMember) return;
 
     setPendingUpdates((current) => new Set(current).add(bookId));
     setQueueIdsByReader((current) => ({
       ...current,
-      [readerId]: [bookId, ...current[readerId].filter((id) => id !== bookId)],
+      [readerId]: [bookId, ...(current[readerId] ?? []).filter((id) => id !== bookId)],
     }));
 
     try {
@@ -318,7 +318,7 @@ export function QuickReadPage() {
       }));
     } catch (error) {
       console.error("Failed to update TBR queue:", error);
-      const queues = await getReadingListQueues().catch(() => queueIdsByReader);
+      const queues = await getReadingListQueues([activeMember.id]).catch(() => queueIdsByReader);
       setQueueIdsByReader(queues);
     } finally {
       setPendingUpdates((current) => {
@@ -333,7 +333,7 @@ export function QuickReadPage() {
     <div className="min-h-screen overflow-x-hidden bg-transparent">
       <FullBleedPageHero
         title="Quick Read"
-        subtitle="A faster pass through the shelf, just for marking what Dane and Emma have finished."
+        subtitle="A faster pass through the shelf for marking what you have finished."
         backgroundImage="/readinglisthero.png"
       />
 
@@ -497,8 +497,10 @@ export function QuickReadPage() {
             <BookGrid cardSize={quickReadCardSize}>
               {filteredBooks.map((book) => {
                 const isPending = pendingUpdates.has(book.id);
-                const queuedForDane = queueIdsByReader.dane.includes(book.id);
-                const queuedForEmma = queueIdsByReader.emma.includes(book.id);
+                const activeMemberId = activeMember?.id ?? "";
+                const queuedForMe = activeMemberId
+                  ? (queueIdsByReader[activeMemberId] ?? []).includes(book.id)
+                  : false;
 
                 return (
                   <BookCard
@@ -507,38 +509,22 @@ export function QuickReadPage() {
                     variant="view"
                     cardSize={quickReadCardSize}
                     clickable={true}
-                    actions={canEdit ? (
+                    actions={activeMember ? (
                       <div className={actionGridClassesByCardSize[quickReadCardSize]}>
                         <div className="grid min-w-0 gap-1">
                           <ReaderToggleButton
-                            label="Dane"
+                            label="Me"
                             compact={compactActions}
-                            active={book.readByDane}
+                            active={book.currentUserHasRead}
                             pending={isPending}
-                            onClick={() => void handleReadToggle(book, "dane")}
+                            onClick={() => void handleReadToggle(book)}
                           />
                           <TbrButton
-                            active={queuedForDane}
+                            active={queuedForMe}
                             compact={compactActions}
                             pending={isPending}
-                            readerLabel="Dane"
-                            onClick={() => void handleAddToTbr("dane", book.id)}
-                          />
-                        </div>
-                        <div className="grid min-w-0 gap-1">
-                          <ReaderToggleButton
-                            label="Emma"
-                            compact={compactActions}
-                            active={book.readByEmma}
-                            pending={isPending}
-                            onClick={() => void handleReadToggle(book, "emma")}
-                          />
-                          <TbrButton
-                            active={queuedForEmma}
-                            compact={compactActions}
-                            pending={isPending}
-                            readerLabel="Emma"
-                            onClick={() => void handleAddToTbr("emma", book.id)}
+                            readerLabel={activeMember.displayName}
+                            onClick={() => void handleAddToTbr(activeMember.id, book.id)}
                           />
                         </div>
                       </div>

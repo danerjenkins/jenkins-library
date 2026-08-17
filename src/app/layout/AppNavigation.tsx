@@ -11,7 +11,7 @@ import {
   Plus,
   Search,
   LogIn,
-  LogOut,
+  UserCircle,
   Settings,
   Sparkles,
 } from "lucide-react";
@@ -20,7 +20,7 @@ import { Link, useLocation } from "react-router-dom";
 const primaryNavItems = [
   { to: "/view", label: "Library", Icon: BookOpen },
   { to: "/wishlist", label: "Wishlist", Icon: Heart },
-  { to: "/admin", label: "Manage", Icon: Settings },
+  { to: "/admin", label: "Admin", Icon: Settings },
 ] as const;
 
 const secondaryNavItems = [
@@ -30,10 +30,11 @@ const secondaryNavItems = [
   { to: "/genres", label: "Genres", Icon: Sparkles },
   { to: "/reading-list", label: "TBR", Icon: BookMarked },
   { to: "/stats", label: "Stats", Icon: BarChart3 },
+  { to: "/profile", label: "Profile", Icon: UserCircle },
 ] as const;
 
 function canShowNavItem(to: string, canEdit: boolean) {
-  return canEdit || (to !== "/admin" && to !== "/reading-list");
+  return canEdit || to !== "/admin";
 }
 
 type NavIcon = ComponentType<{
@@ -49,11 +50,9 @@ interface AppNavigationProps {
 export function AppNavigation({
   canEdit,
   userEmail,
-  onSignOut,
 }: {
   canEdit: boolean;
   userEmail: string | null;
-  onSignOut: () => void;
 }) {
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -175,16 +174,11 @@ export function AppNavigation({
             </div>
           ) : null}
         </div>
-        {canEdit ? (
-          <button
-            type="button"
-            className="app-nav__link app-nav__link--auth"
-            onClick={onSignOut}
-            title={userEmail ? `Sign out ${userEmail}` : "Sign out"}
-          >
-            <LogOut className="app-nav__icon" aria-hidden={true} size={18} />
-            <span className="app-nav__label">Sign Out</span>
-          </button>
+        {userEmail ? (
+          <Link to="/profile" className="app-nav__link app-nav__link--auth">
+            <UserCircle className="app-nav__icon" aria-hidden={true} size={18} />
+            <span className="app-nav__label">Profile</span>
+          </Link>
         ) : (
           <Link to="/login" className="app-nav__link app-nav__link--auth">
             <LogIn className="app-nav__icon" aria-hidden={true} size={18} />

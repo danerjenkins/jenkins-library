@@ -21,8 +21,8 @@ type LibraryStats = {
   wishlistBooks: number;
   finishedBooks: number;
   unreadBooks: number;
-  readByDane: number;
-  readByEmma: number;
+  readByMe: number;
+  readByOthers: number;
   readByBoth: number;
   booksWithPages: number;
   totalPages: number;
@@ -95,10 +95,14 @@ export function StatsPage() {
         ownedBooks: ownedBooks.length,
         wishlistBooks: wishlistBooks.length,
         finishedBooks: books.filter((book) => book.finished).length,
-        unreadBooks: books.filter((book) => !book.readByDane && !book.readByEmma).length,
-        readByDane: books.filter((book) => book.readByDane).length,
-        readByEmma: books.filter((book) => book.readByEmma).length,
-        readByBoth: books.filter((book) => book.readByDane && book.readByEmma).length,
+        unreadBooks: books.filter((book) => book.readers.length === 0).length,
+        readByMe: books.filter((book) => book.currentUserHasRead).length,
+        readByOthers: books.filter(
+          (book) => book.readers.length > 0 && !book.currentUserHasRead,
+        ).length,
+        readByBoth: books.filter(
+          (book) => book.currentUserHasRead && book.readers.length > 1,
+        ).length,
         booksWithPages: pages.length,
         totalPages,
         averagePages: pages.length > 0 ? totalPages / pages.length : 0,
@@ -180,9 +184,9 @@ export function StatsPage() {
                 value={formatNumber(stats.unreadBooks)}
                 detail={`${formatPercent((stats.unreadBooks / stats.totalBooks) * 100)} still waiting`}
               />
-              <StatCard label="Read by Dane" value={formatNumber(stats.readByDane)} />
-              <StatCard label="Read by Emma" value={formatNumber(stats.readByEmma)} />
-              <StatCard label="Read by Both" value={formatNumber(stats.readByBoth)} />
+              <StatCard label="Read by Me" value={formatNumber(stats.readByMe)} />
+              <StatCard label="Read by Others" value={formatNumber(stats.readByOthers)} />
+              <StatCard label="Read by Multiple" value={formatNumber(stats.readByBoth)} />
               <StatCard
                 label="Page Count"
                 value={formatPages(stats.averagePages)}

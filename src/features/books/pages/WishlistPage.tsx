@@ -37,7 +37,7 @@ import {
   type WishlistReadFilter,
 } from "../hooks/useWishlistPageState";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
-import { useAuth } from "../../../app/auth/useAuth";
+import { useLibrary } from "../../libraries/useLibrary";
 
 const readStatusByFilter = {
   NEITHER: "neither",
@@ -101,7 +101,7 @@ function restoreScrollAfterSort(scrollX: number, scrollY: number) {
 
 export function WishlistPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { canEdit } = useAuth();
+  const { canEdit } = useLibrary();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [movingBookIds, setMovingBookIds] = useState<Set<string>>(new Set());
   const [updatingMostWantedIds, setUpdatingMostWantedIds] = useState<

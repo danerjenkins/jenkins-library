@@ -1,6 +1,6 @@
 import { readStorageValue, writeStorageValue } from "./shelfViewPreferences";
 
-export type ReaderId = "dane" | "emma";
+export type ReaderId = string;
 
 export interface ReadingListPreferences {
   activeReader: ReaderId;
@@ -8,10 +8,8 @@ export interface ReadingListPreferences {
 
 const STORAGE_KEY = "jenkins-library:reading-list-ui";
 const defaultPreferences: ReadingListPreferences = {
-  activeReader: "dane",
+  activeReader: "",
 };
-
-const readerIds = new Set<ReaderId>(["dane", "emma"]);
 
 export function getReadingListPreferences(): ReadingListPreferences {
   const stored = readStorageValue<Partial<ReadingListPreferences>>(STORAGE_KEY);
@@ -20,13 +18,13 @@ export function getReadingListPreferences(): ReadingListPreferences {
   }
 
   return {
-    activeReader: readerIds.has(stored.activeReader as ReaderId)
-      ? (stored.activeReader as ReaderId)
-      : defaultPreferences.activeReader,
+    activeReader:
+      typeof stored.activeReader === "string"
+        ? stored.activeReader
+        : defaultPreferences.activeReader,
   };
 }
 
 export function setReadingListPreferences(preferences: ReadingListPreferences): void {
   writeStorageValue(STORAGE_KEY, preferences);
 }
-

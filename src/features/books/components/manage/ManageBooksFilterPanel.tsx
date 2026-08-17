@@ -138,9 +138,9 @@ export function ManageBooksFilterPanel({
           options={[
             { value: "ALL", label: "All" },
             { value: "NEITHER", label: "To read" },
-            { value: "DANE", label: "Read by Dane" },
-            { value: "EMMA", label: "Read by Emma" },
-            { value: "BOTH", label: "Read by both" },
+            { value: "DANE", label: "Read by Me" },
+            { value: "EMMA", label: "Read by Others" },
+            { value: "BOTH", label: "Read by Multiple" },
           ]}
         />
 

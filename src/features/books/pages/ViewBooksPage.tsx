@@ -32,7 +32,7 @@ import {
 } from "../hooks/useViewBooksPageState";
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
-import { useAuth } from "../../../app/auth/useAuth";
+import { useLibrary } from "../../libraries/useLibrary";
 
 function sortVisibleBooks(books: Book[], sortBy: SortOption) {
   if (sortBy === "series") {
@@ -78,7 +78,7 @@ function sortVisibleBooks(books: Book[], sortBy: SortOption) {
 
 export function ViewBooksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { canEdit } = useAuth();
+  const { canEdit } = useLibrary();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const { books, loading } = useMergedShelfBooks();
   const { state, updateState, clearFilters, hasActiveFilters } =

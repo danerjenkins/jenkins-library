@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import { LibraryProvider } from "../../features/libraries/LibraryContext";
+import { useLibrary } from "../../features/libraries/useLibrary";
 import { AppNavigation, MobileAppNavigation } from "./AppNavigation";
 import "./AppShell.css";
 
@@ -10,8 +12,17 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  return (
+    <LibraryProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </LibraryProvider>
+  );
+}
+
+function AppShellContent({ children }: AppShellProps) {
   const location = useLocation();
-  const { canEdit, session, signOut } = useAuth();
+  const { session } = useAuth();
+  const { activeLibrary, canEdit, isLoading } = useLibrary();
   const searchParams = new URLSearchParams(location.search);
   const isFullBleedPage = new Set([
     "/view",
@@ -54,12 +65,14 @@ export function AppShell({ children }: AppShellProps) {
                 className="app-brand__logo"
               />
               <span className="app-brand__title">Jenkins Library</span>
+              {activeLibrary ? (
+                <span className="sr-only"> - {activeLibrary.name}</span>
+              ) : null}
             </Link>
           </div>
           <AppNavigation
             canEdit={canEdit}
             userEmail={session?.user.email ?? null}
-            onSignOut={() => void signOut()}
           />
         </div>
       </header>
@@ -69,7 +82,7 @@ export function AppShell({ children }: AppShellProps) {
         className={`app-main ${isFullBleedPage ? "app-main--full-bleed" : ""}`}
         tabIndex={-1}
       >
-        {children}
+        {isLoading ? null : children}
       </main>
 
       <MobileAppNavigation addBookPath={addBookPath} canEdit={canEdit} />

@@ -6,6 +6,7 @@ import {
   getBook as getSupabaseBook,
   listBooks as listSupabaseBooks,
   listWishlistBooks,
+  setCurrentUserReadStatus as setSupabaseCurrentUserReadStatus,
   updateBook as updateSupabaseBook,
   type BookInput as SupabaseBookInput,
 } from "../repos/supabaseBookRepo";
@@ -118,6 +119,13 @@ export async function updateBook(
   patch: Partial<Omit<Book, "id" | "createdAt">>,
 ): Promise<Book> {
   return await updateSupabaseBook(id, toSupabasePatch(patch));
+}
+
+export async function setCurrentUserReadStatus(
+  bookId: string,
+  hasRead: boolean,
+): Promise<void> {
+  await setSupabaseCurrentUserReadStatus(bookId, hasRead);
 }
 
 export async function deleteBook(id: string): Promise<void> {

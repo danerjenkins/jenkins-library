@@ -1,6 +1,8 @@
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
+import { supabase } from "../lib/supabaseClient";
+import { getActiveLibraryIdForRepos } from "../features/libraries/activeLibraryState";
 import * as BookTypes from "../features/books/lib/bookTypes";
-import type { Book, BookFormat } from "../features/books/lib/bookTypes";
+import type { Book, BookFormat, BookReader } from "../features/books/lib/bookTypes";
 
 export type BookInput = {
   title: string;
@@ -21,6 +23,7 @@ export type BookInput = {
 
 type BookRow = {
   id: string;
+  library_id: string;
   title: string | null;
   author: string | null;
   genre: string | null;
@@ -72,6 +75,7 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
 
   return {
     id: row.id,
+    libraryId: row.library_id,
     title: row.title ?? "",
     author: row.author ?? "",
     genre: row.genre ?? null,
@@ -79,6 +83,8 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     isbn: row.isbn ?? null,
     finished: row.finished ?? false,
     coverUrl: row.cover_url ?? null,
+    readers: [],
+    currentUserHasRead: false,
     readByDane: row.read_by_dane ?? false,
     readByEmma: row.read_by_emma ?? false,
     format: normalizeFormat(row.format),
@@ -95,45 +101,139 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
   };
 }
 
+type ReadRow = {
+  book_id: string;
+  member_id: string;
+  read_at: string;
+};
+
+type MemberRow = {
+  id: string;
+  user_id: string | null;
+  display_name: string;
+};
+
+async function getCurrentUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+async function hydrateBooksWithReaders(books: Book[]): Promise<Book[]> {
+  if (books.length === 0) {
+    return books;
+  }
+
+  const bookIds = books.map((book) => book.id);
+  const { data: readRows, error: readError } = await supabaseClient
+    .from("user_book_reads")
+    .select("book_id, member_id, read_at")
+    .in("book_id", bookIds);
+
+  if (readError || !readRows || readRows.length === 0) {
+    return books;
+  }
+
+  const memberIds = Array.from(
+    new Set((readRows as ReadRow[]).map((row) => row.member_id)),
+  );
+  const { data: memberRows, error: memberError } = await supabaseClient
+    .from("library_members")
+    .select("id, user_id, display_name")
+    .in("id", memberIds);
+
+  if (memberError || !memberRows) {
+    return books;
+  }
+
+  const currentUserId = await getCurrentUserId();
+  const membersById = new Map(
+    (memberRows as MemberRow[]).map((member) => [member.id, member]),
+  );
+  const readersByBookId = new Map<string, BookReader[]>();
+
+  for (const row of readRows as ReadRow[]) {
+    const member = membersById.get(row.member_id);
+    if (!member) continue;
+
+    const reader: BookReader = {
+      memberId: row.member_id,
+      userId: member.user_id,
+      displayName: member.display_name,
+      readAt: row.read_at,
+    };
+    const readers = readersByBookId.get(row.book_id) ?? [];
+    readers.push(reader);
+    readersByBookId.set(row.book_id, readers);
+  }
+
+  return books.map((book) => {
+    const readers = readersByBookId.get(book.id) ?? [];
+    const currentUserHasRead = Boolean(
+      currentUserId && readers.some((reader) => reader.userId === currentUserId),
+    );
+    return {
+      ...book,
+      readers,
+      currentUserHasRead,
+      readByDane: readers.some((reader) => reader.displayName.toLowerCase() === "dane"),
+      readByEmma: readers.some((reader) => reader.displayName.toLowerCase() === "emma"),
+    };
+  });
+}
+
 export async function listBooks(): Promise<Book[]> {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
     .eq("ownership_status", "owned")
     .order("genre", { ascending: true, nullsFirst: false })
     .order("author", { ascending: true, nullsFirst: false });
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow));
+  return hydrateBooksWithReaders((data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow)));
 }
 
 export async function listWishlistBooks(): Promise<Book[]> {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
     .eq("ownership_status", "wishlist")
     .order("genre", { ascending: true, nullsFirst: false })
     .order("author", { ascending: true, nullsFirst: false });
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow));
+  return hydrateBooksWithReaders((data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow)));
 }
 
 export async function getBook(id: string): Promise<Book | null> {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("books_with_series")
     .select("*")
     .eq("id", id)
-    .is("deleted_at", null)
-    .maybeSingle();
+    .is("deleted_at", null);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     throw new Error(error.message);
@@ -143,11 +243,13 @@ export async function getBook(id: string): Promise<Book | null> {
     return null;
   }
 
-  return mapRowToBook(data as BookWithSeriesRow);
+  const [book] = await hydrateBooksWithReaders([mapRowToBook(data as BookWithSeriesRow)]);
+  return book ?? null;
 }
 
 export async function createBook(input: BookInput): Promise<Book> {
   const insertRow = {
+    library_id: getActiveLibraryIdForRepos(),
     title: input.title,
     author: input.author,
     genre: input.genre ?? null,
@@ -163,6 +265,10 @@ export async function createBook(input: BookInput): Promise<Book> {
     ownership_status: input.ownershipStatus ?? "owned",
     most_wanted: input.mostWanted ?? false,
   };
+
+  if (!insertRow.library_id) {
+    throw new Error("Choose a library before adding a book.");
+  }
 
   const { data, error } = await supabaseClient
     .from("books")
@@ -184,6 +290,7 @@ export async function createBook(input: BookInput): Promise<Book> {
 
   return mapRowToBook({
     ...(data as BookRow),
+    library_id: (data as BookRow).library_id,
     series_id: null,
     series_name: null,
     series_label: null,
@@ -218,10 +325,15 @@ export async function updateBook(
     updateRow.ownership_status = patch.ownershipStatus;
   if (patch.mostWanted !== undefined) updateRow.most_wanted = patch.mostWanted;
 
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("books")
     .update(updateRow)
-    .eq("id", id)
+    .eq("id", id);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query
     .select("*")
     .single();
 
@@ -239,6 +351,7 @@ export async function updateBook(
 
   return mapRowToBook({
     ...(data as BookRow),
+    library_id: (data as BookRow).library_id,
     series_id: null,
     series_name: null,
     series_label: null,
@@ -247,10 +360,15 @@ export async function updateBook(
 }
 
 export async function softDeleteBook(id: string): Promise<void> {
-  const { error } = await supabaseClient
+  let query = supabaseClient
     .from("books")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", id);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { error } = await query;
 
   if (error) {
     throw new Error(error.message);
@@ -258,10 +376,15 @@ export async function softDeleteBook(id: string): Promise<void> {
 }
 
 export async function deleteBook(id: string): Promise<void> {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("books")
     .delete()
-    .eq("id", id)
+    .eq("id", id);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query
     .select("id");
 
   if (error) {
@@ -270,5 +393,53 @@ export async function deleteBook(id: string): Promise<void> {
 
   if (!data || data.length === 0) {
     throw new Error("Delete failed or was not permitted.");
+  }
+}
+
+export async function setCurrentUserReadStatus(
+  bookId: string,
+  hasRead: boolean,
+): Promise<void> {
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (!activeLibraryId) {
+    throw new Error("Choose a library before changing read status.");
+  }
+
+  const { data: memberId, error: memberError } = await supabaseClient.rpc(
+    "current_library_member_id",
+    { p_library_id: activeLibraryId },
+  );
+
+  if (memberError) {
+    throw new Error(memberError.message);
+  }
+
+  if (!memberId || typeof memberId !== "string") {
+    throw new Error("Your account is not a member of this library.");
+  }
+
+  if (hasRead) {
+    const { error } = await supabaseClient.from("user_book_reads").upsert(
+      {
+        book_id: bookId,
+        member_id: memberId,
+        read_at: new Date().toISOString(),
+      },
+      { onConflict: "book_id,member_id" },
+    );
+    if (error) {
+      throw new Error(error.message);
+    }
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("user_book_reads")
+    .delete()
+    .eq("book_id", bookId)
+    .eq("member_id", memberId);
+
+  if (error) {
+    throw new Error(error.message);
   }
 }

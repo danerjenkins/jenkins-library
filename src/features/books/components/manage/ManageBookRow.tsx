@@ -117,7 +117,7 @@ export function ManageBookRow({
           </ManageMetaBadge>
           <ManageMetaBadge
             className={
-              book.readByDane || book.readByEmma
+              book.readers.length > 0
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : undefined
             }

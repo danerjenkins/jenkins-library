@@ -13,6 +13,7 @@ import {
   removeBookFromReadingList,
   resetReadingList,
 } from "../../../repos/readingListRepo";
+import { useLibrary } from "../../libraries/useLibrary";
 
 function sortBooks(books: Book[]) {
   return [...books].sort((a, b) => {
@@ -36,16 +37,19 @@ function sortBooks(books: Book[]) {
 }
 
 export function useReadingListPage() {
+  const { activeMember, members } = useLibrary();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeReader, setActiveReaderState] = useState<ReaderId>(
-    () => getReadingListPreferences().activeReader,
-  );
-  const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({
-    dane: [],
-    emma: [],
-  });
+  const [activeReader, setActiveReaderState] = useState<ReaderId>(() => getReadingListPreferences().activeReader);
+  const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({});
+
+  useEffect(() => {
+    if (!activeReader && activeMember) {
+      setActiveReaderState(activeMember.id);
+      setReadingListPreferences({ activeReader: activeMember.id });
+    }
+  }, [activeMember, activeReader]);
 
   useEffect(() => {
     let ignore = false;
@@ -55,10 +59,11 @@ export function useReadingListPage() {
       setErrorMessage(null);
 
       try {
+        const readerIds = members.map((member) => member.id);
         const [ownedBooks, wishlistBooks, readingListQueues] = await Promise.all([
           getAllBooks(),
           getWishlistBooks(),
-          getReadingListQueues(),
+          getReadingListQueues(readerIds),
         ]);
 
         if (ignore) {
@@ -86,13 +91,13 @@ export function useReadingListPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [members]);
 
   const booksById = useMemo(() => new Map(books.map((book) => [book.id, book])), [books]);
 
   const queueBooks = useMemo(
     () =>
-      queueIdsByReader[activeReader]
+      (queueIdsByReader[activeReader] ?? [])
         .map((id) => booksById.get(id))
         .filter((book): book is Book => book !== undefined),
     [activeReader, booksById, queueIdsByReader],

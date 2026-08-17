@@ -5,6 +5,7 @@ import { Button } from "../../../ui/components/Button";
 import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
 import type { ReaderId } from "../lib/readingListPreferences";
+import type { LibraryMember } from "../../libraries/libraryTypes";
 import { normalizeSeriesName } from "../hooks/discoveryBrowseShared";
 import "./BookDetailSections.css";
 
@@ -20,6 +21,8 @@ export function BookDetailContent({
   backLabel,
   metadataSummary,
   queuedReaders,
+  members,
+  activeMember,
   savingReadStatus,
   readStatusError,
   savingOwnership,
@@ -36,13 +39,15 @@ export function BookDetailContent({
   backLabel: string;
   metadataSummary: MetadataSummaryItem[];
   queuedReaders: Record<ReaderId, boolean>;
+  members: LibraryMember[];
+  activeMember: LibraryMember | null;
   savingReadStatus: boolean;
   readStatusError: string | null;
   savingOwnership: boolean;
   ownershipError: string | null;
   dateFormatter: Intl.DateTimeFormat;
   onBack: () => void;
-  onReadStatusChange: (field: "readByDane" | "readByEmma", checked: boolean) => void;
+  onReadStatusChange: (checked: boolean) => void;
   onOwnershipChange: (nextOwnershipStatus: "owned" | "wishlist") => void;
   onAddToReadingList: (readerId: ReaderId) => void;
 }) {
@@ -124,9 +129,15 @@ export function BookDetailContent({
                 {isWishlistBook ? "Wishlist" : "Owned"}
               </Badge>
               {book.finished ? <Badge variant="success">Finished</Badge> : null}
-              {book.readByDane ? <Badge variant="amber">Read by Dane</Badge> : null}
-              {book.readByEmma ? <Badge variant="amber">Read by Emma</Badge> : null}
-              {!book.readByDane && !book.readByEmma ? <Badge variant="amber">To Read</Badge> : null}
+              {book.currentUserHasRead ? <Badge variant="amber">Read by you</Badge> : null}
+              {book.readers
+                .filter((reader) => reader.memberId !== activeMember?.id)
+                .map((reader) => (
+                  <Badge key={reader.memberId} variant="amber">
+                    Read by {reader.displayName}
+                  </Badge>
+                ))}
+              {book.readers.length === 0 ? <Badge variant="amber">To Read</Badge> : null}
             </div>
 
             {book.description ? (
@@ -166,13 +177,13 @@ export function BookDetailContent({
                     Reading
                   </h2>
                   <p className="ds-muted-meta mt-1 text-xs">
-                    Mark who has read this book and add it to a reader's next-up list.
+                    Mark your read status and add this book to a visible member's next-up list.
                   </p>
                 </div>
                 <div className="ds-muted-meta text-xs" aria-live="polite">
                   {savingReadStatus
                     ? "Saving read status..."
-                    : queuedReaders.dane || queuedReaders.emma
+                    : Object.values(queuedReaders).some(Boolean)
                       ? "Queued"
                       : "Saved"}
                 </div>
@@ -184,25 +195,35 @@ export function BookDetailContent({
                     Read status
                   </h3>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {[
-                      { id: "detail-read-dane", field: "readByDane" as const, label: "Dane" },
-                      { id: "detail-read-emma", field: "readByEmma" as const, label: "Emma" },
-                    ].map(({ id, field, label }) => (
+                    <label
+                      htmlFor="detail-read-current-user"
+                      className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                    >
+                      <input
+                        id="detail-read-current-user"
+                        name="currentUserHasRead"
+                        type="checkbox"
+                        checked={book.currentUserHasRead}
+                        disabled={savingReadStatus || !activeMember}
+                        onChange={(event) => onReadStatusChange(event.target.checked)}
+                        className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                      />
+                      {activeMember ? activeMember.displayName : "Me"}
+                    </label>
+                    {book.readers
+                      .filter((reader) => reader.memberId !== activeMember?.id)
+                      .map((reader) => (
                       <label
-                        key={id}
-                        htmlFor={id}
-                        className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-warm-gray-light"
+                        key={reader.memberId}
+                        className="flex min-h-9 items-center gap-2 rounded-md border border-warm-gray bg-cream px-3 py-2 text-sm font-medium text-stone-500"
                       >
                         <input
-                          id={id}
-                          name={field}
                           type="checkbox"
-                          checked={book[field]}
-                          disabled={savingReadStatus}
-                          onChange={(event) => onReadStatusChange(field, event.target.checked)}
-                          className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+                          checked
+                          disabled
+                          className="h-4 w-4 rounded border-warm-gray text-stone-900"
                         />
-                        {label}
+                        {reader.displayName}
                       </label>
                     ))}
                   </div>
@@ -219,13 +240,12 @@ export function BookDetailContent({
                     To read
                   </h3>
                   <p className="ds-muted-meta mt-1 text-xs">
-                    Add this book to a reader's next-up list.
+                    Add this book to a member's next-up list.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {[
-                      { readerId: "dane" as const, label: "Dane" },
-                      { readerId: "emma" as const, label: "Emma" },
-                    ].map(({ readerId, label }) => {
+                    {members.map((member) => {
+                      const readerId = member.id;
+                      const label = member.displayName;
                       const queued = queuedReaders[readerId];
                       return (
                         <Button
@@ -245,8 +265,13 @@ export function BookDetailContent({
                     <Badge variant={isWishlistBook ? "amber" : "default"}>
                       {isWishlistBook ? "Wishlist book" : "Library book"}
                     </Badge>
-                    {queuedReaders.dane ? <Badge variant="success">Queued for Dane</Badge> : null}
-                    {queuedReaders.emma ? <Badge variant="success">Queued for Emma</Badge> : null}
+                    {members
+                      .filter((member) => queuedReaders[member.id])
+                      .map((member) => (
+                        <Badge key={member.id} variant="success">
+                          Queued for {member.displayName}
+                        </Badge>
+                      ))}
                   </div>
                 </div>
               </div>

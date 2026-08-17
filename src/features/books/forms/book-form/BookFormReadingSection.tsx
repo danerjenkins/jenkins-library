@@ -52,6 +52,11 @@ export function BookFormReadingSection({
   onReadByDaneChange: (checked: boolean) => void;
   onReadByEmmaChange: (checked: boolean) => void;
 }) {
+  void readByDane;
+  void readByEmma;
+  void onReadByDaneChange;
+  void onReadByEmmaChange;
+
   return (
     <section
       ref={sectionRef}
@@ -78,18 +83,6 @@ export function BookFormReadingSection({
               label="Finished"
               checked={finished}
               onChange={onFinishedChange}
-            />
-            <ReadingToggle
-              id="readByDane"
-              label="Read by Dane"
-              checked={readByDane}
-              onChange={onReadByDaneChange}
-            />
-            <ReadingToggle
-              id="readByEmma"
-              label="Read by Emma"
-              checked={readByEmma}
-              onChange={onReadByEmmaChange}
             />
           </div>
         </div>

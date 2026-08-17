@@ -18,7 +18,7 @@ function resolveReturnTo(value: string | null) {
 }
 
 export function LoginPage() {
-  const { canEdit, clearError, errorMessage, signIn } = useAuth();
+  const { clearError, errorMessage, session, signIn } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const returnTo = resolveReturnTo(searchParams.get("returnTo"));
@@ -40,7 +40,7 @@ export function LoginPage() {
     }
   }
 
-  if (canEdit) {
+  if (session) {
     return <Navigate replace to={returnTo} />;
   }
 
@@ -52,8 +52,8 @@ export function LoginPage() {
             <LockKeyhole className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-stone-900">Editor Sign In</h1>
-            <p className="mt-1 text-sm text-stone-600">Sign in to add or change books.</p>
+            <h1 className="font-display text-2xl font-bold text-stone-900">Sign In</h1>
+            <p className="mt-1 text-sm text-stone-600">Sign in to manage your library profile.</p>
           </div>
         </div>
 

@@ -129,18 +129,6 @@ export function BookForm(props: BookFormProps) {
                   checked={props.finished}
                   onChange={props.onFinishedChange}
                 />
-                <ReadingToggle
-                  id="readByDane"
-                  label="Read by Dane"
-                  checked={props.readByDane}
-                  onChange={props.onReadByDaneChange}
-                />
-                <ReadingToggle
-                  id="readByEmma"
-                  label="Read by Emma"
-                  checked={props.readByEmma}
-                  onChange={props.onReadByEmmaChange}
-                />
               </div>
             </div>
           </div>

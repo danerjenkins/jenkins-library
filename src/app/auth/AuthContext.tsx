@@ -83,11 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setErrorMessage(null);
       try {
         const nextSession = await signIn(email, password);
-        const nextCanEdit = await refreshEditorStatus(nextSession);
-        if (!nextCanEdit) {
-          setErrorMessage("This account is not authorized to edit the library.");
-          return false;
-        }
+        await refreshEditorStatus(nextSession);
         return true;
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Unable to sign in.");

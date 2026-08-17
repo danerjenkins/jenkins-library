@@ -12,6 +12,7 @@ import { BookShelfState } from "../components/cards/BookCard";
 import { SegmentedControl } from "../components/browse/ShelfBrowseControls";
 import type { Book } from "../lib/bookTypes";
 import type { ReaderId } from "../lib/readingListPreferences";
+import type { LibraryMember } from "../../libraries/libraryTypes";
 
 const sectionSurfaceClasses = "ds-panel-shell";
 
@@ -178,11 +179,13 @@ export function ReadingListIntroSection({
   activeReader,
   queuedTotal,
   activeReaderLabel,
+  members,
   onActiveReaderChange,
 }: {
   activeReader: ReaderId;
   queuedTotal: number;
   activeReaderLabel: string;
+  members: LibraryMember[];
   onActiveReaderChange: (readerId: ReaderId) => void;
 }) {
   return (
@@ -201,10 +204,10 @@ export function ReadingListIntroSection({
         <div className="min-w-0 sm:w-md">
           <SegmentedControl
             label="Active reader"
-            options={[
-              { value: "dane", label: "Dane" },
-              { value: "emma", label: "Emma" },
-            ]}
+            options={members.map((member) => ({
+              value: member.id,
+              label: member.displayName,
+            }))}
             value={activeReader}
             onChange={onActiveReaderChange}
           />

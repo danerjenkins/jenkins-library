@@ -78,8 +78,7 @@ interface BookCardProps {
   actions?: ReactNode;
   onReadStatusChange?: (
     bookId: string,
-    readByDane: boolean,
-    readByEmma: boolean,
+    currentUserHasRead: boolean,
   ) => void;
   cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
@@ -337,32 +336,16 @@ export function BookCard({
               <label className="book-card__meta flex min-h-7 cursor-pointer items-center gap-1 rounded-md px-1 font-medium text-stone-700 hover:bg-warm-gray-light">
                 <input
                   type="checkbox"
-                  checked={book.readByDane}
+                  checked={book.currentUserHasRead}
                   onChange={(event) =>
                     onReadStatusChange(
                       book.id,
-                      event.target.checked,
-                      book.readByEmma,
-                    )
-                  }
-                  className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
-                />
-                <span>Dane</span>
-              </label>
-              <label className="book-card__meta flex min-h-7 cursor-pointer items-center gap-1 rounded-md px-1 font-medium text-stone-700 hover:bg-warm-gray-light">
-                <input
-                  type="checkbox"
-                  checked={book.readByEmma}
-                  onChange={(event) =>
-                    onReadStatusChange(
-                      book.id,
-                      book.readByDane,
                       event.target.checked,
                     )
                   }
                   className="h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
                 />
-                <span>Emma</span>
+                <span>Me</span>
               </label>
             </div>
           )}

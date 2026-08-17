@@ -52,6 +52,7 @@ function buildEditableBook(state: {
 }): Book {
   return {
     id: state.editingId,
+    libraryId: "",
     title: state.title || "Untitled",
     author: state.author,
     genre: state.genre || null,
@@ -59,6 +60,8 @@ function buildEditableBook(state: {
     isbn: state.isbn || null,
     finished: state.finished,
     coverUrl: state.coverUrl || null,
+    readers: [],
+    currentUserHasRead: false,
     readByDane: state.readByDane,
     readByEmma: state.readByEmma,
     format: state.format ? (state.format as BookFormat) : undefined,
