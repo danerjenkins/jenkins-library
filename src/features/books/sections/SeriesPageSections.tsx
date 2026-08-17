@@ -187,7 +187,7 @@ function SeriesCarouselSection({
       </div>
 
       <div
-        className="ds-horizontal-book-shelf snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+        className="ds-horizontal-book-shelf snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible px-1 pb-2 pr-4 pt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/45 focus-visible:ring-offset-2 focus-visible:ring-offset-cream [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
         data-card-size={cardSize}
         aria-label={`${group.name} books`}
         role="region"
