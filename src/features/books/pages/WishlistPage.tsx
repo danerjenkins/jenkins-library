@@ -36,7 +36,7 @@ import {
   wishlistReadFilterOptions,
   type WishlistReadFilter,
 } from "../hooks/useWishlistPageState";
-import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
+import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import { useAuth } from "../../../app/auth/useAuth";
 
 const readStatusByFilter = {
@@ -45,6 +45,20 @@ const readStatusByFilter = {
   EMMA: "emma",
   BOTH: "both",
 } as const;
+
+const wishlistActionGridClassesByCardSize: Record<CardSize, string> = {
+  xsmall: "grid min-w-0 grid-cols-2 gap-1",
+  small: "grid min-w-0 grid-cols-2 gap-1",
+  medium: "grid min-w-0 grid-cols-2 gap-1.5",
+  large: "grid min-w-0 grid-cols-2 gap-1.5",
+};
+
+const wishlistActionButtonSizeClassesByCardSize: Record<CardSize, string> = {
+  xsmall: "min-h-8 sm:min-h-9",
+  small: "min-h-10",
+  medium: "min-h-10",
+  large: "min-h-10",
+};
 
 function sortWishlistBooks(books: Book[]) {
   return [...books].sort((a, b) => {
@@ -397,19 +411,15 @@ export function WishlistPage() {
                   cardSize={state.cardSize}
                   clickable={true}
                   actions={canEdit ? (
-                    <>
+                    <div className={wishlistActionGridClassesByCardSize[state.cardSize]}>
                       <Button
                         type="button"
                         variant="secondary"
-                        className={`justify-center px-2! ${
+                        className={`w-full min-w-0 justify-center px-2! ${
                           book.mostWanted
                             ? "border-brass/35! bg-brass/20! text-stone-900! hover:border-brass/45! hover:bg-brass/25! active:bg-brass/30!"
                             : "border-warm-gray! bg-cream/70! text-stone-600! hover:border-brass/30! hover:bg-brass/10! active:bg-brass/15!"
-                        } ${
-                          state.cardSize === "xsmall"
-                            ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
-                            : "min-h-10 w-10 sm:w-10"
-                        }`}
+                        } ${wishlistActionButtonSizeClassesByCardSize[state.cardSize]}`}
                         disabled={updatingMostWantedIds.has(book.id)}
                         onClick={(event) => {
                           event.currentTarget.blur();
@@ -440,11 +450,7 @@ export function WishlistPage() {
                       <Button
                         type="button"
                         variant="secondary"
-                        className={`justify-center border-sage/20! bg-sage/10! px-2! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${
-                          state.cardSize === "xsmall"
-                            ? "min-h-8 w-8 sm:min-h-9 sm:w-9"
-                            : "min-h-10 w-10 sm:w-10"
-                        }`}
+                        className={`w-full min-w-0 justify-center border-sage/20! bg-sage/10! px-2! text-sage-dark! hover:border-sage/30! hover:bg-sage/15! active:bg-sage/20! ${wishlistActionButtonSizeClassesByCardSize[state.cardSize]}`}
                         disabled={movingBookIds.has(book.id)}
                         onClick={() => void handleMoveToLibrary(book.id)}
                         aria-label={`Move ${book.title} to library`}
@@ -462,7 +468,7 @@ export function WishlistPage() {
                           <Library className="absolute right-0 h-4 w-4" />
                         </span>
                       </Button>
-                    </>
+                    </div>
                   ) : undefined}
                 />
               ))}
