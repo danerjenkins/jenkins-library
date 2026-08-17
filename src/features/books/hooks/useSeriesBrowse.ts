@@ -3,7 +3,6 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import {
@@ -13,8 +12,6 @@ import {
 } from "../../../data/bookRepo";
 import { listSeries } from "../../../repos/seriesRepo";
 import {
-  getScrollBehavior,
-  getSeriesProgressLabel,
   matchesSeriesBookQuery,
   mergeDiscoveryBooks,
   normalizeSeriesName,
@@ -189,7 +186,6 @@ export function useSeriesBrowse() {
     return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
   });
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const loadBooks = useCallback(async () => {
     try {
@@ -292,26 +288,6 @@ export function useSeriesBrowse() {
     setOwnershipFilter("all");
   }, []);
 
-  const registerCarousel = useCallback(
-    (key: string, node: HTMLDivElement | null) => {
-      carouselRefs.current[key] = node;
-    },
-    [],
-  );
-
-  const handleStepCarousel = useCallback(
-    (key: string, direction: "backward" | "forward") => {
-      const carousel = carouselRefs.current[key];
-      if (!carousel) return;
-      const distance = Math.max(carousel.clientWidth * 0.82, 240);
-      carousel.scrollBy({
-        left: direction === "forward" ? distance : -distance,
-        behavior: getScrollBehavior(),
-      });
-    },
-    [],
-  );
-
   return {
     state: {
       loading,
@@ -335,11 +311,6 @@ export function useSeriesBrowse() {
       setOwnershipFilter,
       setCardSize,
       handleClearFilters,
-      registerCarousel,
-      handleStepCarousel,
-    },
-    helpers: {
-      getSeriesProgressLabel,
     },
   };
 }

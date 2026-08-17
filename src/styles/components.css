@@ -403,6 +403,48 @@
   min-height: clamp(14rem, 35vh, 24rem);
 }
 
+:where(.ds-horizontal-book-shelf) {
+  @apply flex items-start;
+}
+
+:where(.ds-horizontal-book-shelf__item) {
+  @apply min-w-0 shrink-0 snap-start;
+}
+
+:where(.ds-horizontal-book-shelf__item)[data-card-size="xsmall"] {
+  width: 7rem;
+}
+
+:where(.ds-horizontal-book-shelf__item)[data-card-size="small"] {
+  width: 9rem;
+}
+
+:where(.ds-horizontal-book-shelf__item)[data-card-size="medium"] {
+  width: 11rem;
+}
+
+:where(.ds-horizontal-book-shelf__item)[data-card-size="large"] {
+  width: 12.75rem;
+}
+
+@media (min-width: 640px) {
+  :where(.ds-horizontal-book-shelf__item)[data-card-size="xsmall"] {
+    width: 7.75rem;
+  }
+
+  :where(.ds-horizontal-book-shelf__item)[data-card-size="small"] {
+    width: 9.75rem;
+  }
+
+  :where(.ds-horizontal-book-shelf__item)[data-card-size="medium"] {
+    width: 12rem;
+  }
+
+  :where(.ds-horizontal-book-shelf__item)[data-card-size="large"] {
+    width: 14rem;
+  }
+}
+
 /* Genres and discovery carousels - consistent with series */
 :where(.ds-genres-carousel) {
   @apply flex items-stretch;

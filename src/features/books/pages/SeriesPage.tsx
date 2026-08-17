@@ -13,7 +13,7 @@ import { useLibrary } from "../../libraries/useLibrary";
 
 export function SeriesPage() {
   const { canEdit } = useLibrary();
-  const { state, actions, helpers } = useSeriesBrowse();
+  const { state, actions } = useSeriesBrowse();
   const location = useLocation();
 
   useEffect(() => {
@@ -79,10 +79,7 @@ export function SeriesPage() {
           filteredSeries={state.filteredSeries}
           standaloneCount={state.standaloneBooks.length}
           cardSize={state.cardSize}
-          registerCarousel={actions.registerCarousel}
-          onStepCarousel={actions.handleStepCarousel}
           onClearFilters={actions.handleClearFilters}
-          getSeriesProgressLabel={helpers.getSeriesProgressLabel}
           canEdit={canEdit}
         />
       </PageLayout>
