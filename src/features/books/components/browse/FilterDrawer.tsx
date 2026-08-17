@@ -1,12 +1,19 @@
-import { type ReactNode, useEffect, useState } from "react";
+import {
+  type ReactNode,
+  type TouchEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../../../../ui/components/Button";
 
 const drawerSurfaceClasses =
-  "fixed inset-y-0 left-0 z-[90] flex h-dvh w-[min(72rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:rounded-r-[1.75rem]";
+  "fixed inset-y-0 left-0 z-[110] flex h-dvh w-[min(72rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none touch-pan-y flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:rounded-r-[1.75rem]";
 const floatingTriggerClasses =
   "fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] z-[80] inline-flex h-12 min-w-12 items-center justify-center gap-2 rounded-full border border-warm-gray/80 bg-cream/96 px-4 text-sm font-semibold text-stone-900 shadow-[0_16px_30px_rgba(60,51,40,0.18)] backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-sage-light hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 min-[721px]:bottom-[max(1rem,env(safe-area-inset-bottom))] min-[721px]:right-[calc(max(1rem,env(safe-area-inset-right))+4.5rem)]";
+const swipeCloseThreshold = 72;
 
 interface FilterDrawerProps {
   title: string;
@@ -34,6 +41,7 @@ export function FilterDrawer({
   const [portalRoot] = useState<HTMLElement | null>(() =>
     typeof document !== "undefined" ? document.body : null,
   );
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -57,6 +65,36 @@ export function FilterDrawer({
     };
   }, [isOpen, onClose]);
 
+  const handleTouchStart = (event: TouchEvent<HTMLElement>) => {
+    if (event.touches.length !== 1) {
+      touchStartRef.current = null;
+      return;
+    }
+
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event: TouchEvent<HTMLElement>) => {
+    const touchStart = touchStartRef.current;
+    touchStartRef.current = null;
+
+    if (!touchStart || event.changedTouches.length !== 1) {
+      return;
+    }
+
+    const touchEnd = event.changedTouches[0];
+    const deltaX = touchEnd.clientX - touchStart.x;
+    const deltaY = touchEnd.clientY - touchStart.y;
+
+    if (
+      deltaX <= -swipeCloseThreshold &&
+      Math.abs(deltaX) > Math.abs(deltaY) * 1.25
+    ) {
+      onClose();
+    }
+  };
+
   const drawerUi = (
     <>
       <button
@@ -74,7 +112,7 @@ export function FilterDrawer({
       </button>
 
       <div
-        className={`fixed inset-0 z-85 bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed inset-0 z-[105] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden="true"
@@ -88,6 +126,8 @@ export function FilterDrawer({
         aria-modal="true"
         aria-labelledby="filter-drawer-title"
         aria-describedby={description ? "filter-drawer-description" : undefined}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="flex items-start justify-between gap-4 border-b border-warm-gray/70 px-5 py-5 sm:px-6">
           <div className="min-w-0 space-y-2">
