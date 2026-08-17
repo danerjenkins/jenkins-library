@@ -17,6 +17,8 @@ interface StoredWishlistViewPreferences {
   filterReadStatus: WishlistReadFilter;
   filterFormat: string;
   filterSeries: string;
+  showGenreTags: boolean;
+  showGenreShelf: boolean;
 }
 
 export interface WishlistPageState extends StoredWishlistViewPreferences {
@@ -41,6 +43,8 @@ const defaultWishlistState: WishlistPageState = {
   filterFormat: "ALL",
   filterSeries: "ALL",
   cardSize: getDefaultCardSize(),
+  showGenreTags: false,
+  showGenreShelf: true,
 };
 
 function getStoredWishlistViewPreferences(): StoredWishlistViewPreferences | null {
@@ -56,6 +60,8 @@ function getStoredWishlistViewPreferences(): StoredWishlistViewPreferences | nul
       : defaultWishlistState.filterReadStatus,
     filterFormat: stored.filterFormat ?? defaultWishlistState.filterFormat,
     filterSeries: stored.filterSeries ?? defaultWishlistState.filterSeries,
+    showGenreTags: stored.showGenreTags ?? defaultWishlistState.showGenreTags,
+    showGenreShelf: stored.showGenreShelf ?? defaultWishlistState.showGenreShelf,
   };
 }
 
@@ -81,6 +87,8 @@ function getHydratedState(searchParams: URLSearchParams): WishlistPageState {
       : isCardSize(storedCardSize)
         ? storedCardSize
         : defaultWishlistState.cardSize,
+    showGenreTags: storedView?.showGenreTags ?? defaultWishlistState.showGenreTags,
+    showGenreShelf: storedView?.showGenreShelf ?? defaultWishlistState.showGenreShelf,
   };
 }
 
@@ -128,6 +136,8 @@ export function useWishlistPageState(
       filterReadStatus: nextState.filterReadStatus,
       filterFormat: nextState.filterFormat,
       filterSeries: nextState.filterSeries,
+      showGenreTags: nextState.showGenreTags,
+      showGenreShelf: nextState.showGenreShelf,
     } satisfies StoredWishlistViewPreferences);
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, nextState.cardSize);
 

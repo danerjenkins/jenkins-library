@@ -18,6 +18,7 @@ import {
 import {
   SegmentedControl,
   ShelfDensitySelector,
+  ShelfDisplayToggle,
   ShelfSearchField,
 } from "../components/browse/ShelfBrowseControls";
 import { useMergedShelfBooks } from "../hooks/useShelfBooks";
@@ -30,7 +31,10 @@ import {
   useViewBooksPageState,
   type SortOption,
 } from "../hooks/useViewBooksPageState";
-import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
+import {
+  groupBooksByGenre,
+  matchesBookSearchQuery,
+} from "../hooks/discoveryBrowseShared";
 import { CARD_SIZE_OPTIONS } from "../lib/shelfViewPreferences";
 import { useLibrary } from "../../libraries/useLibrary";
 
@@ -159,6 +163,12 @@ export function ViewBooksPage() {
         .length,
     [books],
   );
+  const showGenreShelf =
+    state.showGenreShelf && state.sortBy === "genre-author";
+  const genreShelfGroups = useMemo(
+    () => (showGenreShelf ? groupBooksByGenre(filteredBooks) : []),
+    [filteredBooks, showGenreShelf],
+  );
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-transparent">
@@ -183,6 +193,18 @@ export function ViewBooksPage() {
                 options={CARD_SIZE_OPTIONS}
                 value={state.cardSize}
                 onChange={(cardSize) => updateState({ cardSize })}
+              />
+              <ShelfDisplayToggle
+                id="library-show-genre-tags"
+                label="Show Genre Tags"
+                checked={state.showGenreTags}
+                onChange={(showGenreTags) => updateState({ showGenreTags })}
+              />
+              <ShelfDisplayToggle
+                id="library-show-genre-shelf"
+                label="Show Genre Shelf"
+                checked={state.showGenreShelf}
+                onChange={(showGenreShelf) => updateState({ showGenreShelf })}
               />
               {hasActiveFilters ? (
                 <Button
@@ -342,17 +364,45 @@ export function ViewBooksPage() {
               }
             />
           ) : (
-            <BookGrid cardSize={state.cardSize}>
-              {filteredBooks.map((book) => (
-                <BookCard
-                  key={book.id}
-                  book={book}
-                  variant="view"
-                  cardSize={state.cardSize}
-                  clickable={true}
-                />
-              ))}
-            </BookGrid>
+            <>
+              {showGenreShelf ? (
+                <div className="space-y-6">
+                  {genreShelfGroups.map((group) => (
+                    <section key={group.genre} className="ds-genre-shelf">
+                      <div className="ds-genre-shelf__divider">
+                        <h2 className="ds-genre-shelf__label">{group.genre}</h2>
+                        <div className="ds-genre-shelf__line" aria-hidden="true" />
+                      </div>
+                      <BookGrid cardSize={state.cardSize}>
+                        {group.books.map((book) => (
+                          <BookCard
+                            key={book.id}
+                            book={book}
+                            variant="view"
+                            cardSize={state.cardSize}
+                            clickable={true}
+                            showGenreTag={state.showGenreTags}
+                          />
+                        ))}
+                      </BookGrid>
+                    </section>
+                  ))}
+                </div>
+              ) : (
+                <BookGrid cardSize={state.cardSize}>
+                  {filteredBooks.map((book) => (
+                    <BookCard
+                      key={book.id}
+                      book={book}
+                      variant="view"
+                      cardSize={state.cardSize}
+                      clickable={true}
+                      showGenreTag={state.showGenreTags}
+                    />
+                  ))}
+                </BookGrid>
+              )}
+            </>
           )}
         </section>
       </PageLayout>

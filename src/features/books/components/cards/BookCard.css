@@ -92,6 +92,22 @@
   --book-card-divider-padding-top: 0.75rem;
 }
 
+.book-card[data-show-genre-tag="false"] {
+  --book-card-content-min-height: 3.75rem;
+}
+
+.book-card[data-card-size="xsmall"][data-show-genre-tag="false"] {
+  --book-card-content-min-height: 2.75rem;
+}
+
+.book-card[data-card-size="small"][data-show-genre-tag="false"] {
+  --book-card-content-min-height: 3.25rem;
+}
+
+.book-card[data-card-size="large"][data-show-genre-tag="false"] {
+  --book-card-content-min-height: 4.5rem;
+}
+
 .book-card__body {
   gap: var(--book-card-body-gap);
   padding: var(--book-card-body-padding);
@@ -419,6 +435,18 @@
 
   .book-card[data-card-size="medium"] {
     --book-card-content-min-height: 4.5rem;
+  }
+
+  .book-card[data-show-genre-tag="false"] {
+    --book-card-content-min-height: 3.5rem;
+  }
+
+  .book-card[data-card-size="xsmall"][data-show-genre-tag="false"] {
+    --book-card-content-min-height: 3.5rem;
+  }
+
+  .book-card[data-card-size="small"][data-show-genre-tag="false"] {
+    --book-card-content-min-height: 4rem;
   }
 
   .book-card__body {

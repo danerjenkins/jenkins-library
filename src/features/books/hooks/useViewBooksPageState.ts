@@ -22,6 +22,8 @@ interface StoredLibraryViewPreferences {
   filterFormat: string;
   filterSeries: string;
   sortBy: SortOption;
+  showGenreTags: boolean;
+  showGenreShelf: boolean;
 }
 
 export interface ViewBooksPageState extends StoredLibraryViewPreferences {
@@ -71,6 +73,8 @@ const defaultViewState: ViewBooksPageState = {
   filterSeries: "ALL",
   sortBy: "genre-author",
   cardSize: getDefaultCardSize(),
+  showGenreTags: false,
+  showGenreShelf: true,
 };
 
 function getStoredLibraryViewPreferences(): StoredLibraryViewPreferences | null {
@@ -92,6 +96,8 @@ function getStoredLibraryViewPreferences(): StoredLibraryViewPreferences | null 
     sortBy: sortOptionValues.has(stored.sortBy as SortOption)
       ? (stored.sortBy as SortOption)
       : "genre-author",
+    showGenreTags: stored.showGenreTags ?? defaultViewState.showGenreTags,
+    showGenreShelf: stored.showGenreShelf ?? defaultViewState.showGenreShelf,
   };
 }
 
@@ -124,6 +130,8 @@ function getHydratedState(searchParams: URLSearchParams): ViewBooksPageState {
       : isCardSize(storedCardSize)
         ? storedCardSize
         : defaultViewState.cardSize,
+    showGenreTags: storedView?.showGenreTags ?? defaultViewState.showGenreTags,
+    showGenreShelf: storedView?.showGenreShelf ?? defaultViewState.showGenreShelf,
   };
 }
 
@@ -179,6 +187,8 @@ export function useViewBooksPageState(
       filterFormat: nextState.filterFormat,
       filterSeries: nextState.filterSeries,
       sortBy: nextState.sortBy,
+      showGenreTags: nextState.showGenreTags,
+      showGenreShelf: nextState.showGenreShelf,
     } satisfies StoredLibraryViewPreferences);
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, nextState.cardSize);
 

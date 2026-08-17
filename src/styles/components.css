@@ -218,6 +218,38 @@
   @apply min-h-11 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-[background-color,color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-px;
 }
 
+:where(.ds-display-toggle) {
+  @apply inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-warm-gray bg-cream px-3 text-sm font-semibold text-charcoal/75 shadow-sm transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:border-sage-light hover:bg-warm-gray-light;
+}
+
+:where(.ds-display-toggle:has(input:focus-visible)) {
+  @apply ring-2 ring-sage/35 ring-offset-2 ring-offset-cream;
+}
+
+:where(.ds-display-toggle__track) {
+  @apply relative inline-flex h-5 w-9 shrink-0 rounded-full border border-warm-gray bg-warm-gray-light transition-colors duration-150 ease-out;
+}
+
+:where(.ds-display-toggle__thumb) {
+  @apply absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-cream shadow-sm transition-transform duration-150 ease-out;
+}
+
+:where(.ds-display-toggle:has(input:checked)) {
+  @apply border-sage bg-sage text-white;
+}
+
+:where(.ds-display-toggle:has(input:checked) .ds-display-toggle__track) {
+  @apply border-white/45 bg-white/25;
+}
+
+:where(.ds-display-toggle:has(input:checked) .ds-display-toggle__thumb) {
+  @apply translate-x-4 bg-white;
+}
+
+:where(.ds-display-toggle__label) {
+  @apply min-w-0;
+}
+
 :where(.ds-segmented-control) {
   @apply grid grid-cols-1 gap-1 rounded-lg border border-warm-gray bg-cream p-1 shadow-inner shadow-white/50 sm:grid-cols-3;
 }
@@ -238,6 +270,41 @@
 
 :where(.ds-discovery-link) {
   @apply flex min-h-32 flex-col justify-between rounded-2xl border border-warm-gray/80 bg-cream/95 p-4 text-left no-underline shadow-soft transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-sage/55 hover:bg-parchment/90 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:min-h-36 sm:p-5;
+}
+
+:where(.ds-genre-shelf) {
+  @apply space-y-3;
+}
+
+:where(.ds-genre-shelf__divider) {
+  position: sticky;
+  top: 5.75rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.45rem 0.35rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(243, 236, 223, 0.98),
+      rgba(243, 236, 223, 0.88)
+    );
+  backdrop-filter: blur(8px);
+}
+
+:where(.ds-genre-shelf__label) {
+  @apply shrink-0 font-display text-sm font-semibold text-stone-800;
+}
+
+:where(.ds-genre-shelf__line) {
+  @apply h-px min-w-0 flex-1 bg-warm-gray;
+}
+
+@media (max-width: 720px) {
+  :where(.ds-genre-shelf__divider) {
+    top: 4.55rem;
+  }
 }
 
 /* Carousel height constraints for consistent card sizing */

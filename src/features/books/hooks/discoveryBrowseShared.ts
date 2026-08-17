@@ -90,6 +90,29 @@ export function normalizeGenre(genre?: string | null) {
   return trimmed && trimmed.length > 0 ? trimmed : "Uncategorized";
 }
 
+export function groupBooksByGenre<T extends { genre?: string | null }>(
+  books: T[],
+) {
+  const groups: Array<{ genre: string; books: T[] }> = [];
+  const groupByGenre = new Map<string, T[]>();
+
+  for (const book of books) {
+    const genre = normalizeGenre(book.genre);
+    const group = groupByGenre.get(genre);
+
+    if (group) {
+      group.push(book);
+      continue;
+    }
+
+    const nextGroup = [book];
+    groupByGenre.set(genre, nextGroup);
+    groups.push({ genre, books: nextGroup });
+  }
+
+  return groups;
+}
+
 export function toGenreSectionId(genre: string) {
   return `genre-${genre
     .toLowerCase()

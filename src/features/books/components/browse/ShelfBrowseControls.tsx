@@ -92,6 +92,34 @@ export function ShelfDensitySelector({
   );
 }
 
+export function ShelfDisplayToggle({
+  id,
+  label,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label htmlFor={id} className="ds-display-toggle">
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="sr-only"
+      />
+      <span className="ds-display-toggle__track" aria-hidden="true">
+        <span className="ds-display-toggle__thumb" />
+      </span>
+      <span className="ds-display-toggle__label">{label}</span>
+    </label>
+  );
+}
+
 export function SegmentedControl<T extends string>({
   label,
   options,

@@ -246,6 +246,7 @@ export function BookCard({
         data-card-size={cardSize}
         data-genre-tone={genreTone}
         data-ownership-status={ownershipStatus}
+        data-show-genre-tag={showGenreTag && book.genre ? "true" : "false"}
       >
         {clickable ? (
           <Link
@@ -365,6 +366,7 @@ export function BookCard({
       data-card-size={cardSize}
       data-genre-tone={genreTone}
       data-ownership-status={ownershipStatus}
+      data-show-genre-tag={showGenreTag && book.genre ? "true" : "false"}
     >
       <div className="relative group">
         {cover}
