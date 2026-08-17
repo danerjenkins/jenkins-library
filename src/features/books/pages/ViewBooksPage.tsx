@@ -28,7 +28,6 @@ import {
   readStatusByFilter,
   sortOptions,
   useViewBooksPageState,
-  type OwnershipFilter,
   type SortOption,
 } from "../hooks/useViewBooksPageState";
 import { matchesBookSearchQuery } from "../hooks/discoveryBrowseShared";
@@ -75,18 +74,6 @@ function sortVisibleBooks(books: Book[], sortBy: SortOption) {
         return 0;
     }
   });
-}
-
-function getShelfLabel(ownershipFilter: OwnershipFilter) {
-  if (ownershipFilter === "wishlist") {
-    return "Wishlist";
-  }
-
-  if (ownershipFilter === "all") {
-    return "Library + Wishlist";
-  }
-
-  return "Library";
 }
 
 export function ViewBooksPage() {
@@ -160,7 +147,6 @@ export function ViewBooksPage() {
     return sortVisibleBooks(visible, state.sortBy);
   }, [deferredSearchQuery, state, visibleShelfBooks]);
 
-  const shelfLabel = getShelfLabel(state.ownershipFilter);
   const ownedCount = useMemo(
     () =>
       books.filter((book) => (book.ownershipStatus ?? "owned") === "owned")
@@ -187,7 +173,6 @@ export function ViewBooksPage() {
       >
         <FilterDrawer
           title="Library Filters"
-          description="Search the shelf, switch between library and wishlist views, and adjust browsing density without taking over the page."
           isOpen={isFilterDrawerOpen}
           onOpen={() => setIsFilterDrawerOpen(true)}
           onClose={() => setIsFilterDrawerOpen(false)}
@@ -210,12 +195,6 @@ export function ViewBooksPage() {
                 </Button>
               ) : null}
             </>
-          }
-          footer={
-            <div className="text-sm text-stone-600">
-              Search, filter, and resize the {shelfLabel.toLowerCase()} shelf
-              without leaving the page.
-            </div>
           }
         >
           <div className={filterFieldGridClasses}>

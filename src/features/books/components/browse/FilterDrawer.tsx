@@ -10,7 +10,7 @@ const floatingTriggerClasses =
 
 interface FilterDrawerProps {
   title: string;
-  description: string;
+  description?: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -87,7 +87,7 @@ export function FilterDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="filter-drawer-title"
-        aria-describedby="filter-drawer-description"
+        aria-describedby={description ? "filter-drawer-description" : undefined}
       >
         <div className="flex items-start justify-between gap-4 border-b border-warm-gray/70 px-5 py-5 sm:px-6">
           <div className="min-w-0 space-y-2">
@@ -102,12 +102,14 @@ export function FilterDrawer({
               >
                 {title}
               </h2>
-              <p
-                id="filter-drawer-description"
-                className="max-w-sm text-sm leading-relaxed text-stone-600"
-              >
-                {description}
-              </p>
+              {description ? (
+                <p
+                  id="filter-drawer-description"
+                  className="max-w-sm text-sm leading-relaxed text-stone-600"
+                >
+                  {description}
+                </p>
+              ) : null}
             </div>
           </div>
           <Button
