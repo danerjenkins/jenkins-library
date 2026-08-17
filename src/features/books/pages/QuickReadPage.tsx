@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BookMarked, Check } from "lucide-react";
+import { BookCheck, CheckCircle2, ListPlus } from "lucide-react";
 import { setCurrentUserReadStatus } from "../../../data/bookRepo";
 import { Button } from "../../../ui/components/Button";
 import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
@@ -101,12 +101,14 @@ function ReaderToggleButton({
   pending: boolean;
   onClick: () => void;
 }) {
+  const Icon = active ? CheckCircle2 : BookCheck;
+
   return (
     <Button
       type="button"
       variant={active ? "success" : "secondary"}
       className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
-        compact ? "min-h-8 text-[10px]" : "min-h-9 text-[11px]"
+        compact ? "min-h-12 text-[10px]" : "min-h-10 text-[11px]"
       }`}
       disabled={pending}
       onClick={onClick}
@@ -114,8 +116,10 @@ function ReaderToggleButton({
       aria-label={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
       title={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
     >
-      <Check className="h-3.5 w-3.5" aria-hidden="true" />
-      <span className="truncate">{active ? "Read" : "Mark Read"}</span>
+      <Icon className={compact ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
+      <span className={compact ? "sr-only" : "truncate"}>
+        {active ? "Read" : "Mark Read"}
+      </span>
     </Button>
   );
 }
@@ -138,7 +142,7 @@ function TbrButton({
       type="button"
       variant={active ? "success" : "secondary"}
       className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
-        compact ? "min-h-8 text-[10px]" : "min-h-9 text-[11px]"
+        compact ? "min-h-12 text-[10px]" : "min-h-10 text-[11px]"
       }`}
       disabled={pending}
       onClick={onClick}
@@ -146,8 +150,10 @@ function TbrButton({
       aria-label={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
       title={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
     >
-      <BookMarked className="h-3.5 w-3.5" aria-hidden="true" />
-      <span className="truncate">{active ? "In TBR" : "Add TBR"}</span>
+      <ListPlus className={compact ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
+      <span className={compact ? "sr-only" : "truncate"}>
+        {active ? "In TBR" : "Add TBR"}
+      </span>
     </Button>
   );
 }

@@ -168,7 +168,19 @@ export function WishlistPage() {
     return sortWishlistBooks(visibleBooks);
   }, [books, deferredSearchQuery, state]);
   const genreShelfGroups = useMemo(
-    () => (state.showGenreShelf ? groupBooksByGenre(filteredBooks) : []),
+    () => {
+      if (!state.showGenreShelf) {
+        return [];
+      }
+
+      const mostWantedBooks = filteredBooks.filter((book) => book.mostWanted);
+      const remainingBooks = filteredBooks.filter((book) => !book.mostWanted);
+      const remainingGroups = groupBooksByGenre(remainingBooks);
+
+      return mostWantedBooks.length > 0
+        ? [{ genre: "Most Wanted", books: mostWantedBooks }, ...remainingGroups]
+        : remainingGroups;
+    },
     [filteredBooks, state.showGenreShelf],
   );
 
