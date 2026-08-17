@@ -24,8 +24,8 @@
 .app-header__inner {
   width: min(100%, 72rem);
   margin: 0 auto;
-  padding: 0.75rem max(1rem, env(safe-area-inset-left)) 0.7rem
-    max(1rem, env(safe-area-inset-right));
+  padding: 0.75rem calc(max(1rem, env(safe-area-inset-right)) + 3.5rem) 0.7rem
+    max(1rem, env(safe-area-inset-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
