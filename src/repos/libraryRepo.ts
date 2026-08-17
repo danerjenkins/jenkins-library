@@ -47,6 +47,38 @@ function mapLibraryMember(row: LibraryMemberRow): LibraryMember {
   };
 }
 
+async function resolveFunctionErrorMessage(error: unknown): Promise<string> {
+  const fallback = error instanceof Error ? error.message : "Admin request failed.";
+  const context = error && typeof error === "object" && "context" in error
+    ? (error as { context?: unknown }).context
+    : null;
+
+  if (!(context instanceof Response)) {
+    return fallback;
+  }
+
+  try {
+    const body = await context.clone().json();
+    if (body && typeof body === "object" && "error" in body) {
+      const message = (body as { error?: unknown }).error;
+      if (typeof message === "string" && message.trim()) {
+        return message;
+      }
+    }
+  } catch {
+    try {
+      const message = await context.clone().text();
+      if (message.trim()) {
+        return message;
+      }
+    } catch {
+      return fallback;
+    }
+  }
+
+  return fallback;
+}
+
 export async function listLibraries(): Promise<Library[]> {
   const { data, error } = await supabaseClient
     .from("libraries")
@@ -103,6 +135,6 @@ export async function invokeAdminUserRequest(request: AdminUserRequest): Promise
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(await resolveFunctionErrorMessage(error));
   }
 }

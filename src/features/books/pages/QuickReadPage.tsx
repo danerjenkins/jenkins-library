@@ -105,8 +105,8 @@ function ReaderToggleButton({
     <Button
       type="button"
       variant={active ? "success" : "secondary"}
-      className={`w-full min-w-0 justify-center gap-1 px-2 ${
-        compact ? "min-h-7 text-[10px]" : "min-h-8 text-[11px]"
+      className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
+        compact ? "min-h-8 text-[10px]" : "min-h-9 text-[11px]"
       }`}
       disabled={pending}
       onClick={onClick}
@@ -115,7 +115,7 @@ function ReaderToggleButton({
       title={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
     >
       <Check className="h-3.5 w-3.5" aria-hidden="true" />
-      {compact ? label.charAt(0) : label}
+      <span className="truncate">{active ? "Read" : "Mark Read"}</span>
     </Button>
   );
 }
@@ -137,9 +137,9 @@ function TbrButton({
     <Button
       type="button"
       variant={active ? "success" : "secondary"}
-      className={`w-full min-w-0 justify-center px-1.5 ${
-        compact ? "min-h-6 text-[10px]" : "min-h-7 text-[10px]"
-      } uppercase tracking-[0.12em]`}
+      className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
+        compact ? "min-h-8 text-[10px]" : "min-h-9 text-[11px]"
+      }`}
       disabled={pending}
       onClick={onClick}
       aria-pressed={active}
@@ -147,6 +147,7 @@ function TbrButton({
       title={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
     >
       <BookMarked className="h-3.5 w-3.5" aria-hidden="true" />
+      <span className="truncate">{active ? "In TBR" : "Add TBR"}</span>
     </Button>
   );
 }
@@ -510,23 +511,21 @@ export function QuickReadPage() {
                     cardSize={quickReadCardSize}
                     clickable={true}
                     actions={activeMember ? (
-                      <div className={actionGridClassesByCardSize[quickReadCardSize]}>
-                        <div className="grid min-w-0 gap-1">
-                          <ReaderToggleButton
-                            label="Me"
-                            compact={compactActions}
-                            active={book.currentUserHasRead}
-                            pending={isPending}
-                            onClick={() => void handleReadToggle(book)}
-                          />
-                          <TbrButton
-                            active={queuedForMe}
-                            compact={compactActions}
-                            pending={isPending}
-                            readerLabel={activeMember.displayName}
-                            onClick={() => void handleAddToTbr(activeMember.id, book.id)}
-                          />
-                        </div>
+                      <div className={`${actionGridClassesByCardSize[quickReadCardSize]} py-2`}>
+                        <ReaderToggleButton
+                          label="Me"
+                          compact={compactActions}
+                          active={book.currentUserHasRead}
+                          pending={isPending}
+                          onClick={() => void handleReadToggle(book)}
+                        />
+                        <TbrButton
+                          active={queuedForMe}
+                          compact={compactActions}
+                          pending={isPending}
+                          readerLabel={activeMember.displayName}
+                          onClick={() => void handleAddToTbr(activeMember.id, book.id)}
+                        />
                       </div>
                     ) : undefined}
                   />

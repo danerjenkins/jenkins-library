@@ -12,6 +12,11 @@ type AdminUserRequest = {
   canViewMemberActivity: boolean;
 };
 
+type ExistingMemberRow = {
+  id: string;
+  user_id: string | null;
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -106,7 +111,19 @@ serve(async (request) => {
       return jsonResponse({ error: "You are not an admin for this library." }, 403);
     }
 
-    let linkedUserId: string | null = null;
+    const { data: existingMembers, error: memberLookupError } = await adminClient
+      .from("library_members")
+      .select("id, user_id")
+      .eq("library_id", payload.libraryId)
+      .ilike("email", payload.email)
+      .limit(1);
+    if (memberLookupError) {
+      throw memberLookupError;
+    }
+
+    const existingMember = ((existingMembers ?? []) as ExistingMemberRow[])[0] ?? null;
+    let linkedUserId: string | null = existingMember?.user_id ?? null;
+
     const { data: listedUsers, error: listError } =
       await serviceAuthClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
     if (listError) {
@@ -119,7 +136,7 @@ serve(async (request) => {
 
     if (existingUser) {
       linkedUserId = existingUser.id;
-    } else if (payload.action === "invite-member") {
+    } else if (payload.action === "invite-member" && !existingMember) {
       const { data: inviteData, error: inviteError } =
         await serviceAuthClient.auth.admin.inviteUserByEmail(payload.email, {
           data: { display_name: payload.displayName },
@@ -145,16 +162,6 @@ serve(async (request) => {
       }
     }
 
-    const { data: existingMembers, error: memberLookupError } = await adminClient
-      .from("library_members")
-      .select("id")
-      .eq("library_id", payload.libraryId)
-      .ilike("email", payload.email)
-      .limit(1);
-    if (memberLookupError) {
-      throw memberLookupError;
-    }
-
     const memberRow = {
       library_id: payload.libraryId,
       user_id: linkedUserId,
@@ -165,11 +172,11 @@ serve(async (request) => {
       updated_at: new Date().toISOString(),
     };
 
-    if (existingMembers && existingMembers.length > 0) {
+    if (existingMember) {
       const { error: updateError } = await adminClient
         .from("library_members")
         .update(memberRow)
-        .eq("id", existingMembers[0].id);
+        .eq("id", existingMember.id);
       if (updateError) {
         throw updateError;
       }

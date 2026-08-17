@@ -1,4 +1,4 @@
-import { Plus, UserPlus } from "lucide-react";
+import { Plus, Save, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
@@ -34,6 +34,7 @@ export function AdminBooksPage() {
   const [memberActivityVisible, setMemberActivityVisible] = useState(true);
   const [adminMessage, setAdminMessage] = useState<string | null>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
+  const [savingLibrary, setSavingLibrary] = useState(false);
 
   useEffect(() => {
     setLibraryName(activeLibrary?.name ?? "");
@@ -53,6 +54,7 @@ export function AdminBooksPage() {
     if (!activeLibrary) return;
     setAdminMessage(null);
     setAdminError(null);
+    setSavingLibrary(true);
     try {
       await updateLibrary(activeLibrary.id, {
         name: libraryName,
@@ -63,6 +65,8 @@ export function AdminBooksPage() {
       setAdminMessage("Saved library settings.");
     } catch (error) {
       setAdminError(error instanceof Error ? error.message : "Unable to save library settings.");
+    } finally {
+      setSavingLibrary(false);
     }
   };
 
@@ -92,13 +96,27 @@ export function AdminBooksPage() {
         <section className="rounded-2xl border border-warm-gray bg-cream/95 p-4 shadow-soft sm:p-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="space-y-4">
-              <div>
-                <h2 className="font-display text-2xl font-bold text-stone-900">
-                  Library Settings
-                </h2>
-                <p className="mt-1 text-sm text-stone-600">
-                  Control the selected library and whether public visitors can browse it.
-                </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h2 className="font-display text-2xl font-bold text-stone-900">
+                    Library Settings
+                  </h2>
+                  <p className="mt-1 text-sm text-stone-600">
+                    Control the selected library and whether public visitors can browse it.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => void handleSaveLibrary()}
+                  disabled={!activeLibrary || savingLibrary}
+                  className="min-h-9 shrink-0 px-3 text-sm"
+                >
+                  <span className="flex items-center gap-2">
+                    <Save className="h-4 w-4" aria-hidden="true" />
+                    {savingLibrary ? "Saving..." : "Save Changes"}
+                  </span>
+                </Button>
               </div>
               <Input
                 id="admin-library-name"
@@ -121,8 +139,13 @@ export function AdminBooksPage() {
                 />
                 Public browsing enabled
               </label>
-              <Button type="button" variant="primary" onClick={() => void handleSaveLibrary()}>
-                Save Library
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void handleSaveLibrary()}
+                disabled={!activeLibrary || savingLibrary}
+              >
+                {savingLibrary ? "Saving..." : "Save Library"}
               </Button>
             </div>
 
