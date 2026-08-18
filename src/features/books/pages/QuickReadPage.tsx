@@ -110,7 +110,7 @@ function ReaderToggleButton({
       variant={active ? "success" : "secondary"}
       className={`w-full min-w-0 overflow-visible justify-center ${
         compact
-          ? "min-h-12 flex-col gap-1 px-1! py-1.5! text-[10px]"
+          ? "min-h-12 px-1! py-1.5!"
           : "min-h-10 gap-1.5 px-2! py-2! text-[11px]"
       }`}
       disabled={pending}
@@ -124,9 +124,11 @@ function ReaderToggleButton({
         aria-hidden="true"
         strokeWidth={compact ? 2.75 : 2.5}
       />
-      <span className={`${compact ? "leading-none" : "truncate"} font-bold`}>
-        {compact ? (active ? "Read" : "Mark") : active ? "Read" : "Mark Read"}
-      </span>
+      {!compact && (
+        <span className="truncate font-bold">
+          {active ? "Read" : "Mark Read"}
+        </span>
+      )}
     </Button>
   );
 }
@@ -150,7 +152,7 @@ function TbrButton({
       variant={active ? "success" : "secondary"}
       className={`w-full min-w-0 overflow-visible justify-center ${
         compact
-          ? "min-h-12 flex-col gap-1 px-1! py-1.5! text-[10px]"
+          ? "min-h-12 px-1! py-1.5!"
           : "min-h-10 gap-1.5 px-2! py-2! text-[11px]"
       }`}
       disabled={pending}
@@ -164,9 +166,11 @@ function TbrButton({
         aria-hidden="true"
         strokeWidth={compact ? 2.75 : 2.5}
       />
-      <span className={`${compact ? "leading-none" : "truncate"} font-bold`}>
-        {compact ? (active ? "TBR" : "Add") : active ? "In TBR" : "Add TBR"}
-      </span>
+      {!compact && (
+        <span className="truncate font-bold">
+          {active ? "In TBR" : "Add TBR"}
+        </span>
+      )}
     </Button>
   );
 }
