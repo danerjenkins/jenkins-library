@@ -21,7 +21,7 @@
 ## Git And Deployment
 - Work on a branch or PR when running in Codex cloud.
 - For this repo, merging or pushing to `main` triggers a Vercel production deploy.
-- After a push or merge, check Vercel for the production deployment status and report the deployment URL when available.
+- After a push or merge, do not check Vercel; trust the Git-backed production deployment trigger.
 
 ## Supabase
 - Add schema changes as SQL migrations under `supabase/migrations`.
