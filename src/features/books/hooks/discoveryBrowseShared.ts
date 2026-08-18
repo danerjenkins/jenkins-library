@@ -136,6 +136,8 @@ export function matchesBookSearchQuery(book: Book, query: string) {
     book.isbn,
     book.seriesName,
     book.seriesLabel,
+    book.publisher,
+    book.category,
   ]
     .filter(Boolean)
     .join(" ")

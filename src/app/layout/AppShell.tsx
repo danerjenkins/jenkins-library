@@ -26,6 +26,7 @@ function AppShellContent({ children }: AppShellProps) {
   const searchParams = new URLSearchParams(location.search);
   const isFullBleedPage = new Set([
     "/view",
+    "/board-games",
     "/wishlist",
     "/quick-read",
     "/series",
@@ -41,8 +42,12 @@ function AppShellContent({ children }: AppShellProps) {
       ? "wishlist"
       : "owned";
   const currentRoute = `${location.pathname}${location.search}${location.hash}`;
-  const addBookPath = `/book/new?ownership=${activeOwnership}&returnTo=${encodeURIComponent(currentRoute)}`;
+  const isBoardGamesRoute = location.pathname.startsWith("/board-game");
+  const addBookPath = isBoardGamesRoute
+    ? `/board-game/new?ownership=${activeOwnership}&returnTo=${encodeURIComponent(currentRoute)}`
+    : `/book/new?ownership=${activeOwnership}&returnTo=${encodeURIComponent(currentRoute)}`;
   const isBookWorkflowPage = /^\/book\/([^/]+|new)(\/edit)?$/.test(location.pathname);
+  const isBoardGameWorkflowPage = /^\/board-game\/([^/]+|new)(\/edit)?$/.test(location.pathname);
 
   return (
     <div className="app-shell">
@@ -88,12 +93,12 @@ function AppShellContent({ children }: AppShellProps) {
 
       <MobileAppNavigation addBookPath={addBookPath} canEdit={canEdit} />
 
-      {canEdit && !isBookWorkflowPage ? (
+      {canEdit && !isBookWorkflowPage && !isBoardGameWorkflowPage ? (
         <Link
           to={addBookPath}
           className="floating-add"
-          aria-label="Add a book"
-          title="Add a book"
+          aria-label={isBoardGamesRoute ? "Add a board game" : "Add a book"}
+          title={isBoardGamesRoute ? "Add a board game" : "Add a book"}
         >
           <Plus aria-hidden="true" size={24} />
         </Link>

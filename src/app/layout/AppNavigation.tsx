@@ -7,6 +7,7 @@ import {
   BookOpenText,
   ChevronDown,
   CheckCheck,
+  Dices,
   Heart,
   MoreHorizontal,
   Plus,
@@ -20,6 +21,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const primaryNavItems = [
   { to: "/view", label: "Library", Icon: BookOpen },
+  { to: "/board-games", label: "Games", Icon: Dices },
   { to: "/wishlist", label: "Wishlist", Icon: Heart },
   { to: "/admin", label: "Admin", Icon: Settings },
 ] as const;

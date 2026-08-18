@@ -6,7 +6,9 @@ import {
   deleteBook as deleteSupabaseBook,
   getBook as getSupabaseBook,
   getActiveCheckoutForBook as getSupabaseActiveCheckoutForBook,
+  getBoardGame as getSupabaseBoardGame,
   listActiveCheckouts as listSupabaseActiveCheckouts,
+  listBoardGames as listSupabaseBoardGames,
   listBooks as listSupabaseBooks,
   listWishlistBooks,
   returnBook as returnSupabaseBook,
@@ -37,6 +39,14 @@ type BookInput = {
   pages?: number;
   ownershipStatus?: "owned" | "wishlist";
   mostWanted?: boolean;
+  mediaType?: "book" | "board_game";
+  publisher?: string | null;
+  minPlayers?: number | null;
+  maxPlayers?: number | null;
+  playTimeMinutes?: number | null;
+  minAge?: number | null;
+  complexity?: number | null;
+  category?: string | null;
 };
 
 export type BookSeriesInput = {
@@ -61,6 +71,14 @@ function toSupabaseInput(input: BookInput): SupabaseBookInput {
     pages: input.pages,
     ownershipStatus: input.ownershipStatus,
     mostWanted: input.mostWanted,
+    mediaType: input.mediaType,
+    publisher: input.publisher ?? null,
+    minPlayers: input.minPlayers ?? null,
+    maxPlayers: input.maxPlayers ?? null,
+    playTimeMinutes: input.playTimeMinutes ?? null,
+    minAge: input.minAge ?? null,
+    complexity: input.complexity ?? null,
+    category: input.category ?? null,
   };
 }
 
@@ -86,6 +104,15 @@ function toSupabasePatch(
   if (patch.ownershipStatus !== undefined)
     result.ownershipStatus = patch.ownershipStatus;
   if (patch.mostWanted !== undefined) result.mostWanted = patch.mostWanted;
+  if (patch.mediaType !== undefined) result.mediaType = patch.mediaType;
+  if (patch.publisher !== undefined) result.publisher = patch.publisher ?? null;
+  if (patch.minPlayers !== undefined) result.minPlayers = patch.minPlayers ?? null;
+  if (patch.maxPlayers !== undefined) result.maxPlayers = patch.maxPlayers ?? null;
+  if (patch.playTimeMinutes !== undefined)
+    result.playTimeMinutes = patch.playTimeMinutes ?? null;
+  if (patch.minAge !== undefined) result.minAge = patch.minAge ?? null;
+  if (patch.complexity !== undefined) result.complexity = patch.complexity ?? null;
+  if (patch.category !== undefined) result.category = patch.category ?? null;
 
   return result;
 }
@@ -113,13 +140,28 @@ export async function getWishlistBooks(): Promise<Book[]> {
   return await listWishlistBooks();
 }
 
+export async function getBoardGames(): Promise<Book[]> {
+  return await listSupabaseBoardGames();
+}
+
 export async function getBookById(id: string): Promise<Book | undefined> {
   const book = await getSupabaseBook(id);
   return book ?? undefined;
 }
 
+export async function getBoardGameById(id: string): Promise<Book | undefined> {
+  const boardGame = await getSupabaseBoardGame(id);
+  return boardGame ?? undefined;
+}
+
 export async function addBook(input: BookInput): Promise<Book> {
   return await createSupabaseBook(toSupabaseInput(input));
+}
+
+export async function addBoardGame(input: BookInput): Promise<Book> {
+  return await createSupabaseBook(
+    toSupabaseInput({ ...input, mediaType: "board_game" }),
+  );
 }
 
 export async function updateBook(

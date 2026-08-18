@@ -10,6 +10,7 @@ interface LibraryHeroProps {
   wishlistCount: number;
   activeOwnershipFilter: OwnershipFilter;
   onOwnershipFilterSelect: (value: OwnershipFilter) => void;
+  totalLabel?: string;
   children: ReactNode;
 }
 
@@ -71,6 +72,7 @@ export function LibraryHero({
   wishlistCount,
   activeOwnershipFilter,
   onOwnershipFilterSelect,
+  totalLabel = "Books Tracked",
   children,
 }: LibraryHeroProps) {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(() => {
@@ -167,7 +169,7 @@ export function LibraryHero({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <HeroStat
-              label="Books Tracked"
+              label={totalLabel}
               value={String(totalCount)}
               isActive={activeOwnershipFilter === "all"}
               onClick={() => onOwnershipFilterSelect("all")}

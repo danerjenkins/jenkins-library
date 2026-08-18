@@ -6,6 +6,7 @@ import type {
   Book,
   BookCheckout,
   BookFormat,
+  MediaType,
   BookReader,
   BookReview,
 } from "../features/books/lib/bookTypes";
@@ -25,6 +26,14 @@ export type BookInput = {
   pages?: number;
   ownershipStatus?: "owned" | "wishlist";
   mostWanted?: boolean;
+  mediaType?: MediaType;
+  publisher?: string | null;
+  minPlayers?: number | null;
+  maxPlayers?: number | null;
+  playTimeMinutes?: number | null;
+  minAge?: number | null;
+  complexity?: number | null;
+  category?: string | null;
 };
 
 type BookRow = {
@@ -45,6 +54,14 @@ type BookRow = {
   read_by_emma: boolean | null;
   ownership_status: "owned" | "wishlist" | null;
   most_wanted: boolean | null;
+  media_type: MediaType | null;
+  publisher: string | null;
+  min_players: number | null;
+  max_players: number | null;
+  play_time_minutes: number | null;
+  min_age: number | null;
+  complexity: number | string | null;
+  category: string | null;
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
@@ -106,6 +123,15 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     seriesLabel: row.series_label ?? null,
     seriesSort: row.series_sort ?? null,
     ownershipStatus: row.ownership_status ?? undefined,
+    mediaType: row.media_type ?? "book",
+    publisher: row.publisher ?? null,
+    minPlayers: row.min_players ?? null,
+    maxPlayers: row.max_players ?? null,
+    playTimeMinutes: row.play_time_minutes ?? null,
+    minAge: row.min_age ?? null,
+    complexity:
+      row.complexity === null ? null : Number.parseFloat(String(row.complexity)),
+    category: row.category ?? null,
     mostWanted: row.most_wanted ?? false,
     createdAt,
     updatedAt,
@@ -298,6 +324,7 @@ export async function listBooks(): Promise<Book[]> {
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
+    .eq("media_type", "book")
     .eq("ownership_status", "owned")
     .order("genre", { ascending: true, nullsFirst: false })
     .order("author", { ascending: true, nullsFirst: false });
@@ -319,6 +346,7 @@ export async function listWishlistBooks(): Promise<Book[]> {
     .from("books_with_series")
     .select("*")
     .is("deleted_at", null)
+    .eq("media_type", "book")
     .eq("ownership_status", "wishlist")
     .order("genre", { ascending: true, nullsFirst: false })
     .order("author", { ascending: true, nullsFirst: false });
@@ -359,6 +387,56 @@ export async function getBook(id: string): Promise<Book | null> {
   return book ?? null;
 }
 
+export async function listBoardGames(): Promise<Book[]> {
+  let query = supabaseClient
+    .from("books_with_series")
+    .select("*")
+    .is("deleted_at", null)
+    .eq("media_type", "board_game")
+    .order("category", { ascending: true, nullsFirst: false })
+    .order("title", { ascending: true, nullsFirst: false });
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return hydrateBooksWithActivity(
+    (data ?? []).map((row) => mapRowToBook(row as BookWithSeriesRow)),
+  );
+}
+
+export async function getBoardGame(id: string): Promise<Book | null> {
+  let query = supabaseClient
+    .from("books_with_series")
+    .select("*")
+    .eq("id", id)
+    .eq("media_type", "board_game")
+    .is("deleted_at", null);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const [boardGame] = await hydrateBooksWithActivity([
+    mapRowToBook(data as BookWithSeriesRow),
+  ]);
+  return boardGame ?? null;
+}
+
 export async function createBook(input: BookInput): Promise<Book> {
   const insertRow = {
     library_id: getActiveLibraryIdForRepos(),
@@ -376,6 +454,14 @@ export async function createBook(input: BookInput): Promise<Book> {
     read_by_emma: input.readByEmma ?? false,
     ownership_status: input.ownershipStatus ?? "owned",
     most_wanted: input.mostWanted ?? false,
+    media_type: input.mediaType ?? "book",
+    publisher: input.publisher ?? null,
+    min_players: input.minPlayers ?? null,
+    max_players: input.maxPlayers ?? null,
+    play_time_minutes: input.playTimeMinutes ?? null,
+    min_age: input.minAge ?? null,
+    complexity: input.complexity ?? null,
+    category: input.category ?? null,
   };
 
   if (!insertRow.library_id) {
@@ -436,6 +522,15 @@ export async function updateBook(
   if (patch.ownershipStatus !== undefined)
     updateRow.ownership_status = patch.ownershipStatus;
   if (patch.mostWanted !== undefined) updateRow.most_wanted = patch.mostWanted;
+  if (patch.mediaType !== undefined) updateRow.media_type = patch.mediaType;
+  if (patch.publisher !== undefined) updateRow.publisher = patch.publisher ?? null;
+  if (patch.minPlayers !== undefined) updateRow.min_players = patch.minPlayers ?? null;
+  if (patch.maxPlayers !== undefined) updateRow.max_players = patch.maxPlayers ?? null;
+  if (patch.playTimeMinutes !== undefined)
+    updateRow.play_time_minutes = patch.playTimeMinutes ?? null;
+  if (patch.minAge !== undefined) updateRow.min_age = patch.minAge ?? null;
+  if (patch.complexity !== undefined) updateRow.complexity = patch.complexity ?? null;
+  if (patch.category !== undefined) updateRow.category = patch.category ?? null;
 
   let query = supabaseClient
     .from("books")
@@ -468,6 +563,14 @@ export async function updateBook(
     series_name: null,
     series_label: null,
     series_sort: null,
+    media_type: (data as BookRow).media_type ?? patch.mediaType ?? "book",
+    publisher: (data as BookRow).publisher ?? null,
+    min_players: (data as BookRow).min_players ?? null,
+    max_players: (data as BookRow).max_players ?? null,
+    play_time_minutes: (data as BookRow).play_time_minutes ?? null,
+    min_age: (data as BookRow).min_age ?? null,
+    complexity: (data as BookRow).complexity ?? null,
+    category: (data as BookRow).category ?? null,
   });
 }
 

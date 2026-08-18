@@ -21,6 +21,8 @@ export const BOOK_FORMAT_LABELS: Record<BookFormat, string> = {
   other: "Other",
 };
 
+export type MediaType = "book" | "board_game";
+
 export const COMMON_GENRES = [
   "Fantasy",
   "Science Fiction",
@@ -98,6 +100,22 @@ export interface Book {
   seriesSort?: number | null;
   /** Ownership status (optional) */
   ownershipStatus?: "owned" | "wishlist";
+  /** Catalog item type */
+  mediaType?: MediaType;
+  /** Board game publisher (optional) */
+  publisher?: string | null;
+  /** Minimum player count for board games */
+  minPlayers?: number | null;
+  /** Maximum player count for board games */
+  maxPlayers?: number | null;
+  /** Typical board game play time in minutes */
+  playTimeMinutes?: number | null;
+  /** Recommended minimum age for board games */
+  minAge?: number | null;
+  /** Board game complexity rating, 1-5 */
+  complexity?: number | null;
+  /** Board game category */
+  category?: string | null;
   /** Whether this wishlist book should be prioritized */
   mostWanted?: boolean;
   /** Timestamp when the book was created */

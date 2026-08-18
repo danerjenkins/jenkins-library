@@ -5,6 +5,7 @@ export type BookFormSection = "basics" | "cover" | "summary" | "metadata";
 
 export interface BookFormProps {
   isEditing: boolean;
+  mediaType?: "book" | "board_game";
   title: string;
   author: string;
   genre: string;
@@ -19,6 +20,13 @@ export interface BookFormProps {
   ownershipStatus: "owned" | "wishlist";
   seriesName: string;
   seriesLabel: string;
+  publisher?: string;
+  minPlayers?: string;
+  maxPlayers?: string;
+  playTimeMinutes?: string;
+  minAge?: string;
+  complexity?: string;
+  category?: string;
   coverPhotoUrl: string | null;
   showCoverSaved: boolean;
   showCoverPhotoControls: boolean;
@@ -48,6 +56,13 @@ export interface BookFormProps {
   onSeriesNameChange: (value: string) => void;
   onSeriesLabelChange: (value: string) => void;
   onClearSeries: () => void;
+  onPublisherChange?: (value: string) => void;
+  onMinPlayersChange?: (value: string) => void;
+  onMaxPlayersChange?: (value: string) => void;
+  onPlayTimeMinutesChange?: (value: string) => void;
+  onMinAgeChange?: (value: string) => void;
+  onComplexityChange?: (value: string) => void;
+  onCategoryChange?: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void | Promise<void>;
   onCancel: () => void;
   onDelete?: () => void;

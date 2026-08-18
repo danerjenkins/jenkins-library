@@ -5,6 +5,9 @@ import { AdminBooksPage } from "../features/books/pages/AdminBooksPage";
 import { StatsPage } from "../features/books/pages/StatsPage";
 import { BookDetailPage } from "../features/books/pages/BookDetailPage";
 import { BookEditorPage } from "../features/books/pages/BookEditorPage";
+import { BoardGameDetailPage } from "../features/books/pages/BoardGameDetailPage";
+import { BoardGameEditorPage } from "../features/books/pages/BoardGameEditorPage";
+import { BoardGamesPage } from "../features/books/pages/BoardGamesPage";
 import { WishlistPage } from "../features/books/pages/WishlistPage";
 import { SeriesPage } from "../features/books/pages/SeriesPage";
 import { GenresPage } from "../features/books/pages/GenresPage";
@@ -34,8 +37,36 @@ export const routes: RouteObject[] = [
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "/board-games",
+    element: <BoardGamesPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
     path: "/book/:id",
     element: <BookDetailPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/board-game/:id",
+    element: <BoardGameDetailPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/board-game/:id/edit",
+    element: (
+      <ProtectedEditorRoute>
+        <BoardGameEditorPage />
+      </ProtectedEditorRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/board-game/new",
+    element: (
+      <ProtectedEditorRoute>
+        <BoardGameEditorPage />
+      </ProtectedEditorRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {

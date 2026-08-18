@@ -35,6 +35,13 @@ export function useBookFormController(props: BookFormProps) {
     ownershipStatus,
     seriesName,
     seriesLabel,
+    publisher = "",
+    minPlayers = "",
+    maxPlayers = "",
+    playTimeMinutes = "",
+    minAge = "",
+    complexity = "",
+    category = "",
     coverPhotoUrl,
     showCoverSaved,
     saveState = "idle",
@@ -82,6 +89,13 @@ export function useBookFormController(props: BookFormProps) {
       ownershipStatus,
       seriesName,
       seriesLabel,
+      publisher,
+      minPlayers,
+      maxPlayers,
+      playTimeMinutes,
+      minAge,
+      complexity,
+      category,
     }),
     title,
     author,
@@ -127,6 +141,13 @@ export function useBookFormController(props: BookFormProps) {
         ownershipStatus,
         seriesName,
         seriesLabel,
+        publisher,
+        minPlayers,
+        maxPlayers,
+        playTimeMinutes,
+        minAge,
+        complexity,
+        category,
       }),
     [
       author,
@@ -143,6 +164,13 @@ export function useBookFormController(props: BookFormProps) {
       readByEmma,
       seriesLabel,
       seriesName,
+      publisher,
+      minPlayers,
+      maxPlayers,
+      playTimeMinutes,
+      minAge,
+      complexity,
+      category,
       title,
     ],
   );
@@ -152,10 +180,16 @@ export function useBookFormController(props: BookFormProps) {
   );
   const baselineSnapshotRef = useRef(currentSnapshot);
 
+  const itemLabel = props.mediaType === "board_game" ? "board game" : "book";
+  const creatorLabel = props.mediaType === "board_game" ? "designer" : "author";
   const titleError =
-    showValidation && !title.trim() ? "Add a title before you save this book." : null;
+    showValidation && !title.trim()
+      ? `Add a title before you save this ${itemLabel}.`
+      : null;
   const authorError =
-    showValidation && !author.trim() ? "Add an author before you save this book." : null;
+    showValidation && !author.trim()
+      ? `Add a ${creatorLabel} before you save this ${itemLabel}.`
+      : null;
   const hasMeaningfulChanges =
     serializeBookFormSnapshot(baselineSnapshotRef.current) !== currentSnapshotKey;
   const hasLocalPhoto = Boolean(coverPhotoUrl);
@@ -167,7 +201,12 @@ export function useBookFormController(props: BookFormProps) {
         ? "Open Library suggestion"
         : "Cover URL"
       : "No cover selected";
-  const submitLabel = saveState === "saving" ? "Saving..." : "Save Book";
+  const submitLabel =
+    saveState === "saving"
+      ? "Saving..."
+      : props.mediaType === "board_game"
+        ? "Save Board Game"
+        : "Save Book";
 
   const resetFormBaseline = useCallback(() => {
     baselineSnapshotRef.current = currentSnapshot;
@@ -241,6 +280,12 @@ export function useBookFormController(props: BookFormProps) {
   }, [coverUrl]);
 
   const performSearch = useCallback(async (searchTitle: string, searchAuthor: string) => {
+    if (props.mediaType === "board_game") {
+      setCoverCandidates([]);
+      setSearchError(null);
+      return;
+    }
+
     if (!searchTitle.trim() || !searchAuthor.trim()) {
       setCoverCandidates([]);
       setSearchError(null);
@@ -269,7 +314,7 @@ export function useBookFormController(props: BookFormProps) {
         setIsSearching(false);
       }
     }
-  }, []);
+  }, [props.mediaType]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -307,6 +352,7 @@ export function useBookFormController(props: BookFormProps) {
   const performAuthorGuess = useCallback(
     async (searchTitle: string) => {
       if (
+        props.mediaType === "board_game" ||
         !searchTitle.trim() ||
         searchTitle.trim().length < 4 ||
         userHasEditedAuthor ||
@@ -332,7 +378,7 @@ export function useBookFormController(props: BookFormProps) {
         console.error("Failed to guess author:", error);
       }
     },
-    [author, onAuthorChange, userHasEditedAuthor],
+    [author, onAuthorChange, props.mediaType, userHasEditedAuthor],
   );
 
   const debouncedAuthorGuess = useMemo(
@@ -344,10 +390,15 @@ export function useBookFormController(props: BookFormProps) {
   );
 
   useEffect(() => {
-    if (title.trim().length >= 4 && !userHasEditedAuthor && author.trim().length === 0) {
+    if (
+      props.mediaType !== "board_game" &&
+      title.trim().length >= 4 &&
+      !userHasEditedAuthor &&
+      author.trim().length === 0
+    ) {
       debouncedAuthorGuess(title);
     }
-  }, [author, debouncedAuthorGuess, title, userHasEditedAuthor]);
+  }, [author, debouncedAuthorGuess, props.mediaType, title, userHasEditedAuthor]);
 
   const handleAuthorInput = useCallback(
     (value: string) => {
@@ -389,6 +440,12 @@ export function useBookFormController(props: BookFormProps) {
 
   const performTitleSearch = useCallback(
     async (searchTitle: string) => {
+      if (props.mediaType === "board_game") {
+        setTitleSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+
       if (searchTitle.trim().length < 3) {
         setTitleSuggestions([]);
         setShowSuggestions(false);
@@ -419,7 +476,7 @@ export function useBookFormController(props: BookFormProps) {
         }
       }
     },
-    [author],
+    [author, props.mediaType],
   );
 
   const debouncedTitleSearch = useMemo(
@@ -431,14 +488,18 @@ export function useBookFormController(props: BookFormProps) {
   );
 
   useEffect(() => {
-    if (title.trim().length >= 3 && (!isEditing || titleWasEdited)) {
+    if (
+      props.mediaType !== "board_game" &&
+      title.trim().length >= 3 &&
+      (!isEditing || titleWasEdited)
+    ) {
       debouncedTitleSearch(title);
       return;
     }
 
     setTitleSuggestions([]);
     setShowSuggestions(false);
-  }, [debouncedTitleSearch, isEditing, title, titleWasEdited]);
+  }, [debouncedTitleSearch, isEditing, props.mediaType, title, titleWasEdited]);
 
   const handleSuggestionSelect = useCallback(
     (suggestion: TitleSuggestion) => {

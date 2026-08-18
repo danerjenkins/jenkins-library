@@ -14,6 +14,13 @@ export interface BookFormSnapshot {
   ownershipStatus: "owned" | "wishlist";
   seriesName: string;
   seriesLabel: string;
+  publisher: string;
+  minPlayers: string;
+  maxPlayers: string;
+  playTimeMinutes: string;
+  minAge: string;
+  complexity: string;
+  category: string;
 }
 
 function normalizeText(value: string | null | undefined) {
@@ -41,6 +48,13 @@ export function createBookFormSnapshot(
     ownershipStatus: snapshot.ownershipStatus,
     seriesName: normalizeText(snapshot.seriesName),
     seriesLabel: normalizeText(snapshot.seriesLabel),
+    publisher: normalizeText(snapshot.publisher),
+    minPlayers: normalizeText(snapshot.minPlayers),
+    maxPlayers: normalizeText(snapshot.maxPlayers),
+    playTimeMinutes: normalizeText(snapshot.playTimeMinutes),
+    minAge: normalizeText(snapshot.minAge),
+    complexity: normalizeText(snapshot.complexity),
+    category: normalizeText(snapshot.category),
   };
 }
 

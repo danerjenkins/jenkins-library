@@ -6,6 +6,7 @@ import {
   BookMarked,
   BookOpen,
   BookOpenText,
+  Dices,
   Feather,
   Flame,
   GraduationCap,
@@ -254,10 +255,12 @@ export function BookCard({
       ? " [contain-intrinsic-size:320px_520px] [content-visibility:auto]"
       : ""
   }${className ? ` ${className}` : ""}`;
-  const detailPath = `/book/${book.id}`;
+  const isBoardGame = book.mediaType === "board_game";
+  const detailPath = isBoardGame ? `/board-game/${book.id}` : `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
   const ownershipStatus = book.ownershipStatus ?? "owned";
   const OwnershipIcon = ownershipStatus === "wishlist" ? Heart : BookOpen;
+  const BadgeIcon = isBoardGame ? Dices : OwnershipIcon;
   const bodyClasses = `book-card__body flex min-w-0 flex-1 flex-col${
     actions ? " book-card__body--with-actions" : ""
   }`;
@@ -280,10 +283,10 @@ export function BookCard({
             {cover}
             <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
               <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
-                <OwnershipIcon
+                <BadgeIcon
                   className="h-4 w-4 text-white"
                   aria-hidden="true"
-                  fill="currentColor"
+                  fill={isBoardGame ? "none" : "currentColor"}
                 />
               </div>
             </div>
@@ -294,10 +297,10 @@ export function BookCard({
             {cover}
             <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
               <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
-                <OwnershipIcon
+                <BadgeIcon
                   className="h-4 w-4 text-white"
                   aria-hidden="true"
-                  fill="currentColor"
+                  fill={isBoardGame ? "none" : "currentColor"}
                 />
               </div>
             </div>
@@ -397,10 +400,10 @@ export function BookCard({
         {cover}
         <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
           <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
-            <OwnershipIcon
+            <BadgeIcon
               className="h-4 w-4 text-white"
               aria-hidden="true"
-              fill="currentColor"
+              fill={isBoardGame ? "none" : "currentColor"}
             />
           </div>
         </div>
@@ -423,11 +426,19 @@ export function BookCard({
           )}
         </div>
         <div className="min-h-0 flex-1" aria-hidden="true" />
-        {(book.genre || book.format || book.pages) && (
+        {(book.genre || book.format || book.pages || book.publisher || book.playTimeMinutes) && (
           <div className="book-card__meta space-y-0.5 border-t border-warm-gray pt-2 text-stone-500">
             {book.genre && (
-              <p className="line-clamp-1 wrap-break-word">Genre: {book.genre}</p>
+              <p className="line-clamp-1 wrap-break-word">
+                {isBoardGame ? "Category" : "Genre"}: {book.genre}
+              </p>
             )}
+            {isBoardGame && book.publisher ? (
+              <p className="line-clamp-1 wrap-break-word">Publisher: {book.publisher}</p>
+            ) : null}
+            {isBoardGame && book.playTimeMinutes ? (
+              <p className="line-clamp-1">Play Time: {book.playTimeMinutes} min</p>
+            ) : null}
             {book.format && (
               <p className="line-clamp-1">
                 Format: {BOOK_FORMAT_LABELS[book.format]}

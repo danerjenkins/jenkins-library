@@ -54,6 +54,7 @@ export function BookForm(props: BookFormProps) {
   const { refs, state, actions } = useBookFormController(props);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [canScanIsbn] = useState(canUseMobileIsbnScanner);
+  const isBoardGame = props.mediaType === "board_game";
   const {
     formRef,
     basicsSectionRef,
@@ -109,6 +110,13 @@ export function BookForm(props: BookFormProps) {
               titleError={state.titleError}
               authorError={state.authorError}
               authorWasAutofilled={state.authorWasAutofilled}
+              authorLabel={isBoardGame ? "Designer" : "Author"}
+              authorPlaceholder={isBoardGame ? "Klaus Teuber..." : "Ursula K. Le Guin..."}
+              ownershipHelp={
+                isBoardGame
+                  ? "Track whether this game belongs in the library or wishlist."
+                  : "Track whether this belongs in the library or wishlist."
+              }
               onTitleInput={actions.handleTitleInput}
               onTitleFocus={actions.handleTitleFocus}
               onTitleBlur={actions.handleTitleBlur}
@@ -120,6 +128,7 @@ export function BookForm(props: BookFormProps) {
               onSuggestionSelect={actions.handleSuggestionSelect}
             />
 
+            {!isBoardGame ? (
             <div className="space-y-3 rounded-lg border border-warm-gray bg-parchment/75 p-3">
               <h3 className="text-sm font-semibold text-stone-700">Reading Status</h3>
               <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
@@ -131,6 +140,7 @@ export function BookForm(props: BookFormProps) {
                 />
               </div>
             </div>
+            ) : null}
           </div>
         </section>
 
@@ -198,7 +208,8 @@ export function BookForm(props: BookFormProps) {
           className={`book-editor-form__panel ${state.activeSection === "metadata" ? "block" : "hidden"}`}
         >
           <div className="book-editor-form__metadata-grid">
-            <Input
+            {!isBoardGame ? (
+              <Input
               id="seriesName"
               name="seriesName"
               label="Series Name"
@@ -208,7 +219,9 @@ export function BookForm(props: BookFormProps) {
               placeholder="Earthsea..."
               autoComplete="off"
             />
-            <Input
+            ) : null}
+            {!isBoardGame ? (
+              <Input
               id="seriesLabel"
               name="seriesLabel"
               label="# In Series"
@@ -218,31 +231,49 @@ export function BookForm(props: BookFormProps) {
               placeholder="2 or 2.5..."
               autoComplete="off"
             />
+            ) : null}
             <div>
               <label htmlFor="genre" className="mb-1 block text-sm font-medium text-stone-700">
-                Genre
+                {isBoardGame ? "Category" : "Genre"}
               </label>
-              <select
-                id="genre"
-                name="genre"
-                value={props.genre}
-                onChange={(event) => actions.handleGenreInput(event.target.value)}
-                className={fieldClassName}
-              >
-                <option value="">Select genre</option>
-                {EDIT_BOOK_GENRES.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {state.genreWasAutofilled && props.genre.trim().length > 0 ? (
+              {isBoardGame ? (
+                <input
+                  id="genre"
+                  name="genre"
+                  type="text"
+                  value={props.category ?? props.genre}
+                  onChange={(event) => {
+                    props.onCategoryChange?.(event.target.value);
+                    actions.handleGenreInput(event.target.value);
+                  }}
+                  className={fieldClassName}
+                  placeholder="Strategy..."
+                  autoComplete="off"
+                />
+              ) : (
+                <select
+                  id="genre"
+                  name="genre"
+                  value={props.genre}
+                  onChange={(event) => actions.handleGenreInput(event.target.value)}
+                  className={fieldClassName}
+                >
+                  <option value="">Select genre</option>
+                  {EDIT_BOOK_GENRES.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {!isBoardGame && state.genreWasAutofilled && props.genre.trim().length > 0 ? (
                 <div className="mt-1.5 text-xs text-stone-500">
                   Auto-filled from book metadata. Verify it before saving.
                 </div>
               ) : null}
             </div>
-            <div>
+            {!isBoardGame ? (
+              <div>
               <label htmlFor="format" className="mb-1 block text-sm font-medium text-stone-700">
                 Format
               </label>
@@ -261,7 +292,9 @@ export function BookForm(props: BookFormProps) {
                 ))}
               </select>
             </div>
-            <div>
+            ) : null}
+            {!isBoardGame ? (
+              <div>
               <label htmlFor="isbn" className="mb-1 block text-sm font-medium text-stone-700">
                 ISBN
               </label>
@@ -311,7 +344,9 @@ export function BookForm(props: BookFormProps) {
                 ) : null}
               </div>
             </div>
-            <div>
+            ) : null}
+            {!isBoardGame ? (
+              <div>
               <label htmlFor="pages" className="mb-1 block text-sm font-medium text-stone-700">
                 Pages
               </label>
@@ -329,8 +364,89 @@ export function BookForm(props: BookFormProps) {
                 autoComplete="off"
               />
             </div>
+            ) : null}
+            {isBoardGame ? (
+              <>
+                <Input
+                  id="publisher"
+                  name="publisher"
+                  label="Publisher"
+                  type="text"
+                  value={props.publisher ?? ""}
+                  onChange={(event) => props.onPublisherChange?.(event.target.value)}
+                  placeholder="Catan Studio..."
+                  autoComplete="off"
+                />
+                <Input
+                  id="minPlayers"
+                  name="minPlayers"
+                  label="Min Players"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={props.minPlayers ?? ""}
+                  onChange={(event) => props.onMinPlayersChange?.(event.target.value)}
+                  placeholder="2"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+                <Input
+                  id="maxPlayers"
+                  name="maxPlayers"
+                  label="Max Players"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={props.maxPlayers ?? ""}
+                  onChange={(event) => props.onMaxPlayersChange?.(event.target.value)}
+                  placeholder="4"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+                <Input
+                  id="playTimeMinutes"
+                  name="playTimeMinutes"
+                  label="Play Time"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={props.playTimeMinutes ?? ""}
+                  onChange={(event) => props.onPlayTimeMinutesChange?.(event.target.value)}
+                  placeholder="60"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+                <Input
+                  id="minAge"
+                  name="minAge"
+                  label="Minimum Age"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={props.minAge ?? ""}
+                  onChange={(event) => props.onMinAgeChange?.(event.target.value)}
+                  placeholder="10"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+                <Input
+                  id="complexity"
+                  name="complexity"
+                  label="Complexity"
+                  type="number"
+                  min="1"
+                  max="5"
+                  step="0.1"
+                  value={props.complexity ?? ""}
+                  onChange={(event) => props.onComplexityChange?.(event.target.value)}
+                  placeholder="2.3"
+                  inputMode="decimal"
+                  autoComplete="off"
+                />
+              </>
+            ) : null}
           </div>
-          {props.seriesName.trim() || props.seriesLabel.trim() ? (
+          {!isBoardGame && (props.seriesName.trim() || props.seriesLabel.trim()) ? (
             <button
               type="button"
               onClick={props.onClearSeries}

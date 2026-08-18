@@ -30,6 +30,9 @@ export function BookFormIdentityPanel({
   titleError,
   authorError,
   authorWasAutofilled,
+  authorLabel = "Author",
+  authorPlaceholder = "Ursula K. Le Guin...",
+  ownershipHelp = "Track whether this belongs in the library or wishlist.",
   onTitleInput,
   onTitleFocus,
   onTitleBlur,
@@ -50,6 +53,9 @@ export function BookFormIdentityPanel({
   titleError: string | null;
   authorError: string | null;
   authorWasAutofilled: boolean;
+  authorLabel?: string;
+  authorPlaceholder?: string;
+  ownershipHelp?: string;
   onTitleInput: (value: string) => void;
   onTitleFocus: () => void;
   onTitleBlur: () => void;
@@ -138,7 +144,7 @@ export function BookFormIdentityPanel({
         <Input
           id="author"
           name="author"
-          label="Author"
+          label={authorLabel}
           type="text"
           value={author}
           required
@@ -147,7 +153,7 @@ export function BookFormIdentityPanel({
           onChange={(event) => onAuthorInput(event.target.value)}
           onFocus={onAuthorFocus}
           onBlur={onAuthorBlur}
-          placeholder="Ursula K. Le Guin..."
+          placeholder={authorPlaceholder}
           autoComplete="off"
         />
         {authorError ? (
@@ -173,7 +179,7 @@ export function BookFormIdentityPanel({
         <label htmlFor="ownershipStatus" className="mb-1 block text-sm font-medium text-stone-700">
           Ownership
         </label>
-        <p className="mb-2 text-xs text-stone-500">Track whether this belongs in the library or wishlist.</p>
+        <p className="mb-2 text-xs text-stone-500">{ownershipHelp}</p>
         <select
           id="ownershipStatus"
           name="ownershipStatus"

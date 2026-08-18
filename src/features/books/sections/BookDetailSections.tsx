@@ -73,9 +73,14 @@ export function BookDetailContent({
   }) => void;
   onReturnBook: () => void;
 }) {
-  const editBookPath = `/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`;
+  const isBoardGame = book.mediaType === "board_game";
+  const detailPath = isBoardGame ? `/board-game/${book.id}` : `/book/${book.id}`;
+  const editBookPath = `${detailPath}/edit?returnTo=${encodeURIComponent(detailPath)}`;
   const editCoverPath = `${editBookPath}&section=cover`;
-  const loginToEditPath = `/login?returnTo=${encodeURIComponent(`/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`)}`;
+  const loginToEditPath = `/login?returnTo=${encodeURIComponent(editBookPath)}`;
+  const itemLabel = isBoardGame ? "board game" : "book";
+  const itemTitleLabel = isBoardGame ? "Board game" : "Book";
+  const creatorLabel = isBoardGame ? "Designer" : "Author";
   const [draftRating, setDraftRating] = useState(book.currentUserReview?.rating ?? 0);
   const [draftReview, setDraftReview] = useState(book.currentUserReview?.review ?? "");
   const [checkoutBorrowerId, setCheckoutBorrowerId] = useState(
@@ -113,13 +118,13 @@ export function BookDetailContent({
               {book.coverUrl ? (
                 <img
                   src={book.coverUrl}
-                  alt={`Cover of ${book.title}`}
+                  alt={`${itemTitleLabel} image for ${book.title}`}
                   className="book-detail-cover__image aspect-2/3 w-full rounded-lg object-cover shadow-md"
                 />
               ) : (
                 <div className="book-detail-cover__image flex aspect-2/3 w-full items-center justify-center rounded-lg bg-warm-gray-light text-stone-500 shadow-md">
                   <span className="ds-chip border-warm-gray bg-cream px-4 py-2 text-stone-600" aria-hidden="true">
-                    No Cover
+                    No Image
                   </span>
                 </div>
               )}
@@ -148,7 +153,7 @@ export function BookDetailContent({
             <div className="book-detail-summary">
               <h1 className="font-display text-3xl font-bold text-stone-900">{book.title}</h1>
               <p className="mt-2 font-sans text-lg text-stone-600">{book.author}</p>
-              {book.seriesName ? (
+              {book.seriesName && !isBoardGame ? (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-stone-600">
                   <span className="font-medium text-stone-700">Series:</span>
                   <Link
@@ -179,16 +184,16 @@ export function BookDetailContent({
               {book.activeCheckout ? (
                 <Badge variant="amber">Checked out</Badge>
               ) : null}
-              {book.finished ? <Badge variant="success">Finished</Badge> : null}
-              {book.currentUserHasRead ? <Badge variant="amber">Read by you</Badge> : null}
-              {book.readers
+              {!isBoardGame && book.finished ? <Badge variant="success">Finished</Badge> : null}
+              {!isBoardGame && book.currentUserHasRead ? <Badge variant="amber">Read by you</Badge> : null}
+              {!isBoardGame ? book.readers
                 .filter((reader) => reader.memberId !== activeMember?.id)
                 .map((reader) => (
                   <Badge key={reader.memberId} variant="amber">
                     Read by {reader.displayName}
                   </Badge>
-                ))}
-              {book.readers.length === 0 ? <Badge variant="amber">To Read</Badge> : null}
+                )) : null}
+              {!isBoardGame && book.readers.length === 0 ? <Badge variant="amber">To Read</Badge> : null}
             </div>
 
             {book.description ? (
@@ -205,7 +210,7 @@ export function BookDetailContent({
                       Checkout
                     </h2>
                     <p className="ds-muted-meta mt-1 text-xs">
-                      Track who currently has this copy.
+                      Track who currently has this {itemLabel}.
                     </p>
                   </div>
                   <div className="ds-muted-meta text-xs" aria-live="polite">
@@ -231,7 +236,7 @@ export function BookDetailContent({
                     >
                       <span className="flex items-center gap-2">
                         <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                        Return Book
+                        Return {itemTitleLabel}
                       </span>
                     </Button>
                   </div>
@@ -295,7 +300,7 @@ export function BookDetailContent({
                     Ratings & Reviews
                   </h2>
                   <p className="ds-muted-meta mt-1 text-xs">
-                    Rate this book and read visible reviews from library members.
+                    Rate this {itemLabel} and read visible reviews from library members.
                   </p>
                 </div>
                 <div className="ds-muted-meta text-xs" aria-live="polite">
@@ -336,7 +341,7 @@ export function BookDetailContent({
                     disabled={savingReview}
                     rows={4}
                     className="mt-1 w-full rounded-lg border border-warm-gray bg-cream px-3 py-2 text-sm text-stone-900 shadow-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage/20 disabled:opacity-60"
-                    placeholder="What stood out about this book?"
+                    placeholder={`What stood out about this ${itemLabel}?`}
                   />
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button
@@ -369,7 +374,7 @@ export function BookDetailContent({
                 </div>
               ) : (
                 <p className="mt-3 rounded-lg border border-warm-gray bg-cream/85 px-3 py-2 text-sm text-stone-600">
-                  Sign in as a library member to rate and review this book.
+                  Sign in as a library member to rate and review this {itemLabel}.
                 </p>
               )}
 
@@ -407,7 +412,7 @@ export function BookDetailContent({
                     Metadata
                   </h2>
                   <p className="ds-muted-meta mt-1 text-xs">
-                    Quick facts for scanning this book at a glance.
+                    Quick facts for scanning this {itemLabel} at a glance.
                   </p>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -423,7 +428,7 @@ export function BookDetailContent({
               </section>
             ) : null}
 
-            {canEdit ? (
+            {canEdit && !isBoardGame ? (
             <section className="ds-panel-surface bg-parchment/75 p-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -541,8 +546,8 @@ export function BookDetailContent({
                   </h2>
                   <p className="ds-muted-meta mt-1 text-xs">
                     {isWishlistBook
-                      ? "Move this book into the library when you own it."
-                      : "Move this book to the wishlist when you no longer own it."}
+                      ? `Move this ${itemLabel} into the library when you own it.`
+                      : `Move this ${itemLabel} to the wishlist when you no longer own it.`}
                   </p>
                 </div>
                 <div className="ds-muted-meta text-xs" aria-live="polite">
@@ -578,8 +583,24 @@ export function BookDetailContent({
             <div className="space-y-3 border-t border-warm-gray pt-4">
               {book.genre ? (
                 <div>
-                  <span className="ds-muted-meta text-sm font-semibold">Genre:</span>
+                  <span className="ds-muted-meta text-sm font-semibold">
+                    {isBoardGame ? "Category" : "Genre"}:
+                  </span>
                   <p className="mt-1 text-stone-900">{book.genre}</p>
+                </div>
+              ) : null}
+
+              {isBoardGame && book.publisher ? (
+                <div>
+                  <span className="ds-muted-meta text-sm font-semibold">Publisher:</span>
+                  <p className="mt-1 text-stone-900">{book.publisher}</p>
+                </div>
+              ) : null}
+
+              {isBoardGame ? (
+                <div>
+                  <span className="ds-muted-meta text-sm font-semibold">{creatorLabel}:</span>
+                  <p className="mt-1 text-stone-900">{book.author}</p>
                 </div>
               ) : null}
 

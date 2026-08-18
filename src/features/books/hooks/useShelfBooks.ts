@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
+import { getAllBooks, getBoardGames, getWishlistBooks } from "../../../data/bookRepo";
 import type { Book } from "../lib/bookTypes";
 
 function mergeBooks(ownedBooks: Book[], wishlistBooks: Book[]) {
@@ -48,6 +48,29 @@ export function useWishlistShelfBooks() {
       );
     } catch (error) {
       console.error("Failed to load wishlist books:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadBooks();
+  }, [loadBooks]);
+
+  return { books, setBooks, loading, reloadBooks: loadBooks };
+}
+
+export function useBoardGameShelfBooks() {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadBooks = useCallback(async () => {
+    try {
+      setLoading(true);
+      const boardGames = await getBoardGames();
+      setBooks(boardGames);
+    } catch (error) {
+      console.error("Failed to load board games:", error);
     } finally {
       setLoading(false);
     }
