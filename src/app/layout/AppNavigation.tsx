@@ -21,12 +21,12 @@ import { Link, useLocation } from "react-router-dom";
 
 const primaryNavItems = [
   { to: "/view", label: "Library", Icon: BookOpen },
-  { to: "/board-games", label: "Games", Icon: Dices },
   { to: "/wishlist", label: "Wishlist", Icon: Heart },
   { to: "/admin", label: "Admin", Icon: Settings },
 ] as const;
 
 const secondaryNavItems = [
+  { to: "/board-games", label: "Games", Icon: Dices },
   { to: "/search", label: "Search", Icon: Search },
   { to: "/quick-read", label: "Quick Read", Icon: CheckCheck },
   { to: "/series", label: "Series", Icon: BookOpenText },
