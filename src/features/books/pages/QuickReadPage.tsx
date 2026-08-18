@@ -18,6 +18,7 @@ import {
 import {
   SegmentedControl,
   ShelfDensitySelector,
+  ShelfDisplayToggle,
   ShelfSearchField,
 } from "../components/browse/ShelfBrowseControls";
 import { useMergedShelfBooks } from "../hooks/useShelfBooks";
@@ -359,6 +360,12 @@ export function QuickReadPage() {
                 value={quickReadCardSize}
                 onChange={(cardSize) => updateState({ cardSize })}
               />
+              <ShelfDisplayToggle
+                id="quick-read-show-genre-tags"
+                label="Show Genre Tags"
+                checked={state.showGenreTags}
+                onChange={(showGenreTags) => updateState({ showGenreTags })}
+              />
               {hasActiveFilters ? (
                 <Button
                   type="button"
@@ -516,6 +523,7 @@ export function QuickReadPage() {
                     variant="view"
                     cardSize={quickReadCardSize}
                     clickable={true}
+                    showGenreTag={state.showGenreTags}
                     actions={activeMember ? (
                       <div className={`${actionGridClassesByCardSize[quickReadCardSize]} py-2`}>
                         <ReaderToggleButton

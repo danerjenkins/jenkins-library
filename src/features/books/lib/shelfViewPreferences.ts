@@ -14,6 +14,10 @@ export const SHELF_CARD_SIZE_STORAGE_KEY =
 export const LIBRARY_VIEW_STORAGE_KEY = "jenkins-library:view-library";
 export const WISHLIST_VIEW_STORAGE_KEY = "jenkins-library:view-wishlist";
 export const SERIES_VIEW_STORAGE_KEY = "jenkins-library:view-series";
+export const SEARCH_VIEW_STORAGE_KEY = "jenkins-library:view-search";
+export const GENRES_VIEW_STORAGE_KEY = "jenkins-library:view-genres";
+export const READING_LIST_VIEW_STORAGE_KEY =
+  "jenkins-library:view-reading-list";
 
 interface StorageEnvelope<T> {
   version: number;

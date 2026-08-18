@@ -10,7 +10,7 @@ import { PanelLeft, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../../../../ui/components/Button";
 
 const drawerSurfaceClasses =
-  "fixed inset-y-0 left-0 z-[110] flex h-dvh w-[min(72rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none touch-pan-y flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:rounded-r-[1.75rem]";
+  "fixed inset-y-0 left-0 z-[140] flex h-dvh w-[min(72rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none touch-pan-y flex-col border-r border-warm-gray/80 bg-[linear-gradient(180deg,rgba(251,247,239,0.985),rgba(243,236,223,0.985))] shadow-[0_22px_44px_rgba(60,51,40,0.18)] backdrop-blur-xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:rounded-r-[1.75rem]";
 const floatingTriggerClasses =
   "fixed right-[max(0.75rem,env(safe-area-inset-right))] top-[0.95rem] z-[120] inline-flex h-11 min-w-11 items-center justify-center rounded-full border border-warm-gray/80 bg-cream/96 px-0 text-stone-900 shadow-[0_10px_24px_rgba(60,51,40,0.16)] backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-sage-light hover:bg-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/35 focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:translate-y-0 sm:right-[max(1rem,env(safe-area-inset-right))] sm:top-[1.3rem] min-[1152px]:right-[max(1rem,calc((100vw-72rem)/2+1rem))]";
 const swipeCloseThreshold = 72;
@@ -111,7 +111,7 @@ export function FilterDrawer({
       </button>
 
       <div
-        className={`fixed inset-0 z-[105] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed inset-0 z-[130] bg-ink/36 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden="true"

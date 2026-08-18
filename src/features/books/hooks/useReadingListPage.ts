@@ -14,6 +14,15 @@ import {
   resetReadingList,
 } from "../../../repos/readingListRepo";
 import { useLibrary } from "../../libraries/useLibrary";
+import {
+  READING_LIST_VIEW_STORAGE_KEY,
+  readStorageValue,
+  writeStorageValue,
+} from "../lib/shelfViewPreferences";
+
+interface StoredReadingListViewPreferences {
+  showGenreTags: boolean;
+}
 
 function sortBooks(books: Book[]) {
   return [...books].sort((a, b) => {
@@ -43,6 +52,12 @@ export function useReadingListPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeReader, setActiveReaderState] = useState<ReaderId>(() => getReadingListPreferences().activeReader);
   const [queueIdsByReader, setQueueIdsByReader] = useState<Record<ReaderId, string[]>>({});
+  const [showGenreTags, setShowGenreTags] = useState(() => {
+    const stored = readStorageValue<Partial<StoredReadingListViewPreferences>>(
+      READING_LIST_VIEW_STORAGE_KEY,
+    );
+    return stored?.showGenreTags ?? false;
+  });
 
   useEffect(() => {
     if (!activeReader && activeMember) {
@@ -50,6 +65,12 @@ export function useReadingListPage() {
       setReadingListPreferences({ activeReader: activeMember.id });
     }
   }, [activeMember, activeReader]);
+
+  useEffect(() => {
+    writeStorageValue(READING_LIST_VIEW_STORAGE_KEY, {
+      showGenreTags,
+    } satisfies StoredReadingListViewPreferences);
+  }, [showGenreTags]);
 
   useEffect(() => {
     let ignore = false;
@@ -179,7 +200,7 @@ export function useReadingListPage() {
   );
 
   return {
-    state: { activeReader },
+    state: { activeReader, showGenreTags },
     loading,
     errorMessage,
     booksByOwnership,
@@ -190,6 +211,7 @@ export function useReadingListPage() {
       moveBook,
       removeFromQueue,
       resetReaderQueues,
+      setShowGenreTags,
     },
   };
 }

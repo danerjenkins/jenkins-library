@@ -10,6 +10,7 @@ import { getAllBooks, getWishlistBooks } from "../../../data/bookRepo";
 import type { Book } from "../lib/bookTypes";
 import type { CardSize } from "../lib/shelfViewPreferences";
 import {
+  SEARCH_VIEW_STORAGE_KEY,
   SHELF_CARD_SIZE_STORAGE_KEY,
   getDefaultCardSize,
   isCardSize,
@@ -24,6 +25,10 @@ import {
 export type SearchOwnershipFilter = "all" | "owned" | "wishlist";
 
 const defaultOwnershipFilter: SearchOwnershipFilter = "all";
+
+interface StoredSearchViewPreferences {
+  showGenreTags: boolean;
+}
 
 function hydrateOwnershipFilter(value: string | null): SearchOwnershipFilter {
   if (value === "owned" || value === "wishlist" || value === "all") {
@@ -49,6 +54,12 @@ export function useGlobalSearchPage() {
     );
     return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
   });
+  const [showGenreTags, setShowGenreTags] = useState(() => {
+    const stored = readStorageValue<Partial<StoredSearchViewPreferences>>(
+      SEARCH_VIEW_STORAGE_KEY,
+    );
+    return stored?.showGenreTags ?? false;
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
@@ -73,6 +84,12 @@ export function useGlobalSearchPage() {
   useEffect(() => {
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
   }, [cardSize]);
+
+  useEffect(() => {
+    writeStorageValue(SEARCH_VIEW_STORAGE_KEY, {
+      showGenreTags,
+    } satisfies StoredSearchViewPreferences);
+  }, [showGenreTags]);
 
   useEffect(() => {
     const nextQuery = new URLSearchParams();
@@ -130,6 +147,7 @@ export function useGlobalSearchPage() {
       searchQuery,
       ownershipFilter,
       cardSize,
+      showGenreTags,
       filteredBooks,
       ownershipTotals,
       hasActiveFilters,
@@ -138,6 +156,7 @@ export function useGlobalSearchPage() {
       setSearchQuery,
       setOwnershipFilter,
       setCardSize,
+      setShowGenreTags,
       clearFilters,
     },
   };

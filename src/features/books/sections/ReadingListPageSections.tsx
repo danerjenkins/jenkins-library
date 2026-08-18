@@ -9,7 +9,10 @@ import { Link } from "react-router-dom";
 import { Button } from "../../../ui/components/Button";
 import { PageSection } from "../../../ui/components/PageLayout";
 import { BookShelfState } from "../components/cards/BookCard";
-import { SegmentedControl } from "../components/browse/ShelfBrowseControls";
+import {
+  SegmentedControl,
+  ShelfDisplayToggle,
+} from "../components/browse/ShelfBrowseControls";
 import type { Book } from "../lib/bookTypes";
 import type { ReaderId } from "../lib/readingListPreferences";
 import type { LibraryMember } from "../../libraries/libraryTypes";
@@ -44,6 +47,7 @@ function QueueRow({
   onMoveDown,
   onRemove,
   canEdit,
+  showGenreTags,
   isFirst,
   isLast,
 }: {
@@ -54,6 +58,7 @@ function QueueRow({
   onMoveDown: (readerId: ReaderId, bookId: string) => void;
   onRemove: (readerId: ReaderId, bookId: string) => void;
   canEdit: boolean;
+  showGenreTags: boolean;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -124,16 +129,18 @@ function QueueRow({
             {book.title}
           </Link>
           <p className="mt-0.5 text-sm text-stone-600">{book.author}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {getBookMeta(book).map((meta) => (
-              <span
-                key={meta}
-                className="ds-chip ds-chip--compact ds-chip--warm-gray"
-              >
-                {meta}
-              </span>
-            ))}
-          </div>
+          {showGenreTags ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {getBookMeta(book).map((meta) => (
+                <span
+                  key={meta}
+                  className="ds-chip ds-chip--compact ds-chip--warm-gray"
+                >
+                  {meta}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {canEdit ? (
@@ -180,13 +187,17 @@ export function ReadingListIntroSection({
   queuedTotal,
   activeReaderLabel,
   members,
+  showGenreTags,
   onActiveReaderChange,
+  onShowGenreTagsChange,
 }: {
   activeReader: ReaderId;
   queuedTotal: number;
   activeReaderLabel: string;
   members: LibraryMember[];
+  showGenreTags: boolean;
   onActiveReaderChange: (readerId: ReaderId) => void;
+  onShowGenreTagsChange: (value: boolean) => void;
 }) {
   return (
     <PageSection className={sectionSurfaceClasses}>
@@ -201,7 +212,7 @@ export function ReadingListIntroSection({
           </p>
         </div>
 
-        <div className="min-w-0 sm:w-md">
+        <div className="flex min-w-0 flex-col gap-3 sm:w-md">
           <SegmentedControl
             label="Active reader"
             options={members.map((member) => ({
@@ -210,6 +221,12 @@ export function ReadingListIntroSection({
             }))}
             value={activeReader}
             onChange={onActiveReaderChange}
+          />
+          <ShelfDisplayToggle
+            id="reading-list-show-genre-tags"
+            label="Show Genre Tags"
+            checked={showGenreTags}
+            onChange={onShowGenreTagsChange}
           />
         </div>
       </div>
@@ -224,6 +241,7 @@ export function ReadingListQueueSection({
   onMoveDown,
   onRemove,
   canEdit,
+  showGenreTags,
 }: {
   readerId: ReaderId;
   queueBooks: Book[];
@@ -231,6 +249,7 @@ export function ReadingListQueueSection({
   onMoveDown: (readerId: ReaderId, bookId: string) => void;
   onRemove: (readerId: ReaderId, bookId: string) => void;
   canEdit: boolean;
+  showGenreTags: boolean;
 }) {
   return (
     <PageSection className={sectionSurfaceClasses}>
@@ -260,6 +279,7 @@ export function ReadingListQueueSection({
                 onMoveDown={onMoveDown}
                 onRemove={onRemove}
                 canEdit={canEdit}
+                showGenreTags={showGenreTags}
                 isFirst={index === 0}
                 isLast={index === queueBooks.length - 1}
               />

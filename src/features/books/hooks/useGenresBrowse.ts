@@ -10,6 +10,7 @@ import {
 } from "./discoveryBrowseShared";
 import type { Book } from "../lib/bookTypes";
 import {
+  GENRES_VIEW_STORAGE_KEY,
   getDefaultCardSize,
   isCardSize,
   readStorageValue,
@@ -26,6 +27,10 @@ export type GenreShelf = {
   wishlistCount: number;
 };
 
+interface StoredGenresViewPreferences {
+  showGenreTags: boolean;
+}
+
 export function useGenresBrowse() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +40,12 @@ export function useGenresBrowse() {
   const [cardSize, setCardSize] = useState<CardSize>(() => {
     const storedCardSize = readStorageValue<string>(SHELF_CARD_SIZE_STORAGE_KEY);
     return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
+  });
+  const [showGenreTags, setShowGenreTags] = useState(() => {
+    const stored = readStorageValue<Partial<StoredGenresViewPreferences>>(
+      GENRES_VIEW_STORAGE_KEY,
+    );
+    return stored?.showGenreTags ?? false;
   });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
@@ -57,6 +68,12 @@ export function useGenresBrowse() {
   useEffect(() => {
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
   }, [cardSize]);
+
+  useEffect(() => {
+    writeStorageValue(GENRES_VIEW_STORAGE_KEY, {
+      showGenreTags,
+    } satisfies StoredGenresViewPreferences);
+  }, [showGenreTags]);
 
   const filteredBooks = useMemo(() => {
     const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
@@ -129,6 +146,7 @@ export function useGenresBrowse() {
       searchQuery,
       ownershipFilter,
       cardSize,
+      showGenreTags,
       genreShelves,
       featuredShelves,
       ownershipTotals,
@@ -140,6 +158,7 @@ export function useGenresBrowse() {
       setSearchQuery,
       setOwnershipFilter,
       setCardSize,
+      setShowGenreTags,
       clearFilters,
     },
   };

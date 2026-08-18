@@ -3,7 +3,11 @@ import { LoadingState } from "../../../ui/components/LoadingState";
 import { FullBleedPageHero } from "../../../ui/components/PageLayout";
 import { BookCard, BookShelfState } from "../components/cards/BookCard";
 import { FilterDrawer } from "../components/browse/FilterDrawer";
-import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import {
+  ShelfDensitySelector,
+  ShelfDisplayToggle,
+  ShelfSearchField,
+} from "../components/browse/ShelfBrowseControls";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import type { GenreShelf } from "../hooks/useGenresBrowse";
 
@@ -31,11 +35,13 @@ export function GenresFiltersSection({
   searchQuery,
   ownershipFilter,
   cardSize,
+  showGenreTags,
   isFilterDrawerOpen,
   hasActiveFilters,
   onSearchQueryChange,
   onOwnershipFilterChange,
   onCardSizeChange,
+  onShowGenreTagsChange,
   onOpenFilters,
   onCloseFilters,
   onClearFilters,
@@ -44,11 +50,13 @@ export function GenresFiltersSection({
   searchQuery: string;
   ownershipFilter: "all" | "owned" | "wishlist";
   cardSize: CardSize;
+  showGenreTags: boolean;
   isFilterDrawerOpen: boolean;
   hasActiveFilters: boolean;
   onSearchQueryChange: (value: string) => void;
   onOwnershipFilterChange: (value: "all" | "owned" | "wishlist") => void;
   onCardSizeChange: (value: CardSize) => void;
+  onShowGenreTagsChange: (value: boolean) => void;
   onOpenFilters: () => void;
   onCloseFilters: () => void;
   onClearFilters: () => void;
@@ -67,6 +75,12 @@ export function GenresFiltersSection({
             options={CARD_SIZE_OPTIONS}
             value={cardSize}
             onChange={onCardSizeChange}
+          />
+          <ShelfDisplayToggle
+            id="genres-show-genre-tags"
+            label="Show Genre Tags"
+            checked={showGenreTags}
+            onChange={onShowGenreTagsChange}
           />
           {hasActiveFilters ? (
             <Button
@@ -177,11 +191,13 @@ export function GenresResultsSection({
   loading,
   genreShelves,
   cardSize,
+  showGenreTags,
   onClearFilters,
 }: {
   loading: boolean;
   genreShelves: GenreShelf[];
   cardSize: CardSize;
+  showGenreTags: boolean;
   onClearFilters: () => void;
 }) {
   if (loading) {
@@ -248,6 +264,7 @@ export function GenresResultsSection({
                   variant="view"
                   cardSize={cardSize}
                   clickable={true}
+                  showGenreTag={showGenreTags}
                   deferRendering={false}
                 />
               </div>

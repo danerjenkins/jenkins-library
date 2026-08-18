@@ -13,6 +13,7 @@ import {
   ShelfSearchField,
   ShelfDensitySelector,
   SegmentedControl,
+  ShelfDisplayToggle,
 } from "../components/browse/ShelfBrowseControls";
 import {
   ownershipSegmentOptions,
@@ -73,6 +74,12 @@ export function SearchPage() {
                   options={CARD_SIZE_OPTIONS}
                   value={state.cardSize}
                   onChange={actions.setCardSize}
+                />
+                <ShelfDisplayToggle
+                  id="search-show-genre-tags"
+                  label="Show Genre Tags"
+                  checked={state.showGenreTags}
+                  onChange={actions.setShowGenreTags}
                 />
               </div>
             </div>
@@ -140,6 +147,7 @@ export function SearchPage() {
                 variant="view"
                 cardSize={state.cardSize}
                 clickable={true}
+                showGenreTag={state.showGenreTags}
                 detailMeta={book.isbn ? `ISBN: ${book.isbn}` : null}
               />
             ))}
