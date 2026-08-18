@@ -6,7 +6,6 @@ import {
   BookMarked,
   BookOpen,
   BookOpenText,
-  Dices,
   Feather,
   Flame,
   GraduationCap,
@@ -259,8 +258,7 @@ export function BookCard({
   const detailPath = isBoardGame ? `/board-game/${book.id}` : `/book/${book.id}`;
   const clickableCardClasses = clickable ? " book-card--interactive" : "";
   const ownershipStatus = book.ownershipStatus ?? "owned";
-  const OwnershipIcon = ownershipStatus === "wishlist" ? Heart : BookOpen;
-  const BadgeIcon = isBoardGame ? Dices : OwnershipIcon;
+  const BadgeIcon = ownershipStatus === "wishlist" ? Heart : BookOpen;
   const bodyClasses = `book-card__body flex min-w-0 flex-1 flex-col${
     actions ? " book-card__body--with-actions" : ""
   }`;
@@ -286,7 +284,7 @@ export function BookCard({
                 <BadgeIcon
                   className="h-4 w-4 text-white"
                   aria-hidden="true"
-                  fill={isBoardGame ? "none" : "currentColor"}
+                  fill="currentColor"
                 />
               </div>
             </div>
@@ -300,7 +298,7 @@ export function BookCard({
                 <BadgeIcon
                   className="h-4 w-4 text-white"
                   aria-hidden="true"
-                  fill={isBoardGame ? "none" : "currentColor"}
+                  fill="currentColor"
                 />
               </div>
             </div>
@@ -403,7 +401,7 @@ export function BookCard({
             <BadgeIcon
               className="h-4 w-4 text-white"
               aria-hidden="true"
-              fill={isBoardGame ? "none" : "currentColor"}
+              fill="currentColor"
             />
           </div>
         </div>
