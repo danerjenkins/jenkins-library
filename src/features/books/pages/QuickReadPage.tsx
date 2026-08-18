@@ -1,6 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BookCheck, CheckCircle2, ListPlus } from "lucide-react";
 import { setCurrentUserReadStatus } from "../../../data/bookRepo";
 import { Button } from "../../../ui/components/Button";
 import { FullBleedPageHero, PageLayout } from "../../../ui/components/PageLayout";
@@ -102,14 +101,14 @@ function ReaderToggleButton({
   pending: boolean;
   onClick: () => void;
 }) {
-  const Icon = active ? CheckCircle2 : BookCheck;
-
   return (
     <Button
       type="button"
       variant={active ? "success" : "secondary"}
-      className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
-        compact ? "min-h-12 text-[10px]" : "min-h-10 text-[11px]"
+      className={`w-full min-w-0 justify-center px-1.5 ${
+        compact
+          ? "min-h-12 flex-col gap-0.5 text-[10px]"
+          : "min-h-10 gap-1.5 text-[11px]"
       }`}
       disabled={pending}
       onClick={onClick}
@@ -117,16 +116,15 @@ function ReaderToggleButton({
       aria-label={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
       title={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
     >
-      {compact ? (
-        <span className="truncate text-[11px] font-bold">
-          {active ? "Read" : "Mark"}
-        </span>
-      ) : (
-        <>
-          <Icon className="h-4 w-4" aria-hidden="true" />
-          <span className="truncate">{active ? "Read" : "Mark Read"}</span>
-        </>
-      )}
+      <span
+        className={`${compact ? "text-lg" : "text-base"} leading-none font-black`}
+        aria-hidden="true"
+      >
+        ✓
+      </span>
+      <span className="truncate">
+        {compact ? (active ? "Read" : "Mark") : active ? "Read" : "Mark Read"}
+      </span>
     </Button>
   );
 }
@@ -148,8 +146,10 @@ function TbrButton({
     <Button
       type="button"
       variant={active ? "success" : "secondary"}
-      className={`w-full min-w-0 justify-center gap-1.5 px-2 ${
-        compact ? "min-h-12 text-[10px]" : "min-h-10 text-[11px]"
+      className={`w-full min-w-0 justify-center px-1.5 ${
+        compact
+          ? "min-h-12 flex-col gap-0.5 text-[10px]"
+          : "min-h-10 gap-1.5 text-[11px]"
       }`}
       disabled={pending}
       onClick={onClick}
@@ -157,16 +157,15 @@ function TbrButton({
       aria-label={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
       title={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
     >
-      {compact ? (
-        <span className="truncate text-[11px] font-bold">
-          {active ? "TBR" : "Add"}
-        </span>
-      ) : (
-        <>
-          <ListPlus className="h-4 w-4" aria-hidden="true" />
-          <span className="truncate">{active ? "In TBR" : "Add TBR"}</span>
-        </>
-      )}
+      <span
+        className={`${compact ? "text-lg" : "text-base"} leading-none font-black`}
+        aria-hidden="true"
+      >
+        {active ? "✓" : "+"}
+      </span>
+      <span className="truncate">
+        {compact ? (active ? "TBR" : "Add") : active ? "In TBR" : "Add TBR"}
+      </span>
     </Button>
   );
 }
