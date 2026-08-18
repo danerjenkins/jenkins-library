@@ -117,10 +117,16 @@ function ReaderToggleButton({
       aria-label={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
       title={active ? `Mark ${label} as unread` : `Mark ${label} as read`}
     >
-      <Icon className={compact ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
-      <span className={compact ? "sr-only" : "truncate"}>
-        {active ? "Read" : "Mark Read"}
-      </span>
+      {compact ? (
+        <span className="truncate text-[11px] font-bold">
+          {active ? "Read" : "Mark"}
+        </span>
+      ) : (
+        <>
+          <Icon className="h-4 w-4" aria-hidden="true" />
+          <span className="truncate">{active ? "Read" : "Mark Read"}</span>
+        </>
+      )}
     </Button>
   );
 }
@@ -151,10 +157,16 @@ function TbrButton({
       aria-label={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
       title={active ? `Queued for ${readerLabel}` : `Add to ${readerLabel}'s TBR`}
     >
-      <ListPlus className={compact ? "h-5 w-5" : "h-4 w-4"} aria-hidden="true" />
-      <span className={compact ? "sr-only" : "truncate"}>
-        {active ? "In TBR" : "Add TBR"}
-      </span>
+      {compact ? (
+        <span className="truncate text-[11px] font-bold">
+          {active ? "TBR" : "Add"}
+        </span>
+      ) : (
+        <>
+          <ListPlus className="h-4 w-4" aria-hidden="true" />
+          <span className="truncate">{active ? "In TBR" : "Add TBR"}</span>
+        </>
+      )}
     </Button>
   );
 }

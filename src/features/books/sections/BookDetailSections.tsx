@@ -204,7 +204,9 @@ export function BookDetailContent({
                         aria-label={`Rate ${rating} out of 5`}
                         aria-pressed={draftRating === rating}
                       >
-                        <Star className="h-5 w-5" aria-hidden="true" fill={draftRating >= rating ? "currentColor" : "none"} />
+                        <span className="text-xl leading-none" aria-hidden="true">
+                          {draftRating >= rating ? "★" : "☆"}
+                        </span>
                       </button>
                     ))}
                   </div>
