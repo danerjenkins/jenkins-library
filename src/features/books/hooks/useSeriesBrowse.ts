@@ -20,6 +20,7 @@ import {
 import type { Book } from "../lib/bookTypes";
 import type { CardSize } from "../lib/shelfViewPreferences";
 import {
+  SERIES_VIEW_STORAGE_KEY,
   SHELF_CARD_SIZE_STORAGE_KEY,
   getDefaultCardSize,
   isCardSize,
@@ -35,6 +36,10 @@ export type SeriesGroup = {
   kind: "parent" | "series";
   parentName?: string | null;
 };
+
+interface StoredSeriesViewPreferences {
+  showGenreTags: boolean;
+}
 
 const collator = new Intl.Collator(undefined, {
   numeric: true,
@@ -185,6 +190,12 @@ export function useSeriesBrowse() {
     );
     return isCardSize(storedCardSize) ? storedCardSize : getDefaultCardSize();
   });
+  const [showGenreTags, setShowGenreTags] = useState(() => {
+    const stored = readStorageValue<Partial<StoredSeriesViewPreferences>>(
+      SERIES_VIEW_STORAGE_KEY,
+    );
+    return stored?.showGenreTags ?? false;
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const loadBooks = useCallback(async () => {
@@ -211,6 +222,12 @@ export function useSeriesBrowse() {
   useEffect(() => {
     writeStorageValue(SHELF_CARD_SIZE_STORAGE_KEY, cardSize);
   }, [cardSize]);
+
+  useEffect(() => {
+    writeStorageValue(SERIES_VIEW_STORAGE_KEY, {
+      showGenreTags,
+    } satisfies StoredSeriesViewPreferences);
+  }, [showGenreTags]);
 
   const visibleBooks = useMemo(() => {
     if (ownershipFilter === "all") return books;
@@ -295,6 +312,7 @@ export function useSeriesBrowse() {
       searchQuery,
       ownershipFilter,
       cardSize,
+      showGenreTags,
       parentSeriesGroups: parentGroups,
       groupedSeries: seriesGroups,
       featuredGroups,
@@ -310,6 +328,7 @@ export function useSeriesBrowse() {
       setSearchQuery,
       setOwnershipFilter,
       setCardSize,
+      setShowGenreTags,
       handleClearFilters,
     },
   };

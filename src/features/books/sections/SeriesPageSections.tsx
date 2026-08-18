@@ -9,7 +9,11 @@ import {
   actionLinkClasses,
   filterFieldGridClasses,
 } from "../components/browse/shelfBrowseControlStyles";
-import { ShelfDensitySelector, ShelfSearchField } from "../components/browse/ShelfBrowseControls";
+import {
+  ShelfDensitySelector,
+  ShelfDisplayToggle,
+  ShelfSearchField,
+} from "../components/browse/ShelfBrowseControls";
 import { CARD_SIZE_OPTIONS, type CardSize } from "../lib/shelfViewPreferences";
 import type { SeriesGroup } from "../hooks/useSeriesBrowse";
 
@@ -41,11 +45,13 @@ export function SeriesFiltersSection({
   searchQuery,
   ownershipFilter,
   cardSize,
+  showGenreTags,
   isFilterDrawerOpen,
   hasActiveFilters,
   onSearchQueryChange,
   onOwnershipFilterChange,
   onCardSizeChange,
+  onShowGenreTagsChange,
   onOpenFilters,
   onCloseFilters,
   onClearFilters,
@@ -53,11 +59,13 @@ export function SeriesFiltersSection({
   searchQuery: string;
   ownershipFilter: "all" | "owned" | "wishlist";
   cardSize: CardSize;
+  showGenreTags: boolean;
   isFilterDrawerOpen: boolean;
   hasActiveFilters: boolean;
   onSearchQueryChange: (value: string) => void;
   onOwnershipFilterChange: (value: "all" | "owned" | "wishlist") => void;
   onCardSizeChange: (value: CardSize) => void;
+  onShowGenreTagsChange: (value: boolean) => void;
   onOpenFilters: () => void;
   onCloseFilters: () => void;
   onClearFilters: () => void;
@@ -76,6 +84,12 @@ export function SeriesFiltersSection({
             options={CARD_SIZE_OPTIONS}
             value={cardSize}
             onChange={onCardSizeChange}
+          />
+          <ShelfDisplayToggle
+            id="series-show-genre-tags"
+            label="Show Genre Tags"
+            checked={showGenreTags}
+            onChange={onShowGenreTagsChange}
           />
           {hasActiveFilters ? (
             <Button
@@ -171,9 +185,11 @@ export function FeaturedSeriesSection({
 function SeriesCarouselSection({
   group,
   cardSize,
+  showGenreTags,
 }: {
   group: SeriesGroup;
   cardSize: CardSize;
+  showGenreTags: boolean;
 }) {
   return (
     <section
@@ -207,6 +223,7 @@ function SeriesCarouselSection({
               variant="view"
               cardSize={cardSize}
               clickable={true}
+              showGenreTag={showGenreTags}
               deferRendering={false}
             />
           </div>
@@ -224,6 +241,7 @@ export function SeriesResultsSection({
   filteredSeries,
   standaloneCount,
   cardSize,
+  showGenreTags,
   onClearFilters,
   canEdit,
 }: {
@@ -234,6 +252,7 @@ export function SeriesResultsSection({
   filteredSeries: SeriesGroup[];
   standaloneCount: number;
   cardSize: CardSize;
+  showGenreTags: boolean;
   onClearFilters: () => void;
   canEdit: boolean;
 }) {
@@ -288,6 +307,7 @@ export function SeriesResultsSection({
               key={group.key}
               group={group}
               cardSize={cardSize}
+              showGenreTags={showGenreTags}
             />
           ))}
         </div>
