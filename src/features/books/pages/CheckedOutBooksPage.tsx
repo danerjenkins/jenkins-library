@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookCheck, ExternalLink } from "lucide-react";
+import { BookCheck, ExternalLink, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getCheckedOutBooks } from "../../../data/bookRepo";
+import { getCheckedOutBooks, returnBook } from "../../../data/bookRepo";
+import { Button } from "../../../ui/components/Button";
 import { LoadingState } from "../../../ui/components/LoadingState";
-import { PageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
+import { FullBleedPageHero, PageLayout, PageSection } from "../../../ui/components/PageLayout";
 import { BookShelfState } from "../components/cards/BookCard";
 
 type CheckedOutBookItem = Awaited<ReturnType<typeof getCheckedOutBooks>>[number];
@@ -25,9 +26,13 @@ function getFallbackMonogram(title: string): string {
 function CheckoutRow({
   item,
   dateFormatter,
+  isReturning,
+  onReturn,
 }: {
   item: CheckedOutBookItem;
   dateFormatter: Intl.DateTimeFormat;
+  isReturning: boolean;
+  onReturn: (checkoutId: string) => void;
 }) {
   const { book, checkout } = item;
 
@@ -67,13 +72,27 @@ function CheckoutRow({
               </Link>
               <p className="mt-0.5 text-sm text-stone-600">{book.author}</p>
             </div>
-            <Link
-              to={`/book/${book.id}`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-warm-gray bg-parchment/80 px-2.5 py-1.5 text-xs font-semibold text-stone-700 no-underline transition-colors hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
-            >
-              Detail
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-8 px-2.5! py-1.5! text-xs"
+                disabled={isReturning}
+                onClick={() => onReturn(checkout.id)}
+              >
+                <span className="flex items-center gap-1.5">
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                  {isReturning ? "Returning" : "Returned"}
+                </span>
+              </Button>
+              <Link
+                to={`/book/${book.id}`}
+                className="inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-md border border-warm-gray bg-parchment/80 px-2.5 py-1.5 text-xs font-semibold text-stone-700 no-underline transition-colors hover:bg-warm-gray-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
+              >
+                Detail
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            </div>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -94,6 +113,7 @@ export function CheckedOutBooksPage() {
   const [items, setItems] = useState<CheckedOutBookItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [returningIds, setReturningIds] = useState<Set<string>>(new Set());
 
   const dateFormatter = useMemo(
     () =>
@@ -135,18 +155,52 @@ export function CheckedOutBooksPage() {
     };
   }, []);
 
+  const handleReturn = async (checkoutId: string) => {
+    setReturningIds((current) => new Set(current).add(checkoutId));
+    setErrorMessage(null);
+
+    try {
+      await returnBook(checkoutId);
+      setItems((current) =>
+        current.filter((item) => item.checkout.id !== checkoutId),
+      );
+    } catch (error) {
+      console.error("Failed to return checked out book:", error);
+      setErrorMessage("Book return could not be saved. Try again.");
+    } finally {
+      setReturningIds((current) => {
+        const next = new Set(current);
+        next.delete(checkoutId);
+        return next;
+      });
+    }
+  };
+
   return (
-    <PageLayout>
-      <PageHero
+    <div className="min-h-screen overflow-x-hidden bg-transparent">
+      <FullBleedPageHero
         title="Checked Out"
-        description="A compact view of books currently away from the shelf."
-        meta={
-          <span className="inline-flex items-center gap-2">
+        subtitle="The books currently away from the shelf, and who has them."
+        backgroundImage="/readinglisthero.png"
+      />
+
+      <PageLayout>
+      <PageSection className="ds-panel-shell">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-stone-900">
+              Active Checkouts
+            </h2>
+            <p className="ds-subtle-text mt-1 text-sm">
+              Mark books returned as they come back to the library.
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-stone-600">
             <BookCheck className="h-4 w-4" aria-hidden="true" />
             {items.length} {items.length === 1 ? "book" : "books"} checked out
           </span>
-        }
-      />
+        </div>
+      </PageSection>
 
       {errorMessage ? (
         <section className="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-800 shadow-sm">
@@ -169,6 +223,8 @@ export function CheckedOutBooksPage() {
                 key={item.checkout.id}
                 item={item}
                 dateFormatter={dateFormatter}
+                isReturning={returningIds.has(item.checkout.id)}
+                onReturn={handleReturn}
               />
             ))}
           </ul>
@@ -181,6 +237,7 @@ export function CheckedOutBooksPage() {
           />
         </PageSection>
       )}
-    </PageLayout>
+      </PageLayout>
+    </div>
   );
 }

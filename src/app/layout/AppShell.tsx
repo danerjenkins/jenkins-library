@@ -33,6 +33,7 @@ function AppShellContent({ children }: AppShellProps) {
     "/search",
     "/stats",
     "/reading-list",
+    "/checkouts",
   ]).has(location.pathname);
   const activeOwnership =
     location.pathname === "/wishlist" ||
