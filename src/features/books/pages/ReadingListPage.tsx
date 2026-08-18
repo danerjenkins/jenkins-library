@@ -33,8 +33,10 @@ export function ReadingListPage() {
           activeReaderLabel={activeReaderLabel}
           members={members}
           showGenreTags={state.showGenreTags}
+          showRatings={state.showRatings}
           onActiveReaderChange={actions.setActiveReader}
           onShowGenreTagsChange={actions.setShowGenreTags}
+          onShowRatingsChange={actions.setShowRatings}
         />
 
         {errorMessage ? (
@@ -56,6 +58,7 @@ export function ReadingListPage() {
             queueBooks={prioritizedBooks.queueBooks}
             canEdit={canEdit}
             showGenreTags={state.showGenreTags}
+            showRatings={state.showRatings}
             onMoveUp={(readerId, bookId) =>
               canEdit ? actions.moveBook(readerId, bookId, "up") : undefined
             }

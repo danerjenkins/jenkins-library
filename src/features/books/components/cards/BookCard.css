@@ -491,6 +491,24 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+.book-card__rating-pill {
+  display: inline-flex;
+  min-width: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(30, 24, 18, 0.76);
+  padding: 0.22rem 0.42rem;
+  color: #fff7dd;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(6px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .book-card,
   .book-card__cover-link::after,

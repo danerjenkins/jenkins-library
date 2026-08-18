@@ -20,12 +20,14 @@ export function GenresPage() {
           ownershipFilter={state.ownershipFilter}
           cardSize={state.cardSize}
           showGenreTags={state.showGenreTags}
+          showRatings={state.showRatings}
           isFilterDrawerOpen={state.isFilterDrawerOpen}
           hasActiveFilters={state.hasActiveFilters}
           onSearchQueryChange={actions.setSearchQuery}
           onOwnershipFilterChange={actions.setOwnershipFilter}
           onCardSizeChange={actions.setCardSize}
           onShowGenreTagsChange={actions.setShowGenreTags}
+          onShowRatingsChange={actions.setShowRatings}
           onOpenFilters={() => actions.setIsFilterDrawerOpen(true)}
           onCloseFilters={() => actions.setIsFilterDrawerOpen(false)}
           onClearFilters={actions.clearFilters}
@@ -36,6 +38,7 @@ export function GenresPage() {
           genreShelves={state.genreShelves}
           cardSize={state.cardSize}
           showGenreTags={state.showGenreTags}
+          showRatings={state.showRatings}
           onClearFilters={actions.clearFilters}
         />
       </GenresPageFrame>

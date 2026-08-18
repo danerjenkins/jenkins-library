@@ -276,6 +276,7 @@ export function WishlistPage() {
       cardSize={state.cardSize}
       clickable={true}
       showGenreTag={state.showGenreTags}
+      showRatingPill={state.showRatings}
       actions={canEdit ? (
         <div className={wishlistActionGridClassesByCardSize[state.cardSize]}>
           <Button
@@ -368,6 +369,12 @@ export function WishlistPage() {
                   label="Show Genre Shelf"
                   checked={state.showGenreShelf}
                   onChange={(showGenreShelf) => updateState({ showGenreShelf })}
+                />
+                <ShelfDisplayToggle
+                  id="wishlist-show-ratings"
+                  label="Show Ratings"
+                  checked={state.showRatings}
+                  onChange={(showRatings) => updateState({ showRatings })}
                 />
                 {hasActiveFilters ? (
                   <Button

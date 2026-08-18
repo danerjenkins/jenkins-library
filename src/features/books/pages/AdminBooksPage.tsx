@@ -26,11 +26,13 @@ export function AdminBooksPage() {
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<LibraryRole>("member");
   const [newMemberActivityVisible, setNewMemberActivityVisible] = useState(true);
+  const [newMemberReviewsVisible, setNewMemberReviewsVisible] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [editMemberEmail, setEditMemberEmail] = useState("");
   const [editMemberName, setEditMemberName] = useState("");
   const [editMemberRole, setEditMemberRole] = useState<LibraryRole>("member");
   const [editMemberActivityVisible, setEditMemberActivityVisible] = useState(true);
+  const [editMemberReviewsVisible, setEditMemberReviewsVisible] = useState(true);
   const [adminMessage, setAdminMessage] = useState<string | null>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
   const [savingLibrary, setSavingLibrary] = useState(false);
@@ -66,6 +68,7 @@ export function AdminBooksPage() {
     setEditMemberName(selectedMember?.displayName ?? "");
     setEditMemberRole(selectedMember?.role ?? "member");
     setEditMemberActivityVisible(selectedMember?.canViewMemberActivity ?? true);
+    setEditMemberReviewsVisible(selectedMember?.canViewRatingsReviews ?? true);
   }, [selectedMember]);
 
   const clearAdminFeedback = () => {
@@ -104,12 +107,14 @@ export function AdminBooksPage() {
         displayName: newMemberName,
         role: newMemberRole,
         canViewMemberActivity: newMemberActivityVisible,
+        canViewRatingsReviews: newMemberReviewsVisible,
       });
       await refreshLibraries();
       setNewMemberEmail("");
       setNewMemberName("");
       setNewMemberRole("member");
       setNewMemberActivityVisible(true);
+      setNewMemberReviewsVisible(true);
       setAdminMessage("Created or invited member.");
     } catch (error) {
       setAdminError(error instanceof Error ? error.message : "Unable to create member.");
@@ -131,6 +136,7 @@ export function AdminBooksPage() {
         displayName: editMemberName,
         role: editMemberRole,
         canViewMemberActivity: editMemberActivityVisible,
+        canViewRatingsReviews: editMemberReviewsVisible,
       });
       await refreshLibraries();
       setAdminMessage(`Saved ${editMemberName || "member"}.`);
@@ -252,6 +258,15 @@ export function AdminBooksPage() {
               />
               <span>Let library members see this user's read/TBR activity</span>
             </label>
+            <label className="flex items-start gap-2 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                checked={newMemberReviewsVisible}
+                onChange={(event) => setNewMemberReviewsVisible(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20"
+              />
+              <span>Let library members see this user's ratings/reviews</span>
+            </label>
             <Button
               type="button"
               variant="primary"
@@ -325,6 +340,16 @@ export function AdminBooksPage() {
               />
               <span>Let library members see this user's read/TBR activity</span>
             </label>
+            <label className="flex items-start gap-2 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                checked={editMemberReviewsVisible}
+                onChange={(event) => setEditMemberReviewsVisible(event.target.checked)}
+                disabled={!selectedMember}
+                className="mt-1 h-4 w-4 rounded border-warm-gray text-stone-900 focus:ring-2 focus:ring-sage/20 disabled:opacity-50"
+              />
+              <span>Let library members see this user's ratings/reviews</span>
+            </label>
             <Button
               type="button"
               variant="primary"
@@ -362,6 +387,9 @@ export function AdminBooksPage() {
               </span>
               <span className="mt-1 block text-xs text-stone-500">
                 Activity visible: {member.canViewMemberActivity ? "Yes" : "No"}
+              </span>
+              <span className="mt-1 block text-xs text-stone-500">
+                Ratings visible: {member.canViewRatingsReviews ? "Yes" : "No"}
               </span>
             </button>
           ))}

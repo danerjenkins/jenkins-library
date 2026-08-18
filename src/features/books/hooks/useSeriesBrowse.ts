@@ -39,6 +39,7 @@ export type SeriesGroup = {
 
 interface StoredSeriesViewPreferences {
   showGenreTags: boolean;
+  showRatings: boolean;
 }
 
 const collator = new Intl.Collator(undefined, {
@@ -196,6 +197,12 @@ export function useSeriesBrowse() {
     );
     return stored?.showGenreTags ?? false;
   });
+  const [showRatings, setShowRatings] = useState(() => {
+    const stored = readStorageValue<Partial<StoredSeriesViewPreferences>>(
+      SERIES_VIEW_STORAGE_KEY,
+    );
+    return stored?.showRatings ?? true;
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const loadBooks = useCallback(async () => {
@@ -226,8 +233,9 @@ export function useSeriesBrowse() {
   useEffect(() => {
     writeStorageValue(SERIES_VIEW_STORAGE_KEY, {
       showGenreTags,
+      showRatings,
     } satisfies StoredSeriesViewPreferences);
-  }, [showGenreTags]);
+  }, [showGenreTags, showRatings]);
 
   const visibleBooks = useMemo(() => {
     if (ownershipFilter === "all") return books;
@@ -313,6 +321,7 @@ export function useSeriesBrowse() {
       ownershipFilter,
       cardSize,
       showGenreTags,
+      showRatings,
       parentSeriesGroups: parentGroups,
       groupedSeries: seriesGroups,
       featuredGroups,
@@ -329,6 +338,7 @@ export function useSeriesBrowse() {
       setOwnershipFilter,
       setCardSize,
       setShowGenreTags,
+      setShowRatings,
       handleClearFilters,
     },
   };

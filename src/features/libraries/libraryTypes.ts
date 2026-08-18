@@ -15,6 +15,7 @@ export interface LibraryMember {
   displayName: string;
   role: LibraryRole;
   canViewMemberActivity: boolean;
+  canViewRatingsReviews: boolean;
 }
 
 export interface AdminUserRequest {
@@ -25,4 +26,5 @@ export interface AdminUserRequest {
   displayName: string;
   role: LibraryRole;
   canViewMemberActivity: boolean;
+  canViewRatingsReviews: boolean;
 }

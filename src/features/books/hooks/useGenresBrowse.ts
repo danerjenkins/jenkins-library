@@ -29,6 +29,7 @@ export type GenreShelf = {
 
 interface StoredGenresViewPreferences {
   showGenreTags: boolean;
+  showRatings: boolean;
 }
 
 export function useGenresBrowse() {
@@ -46,6 +47,12 @@ export function useGenresBrowse() {
       GENRES_VIEW_STORAGE_KEY,
     );
     return stored?.showGenreTags ?? false;
+  });
+  const [showRatings, setShowRatings] = useState(() => {
+    const stored = readStorageValue<Partial<StoredGenresViewPreferences>>(
+      GENRES_VIEW_STORAGE_KEY,
+    );
+    return stored?.showRatings ?? true;
   });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
@@ -72,8 +79,9 @@ export function useGenresBrowse() {
   useEffect(() => {
     writeStorageValue(GENRES_VIEW_STORAGE_KEY, {
       showGenreTags,
+      showRatings,
     } satisfies StoredGenresViewPreferences);
-  }, [showGenreTags]);
+  }, [showGenreTags, showRatings]);
 
   const filteredBooks = useMemo(() => {
     const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
@@ -147,6 +155,7 @@ export function useGenresBrowse() {
       ownershipFilter,
       cardSize,
       showGenreTags,
+      showRatings,
       genreShelves,
       featuredShelves,
       ownershipTotals,
@@ -159,6 +168,7 @@ export function useGenresBrowse() {
       setOwnershipFilter,
       setCardSize,
       setShowGenreTags,
+      setShowRatings,
       clearFilters,
     },
   };

@@ -68,6 +68,14 @@ export interface Book {
   readers: BookReader[];
   /** Whether the signed-in member has read this book */
   currentUserHasRead: boolean;
+  /** Visible member ratings and reviews for this book */
+  reviews: BookReview[];
+  /** The signed-in member's own review, when present */
+  currentUserReview: BookReview | null;
+  /** Average visible rating for this book */
+  averageRating: number | null;
+  /** Count of visible ratings used in the average */
+  ratingCount: number;
   /** Legacy compatibility while older UI surfaces are refactored */
   readByDane: boolean;
   /** Legacy compatibility while older UI surfaces are refactored */
@@ -101,6 +109,18 @@ export interface BookReader {
   userId: string | null;
   displayName: string;
   readAt: string;
+}
+
+export interface BookReview {
+  bookId: string;
+  memberId: string;
+  userId: string | null;
+  displayName: string;
+  rating: number;
+  review: string | null;
+  createdAt: string;
+  updatedAt: string;
+  isCurrentUserReview: boolean;
 }
 
 export interface Series {

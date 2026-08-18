@@ -46,12 +46,14 @@ export function SeriesFiltersSection({
   ownershipFilter,
   cardSize,
   showGenreTags,
+  showRatings,
   isFilterDrawerOpen,
   hasActiveFilters,
   onSearchQueryChange,
   onOwnershipFilterChange,
   onCardSizeChange,
   onShowGenreTagsChange,
+  onShowRatingsChange,
   onOpenFilters,
   onCloseFilters,
   onClearFilters,
@@ -60,12 +62,14 @@ export function SeriesFiltersSection({
   ownershipFilter: "all" | "owned" | "wishlist";
   cardSize: CardSize;
   showGenreTags: boolean;
+  showRatings: boolean;
   isFilterDrawerOpen: boolean;
   hasActiveFilters: boolean;
   onSearchQueryChange: (value: string) => void;
   onOwnershipFilterChange: (value: "all" | "owned" | "wishlist") => void;
   onCardSizeChange: (value: CardSize) => void;
   onShowGenreTagsChange: (value: boolean) => void;
+  onShowRatingsChange: (value: boolean) => void;
   onOpenFilters: () => void;
   onCloseFilters: () => void;
   onClearFilters: () => void;
@@ -90,6 +94,12 @@ export function SeriesFiltersSection({
             label="Show Genre Tags"
             checked={showGenreTags}
             onChange={onShowGenreTagsChange}
+          />
+          <ShelfDisplayToggle
+            id="series-show-ratings"
+            label="Show Ratings"
+            checked={showRatings}
+            onChange={onShowRatingsChange}
           />
           {hasActiveFilters ? (
             <Button
@@ -186,10 +196,12 @@ function SeriesCarouselSection({
   group,
   cardSize,
   showGenreTags,
+  showRatings,
 }: {
   group: SeriesGroup;
   cardSize: CardSize;
   showGenreTags: boolean;
+  showRatings: boolean;
 }) {
   return (
     <section
@@ -224,6 +236,7 @@ function SeriesCarouselSection({
               cardSize={cardSize}
               clickable={true}
               showGenreTag={showGenreTags}
+              showRatingPill={showRatings}
               deferRendering={false}
             />
           </div>
@@ -242,6 +255,7 @@ export function SeriesResultsSection({
   standaloneCount,
   cardSize,
   showGenreTags,
+  showRatings,
   onClearFilters,
   canEdit,
 }: {
@@ -253,6 +267,7 @@ export function SeriesResultsSection({
   standaloneCount: number;
   cardSize: CardSize;
   showGenreTags: boolean;
+  showRatings: boolean;
   onClearFilters: () => void;
   canEdit: boolean;
 }) {
@@ -308,6 +323,7 @@ export function SeriesResultsSection({
               group={group}
               cardSize={cardSize}
               showGenreTags={showGenreTags}
+              showRatings={showRatings}
             />
           ))}
         </div>

@@ -206,6 +206,12 @@ export function ViewBooksPage() {
                 checked={state.showGenreShelf}
                 onChange={(showGenreShelf) => updateState({ showGenreShelf })}
               />
+              <ShelfDisplayToggle
+                id="library-show-ratings"
+                label="Show Ratings"
+                checked={state.showRatings}
+                onChange={(showRatings) => updateState({ showRatings })}
+              />
               {hasActiveFilters ? (
                 <Button
                   type="button"
@@ -382,6 +388,7 @@ export function ViewBooksPage() {
                             cardSize={state.cardSize}
                             clickable={true}
                             showGenreTag={state.showGenreTags}
+                            showRatingPill={state.showRatings}
                           />
                         ))}
                       </BookGrid>
@@ -398,6 +405,7 @@ export function ViewBooksPage() {
                       cardSize={state.cardSize}
                       clickable={true}
                       showGenreTag={state.showGenreTags}
+                      showRatingPill={state.showRatings}
                     />
                   ))}
                 </BookGrid>

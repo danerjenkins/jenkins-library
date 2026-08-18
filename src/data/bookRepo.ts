@@ -7,6 +7,8 @@ import {
   listBooks as listSupabaseBooks,
   listWishlistBooks,
   setCurrentUserReadStatus as setSupabaseCurrentUserReadStatus,
+  deleteCurrentUserReview as deleteSupabaseCurrentUserReview,
+  upsertCurrentUserReview as upsertSupabaseCurrentUserReview,
   updateBook as updateSupabaseBook,
   type BookInput as SupabaseBookInput,
 } from "../repos/supabaseBookRepo";
@@ -126,6 +128,18 @@ export async function setCurrentUserReadStatus(
   hasRead: boolean,
 ): Promise<void> {
   await setSupabaseCurrentUserReadStatus(bookId, hasRead);
+}
+
+export async function upsertCurrentUserReview(
+  bookId: string,
+  rating: number,
+  review: string | null,
+): Promise<void> {
+  await upsertSupabaseCurrentUserReview(bookId, rating, review);
+}
+
+export async function deleteCurrentUserReview(bookId: string): Promise<void> {
+  await deleteSupabaseCurrentUserReview(bookId);
 }
 
 export async function deleteBook(id: string): Promise<void> {

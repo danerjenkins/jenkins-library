@@ -13,6 +13,7 @@ import {
   Landmark,
   Search,
   Sparkles,
+  Star,
 } from "lucide-react";
 import type { Book } from "../../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../../lib/bookTypes";
@@ -83,9 +84,30 @@ interface BookCardProps {
   cardSize?: "xsmall" | "small" | "medium" | "large";
   clickable?: boolean;
   showGenreTag?: boolean;
+  showRatingPill?: boolean;
   detailMeta?: string | null;
   deferRendering?: boolean;
   className?: string;
+}
+
+function formatAverageRating(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function BookRatingPill({ book }: { book: Book }) {
+  if (book.averageRating === null || book.ratingCount === 0) {
+    return null;
+  }
+
+  return (
+    <div
+      className="book-card__rating-pill absolute right-2 top-2 pointer-events-none"
+      aria-label={`Average rating ${formatAverageRating(book.averageRating)} out of 5`}
+    >
+      <Star className="h-3 w-3" aria-hidden="true" fill="currentColor" />
+      <span>{formatAverageRating(book.averageRating)}</span>
+    </div>
+  );
 }
 
 const coverHeightBySize: Record<CardSize, string> = {
@@ -202,6 +224,7 @@ export function BookCard({
   cardSize = "medium",
   clickable = false,
   showGenreTag = true,
+  showRatingPill = true,
   detailMeta = null,
   deferRendering = true,
   className,
@@ -255,7 +278,7 @@ export function BookCard({
             aria-label={`View ${book.title}`}
           >
             {cover}
-            <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+            <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
               <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
                 <OwnershipIcon
                   className="h-4 w-4 text-white"
@@ -264,11 +287,12 @@ export function BookCard({
                 />
               </div>
             </div>
+            {showRatingPill ? <BookRatingPill book={book} /> : null}
           </Link>
         ) : (
           <div className="book-card__cover-wrapper relative group">
             {cover}
-            <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+            <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
               <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
                 <OwnershipIcon
                   className="h-4 w-4 text-white"
@@ -277,6 +301,7 @@ export function BookCard({
                 />
               </div>
             </div>
+            {showRatingPill ? <BookRatingPill book={book} /> : null}
           </div>
         )}
         <div className={bodyClasses}>
@@ -370,7 +395,7 @@ export function BookCard({
     >
       <div className="relative group">
         {cover}
-        <div className="book-card__ownership-icon absolute top-2 right-2 transition-opacity duration-200 pointer-events-none">
+        <div className="book-card__ownership-icon absolute top-2 left-2 transition-opacity duration-200 pointer-events-none">
           <div className="book-card__ownership-badge rounded-full bg-black/40 backdrop-blur-sm p-1.5 flex items-center justify-center">
             <OwnershipIcon
               className="h-4 w-4 text-white"
@@ -379,6 +404,7 @@ export function BookCard({
             />
           </div>
         </div>
+        {showRatingPill ? <BookRatingPill book={book} /> : null}
       </div>
       <div className={bodyClasses}>
         <div className="min-w-0">

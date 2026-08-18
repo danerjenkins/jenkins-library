@@ -11,6 +11,7 @@ type AdminUserRequest = {
   displayName: string;
   role: LibraryRole;
   canViewMemberActivity: boolean;
+  canViewRatingsReviews: boolean;
 };
 
 type ExistingMemberRow = {
@@ -91,6 +92,7 @@ function normalizeRequest(input: Partial<AdminUserRequest>): AdminUserRequest {
     displayName,
     role,
     canViewMemberActivity: input.canViewMemberActivity ?? true,
+    canViewRatingsReviews: input.canViewRatingsReviews ?? true,
   };
 }
 
@@ -204,6 +206,7 @@ serve(async (request) => {
       display_name: payload.displayName,
       role: payload.role,
       can_view_member_activity: payload.canViewMemberActivity,
+      can_view_ratings_reviews: payload.canViewRatingsReviews,
       updated_at: new Date().toISOString(),
     };
 

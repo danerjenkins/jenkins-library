@@ -24,6 +24,7 @@ type LibraryMemberRow = {
   display_name: string;
   role: LibraryRole;
   can_view_member_activity: boolean;
+  can_view_ratings_reviews: boolean;
 };
 
 function mapLibrary(row: LibraryRow): Library {
@@ -44,6 +45,7 @@ function mapLibraryMember(row: LibraryMemberRow): LibraryMember {
     displayName: row.display_name,
     role: row.role,
     canViewMemberActivity: row.can_view_member_activity,
+    canViewRatingsReviews: row.can_view_ratings_reviews,
   };
 }
 
@@ -95,7 +97,7 @@ export async function listLibraries(): Promise<Library[]> {
 export async function listLibraryMembers(libraryId: string): Promise<LibraryMember[]> {
   const { data, error } = await supabaseClient
     .from("library_members")
-    .select("id, library_id, user_id, email, display_name, role, can_view_member_activity")
+    .select("id, library_id, user_id, email, display_name, role, can_view_member_activity, can_view_ratings_reviews")
     .eq("library_id", libraryId)
     .order("display_name", { ascending: true });
 

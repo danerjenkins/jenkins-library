@@ -36,12 +36,14 @@ export function GenresFiltersSection({
   ownershipFilter,
   cardSize,
   showGenreTags,
+  showRatings,
   isFilterDrawerOpen,
   hasActiveFilters,
   onSearchQueryChange,
   onOwnershipFilterChange,
   onCardSizeChange,
   onShowGenreTagsChange,
+  onShowRatingsChange,
   onOpenFilters,
   onCloseFilters,
   onClearFilters,
@@ -51,12 +53,14 @@ export function GenresFiltersSection({
   ownershipFilter: "all" | "owned" | "wishlist";
   cardSize: CardSize;
   showGenreTags: boolean;
+  showRatings: boolean;
   isFilterDrawerOpen: boolean;
   hasActiveFilters: boolean;
   onSearchQueryChange: (value: string) => void;
   onOwnershipFilterChange: (value: "all" | "owned" | "wishlist") => void;
   onCardSizeChange: (value: CardSize) => void;
   onShowGenreTagsChange: (value: boolean) => void;
+  onShowRatingsChange: (value: boolean) => void;
   onOpenFilters: () => void;
   onCloseFilters: () => void;
   onClearFilters: () => void;
@@ -81,6 +85,12 @@ export function GenresFiltersSection({
             label="Show Genre Tags"
             checked={showGenreTags}
             onChange={onShowGenreTagsChange}
+          />
+          <ShelfDisplayToggle
+            id="genres-show-ratings"
+            label="Show Ratings"
+            checked={showRatings}
+            onChange={onShowRatingsChange}
           />
           {hasActiveFilters ? (
             <Button
@@ -192,12 +202,14 @@ export function GenresResultsSection({
   genreShelves,
   cardSize,
   showGenreTags,
+  showRatings,
   onClearFilters,
 }: {
   loading: boolean;
   genreShelves: GenreShelf[];
   cardSize: CardSize;
   showGenreTags: boolean;
+  showRatings: boolean;
   onClearFilters: () => void;
 }) {
   if (loading) {
@@ -265,6 +277,7 @@ export function GenresResultsSection({
                   cardSize={cardSize}
                   clickable={true}
                   showGenreTag={showGenreTags}
+                  showRatingPill={showRatings}
                   deferRendering={false}
                 />
               </div>

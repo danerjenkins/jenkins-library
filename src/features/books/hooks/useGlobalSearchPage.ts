@@ -28,6 +28,7 @@ const defaultOwnershipFilter: SearchOwnershipFilter = "all";
 
 interface StoredSearchViewPreferences {
   showGenreTags: boolean;
+  showRatings: boolean;
 }
 
 function hydrateOwnershipFilter(value: string | null): SearchOwnershipFilter {
@@ -60,6 +61,12 @@ export function useGlobalSearchPage() {
     );
     return stored?.showGenreTags ?? false;
   });
+  const [showRatings, setShowRatings] = useState(() => {
+    const stored = readStorageValue<Partial<StoredSearchViewPreferences>>(
+      SEARCH_VIEW_STORAGE_KEY,
+    );
+    return stored?.showRatings ?? true;
+  });
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
@@ -88,8 +95,9 @@ export function useGlobalSearchPage() {
   useEffect(() => {
     writeStorageValue(SEARCH_VIEW_STORAGE_KEY, {
       showGenreTags,
+      showRatings,
     } satisfies StoredSearchViewPreferences);
-  }, [showGenreTags]);
+  }, [showGenreTags, showRatings]);
 
   useEffect(() => {
     const nextQuery = new URLSearchParams();
@@ -148,6 +156,7 @@ export function useGlobalSearchPage() {
       ownershipFilter,
       cardSize,
       showGenreTags,
+      showRatings,
       filteredBooks,
       ownershipTotals,
       hasActiveFilters,
@@ -157,6 +166,7 @@ export function useGlobalSearchPage() {
       setOwnershipFilter,
       setCardSize,
       setShowGenreTags,
+      setShowRatings,
       clearFilters,
     },
   };

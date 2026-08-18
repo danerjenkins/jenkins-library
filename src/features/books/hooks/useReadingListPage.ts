@@ -22,6 +22,7 @@ import {
 
 interface StoredReadingListViewPreferences {
   showGenreTags: boolean;
+  showRatings: boolean;
 }
 
 function sortBooks(books: Book[]) {
@@ -58,6 +59,12 @@ export function useReadingListPage() {
     );
     return stored?.showGenreTags ?? false;
   });
+  const [showRatings, setShowRatings] = useState(() => {
+    const stored = readStorageValue<Partial<StoredReadingListViewPreferences>>(
+      READING_LIST_VIEW_STORAGE_KEY,
+    );
+    return stored?.showRatings ?? true;
+  });
 
   useEffect(() => {
     if (!activeReader && activeMember) {
@@ -69,8 +76,9 @@ export function useReadingListPage() {
   useEffect(() => {
     writeStorageValue(READING_LIST_VIEW_STORAGE_KEY, {
       showGenreTags,
+      showRatings,
     } satisfies StoredReadingListViewPreferences);
-  }, [showGenreTags]);
+  }, [showGenreTags, showRatings]);
 
   useEffect(() => {
     let ignore = false;
@@ -200,7 +208,7 @@ export function useReadingListPage() {
   );
 
   return {
-    state: { activeReader, showGenreTags },
+    state: { activeReader, showGenreTags, showRatings },
     loading,
     errorMessage,
     booksByOwnership,
@@ -212,6 +220,7 @@ export function useReadingListPage() {
       removeFromQueue,
       resetReaderQueues,
       setShowGenreTags,
+      setShowRatings,
     },
   };
 }

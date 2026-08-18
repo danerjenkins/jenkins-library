@@ -3,6 +3,7 @@ import {
   ArrowUp,
   BookOpen,
   Heart,
+  Star,
   Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -48,6 +49,7 @@ function QueueRow({
   onRemove,
   canEdit,
   showGenreTags,
+  showRatings,
   isFirst,
   isLast,
 }: {
@@ -59,6 +61,7 @@ function QueueRow({
   onRemove: (readerId: ReaderId, bookId: string) => void;
   canEdit: boolean;
   showGenreTags: boolean;
+  showRatings: boolean;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -118,6 +121,14 @@ function QueueRow({
                 )}
               </div>
             </div>
+            {showRatings && book.averageRating !== null && book.ratingCount > 0 ? (
+              <div className="absolute right-1 top-1 inline-flex min-w-8 items-center justify-center gap-0.5 rounded-full border border-white/60 bg-stone-950/75 px-1.5 py-0.5 text-[10px] font-bold leading-none text-amber-100 shadow-sm backdrop-blur">
+                <Star className="h-2.5 w-2.5" aria-hidden="true" fill="currentColor" />
+                {Number.isInteger(book.averageRating)
+                  ? book.averageRating
+                  : book.averageRating.toFixed(1)}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -188,16 +199,20 @@ export function ReadingListIntroSection({
   activeReaderLabel,
   members,
   showGenreTags,
+  showRatings,
   onActiveReaderChange,
   onShowGenreTagsChange,
+  onShowRatingsChange,
 }: {
   activeReader: ReaderId;
   queuedTotal: number;
   activeReaderLabel: string;
   members: LibraryMember[];
   showGenreTags: boolean;
+  showRatings: boolean;
   onActiveReaderChange: (readerId: ReaderId) => void;
   onShowGenreTagsChange: (value: boolean) => void;
+  onShowRatingsChange: (value: boolean) => void;
 }) {
   return (
     <PageSection className={sectionSurfaceClasses}>
@@ -228,6 +243,12 @@ export function ReadingListIntroSection({
             checked={showGenreTags}
             onChange={onShowGenreTagsChange}
           />
+          <ShelfDisplayToggle
+            id="reading-list-show-ratings"
+            label="Show Ratings"
+            checked={showRatings}
+            onChange={onShowRatingsChange}
+          />
         </div>
       </div>
     </PageSection>
@@ -242,6 +263,7 @@ export function ReadingListQueueSection({
   onRemove,
   canEdit,
   showGenreTags,
+  showRatings,
 }: {
   readerId: ReaderId;
   queueBooks: Book[];
@@ -250,6 +272,7 @@ export function ReadingListQueueSection({
   onRemove: (readerId: ReaderId, bookId: string) => void;
   canEdit: boolean;
   showGenreTags: boolean;
+  showRatings: boolean;
 }) {
   return (
     <PageSection className={sectionSurfaceClasses}>
@@ -280,6 +303,7 @@ export function ReadingListQueueSection({
                 onRemove={onRemove}
                 canEdit={canEdit}
                 showGenreTags={showGenreTags}
+                showRatings={showRatings}
                 isFirst={index === 0}
                 isLast={index === queueBooks.length - 1}
               />

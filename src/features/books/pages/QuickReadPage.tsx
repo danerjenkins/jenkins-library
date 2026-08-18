@@ -366,6 +366,12 @@ export function QuickReadPage() {
                 checked={state.showGenreTags}
                 onChange={(showGenreTags) => updateState({ showGenreTags })}
               />
+              <ShelfDisplayToggle
+                id="quick-read-show-ratings"
+                label="Show Ratings"
+                checked={state.showRatings}
+                onChange={(showRatings) => updateState({ showRatings })}
+              />
               {hasActiveFilters ? (
                 <Button
                   type="button"
@@ -524,6 +530,7 @@ export function QuickReadPage() {
                     cardSize={quickReadCardSize}
                     clickable={true}
                     showGenreTag={state.showGenreTags}
+                    showRatingPill={state.showRatings}
                     actions={activeMember ? (
                       <div className={`${actionGridClassesByCardSize[quickReadCardSize]} py-2`}>
                         <ReaderToggleButton

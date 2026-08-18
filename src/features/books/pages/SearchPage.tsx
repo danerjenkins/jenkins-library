@@ -81,6 +81,12 @@ export function SearchPage() {
                   checked={state.showGenreTags}
                   onChange={actions.setShowGenreTags}
                 />
+                <ShelfDisplayToggle
+                  id="search-show-ratings"
+                  label="Show Ratings"
+                  checked={state.showRatings}
+                  onChange={actions.setShowRatings}
+                />
               </div>
             </div>
           </div>
@@ -148,6 +154,7 @@ export function SearchPage() {
                 cardSize={state.cardSize}
                 clickable={true}
                 showGenreTag={state.showGenreTags}
+                showRatingPill={state.showRatings}
                 detailMeta={book.isbn ? `ISBN: ${book.isbn}` : null}
               />
             ))}

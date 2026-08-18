@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { getBookById, setCurrentUserReadStatus, updateBook } from "../../../data/bookRepo";
+import {
+  deleteCurrentUserReview,
+  getBookById,
+  setCurrentUserReadStatus,
+  updateBook,
+  upsertCurrentUserReview,
+} from "../../../data/bookRepo";
 import { LoadingState } from "../../../ui/components/LoadingState";
 import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
@@ -25,6 +31,8 @@ export function BookDetailPage() {
   const [readStatusError, setReadStatusError] = useState<string | null>(null);
   const [savingOwnership, setSavingOwnership] = useState(false);
   const [ownershipError, setOwnershipError] = useState<string | null>(null);
+  const [savingReview, setSavingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const [readingListQueues, setReadingListQueues] = useState<Record<ReaderId, string[]>>({});
 
   useEffect(() => {
@@ -233,6 +241,42 @@ export function BookDetailPage() {
       });
   };
 
+  const handleReviewSave = async (rating: number, review: string) => {
+    if (!book || !activeMember) return;
+
+    setSavingReview(true);
+    setReviewError(null);
+
+    try {
+      await upsertCurrentUserReview(book.id, rating, review);
+      const updatedBook = await getBookById(book.id);
+      setBook(updatedBook ?? book);
+    } catch (error) {
+      console.error("Failed to save review:", error);
+      setReviewError("Review could not be saved. Try again.");
+    } finally {
+      setSavingReview(false);
+    }
+  };
+
+  const handleReviewDelete = async () => {
+    if (!book || !activeMember) return;
+
+    setSavingReview(true);
+    setReviewError(null);
+
+    try {
+      await deleteCurrentUserReview(book.id);
+      const updatedBook = await getBookById(book.id);
+      setBook(updatedBook ?? book);
+    } catch (error) {
+      console.error("Failed to delete review:", error);
+      setReviewError("Review could not be deleted. Try again.");
+    } finally {
+      setSavingReview(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-5xl items-center justify-center px-4">
@@ -282,11 +326,15 @@ export function BookDetailPage() {
       readStatusError={readStatusError}
       savingOwnership={savingOwnership}
       ownershipError={ownershipError}
+      savingReview={savingReview}
+      reviewError={reviewError}
       dateFormatter={dateFormatter}
       onBack={handleBackNavigation}
       onReadStatusChange={handleReadStatusChange}
       onOwnershipChange={handleOwnershipChange}
       onAddToReadingList={handleAddToReadingList}
+      onReviewSave={handleReviewSave}
+      onReviewDelete={handleReviewDelete}
     />
   );
 }
