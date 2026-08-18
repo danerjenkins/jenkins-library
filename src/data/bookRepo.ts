@@ -2,14 +2,20 @@ import type { Book } from "../features/books/lib/bookTypes";
 import { getSupabaseClientWithSchema } from "../lib/supabaseSchema";
 import {
   createBook as createSupabaseBook,
+  checkOutBook as checkOutSupabaseBook,
   deleteBook as deleteSupabaseBook,
   getBook as getSupabaseBook,
+  getActiveCheckoutForBook as getSupabaseActiveCheckoutForBook,
+  listActiveCheckouts as listSupabaseActiveCheckouts,
   listBooks as listSupabaseBooks,
   listWishlistBooks,
+  returnBook as returnSupabaseBook,
   setCurrentUserReadStatus as setSupabaseCurrentUserReadStatus,
   deleteCurrentUserReview as deleteSupabaseCurrentUserReview,
   upsertCurrentUserReview as upsertSupabaseCurrentUserReview,
   updateBook as updateSupabaseBook,
+  type BookCheckoutInput,
+  type CheckedOutBook,
   type BookInput as SupabaseBookInput,
 } from "../repos/supabaseBookRepo";
 
@@ -140,6 +146,22 @@ export async function upsertCurrentUserReview(
 
 export async function deleteCurrentUserReview(bookId: string): Promise<void> {
   await deleteSupabaseCurrentUserReview(bookId);
+}
+
+export async function getActiveCheckoutForBook(bookId: string) {
+  return await getSupabaseActiveCheckoutForBook(bookId);
+}
+
+export async function getCheckedOutBooks(): Promise<CheckedOutBook[]> {
+  return await listSupabaseActiveCheckouts();
+}
+
+export async function checkOutBook(input: BookCheckoutInput) {
+  return await checkOutSupabaseBook(input);
+}
+
+export async function returnBook(checkoutId: string): Promise<void> {
+  await returnSupabaseBook(checkoutId);
 }
 
 export async function deleteBook(id: string): Promise<void> {

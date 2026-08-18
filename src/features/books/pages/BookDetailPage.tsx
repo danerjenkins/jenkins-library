@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import {
+  checkOutBook,
   deleteCurrentUserReview,
   getBookById,
+  returnBook,
   setCurrentUserReadStatus,
   updateBook,
   upsertCurrentUserReview,
@@ -33,6 +35,8 @@ export function BookDetailPage() {
   const [ownershipError, setOwnershipError] = useState<string | null>(null);
   const [savingReview, setSavingReview] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [savingCheckout, setSavingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [readingListQueues, setReadingListQueues] = useState<Record<ReaderId, string[]>>({});
 
   useEffect(() => {
@@ -277,6 +281,52 @@ export function BookDetailPage() {
     }
   };
 
+  const handleCheckoutSave = async ({
+    borrowerMemberId,
+    borrowerName,
+  }: {
+    borrowerMemberId: string | null;
+    borrowerName: string;
+  }) => {
+    if (!book || !canEdit) return;
+
+    setSavingCheckout(true);
+    setCheckoutError(null);
+
+    try {
+      await checkOutBook({
+        bookId: book.id,
+        borrowerMemberId,
+        borrowerName,
+      });
+      const updatedBook = await getBookById(book.id);
+      setBook(updatedBook ?? book);
+    } catch (error) {
+      console.error("Failed to check out book:", error);
+      setCheckoutError("Checkout could not be saved. Try again.");
+    } finally {
+      setSavingCheckout(false);
+    }
+  };
+
+  const handleReturnBook = async () => {
+    if (!book?.activeCheckout || !canEdit) return;
+
+    setSavingCheckout(true);
+    setCheckoutError(null);
+
+    try {
+      await returnBook(book.activeCheckout.id);
+      const updatedBook = await getBookById(book.id);
+      setBook(updatedBook ?? { ...book, activeCheckout: null });
+    } catch (error) {
+      console.error("Failed to return book:", error);
+      setCheckoutError("Return could not be saved. Try again.");
+    } finally {
+      setSavingCheckout(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-5xl items-center justify-center px-4">
@@ -314,6 +364,11 @@ export function BookDetailPage() {
 
   return (
     <BookDetailContent
+      key={[
+        book.id,
+        book.currentUserReview?.updatedAt ?? "no-review",
+        book.activeCheckout?.id ?? "no-checkout",
+      ].join(":")}
       book={book}
       canEdit={canEdit}
       isWishlistBook={isWishlistBook}
@@ -328,6 +383,8 @@ export function BookDetailPage() {
       ownershipError={ownershipError}
       savingReview={savingReview}
       reviewError={reviewError}
+      savingCheckout={savingCheckout}
+      checkoutError={checkoutError}
       dateFormatter={dateFormatter}
       onBack={handleBackNavigation}
       onReadStatusChange={handleReadStatusChange}
@@ -335,6 +392,8 @@ export function BookDetailPage() {
       onAddToReadingList={handleAddToReadingList}
       onReviewSave={handleReviewSave}
       onReviewDelete={handleReviewDelete}
+      onCheckoutSave={handleCheckoutSave}
+      onReturnBook={handleReturnBook}
     />
   );
 }

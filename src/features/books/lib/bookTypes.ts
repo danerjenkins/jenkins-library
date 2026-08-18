@@ -70,6 +70,8 @@ export interface Book {
   currentUserHasRead: boolean;
   /** Visible member ratings and reviews for this book */
   reviews: BookReview[];
+  /** Current checkout details, visible to library editors */
+  activeCheckout?: BookCheckout | null;
   /** The signed-in member's own review, when present */
   currentUserReview: BookReview | null;
   /** Average visible rating for this book */
@@ -121,6 +123,16 @@ export interface BookReview {
   createdAt: string;
   updatedAt: string;
   isCurrentUserReview: boolean;
+}
+
+export interface BookCheckout {
+  id: string;
+  libraryId: string;
+  bookId: string;
+  borrowerMemberId: string | null;
+  borrowerName: string;
+  checkedOutAt: string;
+  returnedAt: string | null;
 }
 
 export interface Series {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   BarChart3,
   BookMarked,
+  BookCheck,
   BookOpen,
   BookOpenText,
   ChevronDown,
@@ -29,12 +30,13 @@ const secondaryNavItems = [
   { to: "/series", label: "Series", Icon: BookOpenText },
   { to: "/genres", label: "Genres", Icon: Sparkles },
   { to: "/reading-list", label: "TBR", Icon: BookMarked },
+  { to: "/checkouts", label: "Checkouts", Icon: BookCheck },
   { to: "/stats", label: "Stats", Icon: BarChart3 },
   { to: "/profile", label: "Profile", Icon: UserCircle },
 ] as const;
 
 function canShowNavItem(to: string, canEdit: boolean) {
-  return canEdit || to !== "/admin";
+  return canEdit || (to !== "/admin" && to !== "/checkouts");
 }
 
 type NavIcon = ComponentType<{

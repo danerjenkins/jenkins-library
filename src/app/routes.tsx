@@ -11,6 +11,7 @@ import { GenresPage } from "../features/books/pages/GenresPage";
 import { SearchPage } from "../features/books/pages/SearchPage";
 import { ReadingListPage } from "../features/books/pages/ReadingListPage";
 import { QuickReadPage } from "../features/books/pages/QuickReadPage";
+import { CheckedOutBooksPage } from "../features/books/pages/CheckedOutBooksPage";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 import { ProtectedEditorRoute } from "./auth/ProtectedEditorRoute";
 import { LoginPage } from "../features/auth/LoginPage";
@@ -99,6 +100,15 @@ export const routes: RouteObject[] = [
     element: (
       <ProtectedEditorRoute>
         <ReadingListPage />
+      </ProtectedEditorRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/checkouts",
+    element: (
+      <ProtectedEditorRoute>
+        <CheckedOutBooksPage />
       </ProtectedEditorRoute>
     ),
     errorElement: <RouteErrorBoundary />,

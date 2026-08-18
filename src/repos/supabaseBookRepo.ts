@@ -4,6 +4,7 @@ import { getActiveLibraryIdForRepos } from "../features/libraries/activeLibraryS
 import * as BookTypes from "../features/books/lib/bookTypes";
 import type {
   Book,
+  BookCheckout,
   BookFormat,
   BookReader,
   BookReview,
@@ -91,6 +92,7 @@ function mapRowToBook(row: BookWithSeriesRow): Book {
     readers: [],
     currentUserHasRead: false,
     reviews: [],
+    activeCheckout: null,
     currentUserReview: null,
     averageRating: null,
     ratingCount: 0,
@@ -131,6 +133,39 @@ type ReviewRow = {
   updated_at: string;
 };
 
+type CheckoutRow = {
+  id: string;
+  library_id: string;
+  book_id: string;
+  borrower_member_id: string | null;
+  borrower_name: string;
+  checked_out_at: string;
+  returned_at: string | null;
+};
+
+export type BookCheckoutInput = {
+  bookId: string;
+  borrowerMemberId?: string | null;
+  borrowerName: string;
+};
+
+export type CheckedOutBook = {
+  checkout: BookCheckout;
+  book: Book;
+};
+
+function mapCheckoutRow(row: CheckoutRow): BookCheckout {
+  return {
+    id: row.id,
+    libraryId: row.library_id,
+    bookId: row.book_id,
+    borrowerMemberId: row.borrower_member_id,
+    borrowerName: row.borrower_name,
+    checkedOutAt: row.checked_out_at,
+    returnedAt: row.returned_at,
+  };
+}
+
 async function getCurrentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.user.id ?? null;
@@ -142,7 +177,7 @@ async function hydrateBooksWithActivity(books: Book[]): Promise<Book[]> {
   }
 
   const bookIds = books.map((book) => book.id);
-  const [readResult, reviewResult] = await Promise.all([
+  const [readResult, reviewResult, checkoutResult] = await Promise.all([
     supabaseClient
       .from("user_book_reads")
       .select("book_id, member_id, read_at")
@@ -151,14 +186,22 @@ async function hydrateBooksWithActivity(books: Book[]): Promise<Book[]> {
       .from("user_book_reviews")
       .select("book_id, member_id, rating, review, created_at, updated_at")
       .in("book_id", bookIds),
+    supabaseClient
+      .from("book_checkouts")
+      .select("id, library_id, book_id, borrower_member_id, borrower_name, checked_out_at, returned_at")
+      .in("book_id", bookIds)
+      .is("returned_at", null),
   ]);
 
   const readRows = readResult.error ? [] : ((readResult.data ?? []) as ReadRow[]);
   const reviewRows = reviewResult.error
     ? []
     : ((reviewResult.data ?? []) as ReviewRow[]);
+  const checkoutRows = checkoutResult.error
+    ? []
+    : ((checkoutResult.data ?? []) as CheckoutRow[]);
 
-  if (readRows.length === 0 && reviewRows.length === 0) {
+  if (readRows.length === 0 && reviewRows.length === 0 && checkoutRows.length === 0) {
     return books;
   }
 
@@ -168,14 +211,15 @@ async function hydrateBooksWithActivity(books: Book[]): Promise<Book[]> {
       ...reviewRows.map((row) => row.member_id),
     ]),
   );
-  const { data: memberRows, error: memberError } = await supabaseClient
-    .from("library_members")
-    .select("id, user_id, display_name")
-    .in("id", memberIds);
+  const memberResult =
+    memberIds.length > 0
+      ? await supabaseClient
+          .from("library_members")
+          .select("id, user_id, display_name")
+          .in("id", memberIds)
+      : { data: [], error: null };
 
-  if (memberError || !memberRows) {
-    return books;
-  }
+  const memberRows = memberResult.error ? [] : (memberResult.data ?? []);
 
   const currentUserId = await getCurrentUserId();
   const membersById = new Map(
@@ -183,6 +227,9 @@ async function hydrateBooksWithActivity(books: Book[]): Promise<Book[]> {
   );
   const readersByBookId = new Map<string, BookReader[]>();
   const reviewsByBookId = new Map<string, BookReview[]>();
+  const activeCheckoutByBookId = new Map(
+    checkoutRows.map((row) => [row.book_id, mapCheckoutRow(row)]),
+  );
 
   for (const row of readRows) {
     const member = membersById.get(row.member_id);
@@ -235,6 +282,7 @@ async function hydrateBooksWithActivity(books: Book[]): Promise<Book[]> {
       readers,
       currentUserHasRead,
       reviews,
+      activeCheckout: activeCheckoutByBookId.get(book.id) ?? null,
       currentUserReview:
         reviews.find((review) => review.isCurrentUserReview) ?? null,
       averageRating,
@@ -574,5 +622,132 @@ export async function deleteCurrentUserReview(bookId: string): Promise<void> {
 
   if (error) {
     throw new Error(error.message);
+  }
+}
+
+export async function getActiveCheckoutForBook(
+  bookId: string,
+): Promise<BookCheckout | null> {
+  let query = supabaseClient
+    .from("book_checkouts")
+    .select("id, library_id, book_id, borrower_member_id, borrower_name, checked_out_at, returned_at")
+    .eq("book_id", bookId)
+    .is("returned_at", null);
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (activeLibraryId) {
+    query = query.eq("library_id", activeLibraryId);
+  }
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ? mapCheckoutRow(data as CheckoutRow) : null;
+}
+
+export async function listActiveCheckouts(): Promise<CheckedOutBook[]> {
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (!activeLibraryId) {
+    throw new Error("Choose a library before viewing checkouts.");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("book_checkouts")
+    .select("id, library_id, book_id, borrower_member_id, borrower_name, checked_out_at, returned_at")
+    .eq("library_id", activeLibraryId)
+    .is("returned_at", null)
+    .order("checked_out_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const checkoutRows = (data ?? []) as CheckoutRow[];
+  if (checkoutRows.length === 0) {
+    return [];
+  }
+
+  const bookIds = checkoutRows.map((checkout) => checkout.book_id);
+  const { data: bookRows, error: bookError } = await supabaseClient
+    .from("books_with_series")
+    .select("*")
+    .in("id", bookIds)
+    .is("deleted_at", null);
+
+  if (bookError) {
+    throw new Error(bookError.message);
+  }
+
+  const books = await hydrateBooksWithActivity(
+    ((bookRows ?? []) as BookWithSeriesRow[]).map(mapRowToBook),
+  );
+  const booksById = new Map(books.map((book) => [book.id, book]));
+
+  return checkoutRows.flatMap((row) => {
+    const book = booksById.get(row.book_id);
+    if (!book) {
+      return [];
+    }
+    return [{ checkout: mapCheckoutRow(row), book }];
+  });
+}
+
+export async function checkOutBook(input: BookCheckoutInput): Promise<BookCheckout> {
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (!activeLibraryId) {
+    throw new Error("Choose a library before checking out a book.");
+  }
+
+  const borrowerName = input.borrowerName.trim();
+  if (!borrowerName) {
+    throw new Error("Enter a borrower name.");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("book_checkouts")
+    .insert({
+      library_id: activeLibraryId,
+      book_id: input.bookId,
+      borrower_member_id: input.borrowerMemberId ?? null,
+      borrower_name: borrowerName,
+    })
+    .select("id, library_id, book_id, borrower_member_id, borrower_name, checked_out_at, returned_at")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Failed to check out book.");
+  }
+
+  return mapCheckoutRow(data as CheckoutRow);
+}
+
+export async function returnBook(checkoutId: string): Promise<void> {
+  const activeLibraryId = getActiveLibraryIdForRepos();
+  if (!activeLibraryId) {
+    throw new Error("Choose a library before returning a book.");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("book_checkouts")
+    .update({
+      returned_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", checkoutId)
+    .eq("library_id", activeLibraryId)
+    .is("returned_at", null)
+    .select("id");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Return failed or was not permitted.");
   }
 }

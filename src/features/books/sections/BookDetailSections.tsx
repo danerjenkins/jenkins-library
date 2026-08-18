@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { Camera, Edit, LogIn, Star, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Camera, Edit, LogIn, RotateCcw, Star, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../../ui/components/Badge";
 import { Button } from "../../../ui/components/Button";
+import { Input } from "../../../ui/components/Input";
+import { Select } from "../../../ui/components/Select";
 import type { Book } from "../lib/bookTypes";
 import { BOOK_FORMAT_LABELS } from "../lib/bookTypes";
 import type { ReaderId } from "../lib/readingListPreferences";
@@ -30,6 +32,8 @@ export function BookDetailContent({
   ownershipError,
   savingReview,
   reviewError,
+  savingCheckout,
+  checkoutError,
   dateFormatter,
   onBack,
   onReadStatusChange,
@@ -37,6 +41,8 @@ export function BookDetailContent({
   onAddToReadingList,
   onReviewSave,
   onReviewDelete,
+  onCheckoutSave,
+  onReturnBook,
 }: {
   book: Book;
   canEdit: boolean;
@@ -52,6 +58,8 @@ export function BookDetailContent({
   ownershipError: string | null;
   savingReview: boolean;
   reviewError: string | null;
+  savingCheckout: boolean;
+  checkoutError: string | null;
   dateFormatter: Intl.DateTimeFormat;
   onBack: () => void;
   onReadStatusChange: (checked: boolean) => void;
@@ -59,17 +67,31 @@ export function BookDetailContent({
   onAddToReadingList: (readerId: ReaderId) => void;
   onReviewSave: (rating: number, review: string) => void;
   onReviewDelete: () => void;
+  onCheckoutSave: (input: {
+    borrowerMemberId: string | null;
+    borrowerName: string;
+  }) => void;
+  onReturnBook: () => void;
 }) {
   const editBookPath = `/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`;
   const editCoverPath = `${editBookPath}&section=cover`;
   const loginToEditPath = `/login?returnTo=${encodeURIComponent(`/book/${book.id}/edit?returnTo=${encodeURIComponent(`/book/${book.id}`)}`)}`;
   const [draftRating, setDraftRating] = useState(book.currentUserReview?.rating ?? 0);
   const [draftReview, setDraftReview] = useState(book.currentUserReview?.review ?? "");
+  const [checkoutBorrowerId, setCheckoutBorrowerId] = useState(
+    members[0]?.id ?? "NEW",
+  );
+  const [checkoutBorrowerName, setCheckoutBorrowerName] = useState("");
 
-  useEffect(() => {
-    setDraftRating(book.currentUserReview?.rating ?? 0);
-    setDraftReview(book.currentUserReview?.review ?? "");
-  }, [book.currentUserReview]);
+  const selectedCheckoutMember = members.find(
+    (member) => member.id === checkoutBorrowerId,
+  );
+  const checkoutName =
+    checkoutBorrowerId === "NEW"
+      ? checkoutBorrowerName.trim()
+      : selectedCheckoutMember?.displayName ?? "";
+  const canSubmitCheckout =
+    !savingCheckout && !book.activeCheckout && checkoutName.length > 0;
 
   return (
     <div className="space-y-6">
@@ -154,6 +176,9 @@ export function BookDetailContent({
               <Badge variant={isWishlistBook ? "amber" : "default"}>
                 {isWishlistBook ? "Wishlist" : "Owned"}
               </Badge>
+              {book.activeCheckout ? (
+                <Badge variant="amber">Checked out</Badge>
+              ) : null}
               {book.finished ? <Badge variant="success">Finished</Badge> : null}
               {book.currentUserHasRead ? <Badge variant="amber">Read by you</Badge> : null}
               {book.readers
@@ -170,6 +195,97 @@ export function BookDetailContent({
               <p className="book-detail-description font-sans leading-relaxed text-stone-700">
                 {book.description}
               </p>
+            ) : null}
+
+            {canEdit && !isWishlistBook ? (
+              <section className="ds-panel-surface bg-parchment/75 p-4">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-stone-700">
+                      Checkout
+                    </h2>
+                    <p className="ds-muted-meta mt-1 text-xs">
+                      Track who currently has this copy.
+                    </p>
+                  </div>
+                  <div className="ds-muted-meta text-xs" aria-live="polite">
+                    {savingCheckout ? "Saving..." : "Saved"}
+                  </div>
+                </div>
+
+                {book.activeCheckout ? (
+                  <div className="mt-3 flex flex-col gap-3 rounded-lg border border-warm-gray bg-cream/85 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-stone-900">
+                        {book.activeCheckout.borrowerName}
+                      </p>
+                      <p className="ds-muted-meta mt-1 text-xs">
+                        Checked out {dateFormatter.format(new Date(book.activeCheckout.checkedOutAt))}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={savingCheckout}
+                      onClick={onReturnBook}
+                    >
+                      <span className="flex items-center gap-2">
+                        <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                        Return Book
+                      </span>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-3 grid gap-3 rounded-lg border border-warm-gray bg-cream/85 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+                    <Select
+                      id="checkout-borrower"
+                      label="Borrower"
+                      value={checkoutBorrowerId}
+                      disabled={savingCheckout}
+                      onChange={(event) => setCheckoutBorrowerId(event.target.value)}
+                      options={[
+                        ...members.map((member) => ({
+                          value: member.id,
+                          label: member.displayName,
+                        })),
+                        { value: "NEW", label: "New name" },
+                      ]}
+                    />
+                    <Input
+                      id="checkout-borrower-name"
+                      label="Name"
+                      value={
+                        checkoutBorrowerId === "NEW"
+                          ? checkoutBorrowerName
+                          : selectedCheckoutMember?.displayName ?? ""
+                      }
+                      disabled={savingCheckout || checkoutBorrowerId !== "NEW"}
+                      onChange={(event) => setCheckoutBorrowerName(event.target.value)}
+                      placeholder="Borrower name"
+                    />
+                    <Button
+                      type="button"
+                      variant="primary"
+                      disabled={!canSubmitCheckout}
+                      onClick={() =>
+                        onCheckoutSave({
+                          borrowerMemberId:
+                            checkoutBorrowerId === "NEW" ? null : checkoutBorrowerId,
+                          borrowerName: checkoutName,
+                        })
+                      }
+                    >
+                      Check Out
+                    </Button>
+                  </div>
+                )}
+
+                {checkoutError ? (
+                  <p className="mt-2 text-xs text-rose-700" role="alert">
+                    {checkoutError}
+                  </p>
+                ) : null}
+              </section>
             ) : null}
 
             <section className="ds-panel-surface bg-parchment/75 p-4">
