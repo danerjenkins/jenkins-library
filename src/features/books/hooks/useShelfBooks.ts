@@ -63,14 +63,17 @@ export function useWishlistShelfBooks() {
 export function useBoardGameShelfBooks() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const boardGames = await getBoardGames();
       setBooks(boardGames);
     } catch (error) {
       console.error("Failed to load board games:", error);
+      setError(error instanceof Error ? error.message : "Unable to load board games.");
     } finally {
       setLoading(false);
     }
@@ -80,5 +83,5 @@ export function useBoardGameShelfBooks() {
     void loadBooks();
   }, [loadBooks]);
 
-  return { books, setBooks, loading, reloadBooks: loadBooks };
+  return { books, setBooks, loading, error, reloadBooks: loadBooks };
 }

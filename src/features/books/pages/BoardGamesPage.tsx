@@ -86,7 +86,7 @@ export function BoardGamesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { canEdit } = useLibrary();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-  const { books: boardGames, loading } = useBoardGameShelfBooks();
+  const { books: boardGames, loading, error } = useBoardGameShelfBooks();
   const { state, updateState, clearFilters, hasActiveFilters } =
     useViewBooksPageState(searchParams, setSearchParams);
   const deferredSearchQuery = useDeferredValue(state.searchQuery);
@@ -272,6 +272,11 @@ export function BoardGamesPage() {
               description="Pulling in game boxes, filters, and ratings for the shelf."
               variant="shelf"
               cardCount={8}
+            />
+          ) : error ? (
+            <BookShelfState
+              title="Board Games Could Not Load"
+              description={`The catalog request failed: ${error}`}
             />
           ) : visibleBoardGames.length === 0 ? (
             <BookShelfState
