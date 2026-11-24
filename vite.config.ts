@@ -6,6 +6,13 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
   // Base path for deployment - must match manifest scope and router basename for PWA to work
   base: "/",
+  define: {
+    // Stamped at build time, so a cached PWA reports the commit it is really running.
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version ?? "0.0.0"),
+    "import.meta.env.VITE_APP_COMMIT": JSON.stringify(
+      (process.env.VERCEL_GIT_COMMIT_SHA ?? "").slice(0, 12),
+    ),
+  },
   build: {
     rollupOptions: {
       output: {

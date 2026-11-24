@@ -9,6 +9,7 @@ import {
   CheckCheck,
   Dices,
   Heart,
+  MessageSquare,
   MoreHorizontal,
   Plus,
   Search,
@@ -34,6 +35,7 @@ const secondaryNavItems = [
   { to: "/reading-list", label: "TBR", Icon: BookMarked },
   { to: "/checkouts", label: "Checkouts", Icon: BookCheck },
   { to: "/stats", label: "Stats", Icon: BarChart3 },
+  { to: "/feedback", label: "Feedback", Icon: MessageSquare },
   { to: "/profile", label: "Profile", Icon: UserCircle },
 ] as const;
 
