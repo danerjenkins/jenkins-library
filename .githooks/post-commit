@@ -1,0 +1,43 @@
+#!/bin/sh
+# post-commit: if this commit fixes feedback reports, close them and notify the reporters.
+# Convention (see .claude/skills/fix-bug/SKILL.md):
+#   fix(wishlist): keep the sort order (bug 43f4d0f6)
+#   fix(stats): tidy chart spacing (bugs 43f4d0f6, 9a1b2c3d)
+#
+#   Bug-Note: Your wishlist now keeps the order you picked.
+#   Bug-Note-9a1b2c3d: The chart no longer touches its title.   <- optional per-report note
+#   Bug-Resolution: fixed   <- optional; noise|duplicate|wontfix|by_design (applies to all ids)
+# Never fails the commit; it already landed.
+
+msg=$(git log -1 --pretty=%B)
+
+# Every "(bug x)" or "(bugs x, y)" group anywhere in the message.
+ids=$(printf '%s\n' "$msg" \
+  | grep -oE '\(bugs? [0-9a-f][0-9a-f, -]+\)' \
+  | sed -E 's/^\(bugs? //; s/\)$//' \
+  | tr ',' ' ' \
+  | tr -s ' ' '\n' \
+  | grep -E '^[0-9a-f][0-9a-f-]{5,}$' \
+  | awk '!seen[$0]++')
+[ -z "$ids" ] && exit 0
+
+shared_note=$(printf '%s\n' "$msg" | sed -n 's/^Bug-Note:[[:space:]]*//p' | head -n 1)
+resolution=$(printf '%s\n' "$msg" | sed -n 's/^Bug-Resolution:[[:space:]]*//p' | head -n 1 | tr -d '[:space:]')
+
+cd "$(git rev-parse --show-toplevel)" || exit 0
+
+for id in $ids; do
+  note=$(printf '%s\n' "$msg" | sed -n "s/^Bug-Note-$id:[[:space:]]*//p" | head -n 1)
+  [ -z "$note" ] && note="$shared_note"
+
+  if [ "${resolution:-fixed}" = "fixed" ] && [ -z "$note" ]; then
+    echo "WARNING: bug $id was NOT closed: a fixed close needs a 'Bug-Note:' trailer."
+    echo "         Amend the commit, or run: npm run bug:resolve -- $id --note \"...\""
+    continue
+  fi
+
+  # "--note=" keeps a note that starts with a dash from being read as a flag.
+  node scripts/bug-resolve.ts "$id" --via commit --resolution "${resolution:-fixed}" "--note=$note" \
+    || echo "WARNING: bug $id was NOT closed; the commit still landed. Retry: npm run bug:resolve -- $id --note \"...\""
+done
+exit 0

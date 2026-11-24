@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { useRouteError } from "react-router-dom";
+import { recordError } from "../features/feedback/lib/captureRings";
 
 export function RouteErrorBoundary() {
   const error = useRouteError();
   console.error("[PWA Diagnostics] Route Error:", error);
+
+  useEffect(() => {
+    recordError(error, "route error boundary");
+  }, [error]);
 
   return (
     <div className="ds-page-layout">

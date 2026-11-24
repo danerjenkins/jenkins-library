@@ -1,5 +1,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import { FeedbackWidget } from "../features/feedback/components/FeedbackWidget";
+import { recordNavigation } from "../features/feedback/lib/captureRings";
 import { AppShell } from "./layout/AppShell";
 import { routes } from "./routes";
 
@@ -14,10 +16,17 @@ const router = createBrowserRouter(
   },
 );
 
+const recordLocation = ({ pathname, search }: { pathname: string; search: string }) =>
+  recordNavigation(`${pathname}${search}`);
+
+recordLocation(router.state.location);
+router.subscribe(({ location }) => recordLocation(location));
+
 export function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
+      <FeedbackWidget onViewMyFeedback={() => void router.navigate("/feedback")} />
     </AuthProvider>
   );
 }

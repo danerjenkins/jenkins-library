@@ -1,0 +1,275 @@
+/* The corner is shared with the add, edit and save buttons, so the launcher sits above them. */
+.feedback-widget {
+  position: fixed;
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  z-index: 44;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:root:has(.floating-add, .book-detail-edit-action, .book-editor-floating-actions)
+  .feedback-widget[data-state="launcher"],
+:root:has(.floating-add, .book-detail-edit-action, .book-editor-floating-actions)
+  .feedback-widget[data-state="sent"] {
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.25rem);
+}
+
+/* Once open it must clear the sticky header (100) and the filter drawer (140). */
+.feedback-widget[data-state="panel"],
+.feedback-widget[data-state="annotate"],
+.feedback-widget[data-state="sent"] {
+  z-index: 150;
+}
+
+.feedback-widget__launcher {
+  position: relative;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-warm-gray);
+  border-radius: 999px;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft-md);
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
+}
+
+.feedback-widget__launcher:hover {
+  border-color: var(--color-sage-light);
+  background-color: var(--color-warm-gray-light);
+}
+
+.feedback-widget__launcher:active {
+  transform: translateY(1px);
+}
+
+.feedback-widget__unread {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.2rem;
+  min-width: 1.25rem;
+  border-radius: 999px;
+  background-color: var(--color-clay);
+  color: #ffffff;
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+}
+
+.feedback-widget__panel {
+  display: flex;
+  width: min(380px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2.5rem);
+  flex-direction: column;
+  gap: 0.9rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-warm-gray);
+  border-radius: 1rem;
+  background-color: var(--color-cream);
+  padding: 1rem;
+  box-shadow: var(--shadow-soft-lg);
+}
+
+.feedback-widget__panel > * {
+  flex-shrink: 0;
+}
+
+.feedback-widget__title {
+  font-size: 1.35rem;
+}
+
+.feedback-widget__link {
+  border: 0;
+  padding: 0.5rem 0;
+  color: var(--color-sage-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.feedback-widget__news {
+  border-color: rgba(184, 138, 69, 0.4);
+  background-color: rgba(184, 138, 69, 0.15);
+  color: var(--color-ink);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.feedback-choice {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 2.5rem;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-color: var(--color-warm-gray);
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  padding: 0.35rem 0.4rem;
+  font-size: 0.875rem;
+}
+
+.feedback-choice svg {
+  flex-shrink: 0;
+}
+
+.feedback-choice:hover {
+  border-color: var(--color-sage-light);
+}
+
+.feedback-choice[aria-checked="true"],
+.feedback-choice[aria-pressed="true"] {
+  border-color: var(--color-sage-dark);
+  background-color: var(--color-sage-dark);
+  color: #ffffff;
+}
+
+.feedback-widget__icon-button {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--color-ink);
+}
+
+.feedback-widget__icon-button:hover {
+  background-color: var(--color-warm-gray-light);
+}
+
+.feedback-widget__preview {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 8rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--color-warm-gray);
+  border-radius: 0.5rem;
+  background-color: var(--color-parchment);
+  padding: 0;
+}
+
+.feedback-widget__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.feedback-widget__preview-hint {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  background-color: rgb(var(--color-cream-rgb) / 0.94);
+  color: var(--color-ink);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.feedback-widget__toast {
+  max-width: min(20rem, calc(100vw - 2rem));
+  border: 1px solid var(--color-sage-light);
+  border-radius: 0.75rem;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft-lg);
+}
+
+.feedback-annotator {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background-color: rgb(var(--color-charcoal-rgb) / 0.72);
+  padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem
+    max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.feedback-annotator__canvas {
+  min-height: 0;
+  max-width: 100%;
+  max-height: calc(100dvh - 8rem);
+  border-radius: 0.5rem;
+  background-color: var(--color-cream);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.feedback-annotator__color {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.feedback-annotator__color[aria-checked="true"] {
+  border-color: var(--color-ink);
+}
+
+@media (max-width: 720px) {
+  .feedback-widget[data-state="launcher"],
+  .feedback-widget[data-state="sent"],
+  :root:has(.floating-add) .feedback-widget[data-state="launcher"],
+  :root:has(.floating-add) .feedback-widget[data-state="sent"] {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: calc(4.6rem + env(safe-area-inset-bottom));
+  }
+
+  /* Detail and editor pages keep a floating action above the bottom navigation. */
+  :root:has(.book-detail-edit-action, .book-editor-floating-actions)
+    .feedback-widget[data-state="launcher"],
+  :root:has(.book-detail-edit-action, .book-editor-floating-actions)
+    .feedback-widget[data-state="sent"] {
+    bottom: calc(9rem + env(safe-area-inset-bottom));
+  }
+
+  .feedback-widget[data-state="panel"] {
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .feedback-widget__launcher {
+    width: 2.75rem;
+    height: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .feedback-widget__launcher-label {
+    display: none;
+  }
+}

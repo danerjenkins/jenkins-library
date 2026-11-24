@@ -18,6 +18,10 @@ import { CheckedOutBooksPage } from "../features/books/pages/CheckedOutBooksPage
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 import { ProtectedEditorRoute } from "./auth/ProtectedEditorRoute";
 import { LoginPage } from "../features/auth/LoginPage";
+import { FeedbackAdminGate } from "../features/feedback/components/FeedbackAdminGate";
+import { BugDetailPage } from "../features/feedback/pages/BugDetailPage";
+import { BugInboxPage } from "../features/feedback/pages/BugInboxPage";
+import { FeedbackPage } from "../features/feedback/pages/FeedbackPage";
 import { ProfilePage } from "../features/profile/ProfilePage";
 
 export const routes: RouteObject[] = [
@@ -104,6 +108,29 @@ export const routes: RouteObject[] = [
         <AdminBooksPage />
       </ProtectedEditorRoute>
     ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/admin/bugs",
+    element: (
+      <FeedbackAdminGate>
+        <BugInboxPage />
+      </FeedbackAdminGate>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/admin/bugs/:id",
+    element: (
+      <FeedbackAdminGate>
+        <BugDetailPage />
+      </FeedbackAdminGate>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/feedback",
+    element: <FeedbackPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {

@@ -8,12 +8,16 @@
     "typecheck": "tsc -b",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "node scripts/install-hooks.mjs",
+    "bug:pull": "node scripts/bug-pull.ts",
+    "bug:resolve": "node scripts/bug-resolve.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
     "dexie": "^4.3.0",
     "lucide-react": "^0.563.0",
+    "modern-screenshot": "^4.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
